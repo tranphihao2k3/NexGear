@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react'
 import styles from './page.module.scss'
-import { useToast } from '@/components/ui'
+import { CyberpunkLoader, useToast } from '@/components/ui'
 
 interface Coupon {
     _id: string
@@ -227,7 +227,7 @@ export default function AdminCouponsPage() {
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan={8}>Đang tải...</td></tr>
+                            <tr><td colSpan={8}><CyberpunkLoader message="Đang tải mã giảm giá..." compact /></td></tr>
                         ) : coupons.length === 0 ? (
                             <tr><td colSpan={8} style={{ textAlign: 'center', padding: '20px', color: 'rgba(255,255,255,0.4)' }}>Chưa có mã giảm giá nào</td></tr>
                         ) : (

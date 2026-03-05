@@ -5,6 +5,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
+import { downloadCsv, toCsv } from '@/lib/csv'
 
 interface Transaction {
     _id: string
@@ -144,6 +146,23 @@ export default function AdminFinancePage() {
     const maxVal = Math.max(...monthlyData.map((d) => d.revenue + d.expense), 1)
     const profit = totalRevenue - totalExpense
 
+    const handleExportFinance = () => {
+        const rows = monthlyData.map((item) => ({
+            thang: item.month,
+            doanh_thu_vnd: Math.round(item.revenue * 1000000),
+            chi_phi_vnd: Math.round(item.expense * 1000000),
+            loi_nhuan_vnd: Math.round((item.revenue - item.expense) * 1000000),
+        }))
+
+        if (rows.length === 0) {
+            alert('Không có dữ liệu tài chính để xuất')
+            return
+        }
+
+        const csv = toCsv(rows)
+        downloadCsv(`finance-pnl-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+    }
+
     return (
         <>
             <div className={styles.header}>
@@ -154,7 +173,7 @@ export default function AdminFinancePage() {
                     <button className={styles.actionBtn} onClick={() => setShowExpense(true)}>
                         + GHI CHI PHÍ
                     </button>
-                    <button className={`${styles.actionBtn} ${styles.primary}`}>
+                    <button className={`${styles.actionBtn} ${styles.primary}`} onClick={handleExportFinance}>
                         📥 XUẤT EXCEL
                     </button>
                 </div>
@@ -226,9 +245,7 @@ export default function AdminFinancePage() {
                     <span className={styles.tableTitle}>Giao dịch gần đây</span>
                 </div>
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.5)' }}>
-                        Đang tải...
-                    </div>
+                    <CyberpunkLoader message="Đang tải báo cáo tài chính..." compact />
                 ) : transactions.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.5)' }}>
                         Chưa có giao dịch nào

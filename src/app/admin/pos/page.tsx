@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
 
 // ─── Types ────────────────────────────────────────────────────
 interface Product {
@@ -493,10 +494,7 @@ export default function AdminPOSPage() {
 
                 {/* Product list */}
                 {loading ? (
-                    <div className={styles.loadingState}>
-                        <div className={styles.spinner} />
-                        <span>Đang tải sản phẩm...</span>
-                    </div>
+                    <CyberpunkLoader message="Đang tải sản phẩm..." />
                 ) : (
                     <div className={styles.productList}>
                         {/* Header row */}

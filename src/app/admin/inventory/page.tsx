@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
 
 interface Product {
     _id: string
@@ -148,9 +149,7 @@ export default function AdminInventoryPage() {
             {/* Stock table */}
             <div className={styles.tableWrapper}>
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
-                        Đang tải...
-                    </div>
+                    <CyberpunkLoader message="Đang tải tồn kho..." compact />
                 ) : (
                     <table className={styles.table}>
                         <thead>

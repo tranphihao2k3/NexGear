@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react'
 import styles from './page.module.scss'
-import { useToast } from '@/components/ui'
+import { CyberpunkLoader, useToast } from '@/components/ui'
 
 type SettingsTab = 'general' | 'notifications' | 'appearance' | 'shipping'
 
@@ -196,11 +196,7 @@ export default function AdminSettingsPage() {
     ]
 
     if (loading) {
-        return (
-            <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.5)' }}>
-                Đang tải cài đặt...
-            </div>
-        )
+        return <CyberpunkLoader message="Đang tải cài đặt..." />
     }
 
     return (
