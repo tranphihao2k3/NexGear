@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import styles from './page.module.scss'
+import { downloadCsv, toCsv } from '@/lib/csv'
 
 // ── TYPES ───────────────────────────────────────────────────
 interface DashboardData {
@@ -115,6 +116,49 @@ export default function AdminDashboardPage() {
     const { kpis, revenueChart, channels, totalOrders, recentOrders, lowStock } = data
     const maxRevenue = Math.max(...revenueChart.map((d) => d.value), 1)
 
+    const handleExportDashboard = () => {
+        const rows = [
+            {
+                muc: 'doanh_thu',
+                gia_tri: kpis.revenue,
+                ghi_chu: `thay_doi_${kpis.revenueChange}%`,
+            },
+            {
+                muc: 'don_hang',
+                gia_tri: kpis.orders,
+                ghi_chu: `thay_doi_${kpis.orderChange}`,
+            },
+            {
+                muc: 'gia_tri_trung_binh_don',
+                gia_tri: kpis.avgOrderValue,
+                ghi_chu: '',
+            },
+            {
+                muc: 'sap_het_kho',
+                gia_tri: kpis.lowStockCount,
+                ghi_chu: '',
+            },
+            ...revenueChart.map((item) => ({
+                muc: `doanh_thu_${item.label}`,
+                gia_tri: item.value,
+                ghi_chu: 'don_vi_trieu_vnd',
+            })),
+            ...channels.map((item) => ({
+                muc: `kenh_${item.label}`,
+                gia_tri: item.count,
+                ghi_chu: `${item.value}%`,
+            })),
+            ...lowStock.map((item) => ({
+                muc: `sap_het_${item.sku}`,
+                gia_tri: item.stock,
+                ghi_chu: item.level,
+            })),
+        ]
+
+        const csv = toCsv(rows)
+        downloadCsv(`dashboard-report-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+    }
+
     const KPI_DATA = [
         {
             label: 'DOANH THU',
@@ -157,7 +201,7 @@ export default function AdminDashboardPage() {
                 <div className={styles.headerLeft}>
                     <h1>Dashboard — {getMonth()}</h1>
                 </div>
-                <button className={styles.exportBtn}>XUẤT BÁO CÁO</button>
+                <button className={styles.exportBtn} onClick={handleExportDashboard}>XUẤT BÁO CÁO</button>
             </div>
 
             {/* KPI Row */}
