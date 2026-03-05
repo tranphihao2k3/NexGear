@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
+import { downloadCsv, toCsv } from '@/lib/csv'
 
 interface Customer {
     _id: string
@@ -67,6 +68,26 @@ export default function AdminCustomersPage() {
 
     useEffect(() => { fetchCustomers() }, [fetchCustomers])
 
+    const handleExportCustomers = () => {
+        if (customers.length === 0) {
+            alert('Không có khách hàng để xuất')
+            return
+        }
+
+        const csv = toCsv(
+            customers.map((customer) => ({
+                ten_khach_hang: customer.name,
+                email: customer.email,
+                dien_thoai: customer.addresses?.[0]?.phone || '',
+                tong_chi_tieu: customer.totalSpent || 0,
+                diem_tich_luy: customer.loyaltyPoints || 0,
+                ngay_tham_gia: formatDate(customer.createdAt),
+            }))
+        )
+
+        downloadCsv(`customers-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+    }
+
     return (
         <>
             <div className={styles.header}>
@@ -74,7 +95,7 @@ export default function AdminCustomersPage() {
                     <h1>Khách hàng</h1>
                     <div className={styles.subtitle}>{total} khách hàng</div>
                 </div>
-                <button className={styles.exportBtn}>📥 XUẤT DANH SÁCH</button>
+                <button className={styles.exportBtn} onClick={handleExportCustomers}>📥 XUẤT DANH SÁCH</button>
             </div>
 
             <div className={styles.toolbar}>
