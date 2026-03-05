@@ -7,6 +7,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
+import { downloadCsv, toCsv } from '@/lib/csv'
 
 // ── TYPES ───────────────────────────────────────────────────
 type OrderStatus = 'pending' | 'confirmed' | 'packing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
@@ -218,6 +220,32 @@ export default function AdminOrdersPage() {
         setDrawerStatus(order.status)
     }
 
+    const handleExportOrders = () => {
+        if (orders.length === 0) {
+            alert('Không có đơn hàng để xuất')
+            return
+        }
+
+        const csv = toCsv(
+            orders.map((order) => ({
+                ma_don: order.orderCode,
+                ngay_tao: new Date(order.createdAt).toLocaleString('vi-VN'),
+                khach_hang: order.customerInfo?.name || order.user?.name || 'Khách lẻ',
+                dien_thoai: order.customerInfo?.phone || '',
+                kenh_ban: order.channel,
+                so_san_pham: order.items.reduce((sum, item) => sum + item.qty, 0),
+                tam_tinh: order.subtotal,
+                giam_gia: order.discount,
+                phi_van_chuyen: order.shippingFee,
+                tong_tien: order.total,
+                trang_thai: STATUS_LABELS[order.status] || order.status,
+                thanh_toan: order.payment?.status || '',
+            }))
+        )
+
+        downloadCsv(`orders-${new Date().toISOString().slice(0, 10)}.csv`, csv)
+    }
+
     const statusTabs = [
         { key: 'all', label: 'Tất cả' },
         { key: 'pending', label: 'Chờ xác nhận' },
@@ -236,7 +264,7 @@ export default function AdminOrdersPage() {
                     <h1>Quản lý đơn hàng</h1>
                 </div>
                 <div className={styles.headerRight}>
-                    <button className={`${styles.actionBtn} ${styles.primary}`}>
+                    <button className={`${styles.actionBtn} ${styles.primary}`} onClick={handleExportOrders}>
                         XUẤT EXCEL
                     </button>
                 </div>
@@ -287,9 +315,7 @@ export default function AdminOrdersPage() {
             {/* Orders Table */}
             <div className={styles.tableWrapper}>
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
-                        Đang tải...
-                    </div>
+                    <CyberpunkLoader message="Đang tải đơn hàng..." compact />
                 ) : orders.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
                         Không có đơn hàng nào

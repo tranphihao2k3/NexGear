@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from '../categories/page.module.scss';
-import { useToast } from '@/components/ui';
+import { CyberpunkLoader, useToast } from '@/components/ui';
 
 interface Brand {
     _id: string;
@@ -122,7 +122,7 @@ export default function AdminBrandsPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {loading ? <tr><td colSpan={5}>Đang tải...</td></tr> : brands.map(brand => (
+                        {loading ? <tr><td colSpan={5}><CyberpunkLoader message="Đang tải thương hiệu..." compact /></td></tr> : brands.map(brand => (
                             <tr key={brand._id}>
                                 <td style={{ color: '#fff', fontWeight: 500 }}>{brand.name}</td>
                                 <td>{brand.slug}</td>

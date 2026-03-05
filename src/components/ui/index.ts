@@ -3,3 +3,4 @@ export { default as Badge, OrderStatusBadge, StockBadge } from './Badge';
 export { default as Input } from './Input';
 export { ToastProvider, useToast } from './Toast';
 export { Skeleton, ProductCardSkeleton, ProductGridSkeleton } from './Skeleton';
+export { default as CyberpunkLoader } from './CyberpunkLoader';

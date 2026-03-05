@@ -6,7 +6,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
-import { useToast } from '@/components/ui'
+import { CyberpunkLoader, useToast } from '@/components/ui'
 
 interface ReviewUser {
     _id: string
@@ -152,7 +152,7 @@ export default function AdminReviewsPage() {
                 {/* Reviews List */}
                 <div className={styles.reviewList}>
                     {loading ? (
-                        <div className={styles.emptyState}>Đang tải...</div>
+                        <CyberpunkLoader message="Đang tải đánh giá..." compact />
                     ) : reviews.length === 0 ? (
                         <div className={styles.emptyState}>Không có đánh giá nào</div>
                     ) : (

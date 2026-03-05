@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react'
 import styles from '../categories/page.module.scss'
-import { useToast } from '@/components/ui'
+import { CyberpunkLoader, useToast } from '@/components/ui'
 
 interface BankInfo {
     bankName: string
@@ -187,7 +187,7 @@ export default function AdminSuppliersPage() {
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan={6}>Đang tải...</td></tr>
+                            <tr><td colSpan={6}><CyberpunkLoader message="Đang tải nhà cung cấp..." compact /></td></tr>
                         ) : suppliers.length === 0 ? (
                             <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px', color: 'rgba(255,255,255,0.4)' }}>Chưa có nhà cung cấp nào</td></tr>
                         ) : (
