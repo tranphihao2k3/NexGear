@@ -1,0 +1,75 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    @include container;
+    min-height: 80vh;
+    @include flex-center;
+    background-color: $color-bg;
+}
+
+.paymentCard {
+    @include card-base;
+    max-width: 500px;
+    width: 100%;
+    padding: $sp-10;
+    text-align: center;
+    position: relative;
+}
+
+.logo {
+    @include font-display($text-2xl, $fw-black);
+    color: $color-magenta;
+    margin-bottom: $sp-6;
+    letter-spacing: 0.1em;
+}
+
+.title {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    margin-bottom: $sp-2;
+}
+
+.subtitle {
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink3;
+    margin-bottom: $sp-8;
+}
+
+.amount {
+    @include font-mono($text-3xl, $fw-bold);
+    color: $color-cyan;
+    margin-bottom: $sp-6;
+    background: $color-bg2;
+    padding: $sp-4;
+    border-radius: $r-2;
+}
+
+.orderId {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-ink2;
+    margin-bottom: $sp-8;
+    display: block;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.successNote {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    margin-top: $sp-8;
+}
+
+.vnpayBg {
+    background-color: #005A9E; // Mock VNPay color
+    color: white;
+}
+
+.stripeBg {
+    background-color: #635BFF; // Mock Stripe color
+    color: white;
+}

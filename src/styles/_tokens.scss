@@ -1,0 +1,159 @@
+// ============================================================
+// NEXGEAR — Design Tokens
+// File: _tokens.scss
+// Tất cả design tokens định nghĩa ở đây, KHÔNG hard-code
+// giá trị ở nơi khác. Import file này đầu tiên.
+// ============================================================
+
+// ── COLORS ──────────────────────────────────────────────────
+$color-bg: #F4F2ED;
+$color-bg2: #ECEAE3;
+$color-bg3: #E2DFD6;
+$color-white: #FFFFFF;
+
+$color-ink: #0C0C0C;
+$color-ink2: #3D3C38;
+$color-ink3: #7A7870;
+
+$color-cyan: var(--color-primary, #00C4AD);
+$color-cyan-dark: color-mix(in srgb, var(--color-primary, #00C4AD) 80%, black);
+$color-cyan-light: color-mix(in srgb, var(--color-primary, #00C4AD) 10%, white);
+
+$color-magenta: var(--color-accent, #F0356A);
+$color-magenta-dark: color-mix(in srgb, var(--color-accent, #F0356A) 80%, black);
+$color-magenta-light: color-mix(in srgb, var(--color-accent, #F0356A) 10%, white);
+
+$color-gold: #F0A500;
+$color-gold-light: #FEF4DC;
+
+$color-purple: #7B3FF2;
+$color-purple-light: #EEE6FD;
+
+$color-green: #1DB96A;
+$color-green-light: #E8FAF0;
+
+$color-red: #E53E3E;
+$color-red-light: #FEF0F0;
+
+// Border
+$color-border: rgba(12, 12, 12, 0.09);
+$color-border2: rgba(12, 12, 12, 0.16);
+
+// ── GRADIENTS ───────────────────────────────────────────────
+$gradient-accent: linear-gradient(135deg, $color-cyan, $color-magenta);
+$gradient-warm: linear-gradient(135deg, $color-gold, #F06035);
+$gradient-cool: linear-gradient(135deg, $color-purple, $color-cyan);
+$gradient-dark: linear-gradient(135deg, $color-ink, $color-ink2);
+// Top border gradient (dùng cho cards)
+$gradient-top-bar: linear-gradient(90deg, $color-cyan, $color-magenta);
+
+// ── TYPOGRAPHY ──────────────────────────────────────────────
+$font-display: 'Orbitron', sans-serif; // Logo, H1, H2, Button, Badge
+$font-body: 'DM Sans', sans-serif; // Body text, Labels, Nav
+$font-mono: 'JetBrains Mono', monospace; // Price, SKU, Code, Meta
+
+// Font weights
+$fw-light: 300;
+$fw-regular: 400;
+$fw-medium: 500;
+$fw-semibold: 600;
+$fw-bold: 700;
+$fw-black: 900;
+
+// Type scale
+$text-xs: 12px;
+$text-sm: 13px;
+$text-base: 15px;
+$text-md: 16px;
+$text-lg: 18px;
+$text-xl: 24px;
+$text-2xl: 32px;
+$text-3xl: 48px;
+$text-hero: clamp(48px, 8vw, 96px);
+
+// Line heights
+$lh-tight: 0.9;
+$lh-snug: 1.1;
+$lh-normal: 1.5;
+$lh-relaxed: 1.65;
+$lh-loose: 1.8;
+
+// Letter spacing
+$ls-tight: -0.02em;
+$ls-normal: 0;
+$ls-wide: 0.08em;
+$ls-wider: 0.15em;
+$ls-widest: 0.3em;
+
+// ── SPACING (8px grid) ──────────────────────────────────────
+$sp-1: 4px;
+$sp-2: 8px;
+$sp-3: 12px;
+$sp-4: 16px;
+$sp-5: 20px;
+$sp-6: 24px;
+$sp-8: 32px;
+$sp-10: 40px;
+$sp-12: 48px;
+$sp-16: 64px;
+$sp-20: 80px;
+$sp-24: 96px;
+
+// ── BORDER RADIUS ───────────────────────────────────────────
+$r-1: 2px; // Button, Badge, Chip
+$r-2: 4px; // Card, Input, Modal
+$r-3: 6px; // Dropdown, Tooltip
+$r-4: 8px; // Large card, Panel
+$r-full: 9999px; // Avatar, Pill
+
+// ── SHADOWS ─────────────────────────────────────────────────
+$shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.07);
+$shadow-md: 0 4px 16px rgba(0, 0, 0, 0.09);
+$shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+$shadow-xl: 0 24px 80px rgba(0, 0, 0, 0.18);
+$shadow-glow-cyan: 0 0 0 3px rgba(0, 196, 173, 0.2);
+$shadow-glow-mag: 0 0 0 3px rgba(240, 53, 106, 0.15);
+
+// ── TRANSITIONS ─────────────────────────────────────────────
+$transition-fast: all 0.15s ease;
+$transition-base: all 0.2s ease;
+$transition-slow: all 0.3s ease;
+$transition-spring: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+// ── BREAKPOINTS ─────────────────────────────────────────────
+$bp-mobile-s: 375px;
+$bp-mobile: 480px;
+$bp-tablet: 768px;
+$bp-desktop-s: 1024px;
+$bp-desktop: 1280px;
+$bp-wide: 1440px;
+
+// ── LAYOUT ──────────────────────────────────────────────────
+$max-width: 1200px;
+$page-padding: 32px;
+$page-padding-sm: 16px;
+$nav-height: 60px;
+$sidebar-width: 240px;
+$admin-sidebar: 200px;
+
+// ── Z-INDEX ─────────────────────────────────────────────────
+$z-base: 0;
+$z-dropdown: 10;
+$z-sticky: 20;
+$z-nav: 100;
+$z-modal: 200;
+$z-toast: 300;
+$z-tooltip: 400;
+
+// ── ADMIN DARK THEME ────────────────────────────────────────
+$admin-bg: #141414;
+$admin-sidebar-bg: #0A0A0A;
+$admin-card-bg: #1C1C1C;
+$admin-card-bg2: #242424;
+$admin-surface: #1A1A1A;
+$admin-ink: #F0F0F0;
+$admin-ink2: #A0A0A0;
+$admin-ink3: #666666;
+$admin-border: rgba(255, 255, 255, 0.08);
+$admin-border2: rgba(255, 255, 255, 0.14);
+$admin-hover: rgba(255, 255, 255, 0.04);

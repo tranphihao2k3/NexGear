@@ -1,0 +1,463 @@
+// P09 — Lịch sử đơn hàng /account/orders
+
+.page {
+    min-height: 100vh;
+}
+
+.breadcrumbBar {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    padding: $sp-3 0;
+}
+
+.breadcrumbInner {
+    @include container;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.bcLink {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: none;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.bcSep {
+    color: $color-ink3;
+    font-size: 12px;
+}
+
+.bcCurrent {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+}
+
+.pageInner {
+    @include container;
+    padding-top: $sp-8;
+    padding-bottom: $sp-16;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+}
+
+// ════════════════════════════════════════════════════════════
+// FILTER TABS
+// ════════════════════════════════════════════════════════════
+.filterTabs {
+    display: flex;
+    gap: 0;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    overflow: hidden;
+    width: fit-content;
+
+    @include mobile {
+        width: 100%;
+    }
+}
+
+.filterTab {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    padding: $sp-3 $sp-5;
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink3;
+    background: none;
+    border: none;
+    border-right: 1px solid $color-border;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+
+    &:last-child {
+        border-right: none;
+    }
+
+    &:hover {
+        background: $color-bg;
+        color: $color-ink;
+    }
+
+    @include mobile {
+        flex: 1;
+        justify-content: center;
+        padding: $sp-3;
+        font-size: 11px;
+    }
+}
+
+.filterTabActive {
+    background: $color-cyan-light;
+    color: $color-cyan;
+    font-weight: $fw-semibold;
+    box-shadow: inset 0 -2px 0 $color-cyan;
+}
+
+.filterCount {
+    @include font-display($text-xs, $fw-bold);
+    background: $color-bg2;
+    color: $color-ink3;
+    min-width: 20px;
+    height: 18px;
+    border-radius: $r-full;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    padding: 0 $sp-2;
+
+    .filterTabActive & {
+        background: $color-cyan;
+        color: $color-white;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// ORDER LIST
+// ════════════════════════════════════════════════════════════
+.orderList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+// Empty
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-4;
+    padding: $sp-16 $sp-8;
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink3;
+}
+
+.emptyIcon {
+    font-size: 48px;
+    opacity: 0.4;
+}
+
+// ── Order Card ─────────────────────────────────────────────
+.orderCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+    transition: $transition-fast;
+
+    &:hover {
+        box-shadow: $shadow-md;
+    }
+
+    // Left accent by status
+    &.order_shipped {
+        border-left: 3px solid $color-cyan;
+    }
+
+    &.order_delivered {
+        border-left: 3px solid $color-green;
+    }
+
+    &.order_pending {
+        border-left: 3px solid $color-gold;
+    }
+
+    &.order_cancelled {
+        border-left: 3px solid $color-ink3;
+    }
+}
+
+// Order header
+.orderHeader {
+    @include flex-between;
+    padding: $sp-4 $sp-6;
+    background: $color-bg;
+    border-bottom: 1px solid $color-border;
+    flex-wrap: wrap;
+    gap: $sp-3;
+}
+
+.orderMeta {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+}
+
+.orderId {
+    @include font-mono($text-base, $fw-bold);
+    color: $color-ink;
+}
+
+.orderDate {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+}
+
+// Status badge
+.statusBadge {
+    @include font-display($text-xs, $fw-bold);
+    padding: $sp-1 $sp-4;
+    border-radius: $r-full;
+    letter-spacing: $ls-wide;
+    font-size: 11px;
+}
+
+.badge_shipped {
+    background: $color-cyan-light;
+    color: $color-cyan;
+}
+
+.badge_delivered {
+    background: $color-green-light;
+    color: $color-green;
+}
+
+.badge_pending {
+    background: $color-gold-light;
+    color: darken(#F0A500, 10%);
+}
+
+.badge_cancelled {
+    background: $color-bg3;
+    color: $color-ink3;
+}
+
+// Items preview
+.itemsPreview {
+    padding: $sp-5 $sp-6;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.itemRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+}
+
+.itemImg {
+    width: 56px;
+    height: 56px;
+    border-radius: $r-2;
+    background: $color-bg2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.itemInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.itemName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    @include truncate(1);
+}
+
+.itemVariant {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.itemPrice {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-ink;
+    flex-shrink: 0;
+}
+
+// Footer
+.orderFooter {
+    @include flex-between;
+    padding: $sp-4 $sp-6;
+    border-top: 1px solid $color-border;
+    background: $color-bg;
+    flex-wrap: wrap;
+    gap: $sp-3;
+}
+
+.detailToggle {
+    @include font-body($text-sm, $fw-medium);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $color-cyan;
+    padding: 0;
+    transition: $transition-fast;
+
+    &:hover {
+        opacity: 0.7;
+    }
+}
+
+.orderTotal {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+
+    strong {
+        @include font-mono($text-base, $fw-bold);
+        color: $color-cyan;
+    }
+}
+
+.reviewBtn,
+.trackBtn {
+    @include font-mono($text-xs, $fw-semibold);
+    border-radius: $r-1;
+    padding: $sp-2 $sp-4;
+    cursor: pointer;
+    font-size: 11px;
+    transition: $transition-fast;
+    background: none;
+}
+
+.reviewBtn {
+    border: 1.5px solid $color-gold;
+    color: darken(#F0A500, 10%);
+
+    &:hover {
+        background: $color-gold-light;
+    }
+}
+
+.trackBtn {
+    border: 1.5px solid $color-cyan;
+    color: $color-cyan;
+
+    &:hover {
+        background: $color-cyan-light;
+    }
+}
+
+// ── Order Detail Expand ───────────────────────────────────
+.orderDetail {
+    padding: $sp-5 $sp-6;
+    border-top: 1px solid $color-border;
+    background: $color-bg;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.detailRow {
+    display: flex;
+    gap: $sp-4;
+    @include font-body($text-sm, $fw-regular);
+}
+
+.detailKey {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+    min-width: 88px;
+    padding-top: 1px;
+}
+
+.detailVal {
+    color: $color-ink2;
+}
+
+// ── Timeline ──────────────────────────────────────────────
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: $sp-2;
+    position: relative;
+    padding-left: $sp-6;
+
+    // Vertical line
+    &::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        bottom: 8px;
+        width: 1px;
+        background: $color-border2;
+    }
+}
+
+.timelineItem {
+    display: flex;
+    align-items: flex-start;
+    gap: $sp-4;
+    padding: $sp-2 0;
+    position: relative;
+    opacity: 0.4;
+}
+
+.timelineDone {
+    opacity: 1;
+}
+
+.timelineDot {
+    position: absolute;
+    left: -$sp-6;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    border-radius: $r-full;
+    border: 2px solid $color-border2;
+    background: $color-white;
+    flex-shrink: 0;
+
+    .timelineDone & {
+        background: $color-cyan;
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.timelineInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: $sp-4;
+}
+
+.timelineLabel {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+}
+
+.timelineTime {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    font-size: 10px;
+    flex-shrink: 0;
+}

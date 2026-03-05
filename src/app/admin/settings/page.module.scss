@@ -1,0 +1,330 @@
+// ============================================================
+// NEXGEAR — Admin Settings Styles
+// ============================================================
+
+.header {
+    margin-bottom: $sp-6;
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+
+    .subtitle {
+        @include font-body($text-sm, $fw-regular);
+        color: $admin-ink3;
+        margin-top: $sp-1;
+    }
+}
+
+// ── TAB NAV ─────────────────────────────────────────────────
+.tabNav {
+    display: flex;
+    gap: $sp-1;
+    border-bottom: 1px solid $admin-border;
+    margin-bottom: $sp-6;
+    overflow-x: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.tab {
+    @include font-display($text-xs, $fw-bold);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    padding: $sp-3 $sp-4;
+    color: $admin-ink3;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+    position: relative;
+
+    &:hover {
+        color: $admin-ink2;
+    }
+
+    &.active {
+        color: $color-cyan;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: $color-cyan;
+        }
+    }
+}
+
+// ── SETTINGS SECTIONS ───────────────────────────────────────
+.section {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    margin-bottom: $sp-6;
+    overflow: hidden;
+}
+
+.sectionHeader {
+    padding: $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.sectionTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.sectionDesc {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.sectionBody {
+    padding: $sp-5;
+}
+
+// ── FORM FIELDS ─────────────────────────────────────────────
+.formGroup {
+    margin-bottom: $sp-5;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.formLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formHint {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.formInput {
+    @include font-body($text-sm);
+    width: 100%;
+    max-width: 480px;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.formTextarea {
+    @extend .formInput;
+    min-height: 80px;
+    resize: vertical;
+}
+
+.formSelect {
+    @extend .formInput;
+    appearance: none;
+    cursor: pointer;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+    max-width: 480px;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ── TOGGLE ROW ──────────────────────────────────────────────
+.toggleRow {
+    @include flex-between;
+    padding: $sp-4 0;
+    border-bottom: 1px solid $admin-border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.toggleInfo {
+    flex: 1;
+}
+
+.toggleLabel {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.toggleDesc {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.toggleSwitch {
+    position: relative;
+    width: $sp-10;
+    height: $sp-5;
+    background: $admin-card-bg2;
+    border-radius: $r-full;
+    cursor: pointer;
+    transition: $transition-fast;
+    flex-shrink: 0;
+
+    &.on {
+        background: rgba($color-cyan, 0.3);
+    }
+}
+
+.toggleKnob {
+    position: absolute;
+    top: $sp-1;
+    left: $sp-1;
+    width: $sp-3;
+    height: $sp-3;
+    border-radius: $r-full;
+    background: $admin-ink3;
+    transition: $transition-fast;
+
+    .on & {
+        left: calc(100% - #{$sp-3} - #{$sp-1});
+        background: $color-cyan;
+    }
+}
+
+// ── COLOR PICKER ROW ────────────────────────────────────────
+.colorRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    margin-bottom: $sp-3;
+}
+
+.colorSwatch {
+    width: $sp-8;
+    height: $sp-8;
+    border-radius: $r-2;
+    border: 2px solid $admin-border;
+    cursor: pointer;
+}
+
+.colorLabel {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.colorCode {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+// ── SECTION FOOTER ──────────────────────────────────────────
+.sectionFooter {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    gap: $sp-3;
+    justify-content: flex-end;
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg2;
+    color: $admin-ink2;
+    border: 1px solid $admin-border;
+
+    &:hover {
+        background: $admin-surface;
+    }
+}
+
+.dangerBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: rgba($color-magenta, 0.1);
+    color: $color-magenta;
+    border: 1px solid rgba($color-magenta, 0.3);
+
+    &:hover {
+        background: rgba($color-magenta, 0.2);
+    }
+}
+
+// ── DANGER ZONE ─────────────────────────────────────────────
+.dangerSection {
+    border-color: rgba($color-magenta, 0.3);
+}
+
+.dangerHeader {
+    background: rgba($color-magenta, 0.05);
+}
+
+.dangerTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $color-magenta;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.dangerItem {
+    @include flex-between;
+    padding: $sp-4 0;
+    border-bottom: 1px solid $admin-border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.dangerItemInfo {
+    flex: 1;
+}
+
+.dangerItemLabel {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.dangerItemDesc {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}

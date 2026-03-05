@@ -1,0 +1,372 @@
+// P13 — Đăng nhập /login
+
+// ── Layout: 50/50 split full viewport ─────────────────────
+.page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// HERO COLUMN (left)
+// ════════════════════════════════════════════════════════════
+.heroCol {
+    position: relative;
+    background: $color-ink;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $sp-12;
+
+    @include tablet {
+        display: none;
+    }
+}
+
+.heroInner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+    max-width: 420px;
+}
+
+.heroLogo {
+    @include font-display($text-2xl, $fw-bold);
+    letter-spacing: $ls-wider;
+    line-height: 1;
+    margin-bottom: $sp-2;
+}
+
+.logoNex {
+    color: $color-white;
+}
+
+.logoGear {
+    color: $color-cyan;
+}
+
+.heroTitle {
+    @include font-display($text-3xl, $fw-bold);
+    color: $color-white;
+    line-height: 1.1;
+    margin: 0;
+    letter-spacing: $ls-wide;
+}
+
+.heroSub {
+    @include font-body($text-base, $fw-regular);
+    color: rgba(255, 255, 255, 0.6);
+    line-height: $lh-relaxed;
+    margin: 0;
+}
+
+.heroStats {
+    display: flex;
+    gap: $sp-8;
+    margin: $sp-4 0;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.statNum {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-cyan;
+}
+
+.statLabel {
+    @include font-body($text-xs, $fw-regular);
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.heroBadges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-2;
+}
+
+.heroBadge {
+    @include font-mono($text-xs, $fw-semibold);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+    padding: $sp-1 $sp-3;
+    border-radius: $r-full;
+    font-size: 11px;
+}
+
+// Decorative dot grid
+.heroBg {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 40px;
+    padding: 40px;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+.heroDot {
+    width: 4px;
+    height: 4px;
+    border-radius: $r-full;
+    background: $color-cyan;
+    align-self: center;
+    justify-self: center;
+}
+
+// Accent corner
+.heroCol::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: $gradient-top-bar;
+}
+
+// ════════════════════════════════════════════════════════════
+// FORM COLUMN (right)
+// ════════════════════════════════════════════════════════════
+.formCol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $sp-12 $sp-8;
+    background: $color-bg;
+
+    @include mobile {
+        padding: $sp-8 $sp-5;
+    }
+}
+
+.formWrap {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+.formHead {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+    margin-bottom: $sp-3;
+}
+
+.formTitle {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    margin: 0;
+}
+
+.formSub {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    margin: 0;
+}
+
+.formLink {
+    color: $color-cyan;
+    text-decoration: none;
+    font-weight: $fw-semibold;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Google OAuth button
+.oauthBtn {
+    @include flex-center;
+    gap: $sp-3;
+    width: 100%;
+    height: 48px;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    background: $color-white;
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        background: $color-cyan-light;
+    }
+}
+
+// Divider
+.dividerRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.dividerLine {
+    flex: 1;
+    height: 1px;
+    background: $color-border;
+}
+
+.dividerText {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    white-space: nowrap;
+}
+
+// Form
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.fieldWrap {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.fieldLabelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fieldLabel {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.forgotLink {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-cyan;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.fieldInner {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.fieldIcon {
+    position: absolute;
+    left: $sp-3;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.fieldInput {
+    @include input-base;
+    height: 48px;
+    padding-left: $sp-10;
+    padding-right: $sp-4;
+    width: 100%;
+    font-size: $text-base;
+}
+
+.fieldErr {
+    border-color: $color-red !important;
+}
+
+.showPwBtn {
+    position: absolute;
+    right: $sp-3;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    opacity: 0.6;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.errMsg {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-red;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+// Remember me
+.rememberRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    cursor: pointer;
+}
+
+.checkNative {
+    display: none;
+}
+
+.checkBox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-1;
+    background: $color-white;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-fast;
+
+    .checkNative:checked+& {
+        background: $color-cyan;
+        border-color: $color-cyan;
+
+        &::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 7px;
+            border: 2px solid $color-white;
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+    }
+}
+
+.rememberText {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+}
+
+.registerNote {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-align: center;
+    margin: 0;
+}

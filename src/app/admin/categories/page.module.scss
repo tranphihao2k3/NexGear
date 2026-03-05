@@ -1,0 +1,220 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft h1 {
+    @include font-display($text-xl, $fw-bold);
+    color: $admin-ink;
+    margin: 0;
+}
+
+.addBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+.tableWrapper {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    text-align: left;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-surface;
+}
+
+.table td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    vertical-align: middle;
+}
+
+.table tr:hover td {
+    background: $admin-hover;
+}
+
+.rowActions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.rowActionBtn {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink3;
+    cursor: pointer;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+
+    &.danger:hover {
+        background: rgba($color-magenta, 0.1);
+        color: $color-magenta;
+        border-color: rgba($color-magenta, 0.3);
+    }
+}
+
+// Modal styles
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: $z-modal;
+    @include flex-center;
+}
+
+.modal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 500px;
+    max-width: 90vw;
+}
+
+.modalHeader {
+    @include flex-between;
+    padding: $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.modalTitle {
+    @include font-display($text-md, $fw-bold);
+    color: $admin-ink;
+}
+
+.modalClose {
+    background: none;
+    border: none;
+    font-size: $text-lg;
+    color: $admin-ink3;
+    cursor: pointer;
+}
+
+.modalBody {
+    padding: $sp-5;
+}
+
+.formGroup {
+    margin-bottom: $sp-4;
+}
+
+.formLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink2;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+
+    &:focus {
+        border-color: $color-cyan;
+    }
+}
+
+.modalFooter {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    gap: $sp-3;
+    justify-content: flex-end;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg2;
+    color: $admin-ink2;
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+}
+
+.statusToggle {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.toggleSwitch {
+    position: relative;
+    width: $sp-10;
+    height: $sp-5;
+    background: $admin-card-bg2;
+    border-radius: $r-full;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &.on {
+        background: rgba($color-cyan, 0.3);
+    }
+}
+
+.toggleKnob {
+    position: absolute;
+    top: $sp-1;
+    left: $sp-1;
+    width: $sp-3;
+    height: $sp-3;
+    border-radius: $r-full;
+    background: $admin-ink3;
+    transition: $transition-fast;
+
+    .on & {
+        left: calc(100% - #{$sp-3} - #{$sp-1});
+        background: $color-cyan;
+    }
+}
+
+.statusText {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+
+    &.active {
+        color: $color-cyan;
+    }
+}

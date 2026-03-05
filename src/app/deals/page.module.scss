@@ -1,0 +1,604 @@
+// P — Flash Sale /deal
+
+// ════════════════════════════════════════════════════════════
+// HERO BANNER (dark cyberpunk)
+// ════════════════════════════════════════════════════════════
+.page {
+    min-height: 100vh;
+}
+
+.heroBanner {
+    position: relative;
+    background: $color-ink;
+    overflow: hidden;
+    padding: $sp-10 0;
+}
+
+.heroBg {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 32px;
+    padding: 32px;
+    pointer-events: none;
+    opacity: 0.07;
+}
+
+.heroDot {
+    width: 3px;
+    height: 3px;
+    border-radius: $r-full;
+    background: $color-cyan;
+    align-self: center;
+    justify-self: center;
+    animation: dotPulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes dotPulse {
+    from {
+        opacity: 0.3;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.heroInner {
+    @include container;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $sp-8;
+
+    @include tablet {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+.heroLeft {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    max-width: 540px;
+}
+
+.heroEyebrow {
+    @include font-display($text-sm, $fw-bold);
+    color: $color-magenta;
+    letter-spacing: $ls-wider;
+    text-transform: uppercase;
+}
+
+.heroTitle {
+    @include font-display($text-3xl, $fw-bold);
+    color: $color-white;
+    margin: 0;
+    letter-spacing: $ls-wide;
+    line-height: 1;
+    background: linear-gradient(135deg, $color-white, $color-cyan);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.heroSub {
+    @include font-body($text-base, $fw-regular);
+    color: rgba(255, 255, 255, .6);
+    margin: 0;
+    line-height: $lh-relaxed;
+}
+
+// Countdown
+.countdown {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    margin-top: $sp-3;
+
+    @include tablet {
+        justify-content: center;
+    }
+}
+
+.countLabel {
+    @include font-mono($text-sm, $fw-semibold);
+    color: rgba(255, 255, 255, .6);
+    white-space: nowrap;
+}
+
+.countBlocks {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.countBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid rgba(0, 196, 173, .2);
+    border-radius: $r-2;
+    padding: $sp-2 $sp-3;
+    min-width: 52px;
+}
+
+.countNum {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-cyan;
+    line-height: 1;
+    letter-spacing: $ls-tight;
+}
+
+.countUnit {
+    @include font-mono($text-xs, $fw-bold);
+    color: rgba(255, 255, 255, .4);
+    font-size: 8px;
+    letter-spacing: $ls-widest;
+    margin-top: 2px;
+}
+
+.countColon {
+    @include font-display($text-xl, $fw-bold);
+    color: rgba(0, 196, 173, .5);
+    line-height: 1;
+}
+
+// Big sale indicator
+.heroRight {
+    flex-shrink: 0;
+}
+
+.heroBigSale {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 160px;
+    height: 160px;
+    border-radius: $r-full;
+    border: 3px solid $color-magenta;
+    background: rgba(240, 53, 106, .08);
+    box-shadow: 0 0 60px rgba(240, 53, 106, .2), inset 0 0 30px rgba(240, 53, 106, .05);
+    animation: pulse 2s ease-in-out infinite;
+
+    @include mobile {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 40px rgba(240, 53, 106, .2);
+    }
+
+    50% {
+        box-shadow: 0 0 80px rgba(240, 53, 106, .4), 0 0 120px rgba(240, 53, 106, .15);
+    }
+}
+
+.heroBigPct {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-magenta;
+    letter-spacing: -0.02em;
+}
+
+.heroBigLabel {
+    @include font-display($text-xs, $fw-bold);
+    color: rgba(255, 255, 255, .5);
+    letter-spacing: $ls-widest;
+    font-size: 9px;
+}
+
+// ════════════════════════════════════════════════════════════
+// FILTER BAR
+// ════════════════════════════════════════════════════════════
+.filterBar {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    position: sticky;
+    top: $nav-height;
+    z-index: $z-sticky;
+}
+
+.filterBarInner {
+    @include container;
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding-top: $sp-3;
+    padding-bottom: $sp-3;
+    flex-wrap: wrap;
+}
+
+.filterChip {
+    @include font-body($text-sm, $fw-medium);
+    padding: $sp-2 $sp-4;
+    border-radius: $r-full;
+    border: 1.5px solid $color-border2;
+    background: $color-white;
+    color: $color-ink2;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+}
+
+.filterChipActive {
+    background: $color-cyan;
+    border-color: $color-cyan;
+    color: $color-white;
+    font-weight: $fw-semibold;
+}
+
+.filterCount {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-ink3;
+    margin-left: auto;
+}
+
+// ════════════════════════════════════════════════════════════
+// DEAL GRID
+// ════════════════════════════════════════════════════════════
+.gridSection {
+    padding: $sp-8 0 $sp-12;
+}
+
+.gridInner {
+    @include container;
+}
+
+.dealGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+
+    @include desktop-s {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Deal Card
+.dealCard {
+    position: relative;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+    transition: $transition-fast;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+        box-shadow: $shadow-lg;
+        transform: translateY(-2px);
+    }
+
+    &::before {
+        content: '';
+        display: block;
+        height: 2.5px;
+        background: $gradient-top-bar;
+    }
+}
+
+.dealCardLow {
+    border-color: rgba(240, 53, 106, 0.3);
+}
+
+.dealBadges {
+    position: absolute;
+    top: $sp-3;
+    left: $sp-3;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+    z-index: 2;
+}
+
+.dealImgWrap {
+    position: relative;
+    display: block;
+    text-decoration: none;
+}
+
+.dealImg {
+    height: 180px;
+    background: $color-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    opacity: 0.25;
+}
+
+.dealImgFallback {
+    pointer-events: none;
+}
+
+.saleBadge {
+    @include font-display($text-xs, $fw-bold);
+    background: $color-magenta;
+    color: $color-white;
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    font-size: 10px;
+    letter-spacing: $ls-wide;
+}
+
+.hotBadge {
+    @include font-display($text-xs, $fw-bold);
+    background: $color-gold;
+    color: $color-ink;
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    font-size: 10px;
+    letter-spacing: $ls-wide;
+}
+
+.lowBadge {
+    @include font-display($text-xs, $fw-bold);
+    background: $color-magenta-light;
+    color: $color-magenta;
+    border: 1px solid rgba(240, 53, 106, .2);
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    font-size: 10px;
+}
+
+.dealInfo {
+    padding: $sp-4;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    flex: 1;
+}
+
+.dealBrand {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-cyan;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 9px;
+}
+
+.dealName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    text-decoration: none;
+    @include truncate(2);
+    line-height: $lh-snug;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.dealPrices {
+    display: flex;
+    align-items: baseline;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.dealSale {
+    @include font-mono($text-base, $fw-bold);
+    color: $color-magenta;
+}
+
+.dealOriginal {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+    font-size: 11px;
+}
+
+// Stock bar
+.stockWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stockBar {
+    height: 8px;
+    background: $color-bg3;
+    border-radius: $r-full;
+    position: relative;
+    overflow: hidden;
+}
+
+.stockFill {
+    height: 100%;
+    border-radius: $r-full;
+    background: linear-gradient(90deg, $color-gold, $color-magenta);
+    transition: width 0.6s ease;
+}
+
+.stockText {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    font-size: 10px;
+}
+
+// ════════════════════════════════════════════════════════════
+// UPCOMING SECTION
+// ════════════════════════════════════════════════════════════
+.upcomingSection {
+    background: $color-white;
+    border-top: 1px solid $color-border;
+    padding: $sp-10 0 $sp-16;
+}
+
+.upcomingInner {
+    @include container;
+}
+
+.upcomingLabel {
+    @include section-label;
+    margin-bottom: $sp-3;
+}
+
+.upcomingTitle {
+    @include font-body($text-xl, $fw-semibold);
+    color: $color-ink;
+    margin: 0 0 $sp-8;
+}
+
+.upcomingGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-5;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+.upcomingCard {
+    display: flex;
+    gap: $sp-4;
+    align-items: center;
+    padding: $sp-4;
+    border: 1.5px dashed $color-border2;
+    border-radius: $r-4;
+    background: $color-bg;
+    transition: $transition-fast;
+
+    &:hover {
+        border-style: solid;
+        border-color: $color-cyan;
+    }
+}
+
+.upcomingImgWrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.upcomingImg {
+    width: 64px;
+    height: 64px;
+    border-radius: $r-2;
+    background: $color-bg3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    opacity: 0.4;
+    filter: blur(1px);
+}
+
+.upcomingSaleBadge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    @include font-display($text-xs, $fw-bold);
+    background: $color-magenta;
+    color: $color-white;
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    font-size: 9px;
+}
+
+.upcomingInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.upcomingBrand {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 9px;
+}
+
+.upcomingName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    @include truncate(2);
+}
+
+.upcomingPrice {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.upcomingOriginal {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+    font-size: 11px;
+}
+
+.upcomingAfter {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-magenta;
+    font-size: 11px;
+}
+
+.upcomingTime {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-1;
+    flex-shrink: 0;
+}
+
+.timeLabel {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    white-space: nowrap;
+    font-size: 10px;
+}
+
+.timeVal {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-ink;
+}
+
+.notifyBtn {
+    @include font-mono($text-xs, $fw-semibold);
+    background: $color-gold-light;
+    border: 1px solid rgba(240, 165, 0, .3);
+    border-radius: $r-full;
+    color: darken(#F0A500, 10%);
+    padding: 2px $sp-3;
+    cursor: pointer;
+    font-size: 10px;
+    white-space: nowrap;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-gold;
+        color: $color-white;
+        border-color: $color-gold;
+    }
+}

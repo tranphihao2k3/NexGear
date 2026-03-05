@@ -1,0 +1,506 @@
+// ============================================================
+// NEXGEAR — Admin Dashboard Styles (A01)
+// ============================================================
+
+// ── HEADER ──────────────────────────────────────────────────
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+}
+
+.datePeriod {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.exportBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+// ── KPI CARDS ROW ───────────────────────────────────────────
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+
+    @include desktop-s {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kpiCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-5;
+    position: relative;
+    overflow: hidden;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $admin-border2;
+    }
+
+    // Glow bar ở trên
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+    }
+
+    &.cyan::before {
+        background: $color-cyan;
+        box-shadow: 0 0 $sp-4 rgba($color-cyan, 0.3);
+    }
+
+    &.magenta::before {
+        background: $color-magenta;
+        box-shadow: 0 0 $sp-4 rgba($color-magenta, 0.3);
+    }
+
+    &.gold::before {
+        background: $color-gold;
+        box-shadow: 0 0 $sp-4 rgba($color-gold, 0.3);
+    }
+
+    &.purple::before {
+        background: $color-purple;
+        box-shadow: 0 0 $sp-4 rgba($color-purple, 0.3);
+    }
+}
+
+.kpiValue {
+    @include font-mono($text-2xl, $fw-bold);
+    margin-bottom: $sp-1;
+
+    &.cyan {
+        color: $color-cyan;
+    }
+
+    &.magenta {
+        color: $color-magenta;
+    }
+
+    &.gold {
+        color: $color-gold;
+    }
+
+    &.purple {
+        color: $color-purple;
+    }
+}
+
+.kpiUnit {
+    @include font-mono($text-md, $fw-regular);
+    opacity: 0.7;
+}
+
+.kpiLabel {
+    @include font-display($text-xs, $fw-bold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wider;
+    margin-bottom: $sp-3;
+}
+
+.kpiTrend {
+    display: flex;
+    align-items: center;
+    gap: $sp-1;
+    margin-top: $sp-2;
+    @include font-mono($text-xs, $fw-semibold);
+
+    &.up {
+        color: $color-cyan;
+    }
+
+    &.down {
+        color: $color-magenta;
+    }
+
+    &.warning {
+        color: $color-gold;
+    }
+}
+
+.trendIcon {
+    font-size: $text-sm;
+}
+
+// ── CHARTS SECTION ──────────────────────────────────────────
+.chartsGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+
+    @include desktop-s {
+        grid-template-columns: 1fr;
+    }
+}
+
+.chartCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-5;
+}
+
+.chartHeader {
+    @include flex-between;
+    margin-bottom: $sp-5;
+}
+
+.chartTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.chartPeriod {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+    background: $admin-card-bg2;
+    padding: $sp-1 $sp-3;
+    border-radius: $r-1;
+    border: 1px solid $admin-border;
+}
+
+// ── LINE CHART PLACEHOLDER ──────────────────────────────────
+.lineChart {
+    height: 200px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.chartArea {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+// SVG-like bar chart via CSS
+.chartBars {
+    display: flex;
+    align-items: flex-end;
+    gap: $sp-1;
+    height: 100%;
+    padding-top: $sp-4;
+}
+
+.chartBar {
+    flex: 1;
+    border-radius: $r-1 $r-1 0 0;
+    transition: $transition-base;
+    position: relative;
+    min-height: $sp-1;
+
+    &.revenue {
+        background: linear-gradient(to top, rgba($color-cyan, 0.3), rgba($color-cyan, 0.8));
+
+        &:hover {
+            background: linear-gradient(to top, rgba($color-cyan, 0.5), $color-cyan);
+        }
+    }
+}
+
+.chartLabels {
+    display: flex;
+    justify-content: space-between;
+    padding-top: $sp-2;
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+// ── DONUT CHART ─────────────────────────────────────────────
+.donutWrapper {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-4;
+    height: 200px;
+}
+
+.donut {
+    width: 140px;
+    height: 140px;
+    border-radius: $r-full;
+    position: relative;
+    @include flex-center;
+}
+
+.donutCenter {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: $r-full;
+    background: $admin-card-bg;
+    @include flex-center;
+    flex-direction: column;
+}
+
+.donutTotal {
+    @include font-mono($text-lg, $fw-bold);
+    color: $admin-ink;
+}
+
+.donutLabel {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.donutLegend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-3;
+    justify-content: center;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-1;
+    @include font-body($text-xs, $fw-medium);
+    color: $admin-ink2;
+}
+
+.legendDot {
+    width: $sp-2;
+    height: $sp-2;
+    border-radius: $r-full;
+    flex-shrink: 0;
+}
+
+// ── BOTTOM GRID ─────────────────────────────────────────────
+.bottomGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+
+    @include desktop-s {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sectionCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow: hidden;
+}
+
+.sectionHeader {
+    @include flex-between;
+    padding: $sp-4 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.sectionTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.viewAllLink {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-cyan;
+    text-decoration: none;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-cyan-dark;
+    }
+}
+
+// ── RECENT ORDERS TABLE ─────────────────────────────────────
+.ordersTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ordersTable th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    text-align: left;
+    padding: $sp-3 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.ordersTable td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.ordersTable tr {
+    transition: $transition-fast;
+
+    &:hover td {
+        background: $admin-hover;
+    }
+
+    &:last-child td {
+        border-bottom: none;
+    }
+}
+
+.orderId {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+}
+
+.orderCustomer {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.orderProduct {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    @include truncate;
+    max-width: 160px;
+}
+
+.orderAmount {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+}
+
+// Order status badges
+.statusBadge {
+    @include font-display($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    display: inline-block;
+    white-space: nowrap;
+
+    &.pending {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+
+    &.processing {
+        background: rgba($color-cyan, 0.15);
+        color: $color-cyan;
+    }
+
+    &.shipped {
+        background: rgba($color-purple, 0.15);
+        color: $color-purple;
+    }
+
+    &.delivered {
+        background: rgba($color-green, 0.15);
+        color: $color-green;
+    }
+
+    &.cancelled {
+        background: rgba($color-magenta, 0.15);
+        color: $color-magenta;
+    }
+}
+
+// ── LOW STOCK ALERTS ────────────────────────────────────────
+.stockList {
+    padding: $sp-2 0;
+}
+
+.stockItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-3 $sp-5;
+    transition: $transition-fast;
+    cursor: pointer;
+
+    &:hover {
+        background: $admin-hover;
+    }
+}
+
+.stockImage {
+    width: $sp-10;
+    height: $sp-10;
+    border-radius: $r-2;
+    background: $admin-card-bg2;
+    @include flex-center;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.stockEmoji {
+    font-size: $text-lg;
+}
+
+.stockInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.stockName {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+    @include truncate;
+}
+
+.stockSku {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.stockCount {
+    @include font-mono($text-sm, $fw-semibold);
+    padding: $sp-1 $sp-3;
+    border-radius: $r-1;
+    white-space: nowrap;
+
+    &.critical {
+        background: rgba($color-magenta, 0.15);
+        color: $color-magenta;
+    }
+
+    &.low {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+}

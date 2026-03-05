@@ -1,0 +1,102 @@
+import { NextRequest } from 'next/server';
+import dbConnect from '@/lib/mongodb';
+import Product from '@/models/Product';
+import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
+
+// GET /api/products — List with filters
+export async function GET(req: NextRequest) {
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(req.url);
+        const { page, limit, skip } = parsePagination(searchParams);
+
+        const filter: Record<string, unknown> = {};
+
+        // Filters
+        if (searchParams.get('active') === 'true') filter.isActive = true;
+        if (searchParams.get('featured') === 'true') filter.isFeatured = true;
+        if (searchParams.get('category')) filter.category = searchParams.get('category');
+        if (searchParams.get('brand')) {
+            const brands = searchParams.get('brand')?.split(',') || [];
+            if (brands.length > 0) filter.brand = { $in: brands };
+        }
+
+        const tag = searchParams.get('tag');
+        if (tag) filter.tags = { $in: [tag] };
+
+        const search = searchParams.get('search') || searchParams.get('q');
+        if (search) filter.$text = { $search: search };
+
+        // Price range
+        const minPrice = searchParams.get('minPrice');
+        const maxPrice = searchParams.get('maxPrice');
+        if (minPrice || maxPrice) {
+            filter.basePrice = {};
+            if (minPrice) (filter.basePrice as Record<string, number>).$gte = Number(minPrice);
+            if (maxPrice) (filter.basePrice as Record<string, number>).$lte = Number(maxPrice);
+        }
+
+        // Low stock filter
+        if (searchParams.get('lowStock') === 'true') {
+            filter.$expr = { $lte: ['$stock', '$lowStockAlert'] };
+        }
+
+        // Sort
+        const sortBy = searchParams.get('sort') || '-createdAt';
+        const sortMap: Record<string, any> = {
+            'price-asc': { basePrice: 1 },
+            'price-desc': { basePrice: -1 },
+            'basePrice': { basePrice: 1 },
+            '-basePrice': { basePrice: -1 },
+            'best-selling': { soldCount: -1 },
+            '-soldCount': { soldCount: -1 },
+            'newest': { createdAt: -1 },
+            'name': { name: 1 },
+            '-createdAt': { createdAt: -1 },
+        };
+        const sort = sortMap[sortBy] || { createdAt: -1 };
+
+        // Projection — hide costPrice from public
+        const isAdmin = searchParams.get('admin') === 'true';
+        const projection = isAdmin ? {} : { costPrice: 0 };
+
+        const [products, total] = await Promise.all([
+            Product.find(filter, projection)
+                .populate('category', 'name slug')
+                .populate('brand', 'name slug logo')
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Product.countDocuments(filter),
+        ]);
+
+        return apiPaginated(products, total, page, limit);
+    } catch (error) {
+        return apiError((error as Error).message, 500);
+    }
+}
+
+// POST /api/products — Create product
+export async function POST(req: NextRequest) {
+    try {
+        await dbConnect();
+        const body = await req.json();
+
+        if (!body.name || !body.slug || !body.sku || !body.category || !body.brand || !body.basePrice) {
+            return apiError('name, slug, sku, category, brand, and basePrice are required');
+        }
+
+        // Check uniqueness
+        const existingSlug = await Product.findOne({ slug: body.slug });
+        if (existingSlug) return apiError('Product slug already exists');
+
+        const existingSku = await Product.findOne({ sku: body.sku });
+        if (existingSku) return apiError('Product SKU already exists');
+
+        const product = await Product.create(body);
+        return apiSuccess(product, 201);
+    } catch (error) {
+        return apiError((error as Error).message, 500);
+    }
+}

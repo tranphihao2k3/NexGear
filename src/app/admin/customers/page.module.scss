@@ -1,0 +1,280 @@
+// ============================================================
+// NEXGEAR — Admin Customers Styles (A07)
+// ============================================================
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+
+    .subtitle {
+        @include font-body($text-sm, $fw-regular);
+        color: $admin-ink3;
+        margin-top: $sp-1;
+    }
+}
+
+.exportBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+// Search
+.toolbar {
+    display: flex;
+    gap: $sp-3;
+    margin-bottom: $sp-4;
+}
+
+.searchBox {
+    flex: 1;
+    position: relative;
+}
+
+.searchInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-4 $sp-2 $sp-10;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.searchIcon {
+    position: absolute;
+    left: $sp-3;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $admin-ink3;
+}
+
+// Layout: table + sidebar
+.contentLayout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: $sp-4;
+
+    @include desktop-s {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Table
+.tableWrapper {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow-x: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.table th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    text-align: left;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-surface;
+}
+
+.table td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+}
+
+.table tr {
+    transition: $transition-fast;
+    cursor: pointer;
+
+    &:hover td {
+        background: $admin-hover;
+    }
+
+    &.selected td {
+        background: rgba($color-cyan, 0.05);
+    }
+
+    &:last-child td {
+        border-bottom: none;
+    }
+}
+
+.customerCell {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.avatar {
+    width: $sp-8;
+    height: $sp-8;
+    border-radius: $r-full;
+    @include flex-center;
+    @include font-display($text-xs, $fw-bold);
+    color: $color-white;
+    flex-shrink: 0;
+}
+
+.customerName {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.customerEmail {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.orderCount {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $admin-ink;
+}
+
+.totalSpent {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+}
+
+// ── PROFILE SIDEBAR ─────────────────────────────────────────
+.profileSidebar {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow: hidden;
+    height: fit-content;
+    position: sticky;
+    top: $sp-6;
+}
+
+.profileHeader {
+    padding: $sp-6;
+    @include flex-center;
+    flex-direction: column;
+    border-bottom: 1px solid $admin-border;
+}
+
+.profileAvatar {
+    width: $sp-16;
+    height: $sp-16;
+    border-radius: $r-full;
+    @include flex-center;
+    @include font-display($text-xl, $fw-bold);
+    color: $color-white;
+    margin-bottom: $sp-3;
+}
+
+.profileName {
+    @include font-body($text-md, $fw-semibold);
+    color: $admin-ink;
+}
+
+.profileEmail {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.profileStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid $admin-border;
+}
+
+.profileStat {
+    padding: $sp-4;
+    text-align: center;
+    border-right: 1px solid $admin-border;
+
+    &:last-child {
+        border-right: none;
+    }
+}
+
+.statValue {
+    @include font-mono($text-lg, $fw-bold);
+    color: $color-cyan;
+}
+
+.statLabel {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.profileDetails {
+    padding: $sp-4;
+}
+
+.detailRow {
+    @include flex-between;
+    padding: $sp-2 0;
+    border-bottom: 1px solid $admin-border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.detailLabel {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+}
+
+.detailValue {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.emptyProfile {
+    padding: $sp-10;
+    @include flex-center;
+    flex-direction: column;
+    color: $admin-ink3;
+    gap: $sp-3;
+}
+
+.emptyIcon {
+    font-size: $text-2xl;
+    opacity: 0.5;
+}
+
+.emptyText {
+    @include font-body($text-sm, $fw-regular);
+}

@@ -1,0 +1,309 @@
+// ============================================================
+// NEXGEAR — Admin Coupons Styles
+// ============================================================
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        margin: 0;
+    }
+}
+
+.subtitle {
+    @include font-mono($text-sm, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.addBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+// Stats row
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+}
+
+.statCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-4;
+    text-align: center;
+}
+
+.statValue {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-cyan;
+}
+
+.statLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    margin-top: $sp-1;
+}
+
+// Table
+.tableWrapper {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    text-align: left;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-surface;
+}
+
+.table td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    vertical-align: middle;
+}
+
+.table tr:hover td {
+    background: $admin-hover;
+}
+
+.couponCode {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-cyan;
+    letter-spacing: $ls-wide;
+}
+
+.typeBadge {
+    @include font-mono($text-xs, $fw-semibold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+
+    &.percent {
+        background: rgba($color-purple, 0.15);
+        color: $color-purple;
+    }
+
+    &.fixed {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+
+    &.shipping {
+        background: rgba($color-cyan, 0.15);
+        color: $color-cyan;
+    }
+}
+
+.usageCount {
+    @include font-mono($text-sm, $fw-medium);
+    color: $admin-ink2;
+}
+
+.dateRange {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.statusBadge {
+    @include font-mono($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    text-transform: uppercase;
+
+    &.active {
+        background: rgba($color-green, 0.15);
+        color: $color-green;
+    }
+
+    &.inactive {
+        background: rgba($admin-ink3, 0.15);
+        color: $admin-ink3;
+    }
+
+    &.expired {
+        background: rgba($color-magenta, 0.15);
+        color: $color-magenta;
+    }
+
+    &.upcoming {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+
+    &.exhausted {
+        background: rgba($color-magenta, 0.1);
+        color: $color-magenta;
+    }
+}
+
+.rowActions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.rowActionBtn {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink3;
+    cursor: pointer;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+
+    &.danger:hover {
+        background: rgba($color-magenta, 0.1);
+        color: $color-magenta;
+        border-color: rgba($color-magenta, 0.3);
+    }
+}
+
+// Modal
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: $z-modal;
+    @include flex-center;
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 560px;
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modalHeader {
+    @include flex-between;
+    padding: $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.modalTitle {
+    @include font-display($text-md, $fw-bold);
+    color: $admin-ink;
+}
+
+.modalClose {
+    background: none;
+    border: none;
+    font-size: $text-lg;
+    color: $admin-ink3;
+    cursor: pointer;
+}
+
+.modalBody {
+    padding: $sp-5;
+}
+
+.formGroup {
+    margin-bottom: $sp-4;
+}
+
+.formLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+}
+
+.modalFooter {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    gap: $sp-3;
+    justify-content: flex-end;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg2;
+    color: $admin-ink2;
+    border: 1px solid $admin-border;
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}

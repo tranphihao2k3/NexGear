@@ -1,0 +1,659 @@
+// P04 — Giỏ Hàng /cart
+
+// ════════════════════════════════════════════════════════════
+// PAGE
+// ════════════════════════════════════════════════════════════
+.page {
+    min-height: 100vh;
+}
+
+// Breadcrumb
+.breadcrumbBar {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    padding: $sp-3 0;
+}
+
+.breadcrumbInner {
+    @include container;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.bcLink {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: none;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.bcSep {
+    color: $color-ink3;
+    font-size: 12px;
+}
+
+.bcCurrent {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+}
+
+// ── Layout ───────────────────────────────────────────────
+.pageInner {
+    @include container;
+    padding-top: $sp-8;
+    padding-bottom: $sp-16;
+}
+
+.pageGrid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: $sp-8;
+    align-items: start;
+
+    @include desktop-s {
+        grid-template-columns: 1fr 320px;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// CART CARD
+// ════════════════════════════════════════════════════════════
+.cartCol {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.cartCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+}
+
+// Header
+.cartHeader {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-4 $sp-5;
+    background: $color-bg2;
+    border-bottom: 1px solid $color-border;
+    flex-wrap: wrap;
+}
+
+.cartHeaderText {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    flex: 1;
+}
+
+.deleteSelectedBtn {
+    @include font-mono($text-xs, $fw-semibold);
+    background: none;
+    border: 1.5px solid $color-magenta;
+    border-radius: $r-1;
+    color: $color-magenta;
+    padding: 3px $sp-3;
+    cursor: pointer;
+    font-size: 10px;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-magenta;
+        color: $color-white;
+    }
+}
+
+.colLabels {
+    display: grid;
+    grid-template-columns: 120px 120px 110px;
+    gap: $sp-4;
+    margin-left: auto;
+
+    span {
+        @include font-mono($text-xs, $fw-semibold);
+        color: $color-ink3;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+        font-size: 10px;
+    }
+
+    @include tablet {
+        display: none;
+    }
+}
+
+// ── Checkbox ─────────────────────────────────────────────
+.checkWrap {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: $sp-1;
+}
+
+.checkNative {
+    display: none;
+}
+
+.checkBox {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-1;
+    background: $color-white;
+    flex-shrink: 0;
+    transition: $transition-fast;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .checkNative:checked+& {
+        background: $color-cyan;
+        border-color: $color-cyan;
+
+        &::after {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 9px;
+            border: 2px solid $color-white;
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+    }
+}
+
+// ── Cart Item row ─────────────────────────────────────────
+.itemList {
+    display: flex;
+    flex-direction: column;
+}
+
+.cartItem {
+    display: grid;
+    grid-template-columns: 28px 80px 1fr 120px 120px 110px 28px;
+    gap: $sp-3;
+    padding: $sp-5;
+    align-items: center;
+    border-bottom: 1px solid $color-border;
+    transition: $transition-fast;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: $color-bg;
+    }
+
+    @include tablet {
+        grid-template-columns: 28px 64px 1fr;
+        grid-template-rows: auto auto auto;
+        gap: $sp-2;
+    }
+}
+
+.cartItemChecked {
+    background: rgba(0, 196, 173, 0.03);
+}
+
+// Image
+.itemImg {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: $r-2;
+    background: $color-bg2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    @include tablet {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+.itemImgFallback {
+    font-size: 24px;
+    opacity: 0.3;
+}
+
+.itemSaleBadge {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    @include font-display($text-xs, $fw-black);
+    background: $color-magenta;
+    color: $color-white;
+    padding: 1px $sp-1;
+    border-radius: $r-1;
+    font-size: 8px;
+    letter-spacing: $ls-wide;
+}
+
+// Info
+.itemInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.itemBrand {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-cyan;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 9px;
+}
+
+.itemName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    text-decoration: none;
+    @include truncate(2);
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.itemVariant {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.itemSku {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    font-size: 10px;
+}
+
+// Price col
+.itemPriceCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    @include tablet {
+        align-items: flex-start;
+        grid-column: 3;
+    }
+}
+
+.itemPrice {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-cyan;
+}
+
+.itemOldPrice {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+    font-size: 10px;
+}
+
+// Qty col
+.itemQtyCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-1;
+
+    @include tablet {
+        grid-column: 1 / -1;
+    }
+}
+
+.qtyStepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    overflow: hidden;
+    height: 34px;
+}
+
+.qtyBtn {
+    width: 34px;
+    height: 100%;
+    border: none;
+    background: $color-bg;
+    color: $color-ink;
+    font-size: 18px;
+    font-weight: $fw-light;
+    cursor: pointer;
+    transition: $transition-fast;
+    line-height: 1;
+
+    &:hover:not(:disabled) {
+        background: $color-cyan;
+        color: $color-white;
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+.qtyNum {
+    @include font-mono($text-sm, $fw-bold);
+    min-width: 36px;
+    text-align: center;
+    color: $color-ink;
+    border-left: 1px solid $color-border;
+    border-right: 1px solid $color-border;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stockWarn {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-gold;
+    font-size: 10px;
+}
+
+// Total per item
+.itemTotal {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-ink;
+    text-align: center;
+}
+
+// Remove button
+.removeBtn {
+    background: none;
+    border: none;
+    color: $color-ink3;
+    cursor: pointer;
+    font-size: 14px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $r-full;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-magenta-light;
+        color: $color-magenta;
+    }
+}
+
+// Empty state
+.emptyCart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-5;
+    padding: $sp-16 $sp-8;
+    text-align: center;
+}
+
+.emptyIcon {
+    font-size: 64px;
+    opacity: 0.25;
+}
+
+.emptyText {
+    @include font-body($text-lg, $fw-semibold);
+    color: $color-ink3;
+    margin: 0;
+}
+
+// ════════════════════════════════════════════════════════════
+// COUPON
+// ════════════════════════════════════════════════════════════
+.couponCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    padding: $sp-5 $sp-6;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.couponTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+}
+
+.couponRow {
+    display: flex;
+    gap: $sp-3;
+}
+
+.couponInput {
+    @include input-base;
+    flex: 1;
+    height: 40px;
+    font-family: $font-mono;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+}
+
+.couponInputErr {
+    border-color: $color-red !important;
+}
+
+.couponInputOk {
+    border-color: $color-green !important;
+}
+
+.couponMsg {
+    @include font-body($text-sm, $fw-medium);
+    padding: $sp-2 $sp-3;
+    border-radius: $r-2;
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.couponMsgErr {
+    background: lighten(#E53E3E, 44%);
+    color: $color-red;
+}
+
+.couponMsgOk {
+    background: $color-green-light;
+    color: $color-green;
+}
+
+.removeCoupon {
+    @include font-mono($text-xs, $fw-semibold);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: currentColor;
+    opacity: 0.7;
+    margin-left: auto;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.couponHint {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    font-size: 10px;
+}
+
+// Continue link
+.continueShopping {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink3;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: $sp-2;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// ORDER SUMMARY (sticky)
+// ════════════════════════════════════════════════════════════
+.summaryCol {
+    position: sticky;
+    top: calc($nav-height + $sp-6);
+}
+
+.summaryCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+
+    // Accent top bar
+    &::before {
+        content: '';
+        display: block;
+        height: 3px;
+        background: $gradient-top-bar;
+    }
+
+    padding: $sp-6;
+}
+
+.summaryTitle {
+    @include font-display($text-base, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    margin: 0 0 $sp-5;
+    text-transform: uppercase;
+}
+
+.summaryRows {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    margin-bottom: $sp-5;
+}
+
+.summaryRow {
+    @include flex-between;
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+
+    span:last-child {
+        @include font-mono($text-sm, $fw-semibold);
+        color: $color-ink;
+    }
+}
+
+.summaryRowDisc {
+    color: $color-green;
+
+    span {
+        color: $color-green !important;
+    }
+}
+
+.freeShip {
+    @include font-display($text-xs, $fw-bold);
+    color: $color-green !important;
+    letter-spacing: $ls-wide;
+    font-size: 10px !important;
+}
+
+.shipNote {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-gold;
+    font-size: 10px;
+    text-align: right;
+    margin-top: -$sp-2;
+}
+
+.summaryDivider {
+    height: 1px;
+    background: $color-border;
+    margin-bottom: $sp-5;
+}
+
+.totalRow {
+    @include flex-between;
+    align-items: baseline;
+    margin-bottom: $sp-1;
+}
+
+.totalLabel {
+    @include font-body($text-base, $fw-semibold);
+    color: $color-ink;
+}
+
+.totalAmount {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-cyan;
+    letter-spacing: -0.02em;
+}
+
+.totalVat {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-align: right;
+    margin-bottom: $sp-6;
+}
+
+.summaryActions {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    margin-bottom: $sp-5;
+}
+
+.secureNote {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-align: center;
+}
+
+.payBadges {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: $sp-4;
+    border-top: 1px solid $color-border;
+}
+
+.payBadge {
+    @include font-mono($text-xs, $fw-semibold);
+    background: $color-bg2;
+    color: $color-ink3;
+    border: 1px solid $color-border;
+    border-radius: $r-1;
+    padding: 2px $sp-3;
+    font-size: 10px;
+}

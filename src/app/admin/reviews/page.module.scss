@@ -1,0 +1,383 @@
+// ============================================================
+// NEXGEAR — Admin Reviews Styles
+// ============================================================
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        margin: 0;
+    }
+}
+
+.subtitle {
+    @include font-mono($text-sm, $fw-regular);
+    color: $admin-ink3;
+    margin-top: $sp-1;
+}
+
+.pendingBadge {
+    @include font-mono($text-sm, $fw-bold);
+    background: rgba($color-gold, 0.15);
+    color: $color-gold;
+    padding: $sp-2 $sp-3;
+    border-radius: $r-2;
+}
+
+// Filter tabs
+.filterTabs {
+    display: flex;
+    gap: $sp-2;
+    margin-bottom: $sp-5;
+}
+
+.filterTab {
+    @include btn-base;
+    @include font-mono($text-sm, $fw-semibold);
+    padding: $sp-2 $sp-4;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    color: $admin-ink3;
+    border-radius: $r-2;
+
+    &:hover {
+        color: $admin-ink;
+        border-color: $admin-border2;
+    }
+
+    &.active {
+        background: rgba($color-cyan, 0.1);
+        color: $color-cyan;
+        border-color: rgba($color-cyan, 0.3);
+    }
+}
+
+// Content layout
+.contentLayout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: $sp-5;
+    align-items: start;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Review list
+.reviewList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.emptyState {
+    text-align: center;
+    padding: $sp-10;
+    color: $admin-ink3;
+}
+
+.reviewCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-4;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $admin-border2;
+    }
+
+    &.selected {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+
+    &.pending {
+        border-left: 3px solid $color-gold;
+    }
+}
+
+.reviewCardHeader {
+    @include flex-between;
+    margin-bottom: $sp-3;
+}
+
+.reviewUser {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.reviewAvatar {
+    width: $sp-8;
+    height: $sp-8;
+    border-radius: $r-full;
+    background: $color-purple;
+    @include flex-center;
+    @include font-display($text-sm, $fw-bold);
+    color: $color-white;
+    flex-shrink: 0;
+}
+
+.reviewUserName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $admin-ink;
+}
+
+.reviewDate {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.reviewMeta {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.stars {
+    letter-spacing: 2px;
+
+    &.r1, &.r2 { color: $color-magenta; }
+    &.r3 { color: $color-gold; }
+    &.r4, &.r5 { color: $color-cyan; }
+}
+
+.verifiedBadge {
+    @include font-mono($text-xs, $fw-bold);
+    background: rgba($color-green, 0.15);
+    color: $color-green;
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+}
+
+.reviewProduct {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    margin-bottom: $sp-2;
+}
+
+.reviewTitle {
+    @include font-body($text-sm, $fw-semibold);
+    color: $admin-ink;
+    margin-bottom: $sp-1;
+}
+
+.reviewContent {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    line-height: 1.5;
+}
+
+.reviewCardFooter {
+    @include flex-between;
+    margin-top: $sp-3;
+    padding-top: $sp-3;
+    border-top: 1px solid $admin-border;
+}
+
+.approvalBadge {
+    @include font-mono($text-xs, $fw-bold);
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+
+    &.approved {
+        background: rgba($color-green, 0.15);
+        color: $color-green;
+    }
+
+    &.unapproved {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+}
+
+.quickActions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.quickBtn {
+    @include flex-center;
+    width: $sp-6;
+    height: $sp-6;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    cursor: pointer;
+    font-size: $text-sm;
+
+    &.approve {
+        color: $color-green;
+        &:hover { background: rgba($color-green, 0.1); border-color: rgba($color-green, 0.3); }
+    }
+
+    &.reject {
+        color: $color-gold;
+        &:hover { background: rgba($color-gold, 0.1); border-color: rgba($color-gold, 0.3); }
+    }
+
+    &.delete {
+        color: $color-magenta;
+        &:hover { background: rgba($color-magenta, 0.1); border-color: rgba($color-magenta, 0.3); }
+    }
+}
+
+// Detail sidebar
+.detailSidebar {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-5;
+    position: sticky;
+    top: $sp-4;
+}
+
+.detailHeader {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    margin-bottom: $sp-5;
+    padding-bottom: $sp-4;
+    border-bottom: 1px solid $admin-border;
+}
+
+.ratingText {
+    @include font-display($text-lg, $fw-bold);
+    color: $admin-ink;
+}
+
+.detailSection {
+    margin-bottom: $sp-4;
+}
+
+.detailLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    margin-bottom: $sp-1;
+}
+
+.detailValue {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.detailContent {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.prosList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+        @include font-body($text-sm, $fw-regular);
+        color: $color-green;
+        padding: $sp-1 0;
+    }
+}
+
+.consList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+        @include font-body($text-sm, $fw-regular);
+        color: $color-magenta;
+        padding: $sp-1 0;
+    }
+}
+
+.imageGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-2;
+    margin-top: $sp-2;
+}
+
+.reviewImage {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: $r-2;
+    border: 1px solid $admin-border;
+}
+
+.detailActions {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+    margin-top: $sp-5;
+    padding-top: $sp-4;
+    border-top: 1px solid $admin-border;
+}
+
+.actionBtn {
+    @include btn-base;
+    @include btn-size-md;
+    width: 100%;
+    text-align: center;
+
+    &.approveBtn {
+        background: rgba($color-green, 0.15);
+        color: $color-green;
+        border: 1px solid rgba($color-green, 0.3);
+
+        &:hover {
+            background: rgba($color-green, 0.25);
+        }
+    }
+
+    &.rejectBtn {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+        border: 1px solid rgba($color-gold, 0.3);
+
+        &:hover {
+            background: rgba($color-gold, 0.25);
+        }
+    }
+
+    &.deleteBtn {
+        background: rgba($color-magenta, 0.1);
+        color: $color-magenta;
+        border: 1px solid rgba($color-magenta, 0.2);
+
+        &:hover {
+            background: rgba($color-magenta, 0.2);
+        }
+    }
+}
+
+.emptyDetail {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-3;
+    padding: $sp-10;
+}
+
+.emptyIcon {
+    font-size: 40px;
+    opacity: 0.3;
+}
+
+.emptyText {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+}

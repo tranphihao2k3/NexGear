@@ -1,0 +1,137 @@
+// ============================================================
+// NEXGEAR — Admin Layout Styles
+// ============================================================
+
+.adminLayout {
+    display: flex;
+    min-height: 100vh;
+    background: $admin-bg;
+}
+
+.mainContent {
+    flex: 1;
+    margin-left: $admin-sidebar;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+
+    @include tablet {
+        margin-left: 0;
+    }
+}
+
+// ── TOP HEADER ──────────────────────────────────────────────
+.topBar {
+    @include flex-between;
+    padding: $sp-4 $sp-6;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-sidebar-bg;
+    position: sticky;
+    top: 0;
+    z-index: $z-sticky;
+
+    @include tablet {
+        padding: $sp-4;
+        padding-left: $sp-16; // space for hamburger
+    }
+}
+
+.topBarLeft {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+}
+
+.pageTitle {
+    @include font-display($text-lg, $fw-bold);
+    color: $admin-ink;
+    letter-spacing: $ls-wide;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+
+    a {
+        color: $admin-ink3;
+        transition: $transition-fast;
+
+        &:hover {
+            color: $color-cyan;
+        }
+    }
+
+    .sep {
+        color: $admin-ink3;
+        opacity: 0.4;
+    }
+
+    .current {
+        color: $admin-ink;
+    }
+}
+
+.topBarRight {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.topBarBtn {
+    @include flex-center;
+    width: $sp-10;
+    height: $sp-10;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    font-size: $text-md;
+    cursor: pointer;
+    transition: $transition-fast;
+    position: relative;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+        border-color: $admin-border2;
+    }
+}
+
+.notifDot {
+    position: absolute;
+    top: $sp-2;
+    right: $sp-2;
+    width: $sp-2;
+    height: $sp-2;
+    background: $color-magenta;
+    border-radius: $r-full;
+}
+
+// ── PAGE WRAPPER ────────────────────────────────────────────
+.pageContent {
+    flex: 1;
+    padding: $sp-6;
+
+    @include tablet {
+        padding: $sp-4;
+    }
+}
+
+// ── PRINT: ẩn sidebar, bỏ margin khi in hoá đơn ────────────
+@media print {
+    .adminLayout {
+        display: block !important;
+        background: #fff !important;
+    }
+
+    .mainContent {
+        margin-left: 0 !important;
+    }
+
+    .pageContent {
+        padding: 0 !important;
+    }
+}

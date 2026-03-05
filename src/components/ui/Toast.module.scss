@@ -1,0 +1,27 @@
+.toast {
+    position: fixed;
+    bottom: $sp-8;
+    right: $sp-8;
+    padding: $sp-4;
+    background-color: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    box-shadow: $shadow-lg;
+    z-index: $z-toast;
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

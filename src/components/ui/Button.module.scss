@@ -1,0 +1,174 @@
+// ============================================================
+// NEXGEAR — Button Component Styles
+// ============================================================
+@use '../../styles/tokens' as *;
+@use '../../styles/mixins' as *;
+
+// ── Base ──────────────────────────────────────────────────
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+    font-family: $font-display;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: $r-1;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+
+    &:disabled,
+    &--loading {
+        opacity: 0.55;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+// ── Sizes ─────────────────────────────────────────────────
+.btn--sm {
+    font-size: 10px;
+    padding: $sp-1 $sp-3;
+    height: 30px;
+}
+
+.btn--md {
+    font-size: 11px;
+    padding: $sp-2 $sp-5;
+    height: 38px;
+}
+
+.btn--lg {
+    font-size: 12px;
+    padding: $sp-3 $sp-6;
+    height: 46px;
+}
+
+.btn--xl {
+    font-size: 13px;
+    padding: $sp-4 $sp-8;
+    height: 54px;
+}
+
+.btn--full {
+    width: 100%;
+}
+
+// ── Variants ──────────────────────────────────────────────
+
+// Primary — ink đen, text trắng
+.btn--primary {
+    background: $color-ink;
+    color: $color-white;
+    border-color: $color-ink;
+
+    &:hover:not(:disabled) {
+        background: lighten(#0C0C0C, 15%);
+        border-color: lighten(#0C0C0C, 15%);
+        box-shadow: $shadow-md;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+// Cyan — main CTA
+.btn--cyan {
+    background: $color-cyan;
+    color: $color-white;
+    border-color: $color-cyan;
+
+    &:hover:not(:disabled) {
+        background: $color-cyan-dark;
+        border-color: $color-cyan-dark;
+        box-shadow: $shadow-glow-cyan;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+// Outline — border ink, transparent bg
+.btn--outline {
+    background: transparent;
+    color: $color-ink;
+    border-color: $color-border2;
+
+    &:hover:not(:disabled) {
+        background: $color-ink;
+        color: $color-white;
+        border-color: $color-ink;
+    }
+}
+
+// Outline-Cyan — border cyan, transparent bg
+.btn--outline-cyan {
+    background: transparent;
+    color: $color-cyan;
+    border-color: $color-cyan;
+
+    &:hover:not(:disabled) {
+        background: $color-cyan;
+        color: $color-white;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+// Ghost — no border, subtle hover
+.btn--ghost {
+    background: transparent;
+    color: $color-ink2;
+    border-color: $color-border2;
+
+    &:hover:not(:disabled) {
+        background: $color-bg2;
+        color: $color-ink;
+        border-color: $color-border2;
+    }
+}
+
+// Danger — red
+.btn--danger {
+    background: transparent;
+    color: $color-red;
+    border-color: $color-red;
+
+    &:hover:not(:disabled) {
+        background: $color-red;
+        color: $color-white;
+    }
+}
+
+// ── Loading Spinner ────────────────────────────────────────
+.spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: currentColor;
+    border-radius: $r-full;
+    animation: spin 0.6s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ── Icon ──────────────────────────────────────────────────
+.icon {
+    display: inline-flex;
+    align-items: center;
+    font-style: normal;
+    line-height: 1;
+    flex-shrink: 0;
+}

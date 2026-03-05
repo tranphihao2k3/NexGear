@@ -1,0 +1,318 @@
+.page {
+    min-height: calc(100vh - $nav-height);
+    padding: $sp-8 0 $sp-16;
+}
+
+.container {
+    @include container;
+}
+
+// ════════════════════════════════════════════════════════════
+// HEADER
+// ════════════════════════════════════════════════════════════
+.header {
+    @include flex-between;
+    align-items: flex-end;
+    margin-bottom: $sp-10;
+    gap: $sp-6;
+    flex-wrap: wrap;
+    border-bottom: 2px solid $color-border;
+    padding-bottom: $sp-6;
+}
+
+.title {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-ink;
+    margin: 0 0 $sp-2;
+    letter-spacing: $ls-wide;
+}
+
+.subtitle {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    margin: 0;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: $sp-6;
+}
+
+// Custom Toggle Checkbox
+.toggleLabel {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    cursor: pointer;
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+    user-select: none;
+}
+
+.toggleInput {
+    display: none;
+}
+
+.toggleBox {
+    width: 36px;
+    height: 20px;
+    background: $color-bg3;
+    border-radius: $r-full;
+    position: relative;
+    transition: $transition-fast;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        background: $color-white;
+        border-radius: $r-full;
+        transition: $transition-fast;
+        box-shadow: $shadow-sm;
+    }
+}
+
+.toggleInput:checked+.toggleBox {
+    background: $color-cyan;
+
+    &::after {
+        transform: translateX(16px);
+    }
+}
+
+.clearBtn {
+    background: none;
+    border: none;
+    @include font-body($text-sm, $fw-medium);
+    color: $color-magenta;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+
+    &:hover {
+        color: $color-magenta-dark;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// TABLE
+// ════════════════════════════════════════════════════════════
+.tableWrap {
+    width: 100%;
+    overflow-x: auto;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    box-shadow: $shadow-md;
+
+    // Custom scrollbar cho cái bảng ngang
+    &::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $color-bg;
+        border-radius: $r-full;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $color-cyan;
+        border-radius: $r-full;
+    }
+}
+
+.table {
+    width: 100%;
+    min-width: 900px; // Ép ngang để kẹp cột
+    border-collapse: collapse;
+    position: relative;
+}
+
+// Cols sizing
+.fixedCol {
+    width: 200px;
+    min-width: 200px;
+    position: sticky;
+    left: 0;
+    background: $color-white;
+    z-index: 10;
+    border-right: 2px solid $color-border;
+}
+
+.itemCol,
+.emptyCol {
+    width: calc((100% - 200px) / 3);
+    min-width: 260px;
+}
+
+// Cards in Table Head
+.itemCardWrap {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    margin-bottom: $sp-4;
+    transition: $transition-fast;
+
+    &:hover .itemName {
+        color: $color-cyan;
+    }
+}
+
+.removeBtn {
+    position: absolute;
+    top: $sp-3;
+    right: $sp-3;
+    width: 24px;
+    height: 24px;
+    border-radius: $r-full;
+    background: $color-bg;
+    border: none;
+    color: $color-ink3;
+    cursor: pointer;
+    font-size: 10px;
+    z-index: 5;
+
+    &:hover {
+        background: $color-magenta-light;
+        color: $color-magenta;
+    }
+}
+
+.itemImg {
+    width: 100%;
+    height: 160px;
+    background: $color-bg;
+    border-radius: $r-2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    opacity: 0.3;
+    margin-bottom: $sp-3;
+}
+
+.itemBrand {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-cyan;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-size: 9px;
+}
+
+.itemName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    @include truncate(2);
+    line-height: $lh-snug;
+    height: 38px;
+    margin-bottom: $sp-2;
+}
+
+.itemPriceCard {
+    display: flex;
+    align-items: baseline;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.priceCurrent {
+    @include font-mono($text-base, $fw-bold);
+    color: $color-cyan;
+}
+
+.priceOld {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+}
+
+// Add Slot (Empty Head)
+.addSlot {
+    height: 100%;
+    min-height: 280px;
+    border: 2px dashed $color-border;
+    border-radius: $r-2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: $color-bg;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        border-style: solid;
+        background: $color-cyan-light;
+    }
+}
+
+.addSlotIcon {
+    font-size: 32px;
+    color: $color-cyan;
+    margin-bottom: $sp-2;
+    line-height: 1;
+}
+
+.addSlotText {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-cyan;
+}
+
+.specLabel {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    background: rgba(236, 234, 227, 0.5); // very light bg2
+    border-right: 2px solid $color-border;
+}
+
+// Highlight Differences
+.rowDiff {
+    background: rgba(0, 196, 173, 0.03);
+
+    td {
+        color: $color-ink;
+    }
+
+    .specLabel {
+        background: rgba(0, 196, 173, 0.1);
+        color: $color-cyan-dark;
+        border-right-color: $color-cyan;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// EMPTY STATE (Compare list empty)
+// ════════════════════════════════════════════════════════════
+.emptyWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $sp-16 $sp-4;
+    text-align: center;
+}
+
+.emptyIcon {
+    font-size: 64px;
+    opacity: 0.3;
+    margin-bottom: $sp-2;
+}
+
+.emptyTitle {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    margin: 0 0 $sp-2;
+}
+
+.emptySub {
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink3;
+    margin: 0 0 $sp-6;
+}

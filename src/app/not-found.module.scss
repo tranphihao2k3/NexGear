@@ -1,0 +1,255 @@
+// P16 — 404 Not Found
+
+.page {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: $color-ink;
+    overflow: hidden;
+}
+
+// ── Animated grid ─────────────────────────────────────────
+.gridBg {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    pointer-events: none;
+}
+
+.gridCell {
+    border: 1px solid rgba(0, 196, 173, 0.06);
+    animation: cellPulse 3s ease-in-out infinite alternate;
+
+    &:nth-child(6n) {
+        background: rgba(0, 196, 173, 0.02);
+    }
+}
+
+@keyframes cellPulse {
+    0% {
+        border-color: rgba(0, 196, 173, 0.04);
+    }
+
+    100% {
+        border-color: rgba(0, 196, 173, 0.12);
+    }
+}
+
+// ── Content ───────────────────────────────────────────────
+.content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-6;
+    text-align: center;
+    padding: $sp-8;
+    max-width: 640px;
+}
+
+// ── Big 404 ───────────────────────────────────────────────
+.errorNum {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    line-height: 1;
+    margin-bottom: $sp-3;
+}
+
+.digit {
+    font-family: $font-display;
+    font-weight: 900;
+    font-size: 160px;
+    color: $color-white;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    opacity: 0.9;
+    text-shadow: 0 0 40px rgba(0, 196, 173, 0.3);
+
+    @include tablet {
+        font-size: 100px;
+    }
+
+    @include mobile {
+        font-size: 72px;
+    }
+}
+
+.digitO {
+    font-family: $font-display;
+    font-weight: 900;
+    font-size: 160px;
+    color: transparent;
+    -webkit-text-stroke: 3px $color-cyan;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-shadow: 0 0 60px rgba(0, 196, 173, 0.5);
+    animation: oGlow 2s ease-in-out infinite alternate;
+
+    @include tablet {
+        font-size: 100px;
+    }
+
+    @include mobile {
+        font-size: 72px;
+        -webkit-text-stroke: 2px $color-cyan;
+    }
+}
+
+@keyframes oGlow {
+    from {
+        text-shadow: 0 0 20px rgba(0, 196, 173, 0.3), 0 0 60px rgba(0, 196, 173, 0.2);
+    }
+
+    to {
+        text-shadow: 0 0 40px rgba(0, 196, 173, 0.7), 0 0 100px rgba(0, 196, 173, 0.4);
+    }
+}
+
+// ── Glitch title ──────────────────────────────────────────
+.glitchWrap {
+    position: relative;
+}
+
+.title {
+    @include font-display($text-lg, $fw-bold);
+    color: $color-white;
+    letter-spacing: $ls-wide;
+    margin: 0;
+    position: relative;
+    font-size: 20px;
+
+    // Glitch effect
+    &::before,
+    &::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    &::before {
+        color: $color-cyan;
+        animation: glitchTop 3s infinite;
+        clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
+    }
+
+    &::after {
+        color: $color-magenta;
+        animation: glitchBot 3s infinite;
+        clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
+    }
+}
+
+@keyframes glitchTop {
+
+    0%,
+    90%,
+    100% {
+        transform: translate(0);
+        opacity: 0;
+    }
+
+    91% {
+        transform: translate(-2px, -2px);
+        opacity: 0.6;
+    }
+
+    92% {
+        transform: translate(2px, 1px);
+        opacity: 0;
+    }
+
+    93% {
+        transform: translate(-1px, 2px);
+        opacity: 0.6;
+    }
+}
+
+@keyframes glitchBot {
+
+    0%,
+    87%,
+    100% {
+        transform: translate(0);
+        opacity: 0;
+    }
+
+    88% {
+        transform: translate(2px, 2px);
+        opacity: 0.6;
+    }
+
+    89% {
+        transform: translate(-2px, -1px);
+        opacity: 0;
+    }
+
+    90% {
+        transform: translate(1px, -2px);
+        opacity: 0.6;
+    }
+}
+
+// ── Subtitle ──────────────────────────────────────────────
+.subtitle {
+    @include font-body($text-base, $fw-regular);
+    color: rgba(255, 255, 255, 0.6);
+    line-height: $lh-relaxed;
+    margin: 0;
+}
+
+// ── Quick links ───────────────────────────────────────────
+.quickLinks {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.quickLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.quickLink {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-cyan;
+    text-decoration: none;
+    border: 1px solid rgba(0, 196, 173, 0.3);
+    border-radius: $r-full;
+    padding: $sp-1 $sp-4;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.1);
+        border-color: $color-cyan;
+    }
+}
+
+// ── Actions ───────────────────────────────────────────────
+.actions {
+    display: flex;
+    gap: $sp-4;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+// ── Error code ────────────────────────────────────────────
+.code {
+    @include font-mono($text-xs, $fw-regular);
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 10px;
+    letter-spacing: $ls-widest;
+    margin-top: $sp-4;
+}

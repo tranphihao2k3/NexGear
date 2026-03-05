@@ -1,0 +1,409 @@
+// ============================================================
+// NEXGEAR — Admin Finance Styles (A05)
+// ============================================================
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+}
+
+.headerActions {
+    display: flex;
+    gap: $sp-3;
+}
+
+.actionBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg;
+    color: $admin-ink;
+    border: 1px solid $admin-border;
+
+    &:hover {
+        background: $admin-card-bg2;
+    }
+
+    &.primary {
+        background: $color-cyan;
+        color: $color-ink;
+        border: none;
+
+        &:hover {
+            background: $color-cyan-dark;
+        }
+    }
+}
+
+// ── P&L SUMMARY CARDS ──────────────────────────────────────
+.summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+.summaryCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-5;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+    }
+
+    &.revenue::before {
+        background: $color-cyan;
+    }
+
+    &.expense::before {
+        background: $color-magenta;
+    }
+
+    &.profit::before {
+        background: $color-green;
+    }
+}
+
+.summaryLabel {
+    @include font-display($text-xs, $fw-bold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wider;
+    margin-bottom: $sp-3;
+}
+
+.summaryValue {
+    @include font-mono($text-2xl, $fw-bold);
+
+    &.revenue {
+        color: $color-cyan;
+    }
+
+    &.expense {
+        color: $color-magenta;
+    }
+
+    &.profit {
+        color: $color-green;
+    }
+}
+
+.summaryCompare {
+    @include font-mono($text-xs, $fw-semibold);
+    margin-top: $sp-2;
+
+    &.up {
+        color: $color-cyan;
+    }
+
+    &.down {
+        color: $color-magenta;
+    }
+}
+
+// ── CHART AREA ──────────────────────────────────────────────
+.chartSection {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-5;
+    margin-bottom: $sp-6;
+}
+
+.chartHeader {
+    @include flex-between;
+    margin-bottom: $sp-5;
+}
+
+.chartTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.chartLegend {
+    display: flex;
+    gap: $sp-4;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-body($text-xs, $fw-medium);
+    color: $admin-ink2;
+}
+
+.legendDot {
+    width: $sp-2;
+    height: $sp-2;
+    border-radius: $r-full;
+}
+
+// Stacked bar chart
+.stackedChart {
+    display: flex;
+    align-items: flex-end;
+    gap: $sp-3;
+    height: 200px;
+    padding-top: $sp-4;
+}
+
+.stackedBar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1px;
+    height: 100%;
+}
+
+.barSegment {
+    border-radius: $r-1;
+    transition: $transition-base;
+    cursor: pointer;
+    position: relative;
+
+    &.revenue {
+        background: rgba($color-cyan, 0.7);
+    }
+
+    &.expense {
+        background: rgba($color-magenta, 0.5);
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.chartLabels {
+    display: flex;
+    justify-content: space-around;
+    padding-top: $sp-3;
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+// ── TRANSACTIONS TABLE ──────────────────────────────────────
+.tableSection {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow: hidden;
+    margin-bottom: $sp-6;
+}
+
+.tableHeader {
+    @include flex-between;
+    padding: $sp-4 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.tableTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    text-align: left;
+    padding: $sp-3 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.table td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.table tr {
+    transition: $transition-fast;
+
+    &:hover td {
+        background: $admin-hover;
+    }
+
+    &:last-child td {
+        border-bottom: none;
+    }
+}
+
+.txDate {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.txDesc {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.txCategory {
+    @include font-display($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    letter-spacing: $ls-wide;
+
+    &.income {
+        background: rgba($color-cyan, 0.15);
+        color: $color-cyan;
+    }
+
+    &.expense {
+        background: rgba($color-magenta, 0.15);
+        color: $color-magenta;
+    }
+}
+
+.txAmount {
+    @include font-mono($text-sm, $fw-semibold);
+
+    &.income {
+        color: $color-cyan;
+    }
+
+    &.expense {
+        color: $color-magenta;
+    }
+}
+
+// ── EXPENSE FORM MODAL ─────────────────────────────────────
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: $z-modal;
+    @include flex-center;
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 480px;
+    max-width: 90vw;
+}
+
+.modalHeader {
+    @include flex-between;
+    padding: $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.modalTitle {
+    @include font-display($text-md, $fw-bold);
+    color: $admin-ink;
+}
+
+.modalClose {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    cursor: pointer;
+
+    &:hover {
+        background: $admin-hover;
+    }
+}
+
+.modalBody {
+    padding: $sp-5;
+}
+
+.formGroup {
+    margin-bottom: $sp-4;
+}
+
+.formLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.modalFooter {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    gap: $sp-3;
+    justify-content: flex-end;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg2;
+    color: $admin-ink2;
+    border: 1px solid $admin-border;
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}

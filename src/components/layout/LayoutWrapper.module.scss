@@ -1,0 +1,56 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.clientWrapper {
+    position: relative;
+    min-height: 100vh;
+    background-color: $color-bg;
+
+    // Grid kẻ ô toàn trang
+    &::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        @include grid-bg-pattern;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    // Gradient blob góc phải trên
+    &::after {
+        content: '';
+        position: fixed;
+        top: -200px;
+        right: -200px;
+        width: 700px;
+        height: 700px;
+        background: radial-gradient(circle at 60% 40%,
+                rgba(0, 196, 173, 0.10) 0%,
+                rgba(240, 53, 106, 0.05) 50%,
+                transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+        animation: bgBlobDrift 12s ease-in-out infinite;
+    }
+}
+
+// Content nằm trên nền
+.clientContent {
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes bgBlobDrift {
+    0%, 100% {
+        opacity: 0.7;
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        opacity: 1;
+        transform: translate(-30px, 20px) scale(1.05);
+    }
+    66% {
+        opacity: 0.8;
+        transform: translate(20px, -10px) scale(0.98);
+    }
+}

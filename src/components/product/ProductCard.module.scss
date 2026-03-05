@@ -1,0 +1,182 @@
+@use '../../styles/tokens' as *;
+@use '../../styles/mixins' as *;
+
+.card {
+    @include card-base;
+    @include card-hover;
+    background-color: $color-white;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 0;
+
+    &.card--oos {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &::before {
+        content: "";
+        display: block;
+        height: 2.5px;
+        width: 100%;
+        background: $gradient-top-bar;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
+}
+
+.imageWrap {
+    position: relative;
+    display: block;
+    padding: $sp-4;
+    background-color: $color-bg2;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+}
+
+.image {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.img {
+    object-fit: contain;
+}
+
+.imageFallback {
+    font-size: $text-3xl;
+    color: $color-ink3;
+    opacity: 0.2;
+}
+
+.badgesTop {
+    position: absolute;
+    top: $sp-2;
+    right: $sp-2;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+    z-index: 2;
+}
+
+.badge {
+    @include font-display($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    color: $color-white;
+
+    &--new {
+        background-color: $color-magenta;
+    }
+
+    &--sale {
+        background-color: $color-gold;
+    }
+
+    &--hot {
+        background-color: $color-magenta;
+    }
+
+    &--oos {
+        background-color: $color-red;
+    }
+}
+
+.wishlist {
+    position: absolute;
+    top: $sp-4;
+    left: $sp-4;
+    background: none;
+    border: none;
+    color: $color-ink3;
+    font-size: $text-lg;
+    cursor: pointer;
+    z-index: 2;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-magenta;
+        transform: scale(1.1);
+    }
+
+    &.wishlist--active {
+        color: $color-magenta;
+    }
+}
+
+.body {
+    padding: $sp-4;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: $sp-2;
+}
+
+.bodyLink {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+}
+
+.brand {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-ink3;
+    text-transform: uppercase;
+    display: block; /* brand now visible */
+}
+
+.name {
+    @include font-body($text-base, $fw-semibold);
+    color: $color-ink;
+    margin: 0;
+    line-height: $lh-tight;
+    @include truncate(1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rating {
+    display: flex;
+    /* show rating stars below product name */
+    align-items: center;
+    gap: $sp-1;
+}
+
+.priceRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+}
+
+.prices {
+    display: flex;
+    align-items: baseline;
+    gap: $sp-2;
+}
+
+.price {
+    @include font-mono($text-base, $fw-semibold);
+    color: $color-cyan;
+}
+
+.originalPrice {
+    @include font-mono($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+}
+
+.addBtn {
+    display: none;
+    /* Based on the design mockup cards, no button is visible */
+}

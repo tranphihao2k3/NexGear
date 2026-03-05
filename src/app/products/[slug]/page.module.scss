@@ -1,0 +1,1366 @@
+// ════════════════════════════════════════════════════════════
+// P03 — Chi Tiết Sản Phẩm — Cyberpunk Light Theme
+// ════════════════════════════════════════════════════════════
+
+@keyframes scan-sweep {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes neon-line {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes loading-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 1; }
+}
+
+@keyframes tab-slide {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE
+// ════════════════════════════════════════════════════════════
+.page {
+    min-height: 100vh;
+    position: relative;
+    background: $color-bg;
+}
+
+.pageScanlines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.015;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        width: 100%;
+        height: 200%;
+        background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 196, 173, 0.4) 2px,
+            rgba(0, 196, 173, 0.4) 4px
+        );
+        animation: scan-sweep 10s linear infinite;
+    }
+}
+
+// Loading
+.loadingWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-4;
+    min-height: 60vh;
+}
+
+.loadingPulse {
+    width: 40px;
+    height: 40px;
+    border: 2px solid rgba(0, 196, 173, 0.2);
+    border-top: 2px solid #00C4AD;
+    border-radius: 50%;
+    animation: loading-pulse 1.2s ease-in-out infinite;
+}
+
+.loadingText {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-ink3;
+    letter-spacing: $ls-wider;
+}
+
+.backLink {
+    @include font-body($text-sm, $fw-medium);
+    color: #00C4AD;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+}
+
+// ════════════════════════════════════════════════════════════
+// BREADCRUMB
+// ════════════════════════════════════════════════════════════
+.breadcrumbBar {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 196, 173, 0.08);
+    padding: $sp-3 0;
+    position: relative;
+    z-index: 2;
+}
+
+.breadcrumbInner { @include container; }
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.bcLink {
+    @include font-mono($text-xs, $fw-medium);
+    color: $color-ink3;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    letter-spacing: 0.02em;
+    &:hover { color: #00C4AD; }
+}
+
+.bcSep {
+    @include font-mono($text-xs);
+    color: rgba(0, 196, 173, 0.3);
+}
+
+.bcCurrent {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink;
+    @include truncate(1);
+    max-width: 300px;
+}
+
+// ════════════════════════════════════════════════════════════
+// PRODUCT MAIN
+// ════════════════════════════════════════════════════════════
+.productMain {
+    padding: $sp-8 0 $sp-10;
+    position: relative;
+    z-index: 2;
+}
+
+.productMainInner {
+    @include container;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-10;
+    align-items: start;
+
+    @include desktop-s {
+        grid-template-columns: 45% 1fr;
+        gap: $sp-8;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+        gap: $sp-6;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// GALLERY
+// ════════════════════════════════════════════════════════════
+.galleryCol { position: relative; }
+
+.gallerySticky {
+    position: sticky;
+    top: calc($nav-height + $sp-6);
+}
+
+.imgBadges {
+    position: absolute;
+    top: $sp-3;
+    left: $sp-3;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+}
+
+.imgBadge {
+    @include font-display(9px, $fw-black);
+    letter-spacing: $ls-wide;
+    padding: 4px $sp-3;
+    border-radius: $r-1;
+    text-transform: uppercase;
+    line-height: 1;
+    backdrop-filter: blur(6px);
+}
+
+.imgBadgeSale {
+    background: rgba(240, 53, 106, 0.9);
+    color: $color-white;
+    box-shadow: 0 0 12px rgba(240, 53, 106, 0.3);
+}
+
+.imgBadgeNew {
+    background: rgba(0, 196, 173, 0.9);
+    color: $color-white;
+    box-shadow: 0 0 12px rgba(0, 196, 173, 0.3);
+}
+
+.imgBadgeFeatured {
+    background: rgba(240, 165, 0, 0.9);
+    color: $color-white;
+    box-shadow: 0 0 12px rgba(240, 165, 0, 0.3);
+}
+
+// Main image
+.mainImg {
+    position: relative;
+    height: 480px;
+    border-radius: $r-3;
+    background-color: $color-white;
+    border: 1px solid rgba(0, 196, 173, 0.12);
+    overflow: hidden;
+    cursor: zoom-in;
+    transition: all 0.25s ease;
+
+    &:hover {
+        border-color: rgba(0, 196, 173, 0.35);
+        box-shadow:
+            0 0 0 1px rgba(0, 196, 173, 0.1),
+            0 8px 32px rgba(0, 196, 173, 0.08);
+    }
+
+    @include tablet {
+        height: 360px;
+    }
+
+    @include mobile {
+        height: 280px;
+    }
+}
+
+.mainImgZoomed {
+    cursor: zoom-out;
+    background-size: 250% !important;
+    background-repeat: no-repeat !important;
+}
+
+// Corner brackets
+.imgCorners {
+    position: absolute;
+    inset: 8px;
+    pointer-events: none;
+
+    span {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-color: rgba(0, 196, 173, 0.25);
+        border-style: solid;
+
+        &:nth-child(1) { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
+        &:nth-child(2) { top: 0; right: 0; border-width: 1.5px 1.5px 0 0; }
+        &:nth-child(3) { bottom: 0; left: 0; border-width: 0 0 1.5px 1.5px; }
+        &:nth-child(4) { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
+    }
+
+    .mainImg:hover & span {
+        border-color: rgba(0, 196, 173, 0.5);
+    }
+}
+
+.zoomHint {
+    position: absolute;
+    bottom: $sp-3;
+    right: $sp-3;
+    @include font-mono(10px, $fw-bold);
+    background: rgba(12, 12, 12, 0.7);
+    color: #00C4AD;
+    padding: 3px $sp-2;
+    border-radius: $r-1;
+    letter-spacing: $ls-wide;
+    pointer-events: none;
+}
+
+.imgCounter {
+    position: absolute;
+    bottom: $sp-3;
+    left: $sp-3;
+    @include font-mono(10px, $fw-semibold);
+    color: $color-ink3;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    backdrop-filter: blur(4px);
+}
+
+// Thumbnails
+.thumbRow {
+    display: flex;
+    gap: $sp-2;
+    margin-top: $sp-3;
+    flex-wrap: wrap;
+}
+
+.thumb {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: $r-2;
+    border: 1.5px solid $color-border;
+    background: $color-white;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    padding: 0;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    &:hover {
+        border-color: rgba(0, 196, 173, 0.5);
+    }
+}
+
+.thumbActive {
+    border-color: #00C4AD !important;
+    box-shadow: 0 0 0 2px rgba(0, 196, 173, 0.15), 0 0 12px rgba(0, 196, 173, 0.1);
+}
+
+// ════════════════════════════════════════════════════════════
+// PRODUCT INFO
+// ════════════════════════════════════════════════════════════
+.infoCol {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+    animation: fade-in 0.4s ease;
+}
+
+.topMeta {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.brandLabel {
+    @include font-display(10px, $fw-bold);
+    color: #00C4AD;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    padding: 3px $sp-2;
+    background: rgba(0, 196, 173, 0.06);
+    border: 1px solid rgba(0, 196, 173, 0.15);
+    border-radius: $r-1;
+}
+
+.tagPill {
+    @include font-mono(9px, $fw-semibold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    padding: 2px $sp-2;
+    border: 1px solid $color-border;
+    border-radius: $r-1;
+    background: $color-white;
+}
+
+.productTitle {
+    @include font-body($text-xl, $fw-bold);
+    color: $color-ink;
+    margin: 0;
+    line-height: 1.3;
+
+    @include mobile {
+        font-size: $text-lg;
+    }
+}
+
+// Rating row
+.ratingRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.stars { display: inline-flex; gap: 1px; font-size: 14px; }
+.starsLg { font-size: 20px; }
+.starFull { color: $color-gold; }
+.starHalf { color: $color-gold; opacity: 0.6; }
+.starEmpty { color: $color-bg3; }
+
+.ratingNum {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-gold;
+}
+
+.ratingLink {
+    @include font-body($text-xs, $fw-regular);
+    color: #00C4AD;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+}
+
+.metaDivider {
+    width: 1px;
+    height: 12px;
+    background: $color-border2;
+}
+
+.metaText {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    strong { color: $color-ink2; font-weight: $fw-semibold; }
+}
+
+.skuText {
+    @include font-mono(11px, $fw-regular);
+    color: $color-ink3;
+}
+
+// ════════════════════════════════════════════════════════════
+// PRICE CARD
+// ════════════════════════════════════════════════════════════
+.priceCard {
+    position: relative;
+    background: $color-white;
+    border: 1px solid rgba(0, 196, 173, 0.15);
+    border-radius: $r-3;
+    padding: $sp-5 $sp-6;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #00C4AD, #F0356A);
+    }
+}
+
+.priceCardGlow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(180deg, rgba(0, 196, 173, 0.04), transparent);
+    pointer-events: none;
+}
+
+.priceRow {
+    display: flex;
+    align-items: baseline;
+    gap: $sp-3;
+    flex-wrap: wrap;
+    position: relative;
+}
+
+.salePrice {
+    @include font-display(28px, $fw-bold);
+    background: linear-gradient(135deg, #00C4AD, #00E5CA);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+}
+
+.basePrice {
+    @include font-mono($text-md, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+}
+
+.discountBadge {
+    @include font-mono(11px, $fw-semibold);
+    color: $color-magenta;
+    background: rgba(240, 53, 106, 0.06);
+    border: 1px solid rgba(240, 53, 106, 0.15);
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+}
+
+.savingsBar {
+    margin-top: $sp-3;
+    position: relative;
+    height: 6px;
+    background: $color-bg2;
+    border-radius: $r-full;
+    overflow: hidden;
+}
+
+.savingsFill {
+    height: 100%;
+    background: linear-gradient(90deg, #00C4AD, #F0356A);
+    border-radius: $r-full;
+    transition: width 0.6s ease;
+}
+
+.savingsText {
+    position: absolute;
+    right: 0;
+    top: -18px;
+    @include font-mono(10px, $fw-bold);
+    color: $color-magenta;
+}
+
+// ════════════════════════════════════════════════════════════
+// NEON DIVIDER
+// ════════════════════════════════════════════════════════════
+.neonDivider {
+    height: 1px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 196, 173, 0.2),
+        rgba(0, 196, 173, 0.4),
+        rgba(0, 196, 173, 0.2),
+        transparent
+    );
+    animation: neon-line 4s ease-in-out infinite;
+}
+
+// ════════════════════════════════════════════════════════════
+// VARIANT SELECTOR
+// ════════════════════════════════════════════════════════════
+.variantGroup {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.variantLabel {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink2;
+
+    svg { color: rgba(0, 196, 173, 0.6); }
+    strong { color: #00C4AD; font-weight: $fw-semibold; margin-left: $sp-1; }
+}
+
+.variantOptions {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.variantBtn {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    padding: $sp-2 $sp-3;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    background: $color-white;
+    color: $color-ink2;
+    cursor: pointer;
+    @include font-body($text-sm, $fw-medium);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #00C4AD;
+        transform: scaleX(0);
+        transition: transform 0.2s ease;
+    }
+
+    &:hover:not(:disabled) {
+        border-color: rgba(0, 196, 173, 0.5);
+        color: $color-ink;
+        &::before { transform: scaleX(1); }
+    }
+}
+
+.variantBtnActive {
+    border-color: #00C4AD;
+    background: rgba(0, 196, 173, 0.04);
+    color: $color-ink;
+    box-shadow: 0 0 0 1px rgba(0, 196, 173, 0.2), 0 0 12px rgba(0, 196, 173, 0.06);
+
+    &::before { transform: scaleX(1); }
+}
+
+.variantBtnDisabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.variantThumb {
+    width: 32px;
+    height: 32px;
+    border-radius: $r-1;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid $color-border;
+}
+
+.variantInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    text-align: left;
+}
+
+.variantName { font-size: 13px; }
+
+.variantPrice {
+    @include font-mono(10px, $fw-semibold);
+    color: #00C4AD;
+}
+
+.variantSoldOut {
+    @include font-mono(9px, $fw-bold);
+    color: $color-magenta;
+    background: rgba(240, 53, 106, 0.08);
+    padding: 1px 6px;
+    border-radius: $r-full;
+    margin-left: auto;
+}
+
+// ════════════════════════════════════════════════════════════
+// QUANTITY
+// ════════════════════════════════════════════════════════════
+.qtyRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+}
+
+.qtyStepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    overflow: hidden;
+    height: 40px;
+}
+
+.qtyBtn {
+    width: 40px;
+    height: 100%;
+    border: none;
+    background: $color-bg;
+    color: $color-ink;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover:not(:disabled) {
+        background: #00C4AD;
+        color: $color-white;
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
+.qtyNum {
+    @include font-mono($text-lg, $fw-bold);
+    min-width: 48px;
+    text-align: center;
+    color: $color-ink;
+    border-left: 1px solid $color-border;
+    border-right: 1px solid $color-border;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $color-white;
+}
+
+.stockText {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    strong { color: $color-green; font-weight: $fw-semibold; }
+}
+
+.stockDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $color-green;
+    box-shadow: 0 0 6px rgba(29, 185, 106, 0.4);
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.stockDotOut {
+    @extend .stockDot;
+    background: $color-magenta;
+    box-shadow: 0 0 6px rgba(240, 53, 106, 0.4);
+}
+
+.totalPreview {
+    @include font-mono($text-sm, $fw-medium);
+    color: $color-ink2;
+    padding: $sp-2 $sp-3;
+    background: rgba(0, 196, 173, 0.04);
+    border: 1px dashed rgba(0, 196, 173, 0.2);
+    border-radius: $r-2;
+    strong { color: #00C4AD; font-weight: $fw-bold; }
+}
+
+// ════════════════════════════════════════════════════════════
+// CTA
+// ════════════════════════════════════════════════════════════
+.ctaStack {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.ctaRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-3;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ctaWarning {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-body($text-xs, $fw-medium);
+    color: $color-gold;
+    background: rgba(240, 165, 0, 0.06);
+    border: 1px solid rgba(240, 165, 0, 0.15);
+    border-radius: $r-2;
+    padding: $sp-2 $sp-3;
+    margin: 0;
+
+    svg { flex-shrink: 0; color: $color-gold; }
+}
+
+.wishlistBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+    padding: $sp-2 $sp-4;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    background: $color-white;
+    color: $color-ink3;
+    @include font-body($text-sm, $fw-medium);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: $color-magenta;
+        color: $color-magenta;
+        background: rgba(240, 53, 106, 0.04);
+
+        svg { color: $color-magenta; }
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// SERVICE GRID
+// ════════════════════════════════════════════════════════════
+.serviceGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-3;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.serviceCard {
+    display: flex;
+    align-items: flex-start;
+    gap: $sp-3;
+    padding: $sp-4;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #00C4AD;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    &:hover {
+        border-color: rgba(0, 196, 173, 0.2);
+        box-shadow: 0 2px 12px rgba(0, 196, 173, 0.06);
+
+        &::before { opacity: 1; }
+        svg { color: #00C4AD; }
+    }
+
+    svg {
+        flex-shrink: 0;
+        color: $color-ink3;
+        margin-top: 2px;
+        transition: color 0.2s ease;
+    }
+
+    div {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    strong {
+        @include font-body($text-xs, $fw-semibold);
+        color: $color-ink;
+    }
+
+    span {
+        @include font-body(11px, $fw-regular);
+        color: $color-ink3;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// DETAIL TABS
+// ════════════════════════════════════════════════════════════
+.detailSection {
+    position: relative;
+    z-index: 2;
+    background: $color-white;
+    border-top: 1px solid $color-border;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(0, 196, 173, 0.3), transparent);
+    }
+}
+
+.detailInner {
+    @include container;
+    padding-top: $sp-8;
+    padding-bottom: $sp-12;
+}
+
+// Tab nav
+.tabNav {
+    display: flex;
+    gap: $sp-1;
+    position: relative;
+    margin-bottom: $sp-8;
+    border-bottom: 1px solid $color-border;
+}
+
+.tabNavLine {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: $color-border;
+}
+
+.tabBtn {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    padding: $sp-3 $sp-5;
+    border: none;
+    background: none;
+    cursor: pointer;
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink3;
+    position: relative;
+    transition: color 0.2s ease;
+
+    &:hover { color: $color-ink; }
+
+    @include mobile {
+        padding: $sp-3;
+        font-size: $text-xs;
+    }
+}
+
+.tabBtnActive {
+    color: #00C4AD;
+}
+
+.tabIcon {
+    font-size: 14px;
+    @include mobile { display: none; }
+}
+
+.tabIndicator {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00C4AD, rgba(0, 196, 173, 0.3));
+    border-radius: 2px 2px 0 0;
+    animation: tab-slide 0.25s ease;
+}
+
+// Tab content
+.tabContent {
+    animation: fade-in 0.3s ease;
+}
+
+// ── DESCRIPTION TAB ────────────────────────────────────────
+.descTab {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: $sp-8;
+    align-items: start;
+
+    @include desktop-s {
+        grid-template-columns: 1fr 260px;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+.descMain {
+    // No extra styles needed
+}
+
+.descText {
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink2;
+    line-height: $lh-relaxed;
+    margin: 0;
+}
+
+.descSidebar {
+    @include tablet { order: -1; }
+}
+
+.quickInfoCard {
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    padding: $sp-5;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #00C4AD, transparent);
+    }
+}
+
+.quickInfoTitle {
+    @include font-mono(11px, $fw-bold);
+    color: #00C4AD;
+    letter-spacing: $ls-wider;
+    margin: 0 0 $sp-4;
+}
+
+.quickInfoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $sp-2 0;
+    border-bottom: 1px dashed $color-border;
+
+    &:last-child { border-bottom: none; }
+
+    span {
+        @include font-body($text-xs, $fw-regular);
+        color: $color-ink3;
+    }
+
+    strong {
+        @include font-mono($text-xs, $fw-semibold);
+        color: $color-ink;
+    }
+}
+
+// ── SPECS TAB ──────────────────────────────────────────────
+.specsTab {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-8;
+}
+
+.specTable {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    overflow: hidden;
+}
+
+.specRowEven { background: $color-white; }
+.specRowOdd { background: $color-bg; }
+
+.specKey {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink2;
+    padding: $sp-3 $sp-5;
+    width: 35%;
+    border-right: 1px solid $color-border;
+    border-bottom: 1px solid $color-border;
+    vertical-align: middle;
+}
+
+.specVal {
+    @include font-mono($text-sm, $fw-medium);
+    color: $color-ink;
+    padding: $sp-3 $sp-5;
+    border-bottom: 1px solid $color-border;
+    vertical-align: middle;
+}
+
+.specBasic {
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    padding: $sp-6;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #00C4AD, transparent);
+    }
+}
+
+.specBasicTitle {
+    @include font-mono(11px, $fw-bold);
+    color: #00C4AD;
+    letter-spacing: $ls-wider;
+    margin: 0 0 $sp-5;
+}
+
+.specBasicGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.specBasicItem {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.specBasicLabel {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.specBasicVal {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-ink;
+}
+
+// ── REVIEWS TAB ────────────────────────────────────────────
+.reviewsTab {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+}
+
+.reviewOverview {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: $sp-10;
+    align-items: center;
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    padding: $sp-8;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, $color-gold, rgba(240, 53, 106, 0.5));
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+        gap: $sp-6;
+    }
+}
+
+.ratingBig {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-2;
+    padding-right: $sp-10;
+    border-right: 1px solid $color-border;
+
+    @include tablet {
+        padding-right: 0;
+        border-right: none;
+        border-bottom: 1px solid $color-border;
+        padding-bottom: $sp-6;
+    }
+}
+
+.ratingBigNum {
+    @include font-display(44px, $fw-bold);
+    background: linear-gradient(135deg, $color-gold, #F06035);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+}
+
+.ratingBigCount {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+}
+
+.ratingBreakdown {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.breakdownRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: 3px $sp-2;
+    border-radius: $r-2;
+    transition: background 0.15s ease;
+
+    &:hover { background: rgba(0, 196, 173, 0.04); }
+}
+
+.breakdownStar {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-gold;
+    min-width: 28px;
+    text-align: right;
+}
+
+.breakdownBar {
+    flex: 1;
+    height: 8px;
+    background: $color-bg3;
+    border-radius: $r-full;
+    overflow: hidden;
+}
+
+.breakdownFill {
+    height: 100%;
+    background: linear-gradient(90deg, $color-gold, #F06035);
+    border-radius: $r-full;
+    transition: width 0.4s ease;
+}
+
+.breakdownCount {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    min-width: 28px;
+}
+
+// Empty state
+.emptyTab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-12 $sp-6;
+    color: $color-ink3;
+
+    span:first-child { font-size: 40px; opacity: 0.3; }
+    p { @include font-body($text-base, $fw-medium); color: $color-ink3; margin: 0; }
+}
+
+.emptyHint {
+    @include font-mono($text-xs, $fw-regular);
+    color: rgba(0, 196, 173, 0.5);
+}
+
+// ════════════════════════════════════════════════════════════
+// ACCORDION (fallback, still available)
+// ════════════════════════════════════════════════════════════
+.accordionGroup {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    overflow: hidden;
+}
+
+.accordion {
+    border-bottom: 1px solid $color-border;
+    &:last-child { border-bottom: none; }
+}
+
+.accordionOpen .accordionBtn { color: #00C4AD; }
+
+.accordionBtn {
+    @include flex-between;
+    width: 100%;
+    padding: $sp-4 $sp-5;
+    background: $color-white;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    transition: all 0.15s ease;
+
+    &:hover { background: $color-bg; }
+}
+
+.accordionTitle {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.accordionIcon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.accordionChevron {
+    font-size: 18px;
+    color: #00C4AD;
+    font-weight: $fw-bold;
+    flex-shrink: 0;
+}
+
+.accordionBody {
+    padding: $sp-4 $sp-5 $sp-5;
+    background: $color-bg;
+    border-top: 1px solid $color-border;
+    animation: fade-in 0.2s ease;
+}
+
+// ════════════════════════════════════════════════════════════
+// RELATED PRODUCTS
+// ════════════════════════════════════════════════════════════
+.relatedSection {
+    background: $color-bg;
+    border-top: 1px solid $color-border;
+    position: relative;
+    z-index: 2;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(0, 196, 173, 0.3), transparent);
+    }
+}
+
+.relatedInner {
+    @include container;
+    padding-top: $sp-10;
+    padding-bottom: $sp-12;
+}
+
+.relatedHeader {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    margin-bottom: $sp-8;
+}
+
+.relatedLabel {
+    @include font-mono(11px, $fw-bold);
+    color: #00C4AD;
+    letter-spacing: $ls-wider;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.relatedLine {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0, 196, 173, 0.3), transparent);
+}
+
+.relatedGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+
+    @include desktop-s {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Section label (legacy compat)
+.sectionInner {
+    @include container;
+    padding-top: $sp-10;
+    padding-bottom: $sp-10;
+}
+
+.sectionLabel {
+    @include section-label;
+    margin-bottom: $sp-8;
+}

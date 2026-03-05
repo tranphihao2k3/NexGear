@@ -1,0 +1,604 @@
+// ============================================================
+// NEXGEAR — Admin Products Page Styles (A03)
+// ============================================================
+
+// ── HEADER ──────────────────────────────────────────────────
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+
+    .subtitle {
+        @include font-body($text-sm, $fw-regular);
+        color: $admin-ink3;
+        margin-top: $sp-1;
+    }
+}
+
+.addBtn {
+    @include btn-base;
+    @include btn-size-lg;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+// ── TOOLBAR ─────────────────────────────────────────────────
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    margin-bottom: $sp-4;
+    flex-wrap: wrap;
+}
+
+.searchBox {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+
+.searchInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-4;
+    padding-left: $sp-10;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.searchIcon {
+    position: absolute;
+    left: $sp-3;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $admin-ink3;
+}
+
+.filterBtn {
+    @include btn-base;
+    @include btn-size-sm;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+
+    &:hover {
+        background: $admin-card-bg2;
+        color: $admin-ink;
+    }
+}
+
+.viewToggle {
+    display: flex;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow: hidden;
+}
+
+.viewBtn {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: none;
+    color: $admin-ink3;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $admin-ink;
+    }
+
+    &.active {
+        background: $color-cyan;
+        color: $color-ink;
+    }
+}
+
+// ── PRODUCTS TABLE ──────────────────────────────────────────
+.tableWrapper {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow-x: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.table th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    text-align: left;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-surface;
+}
+
+.table td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    vertical-align: middle;
+}
+
+.table tr {
+    transition: $transition-fast;
+
+    &:hover td {
+        background: $admin-hover;
+    }
+
+    &:last-child td {
+        border-bottom: none;
+    }
+}
+
+// Product cell
+.productCell {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.productImage {
+    width: $sp-12;
+    height: $sp-12;
+    border-radius: $r-2;
+    background: $admin-card-bg2;
+    @include flex-center;
+    overflow: hidden;
+    flex-shrink: 0;
+    font-size: $text-xl;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.productInfo {
+    min-width: 0;
+}
+
+.productName {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+    @include truncate;
+}
+
+.productSku {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.productCategory {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+}
+
+.price {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+}
+
+.stock {
+    @include font-mono($text-sm, $fw-semibold);
+
+    &.inStock {
+        color: $color-green;
+    }
+
+    &.low {
+        color: $color-gold;
+    }
+
+    &.outOfStock {
+        color: $color-magenta;
+    }
+}
+
+// Inline status toggle
+.statusToggle {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.toggleSwitch {
+    position: relative;
+    width: $sp-10;
+    height: $sp-5;
+    background: $admin-card-bg2;
+    border-radius: $r-full;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &.on {
+        background: rgba($color-cyan, 0.3);
+    }
+}
+
+.toggleKnob {
+    position: absolute;
+    top: $sp-1;
+    left: $sp-1;
+    width: $sp-3;
+    height: $sp-3;
+    border-radius: $r-full;
+    background: $admin-ink3;
+    transition: $transition-fast;
+
+    .on & {
+        left: calc(100% - #{$sp-3} - #{$sp-1});
+        background: $color-cyan;
+    }
+}
+
+.statusText {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+
+    &.active {
+        color: $color-cyan;
+    }
+}
+
+// Row actions
+.rowActions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.rowActionBtn {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink3;
+    font-size: $text-sm;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+        border-color: $admin-border2;
+    }
+
+    &.danger:hover {
+        background: rgba($color-magenta, 0.1);
+        color: $color-magenta;
+        border-color: rgba($color-magenta, 0.3);
+    }
+}
+
+// ── PAGINATION ──────────────────────────────────────────────
+.pagination {
+    @include flex-between;
+    padding: $sp-4;
+    border-top: 1px solid $admin-border;
+}
+
+.pageInfo {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+}
+
+.pageButtons {
+    display: flex;
+    gap: $sp-1;
+}
+
+.pageBtn {
+    @include flex-center;
+    min-width: $sp-8;
+    height: $sp-8;
+    padding: 0 $sp-2;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-1;
+    color: $admin-ink2;
+    @include font-mono($text-xs, $fw-semibold);
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+
+    &.active {
+        background: $color-cyan;
+        color: $color-ink;
+        border-color: $color-cyan;
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
+// ── PRODUCT FORM MODAL ──────────────────────────────────────
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: $z-modal;
+    @include flex-center;
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 640px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.modalHeader {
+    @include flex-between;
+    padding: $sp-5;
+    border-bottom: 1px solid $admin-border;
+    position: sticky;
+    top: 0;
+    background: $admin-card-bg;
+    z-index: 1;
+}
+
+.modalTitle {
+    @include font-display($text-md, $fw-bold);
+    color: $admin-ink;
+}
+
+.modalClose {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+}
+
+.modalBody {
+    padding: $sp-5;
+}
+
+.formGroup {
+    margin-bottom: $sp-4;
+}
+
+.formLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.formTextarea {
+    @extend .formInput;
+    min-height: 100px;
+    resize: vertical;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.imageUpload {
+    border: 2px dashed $admin-border;
+    border-radius: $r-2;
+    padding: $sp-8;
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-2;
+    cursor: pointer;
+    transition: $transition-fast;
+    color: $admin-ink3;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+}
+
+.uploadIcon {
+    font-size: $text-2xl;
+}
+
+.uploadText {
+    @include font-body($text-sm, $fw-medium);
+}
+
+// ── VARIANTS SECTION ───────────────────────────────────────
+.variantsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $sp-2;
+}
+
+.addVariantBtn {
+    @include btn-base;
+    @include font-mono($text-xs, $fw-semibold);
+    padding: $sp-1 $sp-3;
+    background: rgba($color-cyan, 0.15);
+    color: $color-cyan;
+    border: 1px solid rgba($color-cyan, 0.3);
+    border-radius: $r-2;
+
+    &:hover {
+        background: rgba($color-cyan, 0.25);
+    }
+}
+
+.variantsEmpty {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+    padding: $sp-3;
+    border: 1px dashed $admin-border;
+    border-radius: $r-2;
+    text-align: center;
+    margin-bottom: $sp-3;
+}
+
+.variantCard {
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-4;
+    margin-bottom: $sp-3;
+    background: $admin-surface;
+}
+
+.variantCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $sp-3;
+}
+
+.variantIndex {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-cyan;
+}
+
+.variantRemoveBtn {
+    @include btn-base;
+    @include font-mono($text-xs, $fw-semibold);
+    padding: $sp-1 $sp-2;
+    background: transparent;
+    color: $color-magenta;
+    border: 1px solid rgba($color-magenta, 0.3);
+    border-radius: $r-1;
+
+    &:hover {
+        background: rgba($color-magenta, 0.1);
+    }
+}
+
+.variantUploadBtn {
+    @include font-mono($text-xs, $fw-semibold);
+    display: inline-flex;
+    align-items: center;
+    gap: $sp-1;
+    padding: $sp-1 $sp-3;
+    border: 1px dashed $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink3;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+}
+
+.modalFooter {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    gap: $sp-3;
+    justify-content: flex-end;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg2;
+    color: $admin-ink2;
+    border: 1px solid $admin-border;
+
+    &:hover {
+        background: $admin-surface;
+    }
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}

@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXGEAR — Full Project Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #F4F2ED;
+  --bg2:   #ECEAE3;
+  --bg3:   #E4E1D8;
+  --ink:   #0C0C0C;
+  --ink2:  #40403C;
+  --ink3:  #767268;
+  --cyan:  #00C4AD;
+  --mag:   #F0356A;
+  --gold:  #F0A500;
+  --purple:#7B3FF2;
+  --green: #1DB96A;
+  --border: rgba(12,12,12,0.09);
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  font-size:14.5px;
+  line-height:1.65;
+}
+
+/* GRID BG */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,196,173,0.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,196,173,0.045) 1px,transparent 1px);
+  background-size:48px 48px;
+  pointer-events:none;z-index:0;
+}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(244,242,237,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:0 40px;
+  display:flex;align-items:center;gap:0;
+  overflow-x:auto;
+}
+nav a{
+  font-family:'Orbitron',sans-serif;
+  font-size:9.5px;letter-spacing:0.12em;
+  color:var(--ink3);
+  text-decoration:none;
+  padding:18px 16px;
+  white-space:nowrap;
+  border-bottom:2px solid transparent;
+  transition:color .2s,border-color .2s;
+}
+nav a:hover{color:var(--cyan);border-bottom-color:var(--cyan);}
+.nav-logo{
+  font-family:'Orbitron',sans-serif;
+  font-weight:900;font-size:14px;
+  color:var(--ink);
+  margin-right:24px;padding:16px 0;
+  flex-shrink:0;
+}
+.nav-logo em{color:var(--cyan);font-style:normal;}
+
+/* LAYOUT */
+.wrap{max-width:1160px;margin:0 auto;padding:0 40px;position:relative;z-index:1;}
+
+/* HERO */
+.hero{
+  padding:100px 0 80px;
+  position:relative;overflow:hidden;
+}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:0.3em;
+  color:var(--cyan);text-transform:uppercase;
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:24px;
+}
+.hero-eyebrow::before{content:'';width:36px;height:1.5px;background:var(--cyan);}
+
+h1{
+  font-family:'Orbitron',sans-serif;
+  font-size:clamp(56px,9vw,108px);
+  font-weight:900;
+  line-height:.88;
+  letter-spacing:-.02em;
+  margin-bottom:24px;
+}
+h1 .stroke{
+  display:block;
+  color:transparent;
+  -webkit-text-stroke:2px var(--cyan);
+}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:10px;
+  margin-top:32px;
+}
+.chip{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.08em;
+  padding:5px 14px;border-radius:2px;
+  background:var(--ink);color:#fff;
+}
+.chip.c{background:var(--cyan);color:var(--ink);}
+.chip.m{background:var(--mag);}
+.chip.g{background:var(--gold);color:var(--ink);}
+.chip.p{background:var(--purple);}
+.chip.gr{background:var(--green);color:var(--ink);}
+.chip.out{background:transparent;border:1.5px solid var(--border);color:var(--ink2);}
+
+/* SECTIONS */
+section{padding:72px 0;border-top:1px solid var(--border);position:relative;z-index:1;}
+.sec-label{
+  font-family:'Orbitron',sans-serif;
+  font-size:9.5px;letter-spacing:.4em;
+  color:var(--mag);text-transform:uppercase;
+  margin-bottom:10px;
+}
+h2{
+  font-family:'Orbitron',sans-serif;
+  font-size:26px;font-weight:700;
+  margin-bottom:40px;
+}
+h3{font-size:15px;font-weight:600;margin-bottom:6px;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+
+/* CARDS */
+.card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:24px;
+  position:relative;overflow:hidden;
+  transition:transform .18s,box-shadow .18s;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.09),0 0 0 1px var(--cyan);}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,var(--cyan),var(--mag));}
+.card.gold::before{background:linear-gradient(90deg,var(--gold),#F06035);}
+.card.purple::before{background:linear-gradient(90deg,var(--purple),var(--mag));}
+.card.green::before{background:linear-gradient(90deg,var(--green),var(--cyan));}
+.card p{font-size:13px;color:var(--ink2);line-height:1.65;}
+.card-num{
+  font-family:'Orbitron',sans-serif;
+  font-size:32px;font-weight:900;
+  color:var(--cyan);margin-bottom:8px;
+}
+.card-icon{font-size:26px;margin-bottom:10px;}
+.card-label{font-size:11px;color:var(--ink3);font-family:'JetBrains Mono',monospace;letter-spacing:.05em;}
+
+/* ACCENT BOXES */
+.accent-box{
+  border-radius:4px;padding:20px 24px;
+  border:1px solid;
+}
+.ab-cyan{background:rgba(0,196,173,.06);border-color:rgba(0,196,173,.25);}
+.ab-mag{background:rgba(240,53,106,.06);border-color:rgba(240,53,106,.25);}
+.ab-gold{background:rgba(240,165,0,.06);border-color:rgba(240,165,0,.25);}
+.ab-purple{background:rgba(123,63,242,.06);border-color:rgba(123,63,242,.25);}
+
+/* CODE */
+.code{
+  background:var(--ink);color:#DFF5F1;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;line-height:1.85;
+  padding:28px 32px;border-radius:4px;
+  overflow-x:auto;margin-top:16px;
+}
+.code .k{color:var(--cyan);}
+.code .s{color:var(--gold);}
+.code .c{color:#666;}
+.code .t{color:var(--mag);}
+.code .n{color:#B5F0E8;}
+.code .p{color:var(--purple);}
+.code-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:.15em;
+  color:var(--ink3);margin-bottom:8px;
+  text-transform:uppercase;
+}
+
+/* TABLE */
+.tbl-wrap{background:#fff;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:20px;}
+.tbl-head{
+  background:var(--ink);color:#fff;
+  font-family:'Orbitron',sans-serif;
+  font-size:11px;letter-spacing:.12em;
+  padding:13px 22px;
+  display:flex;align-items:center;gap:12px;
+}
+.tbl-head em{color:var(--cyan);font-style:normal;}
+table{width:100%;border-collapse:collapse;}
+th{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10.5px;letter-spacing:.05em;
+  color:var(--mag);background:var(--bg2);
+  padding:10px 18px;text-align:left;
+  border-bottom:1px solid var(--border);
+}
+td{padding:10px 18px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top;}
+td:first-child{font-family:'JetBrains Mono',monospace;color:var(--cyan);font-size:11.5px;font-weight:600;}
+td.desc{color:var(--ink2);}
+td.type{color:var(--ink3);font-family:'JetBrains Mono',monospace;font-size:11px;}
+tr:last-child td{border-bottom:none;}
+
+/* ROLE CARDS */
+.role-card{
+  background:#fff;border:1px solid var(--border);border-radius:4px;
+  overflow:hidden;
+}
+.role-head{
+  padding:16px 22px;
+  display:flex;align-items:center;gap:12px;
+}
+.role-badge{
+  font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:.12em;
+  padding:5px 10px;border-radius:2px;
+}
+.rb-admin{background:var(--mag);color:#fff;}
+.rb-manager{background:var(--gold);color:var(--ink);}
+.rb-staff{background:var(--cyan);color:var(--ink);}
+.rb-cashier{background:var(--purple);color:#fff;}
+.role-name{font-size:15px;font-weight:600;}
+.role-body{padding:16px 22px;border-top:1px solid var(--border);}
+.role-body ul{padding-left:16px;}
+.role-body li{font-size:13px;color:var(--ink2);margin-bottom:6px;}
+
+/* ROADMAP */
+.roadmap{display:flex;flex-direction:column;gap:0;}
+.rm-row{
+  display:grid;grid-template-columns:160px 1fr;gap:36px;
+  position:relative;padding-bottom:44px;
+}
+.rm-row:not(:last-child)::after{
+  content:'';position:absolute;
+  left:79px;top:36px;bottom:0;
+  width:1.5px;
+  background:linear-gradient(to bottom,var(--cyan),transparent);
+}
+.rm-phase{
+  font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;
+  color:var(--cyan);letter-spacing:.1em;
+  background:rgba(0,196,173,.08);
+  border:1px solid rgba(0,196,173,.25);
+  border-radius:3px;padding:10px 12px;
+  text-align:center;height:fit-content;
+}
+.rm-dur{font-size:11px;color:var(--ink3);margin-top:6px;font-family:'JetBrains Mono',monospace;}
+.rm-content h3{font-size:16px;margin-bottom:8px;}
+.rm-content p{font-size:13px;color:var(--ink2);}
+.rm-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.rm-tag{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;
+  padding:3px 10px;border-radius:2px;
+  background:var(--bg2);color:var(--ink2);
+}
+.rm-tag.important{background:rgba(0,196,173,.12);color:var(--cyan);}
+
+/* UI MOCK */
+.browser{
+  background:var(--ink);border-radius:8px;
+  overflow:hidden;box-shadow:0 28px 80px rgba(0,0,0,.28);
+}
+.browser-bar{
+  background:#181818;padding:13px 18px;
+  display:flex;align-items:center;gap:8px;
+}
+.dot{width:10px;height:10px;border-radius:50%;}
+.dr{background:#FF5F56;}.dy{background:#FFBD2E;}.dg{background:#27C93F;}
+.url{
+  margin-left:14px;flex:1;
+  background:#242424;border-radius:3px;
+  padding:5px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:#777;
+}
+
+/* MOCK SITE */
+.mock{background:var(--bg);min-height:520px;}
+.mnav{
+  background:rgba(244,242,237,.96);
+  backdrop-filter:blur(10px);
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(0,0,0,.06);
+}
+.mlogo{font-family:'Orbitron',sans-serif;font-weight:900;font-size:17px;}
+.mlogo em{color:var(--cyan);font-style:normal;}
+.mlinks{display:flex;gap:20px;font-size:11.5px;color:var(--ink2);}
+.mactions{display:flex;gap:12px;align-items:center;}
+.mbtn{
+  font-family:'Orbitron',sans-serif;font-size:9.5px;letter-spacing:.1em;
+  padding:7px 16px;border-radius:2px;cursor:pointer;border:none;
+}
+.mbtn-solid{background:var(--ink);color:#fff;}
+.mbtn-out{background:transparent;border:1.5px solid var(--cyan);color:var(--cyan);}
+
+.mhero{padding:36px 28px;display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center;}
+.mh-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--cyan);letter-spacing:.25em;margin-bottom:14px;}
+.mh-title{font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;line-height:.92;}
+.mh-title em{color:transparent;-webkit-text-stroke:1.5px var(--cyan);font-style:normal;}
+.mh-sub{font-size:11px;color:var(--ink3);margin:12px 0 18px;}
+.mh-btns{display:flex;gap:10px;}
+
+.mproducts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.mpcard{
+  background:#fff;border:1px solid var(--border);
+  border-radius:3px;padding:12px;position:relative;overflow:hidden;
+}
+.mpcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--mag));}
+.mpimg{height:44px;background:linear-gradient(135deg,#EEE9DF,#E2DCCF);border-radius:2px;margin-bottom:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.mpname{font-size:10px;font-weight:500;}
+.mpprice{font-family:'Orbitron',monospace;font-size:10.5px;color:var(--cyan);margin-top:3px;}
+.mpbadge{position:absolute;top:10px;right:10px;background:var(--mag);color:#fff;font-size:8px;padding:2px 6px;border-radius:1px;font-family:'JetBrains Mono',monospace;}
+
+/* CATEGORIES BAR */
+.mcats{
+  padding:12px 28px;background:var(--bg2);
+  display:flex;gap:8px;overflow-x:auto;
+  border-bottom:1px solid var(--border);
+}
+.mcat{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:5px 14px;border-radius:2px;white-space:nowrap;
+  background:#fff;border:1px solid var(--border);
+  cursor:pointer;color:var(--ink2);
+}
+.mcat.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+/* ADMIN MOCK */
+.admin-mock{
+  background:#141414;border-radius:8px;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+.admin-bar{background:#0A0A0A;padding:12px 18px;display:flex;align-items:center;gap:8px;}
+.admin-sidebar{
+  width:180px;background:#0F0F0F;min-height:400px;
+  padding:20px 0;float:left;
+}
+.admin-content{margin-left:180px;padding:24px;min-height:400px;background:#141414;}
+.asi{font-size:11px;padding:8px 20px;color:#555;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;}
+.asi:hover,.asi.active{color:var(--cyan);background:rgba(0,196,173,.08);}
+.asi-head{font-family:'Orbitron',sans-serif;font-size:8.5px;letter-spacing:.2em;color:#333;padding:16px 20px 4px;text-transform:uppercase;}
+
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:#1A1A1A;border-radius:3px;padding:14px 16px;border:1px solid #2A2A2A;}
+.stat-val{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--cyan);}
+.stat-label{font-size:10px;color:#555;margin-top:4px;font-family:'JetBrains Mono',monospace;}
+.stat-change{font-size:9.5px;color:var(--green);margin-top:3px;}
+
+.mini-table{width:100%;border-collapse:collapse;font-size:11px;}
+.mini-table th{color:#444;font-family:'JetBrains Mono',monospace;font-size:9px;padding:6px 8px;text-align:left;border-bottom:1px solid #222;}
+.mini-table td{padding:7px 8px;color:#888;border-bottom:1px solid #1A1A1A;}
+.mini-table td:first-child{color:#ccc;}
+.status-badge{font-size:8.5px;padding:2px 8px;border-radius:1px;font-family:'JetBrains Mono',monospace;}
+.sb-pend{background:rgba(240,165,0,.15);color:var(--gold);}
+.sb-done{background:rgba(29,185,106,.15);color:var(--green);}
+.sb-ship{background:rgba(0,196,173,.15);color:var(--cyan);}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:32px 0;}
+
+/* BRAND COLORS */
+.swatch-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;}
+.swatch{border-radius:3px;padding:16px 20px;min-width:120px;text-align:center;}
+.sw-label{font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:6px;opacity:.7;}
+.sw-hex{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;}
+
+/* FLOW DIAGRAM */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin-top:24px;}
+.flow-node{
+  background:#fff;border:1px solid var(--border);
+  border-radius:3px;padding:10px 18px;
+  font-size:12.5px;font-weight:500;
+  position:relative;
+}
+.flow-node.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+.flow-node.c{background:rgba(0,196,173,.1);border-color:rgba(0,196,173,.3);color:var(--cyan);}
+.flow-arrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:16px;color:var(--ink3);
+  padding:0 8px;
+}
+
+/* POS */
+.pos-mock{
+  background:#0C0C0C;border-radius:6px;overflow:hidden;
+  display:grid;grid-template-columns:1fr 340px;min-height:320px;
+}
+.pos-products{padding:20px;background:#111;}
+.pos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.pos-pcard{background:#1A1A1A;border-radius:3px;padding:10px;text-align:center;cursor:pointer;border:1px solid #2A2A2A;}
+.pos-pcard:hover{border-color:var(--cyan);}
+.pos-icon{font-size:20px;margin-bottom:4px;}
+.pos-pname{font-size:9.5px;color:#aaa;}
+.pos-pprice{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);margin-top:3px;}
+.pos-cart{background:#0A0A0A;padding:20px;display:flex;flex-direction:column;}
+.pos-cart-title{font-family:'Orbitron',sans-serif;font-size:11px;color:#fff;letter-spacing:.1em;margin-bottom:14px;}
+.pos-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #1A1A1A;font-size:11.5px;}
+.pos-item .name{color:#bbb;}
+.pos-item .price{font-family:'JetBrains Mono',monospace;color:var(--cyan);}
+.pos-total{margin-top:auto;padding-top:12px;border-top:1px solid #2A2A2A;}
+.pos-total-val{font-family:'Orbitron',sans-serif;font-size:20px;color:var(--cyan);font-weight:700;}
+.pos-total-label{font-size:10px;color:#555;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.pos-pay{background:var(--cyan);color:var(--ink);width:100%;padding:12px;border:none;border-radius:2px;font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.1em;cursor:pointer;margin-top:10px;}
+
+/* INDEX SECTION */
+.toc{
+  background:#fff;border:1px solid var(--border);border-radius:4px;
+  padding:28px 32px;margin-bottom:40px;
+}
+.toc-title{font-family:'Orbitron',sans-serif;font-size:13px;margin-bottom:16px;color:var(--ink);}
+.toc-list{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 24px;}
+.toc-item{
+  font-size:12.5px;color:var(--cyan);
+  text-decoration:none;
+  padding:3px 0;
+  border-bottom:1px solid transparent;
+  transition:border-color .15s;
+}
+.toc-item:hover{border-bottom-color:var(--cyan);}
+.toc-num{color:var(--ink3);font-family:'JetBrains Mono',monospace;font-size:10.5px;margin-right:8px;}
+
+@media(max-width:800px){
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .mhero{grid-template-columns:1fr;}
+  .rm-row{grid-template-columns:1fr;}
+  .toc-list{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">NEX<em>GEAR</em></div>
+  <a href="#brand">Brand</a>
+  <a href="#design">UI/UX</a>
+  <a href="#admin">Admin</a>
+  <a href="#pos">POS</a>
+  <a href="#tech">Tech Stack</a>
+  <a href="#schema">MongoDB</a>
+  <a href="#roles">Team Roles</a>
+  <a href="#features">Features</a>
+  <a href="#roadmap">Roadmap</a>
+  <a href="#cost">Chi phí</a>
+</nav>
+
+<div class="wrap">
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-eyebrow">Full Project Blueprint — Team 2–5 người — Online + Offline</div>
+  <h1>NEX<span class="stroke">GEAR</span></h1>
+  <p style="font-size:16px;color:var(--ink2);max-width:600px;margin-top:16px;">Nền tảng thương mại điện tử + quản lý cửa hàng offline tích hợp cho shop gear máy tính. Cyberpunk aesthetic — light theme.</p>
+  <div class="hero-meta">
+    <span class="chip c">Next.js 15</span>
+    <span class="chip m">MongoDB Atlas</span>
+    <span class="chip g">shadcn/ui</span>
+    <span class="chip p">Tailwind v4</span>
+    <span class="chip gr">VNPay</span>
+    <span class="chip out">Vercel Deploy</span>
+    <span class="chip out">Cloudinary</span>
+    <span class="chip out">NextAuth v5</span>
+    <span class="chip out">GHN Shipping</span>
+    <span class="chip out">Framer Motion</span>
+  </div>
+</header>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <div class="toc-title">MỤC LỤC</div>
+  <div class="toc-list">
+    <a href="#brand" class="toc-item"><span class="toc-num">01</span>Brand Identity</a>
+    <a href="#design" class="toc-item"><span class="toc-num">02</span>UI/UX — Trang web</a>
+    <a href="#admin" class="toc-item"><span class="toc-num">03</span>Admin Dashboard</a>
+    <a href="#pos" class="toc-item"><span class="toc-num">04</span>POS — Bán tại quầy</a>
+    <a href="#tech" class="toc-item"><span class="toc-num">05</span>Tech Stack chi tiết</a>
+    <a href="#schema" class="toc-item"><span class="toc-num">06</span>MongoDB Schema đầy đủ</a>
+    <a href="#roles" class="toc-item"><span class="toc-num">07</span>Team Roles & Quyền hạn</a>
+    <a href="#features" class="toc-item"><span class="toc-num">08</span>Features List đầy đủ</a>
+    <a href="#roadmap" class="toc-item"><span class="toc-num">09</span>Roadmap 16 tuần</a>
+    <a href="#cost" class="toc-item"><span class="toc-num">10</span>Chi phí vận hành</a>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 01 BRAND -->
+<!-- ═══════════════════════════════════════ -->
+<section id="brand">
+  <div class="sec-label">01 — Identity</div>
+  <h2>Brand Identity</h2>
+
+  <div class="g3" style="margin-bottom:32px">
+    <div class="card" style="grid-column:span 2">
+      <div class="card-icon">⚡</div>
+      <h3>NEXGEAR — Tại sao tên này?</h3>
+      <p style="margin-bottom:12px"><strong>NEX</strong> = Nexus (điểm kết nối giữa người dùng và công nghệ) + Next (thế hệ tiếp theo). <strong>GEAR</strong> = Thiết bị, gear gaming/studio. Kết hợp tạo ra tên gọn, mạnh, dễ đọc bằng tiếng Anh lẫn tiếng Việt.</p>
+      <p>Domain đề xuất: <strong>nexgear.vn</strong> · <strong>nexgear.store</strong> · <strong>nexgear.tech</strong></p>
+      <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+        <span class="chip out">Dễ nhớ</span><span class="chip out">Phát âm rõ</span><span class="chip out">Futuristic</span><span class="chip out">Domain ngắn</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏷️</div>
+      <h3>Tagline</h3>
+      <p style="font-family:'Orbitron',sans-serif;font-size:13px;line-height:1.6;color:var(--ink);">"GEAR UP. LEVEL UP."</p>
+      <div class="divider"></div>
+      <p style="font-size:12.5px;color:var(--ink3);">Hoặc: <br>"Next-Gen Gear for Every Setup"<br>"Built for Performance"</p>
+    </div>
+  </div>
+
+  <!-- Colors -->
+  <h3 style="margin-bottom:4px">Màu sắc thương hiệu</h3>
+  <p style="color:var(--ink3);font-size:13px;margin-bottom:16px">Light background + neon accent = Cyberpunk ban ngày. Dễ đọc, dễ in, phù hợp mọi thiết bị.</p>
+  <div class="swatch-row">
+    <div class="swatch" style="background:#F4F2ED;border:1px solid #ddd">
+      <div class="sw-hex">#F4F2ED</div>
+      <div class="sw-label">BG Cream</div>
+    </div>
+    <div class="swatch" style="background:#0C0C0C;color:#fff">
+      <div class="sw-hex">#0C0C0C</div>
+      <div class="sw-label" style="color:#aaa">Ink Black</div>
+    </div>
+    <div class="swatch" style="background:#00C4AD;color:#0C0C0C">
+      <div class="sw-hex">#00C4AD</div>
+      <div class="sw-label">Cyber Cyan ★</div>
+    </div>
+    <div class="swatch" style="background:#F0356A;color:#fff">
+      <div class="sw-hex">#F0356A</div>
+      <div class="sw-label">Neon Magenta</div>
+    </div>
+    <div class="swatch" style="background:#F0A500;color:#0C0C0C">
+      <div class="sw-hex">#F0A500</div>
+      <div class="sw-label">Amber Gold</div>
+    </div>
+    <div class="swatch" style="background:#7B3FF2;color:#fff">
+      <div class="sw-hex">#7B3FF2</div>
+      <div class="sw-label">Electric Purple</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="g3">
+    <div class="accent-box ab-cyan">
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.1em;color:var(--cyan);margin-bottom:8px">DISPLAY FONT</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900">Orbitron</div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:var(--ink2);margin-top:4px">Logo · Heading · Badge</div>
+    </div>
+    <div class="accent-box ab-gold">
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.1em;color:var(--gold);margin-bottom:8px">BODY FONT</div>
+      <div style="font-size:22px;font-weight:500">DM Sans</div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:4px">Body · UI · Navigation</div>
+    </div>
+    <div class="accent-box ab-purple">
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;letter-spacing:.1em;color:var(--purple);margin-bottom:8px">MONO FONT</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:20px">JetBrains Mono</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink2);margin-top:4px">Price · Code · SKU · Badge</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 02 UI/UX DESIGN -->
+<!-- ═══════════════════════════════════════ -->
+<section id="design">
+  <div class="sec-label">02 — Frontend</div>
+  <h2>UI/UX — Trang Web Bán Hàng</h2>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+      <div class="url">nexgear.vn</div>
+    </div>
+    <div class="mock">
+      <div class="mnav">
+        <div class="mlogo">NEX<em>GEAR</em></div>
+        <div class="mlinks">
+          <span>Bàn Phím</span><span>Chuột & Lót</span><span>Tai Nghe</span><span>Loa & Mic</span><span>Phụ Kiện</span><span>Deal 🔥</span>
+        </div>
+        <div class="mactions">
+          <span style="font-size:12px;color:var(--ink3)">🔍</span>
+          <span style="font-size:12px;color:var(--ink3)">🛒 3</span>
+          <span style="font-size:12px;color:var(--ink3)">👤</span>
+          <button class="mbtn mbtn-solid">Đặt Hàng</button>
+        </div>
+      </div>
+      <div class="mcats">
+        <div class="mcat active">Tất cả</div>
+        <div class="mcat">Bàn phím cơ</div>
+        <div class="mcat">Wireless</div>
+        <div class="mcat">RGB</div>
+        <div class="mcat">Tenkeyless</div>
+        <div class="mcat">Switch Linear</div>
+        <div class="mcat">Switch Tactile</div>
+        <div class="mcat">Dưới 1 triệu</div>
+      </div>
+      <div class="mhero">
+        <div>
+          <div class="mh-label">// SPRING DROPS — THÁNG 3/2025</div>
+          <div class="mh-title">GEAR UP<br><em>NEXT</em><br>LEVEL</div>
+          <div class="mh-sub">Bàn phím cơ · Chuột gaming · Tai nghe Hi-Fi<br>Micro stream · Loa studio · Phụ kiện cao cấp</div>
+          <div class="mh-btns">
+            <button class="mbtn mbtn-solid">KHÁM PHÁ →</button>
+            <button class="mbtn mbtn-out">XEM DEAL</button>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:16px">
+            <div style="text-align:center">
+              <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--cyan)">500+</div>
+              <div style="font-size:9.5px;color:var(--ink3)">Sản phẩm</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--mag)">4.9★</div>
+              <div style="font-size:9.5px;color:var(--ink3)">Đánh giá</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:var(--gold)">2H</div>
+              <div style="font-size:9.5px;color:var(--ink3)">Giao nhanh</div>
+            </div>
+          </div>
+        </div>
+        <div class="mproducts">
+          <div class="mpcard">
+            <div class="mpbadge">NEW</div>
+            <div class="mpimg">⌨️</div>
+            <div class="mpname">Bàn Phím Cơ 75%</div>
+            <div class="mpprice">890K</div>
+          </div>
+          <div class="mpcard">
+            <div class="mpbadge" style="background:var(--gold);color:var(--ink)">SALE</div>
+            <div class="mpimg">🖱️</div>
+            <div class="mpname">Gaming Mouse Pro</div>
+            <div class="mpprice">650K</div>
+          </div>
+          <div class="mpcard">
+            <div class="mpimg">🎧</div>
+            <div class="mpname">Hi-Fi Headphone</div>
+            <div class="mpprice">1.2M</div>
+          </div>
+          <div class="mpcard">
+            <div class="mpimg">🎤</div>
+            <div class="mpname">USB Condenser Mic</div>
+            <div class="mpprice">750K</div>
+          </div>
+          <div class="mpcard">
+            <div class="mpbadge">HOT</div>
+            <div class="mpimg">🔊</div>
+            <div class="mpname">Studio Monitor</div>
+            <div class="mpprice">1.8M</div>
+          </div>
+          <div class="mpcard">
+            <div class="mpimg">🖱️</div>
+            <div class="mpname">Deskpad XL 900mm</div>
+            <div class="mpprice">220K</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Pages list -->
+  <h3 style="margin-bottom:20px">Danh sách trang cần xây dựng</h3>
+  <div class="g3">
+    <div class="card">
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:.15em;color:var(--cyan);margin-bottom:10px">KHÁCH HÀNG</div>
+      <ul style="padding-left:16px;font-size:13px;color:var(--ink2);line-height:2">
+        <li>/ — Trang chủ (hero + featured)</li>
+        <li>/products — Danh sách + filter</li>
+        <li>/products/[slug] — Chi tiết SP</li>
+        <li>/cart — Giỏ hàng</li>
+        <li>/checkout — Thanh toán</li>
+        <li>/orders/[id] — Theo dõi đơn</li>
+        <li>/account — Tài khoản cá nhân</li>
+        <li>/account/orders — Lịch sử mua</li>
+        <li>/wishlist — Yêu thích</li>
+        <li>/compare — So sánh SP</li>
+      </ul>
+    </div>
+    <div class="card gold">
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:.15em;color:var(--gold);margin-bottom:10px">DANH MỤC</div>
+      <ul style="padding-left:16px;font-size:13px;color:var(--ink2);line-height:2">
+        <li>/ban-phim — Bàn phím</li>
+        <li>/chuot — Chuột</li>
+        <li>/tai-nghe — Tai nghe</li>
+        <li>/lot-chuot — Lót chuột</li>
+        <li>/mic — Microphone</li>
+        <li>/loa — Loa</li>
+        <li>/phu-kien — Phụ kiện</li>
+        <li>/brands/[slug] — Thương hiệu</li>
+        <li>/deals — Flash sale</li>
+        <li>/new-arrivals — Hàng mới về</li>
+      </ul>
+    </div>
+    <div class="card purple">
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:.15em;color:var(--purple);margin-bottom:10px">HỆ THỐNG</div>
+      <ul style="padding-left:16px;font-size:13px;color:var(--ink2);line-height:2">
+        <li>/login · /register — Auth</li>
+        <li>/forgot-password — Reset PW</li>
+        <li>/search — Kết quả tìm kiếm</li>
+        <li>/about — Về chúng tôi</li>
+        <li>/warranty — Chính sách BH</li>
+        <li>/shipping — Chính sách GH</li>
+        <li>/returns — Đổi trả</li>
+        <li>/contact — Liên hệ</li>
+        <li>/sitemap — SEO sitemap</li>
+        <li>/404 — Trang lỗi</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 03 ADMIN DASHBOARD -->
+<!-- ═══════════════════════════════════════ -->
+<section id="admin">
+  <div class="sec-label">03 — Management</div>
+  <h2>Admin Dashboard — Quản lý toàn bộ</h2>
+
+  <div class="admin-mock">
+    <div class="admin-bar">
+      <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+      <div class="url">admin.nexgear.vn</div>
+    </div>
+    <div style="overflow:hidden;display:flex">
+      <div class="admin-sidebar">
+        <div style="padding:16px 20px;margin-bottom:8px">
+          <div style="font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;color:#fff">NEX<span style="color:var(--cyan)">GEAR</span></div>
+          <div style="font-size:9.5px;color:#444;font-family:'JetBrains Mono',monospace;margin-top:3px">ADMIN v1.0</div>
+        </div>
+        <div class="asi-head">TỔNG QUAN</div>
+        <div class="asi active">📊 Dashboard</div>
+        <div class="asi">📈 Thống kê</div>
+        <div class="asi-head">BÁN HÀNG</div>
+        <div class="asi">🛒 Đơn hàng</div>
+        <div class="asi">💰 Dòng tiền</div>
+        <div class="asi">🎁 Khuyến mãi</div>
+        <div class="asi-head">KHO HÀNG</div>
+        <div class="asi">📦 Sản phẩm</div>
+        <div class="asi">🏭 Nhập kho</div>
+        <div class="asi">⚠️ Cảnh báo tồn</div>
+        <div class="asi-head">HỆ THỐNG</div>
+        <div class="asi">👤 Khách hàng</div>
+        <div class="asi">👥 Nhân viên</div>
+        <div class="asi">⚙️ Cài đặt</div>
+      </div>
+      <div class="admin-content">
+        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center">
+          <div style="font-family:'Orbitron',sans-serif;font-size:13px;color:#fff">Dashboard — Tháng 3/2025</div>
+          <div style="display:flex;gap:8px">
+            <div style="background:#1A1A1A;border:1px solid #2A2A2A;border-radius:2px;padding:5px 12px;font-size:10px;color:#888;font-family:'JetBrains Mono',monospace;">Tháng này ▾</div>
+            <div style="background:var(--cyan);color:var(--ink);border-radius:2px;padding:5px 12px;font-size:10px;font-family:'Orbitron',sans-serif;letter-spacing:.08em;">XUẤT BÁO CÁO</div>
+          </div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-val">48.2M</div>
+            <div class="stat-label">DOANH THU (VNĐ)</div>
+            <div class="stat-change">↑ +18% so tháng trước</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--gold)">124</div>
+            <div class="stat-label">ĐƠN HÀNG</div>
+            <div class="stat-change">↑ +12 đơn</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--mag)">389K</div>
+            <div class="stat-label">GIÁ TRỊ TB/ĐƠN</div>
+            <div class="stat-change">↑ +5% AOV</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-val" style="color:var(--purple)">87</div>
+            <div class="stat-label">SẢN PHẨM CÒN TỒN</div>
+            <div class="stat-change" style="color:var(--gold)">⚠ 6 sắp hết</div>
+          </div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#555;margin-bottom:8px;letter-spacing:.1em">ĐƠN HÀNG GẦN ĐÂY</div>
+        <table class="mini-table">
+          <tr><th>MÃ ĐƠN</th><th>KHÁCH HÀNG</th><th>SẢN PHẨM</th><th>TỔNG</th><th>TRẠNG THÁI</th></tr>
+          <tr><td>NGR-00124</td><td>Nguyễn Minh K.</td><td>Bàn phím Akko 3068B</td><td style="color:var(--cyan)">890K</td><td><span class="status-badge sb-pend">Chờ xử lý</span></td></tr>
+          <tr><td>NGR-00123</td><td>Trần Thu H.</td><td>Chuột Logitech G Pro X</td><td style="color:var(--cyan)">1.65M</td><td><span class="status-badge sb-ship">Đang giao</span></td></tr>
+          <tr><td>NGR-00122</td><td>Lê Văn T.</td><td>Tai nghe Sony WH-1000XM5</td><td style="color:var(--cyan)">6.5M</td><td><span class="status-badge sb-done">Hoàn thành</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 04 POS -->
+<!-- ═══════════════════════════════════════ -->
+<section id="pos">
+  <div class="sec-label">04 — Offline</div>
+  <h2>POS — Bán Hàng Tại Quầy</h2>
+
+  <p style="color:var(--ink2);margin-bottom:28px;max-width:700px">Màn hình POS chạy trên trình duyệt (tablet hoặc PC tại quầy), kết nối real-time với cùng MongoDB backend. Đơn offline và online được quản lý chung một chỗ.</p>
+
+  <div class="pos-mock">
+    <div class="pos-products">
+      <div style="font-family:'Orbitron',sans-serif;font-size:11px;color:#aaa;letter-spacing:.1em;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <span>NEXGEAR POS</span>
+        <span style="color:#555;font-size:10px">Nhân viên: Minh Tuấn ▾</span>
+      </div>
+      <div style="margin-bottom:12px">
+        <input style="width:100%;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:2px;padding:7px 14px;color:#aaa;font-family:'JetBrains Mono',monospace;font-size:11px;" placeholder="🔍  Tìm sản phẩm / quét barcode...">
+      </div>
+      <div class="pos-grid">
+        <div class="pos-pcard"><div class="pos-icon">⌨️</div><div class="pos-pname">Akko 3068B</div><div class="pos-pprice">890K</div></div>
+        <div class="pos-pcard" style="border-color:var(--cyan)"><div class="pos-icon">🖱️</div><div class="pos-pname">G Pro X S2</div><div class="pos-pprice">1.65M</div></div>
+        <div class="pos-pcard"><div class="pos-icon">🎧</div><div class="pos-pname">WH-1000XM5</div><div class="pos-pprice">6.5M</div></div>
+        <div class="pos-pcard"><div class="pos-icon">🎤</div><div class="pos-pname">HyperX Solo</div><div class="pos-pprice">750K</div></div>
+        <div class="pos-pcard"><div class="pos-icon">🔊</div><div class="pos-pname">Edifier R1280</div><div class="pos-pprice">1.8M</div></div>
+        <div class="pos-pcard"><div class="pos-icon">🖱️</div><div class="pos-pname">Deskpad 900mm</div><div class="pos-pprice">220K</div></div>
+        <div class="pos-pcard"><div class="pos-icon">🔌</div><div class="pos-pname">USB Hub 7-port</div><div class="pos-pprice">320K</div></div>
+        <div class="pos-pcard"><div class="pos-icon">💡</div><div class="pos-pname">LED Strip 2m</div><div class="pos-pprice">180K</div></div>
+      </div>
+    </div>
+    <div class="pos-cart">
+      <div class="pos-cart-title">GIỎ HÀNG</div>
+      <div class="pos-item"><span class="name">Akko 3068B × 1</span><span class="price">890K</span></div>
+      <div class="pos-item"><span class="name">G Pro X S2 × 1</span><span class="price">1,650K</span></div>
+      <div class="pos-item"><span class="name">Deskpad XL × 1</span><span class="price">220K</span></div>
+      <div style="flex:1"></div>
+      <div class="pos-total">
+        <div class="pos-total-label">TỔNG THANH TOÁN</div>
+        <div class="pos-total-val">2,760K</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <div style="flex:1;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:2px;padding:6px;text-align:center;font-size:10px;color:#aaa;font-family:'JetBrains Mono',monospace;cursor:pointer">💵 TIỀN MẶT</div>
+          <div style="flex:1;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:2px;padding:6px;text-align:center;font-size:10px;color:#aaa;font-family:'JetBrains Mono',monospace;cursor:pointer">📱 CHUYỂN KH</div>
+          <div style="flex:1;background:#1A1A1A;border:1px solid #2A2A2A;border-radius:2px;padding:6px;text-align:center;font-size:10px;color:var(--cyan);font-family:'JetBrains Mono',monospace;cursor:pointer">💳 QR CODE</div>
+        </div>
+        <button class="pos-pay">THANH TOÁN →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3" style="margin-top:24px">
+    <div class="card">
+      <div class="card-icon">📱</div>
+      <h3>Quét Barcode / QR</h3>
+      <p>Nhân viên dùng camera tablet để quét barcode sản phẩm. Tự động thêm vào giỏ. Không cần máy quét chuyên dụng.</p>
+    </div>
+    <div class="card gold">
+      <div class="card-icon">🖨️</div>
+      <h3>In Hóa Đơn</h3>
+      <p>In nhiệt qua kết nối USB/Bluetooth. Hỗ trợ máy in Xprinter, EPSON TM. Hoặc gửi hóa đơn qua Zalo/email.</p>
+    </div>
+    <div class="card purple">
+      <div class="card-icon">🔄</div>
+      <h3>Sync Online/Offline</h3>
+      <p>Tồn kho cập nhật ngay khi bán tại quầy. Không bao giờ oversell. Dashboard admin thấy cả online + offline.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 05 TECH STACK -->
+<!-- ═══════════════════════════════════════ -->
+<section id="tech">
+  <div class="sec-label">05 — Technology</div>
+  <h2>Tech Stack Chi Tiết</h2>
+
+  <div class="g2" style="gap:12px">
+
+    <div class="tbl-wrap">
+      <div class="tbl-head">🖥️ <em>Frontend</em></div>
+      <table>
+        <tr><th>Thư viện</th><th>Version</th><th>Mục đích</th></tr>
+        <tr><td>Next.js</td><td class="type">15 (App Router)</td><td class="desc">Framework chính — SSR, SSG, API Routes</td></tr>
+        <tr><td>React</td><td class="type">19</td><td class="desc">Server & Client Components</td></tr>
+        <tr><td>Tailwind CSS</td><td class="type">v4</td><td class="desc">Utility-first styling</td></tr>
+        <tr><td>shadcn/ui</td><td class="type">latest</td><td class="desc">Headless components (Dialog, Sheet, Table...)</td></tr>
+        <tr><td>Framer Motion</td><td class="type">^11</td><td class="desc">Page transitions, micro-animations</td></tr>
+        <tr><td>Zustand</td><td class="type">^5</td><td class="desc">Client state (cart, filters, POS)</td></tr>
+        <tr><td>React Query</td><td class="type">v5</td><td class="desc">Server state, cache, optimistic updates</td></tr>
+        <tr><td>React Hook Form</td><td class="type">^7</td><td class="desc">Form validation + Zod schema</td></tr>
+        <tr><td>Recharts</td><td class="type">^2</td><td class="desc">Dashboard charts (revenue, inventory)</td></tr>
+        <tr><td>next-intl</td><td class="type">^3</td><td class="desc">i18n VI/EN (tùy chọn)</td></tr>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <div class="tbl-head">⚙️ <em>Backend & Database</em></div>
+      <table>
+        <tr><th>Công nghệ</th><th>Loại</th><th>Mục đích</th></tr>
+        <tr><td>MongoDB Atlas</td><td class="type">M0 free → scale</td><td class="desc">Database chính — linh hoạt schema</td></tr>
+        <tr><td>Mongoose</td><td class="type">ODM</td><td class="desc">Schema validation, middleware, populate</td></tr>
+        <tr><td>Next.js API Routes</td><td class="type">Serverless</td><td class="desc">REST API — /api/* endpoints</td></tr>
+        <tr><td>NextAuth.js v5</td><td class="type">Auth</td><td class="desc">Session, JWT, OAuth Google, Credentials</td></tr>
+        <tr><td>Zod</td><td class="type">Validation</td><td class="desc">Runtime validation frontend + backend</td></tr>
+        <tr><td>Cloudinary</td><td class="type">Media CDN</td><td class="desc">Upload, resize, optimize ảnh sản phẩm</td></tr>
+        <tr><td>VNPay SDK</td><td class="type">Payment</td><td class="desc">Thanh toán nội địa VN</td></tr>
+        <tr><td>Stripe</td><td class="type">Payment</td><td class="desc">Thẻ quốc tế (tùy chọn)</td></tr>
+        <tr><td>Resend + React Email</td><td class="type">Email</td><td class="desc">Xác nhận đơn, reset PW, notification</td></tr>
+        <tr><td>GHN / GHTK API</td><td class="type">Shipping</td><td class="desc">Tính phí ship, tạo vận đơn, tracking</td></tr>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <div class="tbl-head">🚀 <em>DevOps & Tools</em></div>
+      <table>
+        <tr><th>Tool</th><th>Loại</th><th>Mục đích</th></tr>
+        <tr><td>Vercel</td><td class="type">Hosting</td><td class="desc">Deploy tự động từ GitHub, edge network</td></tr>
+        <tr><td>GitHub Actions</td><td class="type">CI/CD</td><td class="desc">Auto test + deploy khi push code</td></tr>
+        <tr><td>ESLint + Prettier</td><td class="type">Linting</td><td class="desc">Code quality, format tự động</td></tr>
+        <tr><td>TypeScript</td><td class="type">Language</td><td class="desc">Type safety toàn bộ codebase</td></tr>
+        <tr><td>Vitest + Testing Library</td><td class="type">Testing</td><td class="desc">Unit test components, API routes</td></tr>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <div class="tbl-head">🔌 <em>Third-party Integrations</em></div>
+      <table>
+        <tr><th>Service</th><th>Loại</th><th>Mục đích</th></tr>
+        <tr><td>Zalo OA</td><td class="type">Notification</td><td class="desc">Gửi thông báo đơn hàng qua Zalo</td></tr>
+        <tr><td>Google Analytics 4</td><td class="type">Analytics</td><td class="desc">Hành vi người dùng, conversion</td></tr>
+        <tr><td>Vercel Analytics</td><td class="type">Performance</td><td class="desc">Core Web Vitals monitoring</td></tr>
+        <tr><td>Atlas Search</td><td class="type">Search</td><td class="desc">Full-text search, filter, autocomplete</td></tr>
+        <tr><td>Sentry</td><td class="type">Error tracking</td><td class="desc">Monitor lỗi production</td></tr>
+      </table>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 06 MONGODB SCHEMA -->
+<!-- ═══════════════════════════════════════ -->
+<section id="schema">
+  <div class="sec-label">06 — Database</div>
+  <h2>MongoDB Schema — 12 Collections</h2>
+
+  <p style="color:var(--ink2);margin-bottom:32px;max-width:700px">Thiết kế cho team 2–5 người vận hành lâu dài. Tối ưu cho aggregation pipeline thống kê, inventory tracking đầy đủ, và POS integration.</p>
+
+  <!-- Products -->
+  <div class="tbl-wrap">
+    <div class="tbl-head">📦 <em>products</em> — Sản phẩm (collection trung tâm)</div>
+    <table>
+      <tr><th>Field</th><th>Type / Enum</th><th>Mô tả</th></tr>
+      <tr><td>_id</td><td class="type">ObjectId</td><td class="desc">Primary key tự động</td></tr>
+      <tr><td>name</td><td class="type">String, required</td><td class="desc">Tên sản phẩm đầy đủ</td></tr>
+      <tr><td>slug</td><td class="type">String, unique</td><td class="desc">URL-friendly: akko-3068b-plus-blue-switch</td></tr>
+      <tr><td>sku</td><td class="type">String, unique</td><td class="desc">Mã nội bộ: KBD-AKKO-3068B-BLU</td></tr>
+      <tr><td>barcode</td><td class="type">String</td><td class="desc">EAN-13 hoặc Code-128 để quét POS</td></tr>
+      <tr><td>category</td><td class="type">ObjectId → categories</td><td class="desc">Danh mục chính</td></tr>
+      <tr><td>brand</td><td class="type">ObjectId → brands</td><td class="desc">Thương hiệu</td></tr>
+      <tr><td>variants</td><td class="type">Array of Object</td><td class="desc">[{name:"Trắng",sku,price,stock,images}] — nhiều phiên bản</td></tr>
+      <tr><td>basePrice</td><td class="type">Number (VNĐ)</td><td class="desc">Giá niêm yết</td></tr>
+      <tr><td>salePrice</td><td class="type">Number, nullable</td><td class="desc">Giá khuyến mãi (null = không sale)</td></tr>
+      <tr><td>costPrice</td><td class="type">Number (private)</td><td class="desc">Giá nhập — chỉ admin thấy</td></tr>
+      <tr><td>stock</td><td class="type">Number, default 0</td><td class="desc">Tổng tồn kho hiện tại</td></tr>
+      <tr><td>lowStockAlert</td><td class="type">Number, default 5</td><td class="desc">Cảnh báo khi tồn ≤ giá trị này</td></tr>
+      <tr><td>images</td><td class="type">String[], Cloudinary</td><td class="desc">Mảng URL ảnh sản phẩm</td></tr>
+      <tr><td>specs</td><td class="type">Object (flexible)</td><td class="desc">Thông số kỹ thuật theo loại SP</td></tr>
+      <tr><td>tags</td><td class="type">String[]</td><td class="desc">gaming, wireless, RGB, mechanical, tkl...</td></tr>
+      <tr><td>ratings</td><td class="type">{avg: Number, count: Number}</td><td class="desc">Điểm đánh giá tổng hợp</td></tr>
+      <tr><td>soldCount</td><td class="type">Number, default 0</td><td class="desc">Tổng số đã bán — cho sort "bán chạy"</td></tr>
+      <tr><td>isActive</td><td class="type">Boolean, default true</td><td class="desc">Ẩn/hiện sản phẩm</td></tr>
+      <tr><td>isFeatured</td><td class="type">Boolean, default false</td><td class="desc">Hiển thị trang chủ</td></tr>
+      <tr><td>seoTitle, seoDesc</td><td class="type">String</td><td class="desc">Meta tags cho SEO</td></tr>
+      <tr><td>createdAt, updatedAt</td><td class="type">Date (timestamps)</td><td class="desc">Tự động quản lý bởi Mongoose</td></tr>
+    </table>
+  </div>
+
+  <!-- Orders -->
+  <div class="tbl-wrap">
+    <div class="tbl-head">🛒 <em>orders</em> — Đơn hàng (online + offline)</div>
+    <table>
+      <tr><th>Field</th><th>Type / Enum</th><th>Mô tả</th></tr>
+      <tr><td>orderCode</td><td class="type">String, unique</td><td class="desc">NGR-2025-00001 (auto-increment)</td></tr>
+      <tr><td>channel</td><td class="type">Enum: online|pos|phone</td><td class="desc">Kênh tạo đơn</td></tr>
+      <tr><td>user</td><td class="type">ObjectId → users, nullable</td><td class="desc">Null nếu guest checkout hoặc POS walk-in</td></tr>
+      <tr><td>customerInfo</td><td class="type">Object</td><td class="desc">{name, phone, email} — cho guest</td></tr>
+      <tr><td>items</td><td class="type">Array of Object</td><td class="desc">[{product, variant, qty, unitPrice, totalPrice}]</td></tr>
+      <tr><td>subtotal</td><td class="type">Number</td><td class="desc">Tổng trước giảm giá + phí ship</td></tr>
+      <tr><td>discount</td><td class="type">Number, default 0</td><td class="desc">Số tiền giảm (từ coupon hoặc tay)</td></tr>
+      <tr><td>shippingFee</td><td class="type">Number, default 0</td><td class="desc">Phí vận chuyển (0 nếu POS)</td></tr>
+      <tr><td>total</td><td class="type">Number</td><td class="desc">Tổng cuối = subtotal - discount + shippingFee</td></tr>
+      <tr><td>coupon</td><td class="type">ObjectId → coupons</td><td class="desc">Mã giảm giá đã áp dụng</td></tr>
+      <tr><td>shippingAddress</td><td class="type">Object, nullable</td><td class="desc">{name, phone, address, ward, district, province}</td></tr>
+      <tr><td>status</td><td class="type">Enum</td><td class="desc">pending → confirmed → packing → shipped → delivered → cancelled → refunded</td></tr>
+      <tr><td>payment</td><td class="type">Object</td><td class="desc">{method: cash|vnpay|stripe|transfer, status: pending|paid|failed, txnId, paidAt}</td></tr>
+      <tr><td>shipping</td><td class="type">Object</td><td class="desc">{provider: GHN|GHTK, trackingCode, estimatedAt}</td></tr>
+      <tr><td>timeline</td><td class="type">Array</td><td class="desc">[{status, note, updatedBy, updatedAt}] — lịch sử</td></tr>
+      <tr><td>notes</td><td class="type">String</td><td class="desc">Ghi chú khách hàng</td></tr>
+      <tr><td>staffNotes</td><td class="type">String</td><td class="desc">Ghi chú nội bộ nhân viên</td></tr>
+      <tr><td>processedBy</td><td class="type">ObjectId → users</td><td class="desc">Nhân viên xử lý (POS)</td></tr>
+    </table>
+  </div>
+
+  <!-- Inventory -->
+  <div class="tbl-wrap">
+    <div class="tbl-head">🏭 <em>inventory_logs</em> — Lịch sử xuất nhập kho</div>
+    <table>
+      <tr><th>Field</th><th>Type / Enum</th><th>Mô tả</th></tr>
+      <tr><td>product</td><td class="type">ObjectId → products</td><td class="desc">Sản phẩm liên quan</td></tr>
+      <tr><td>type</td><td class="type">Enum</td><td class="desc">import | sale | return | adjustment | damage | transfer</td></tr>
+      <tr><td>quantity</td><td class="type">Number</td><td class="desc">Số lượng thay đổi (dương = thêm, âm = bớt)</td></tr>
+      <tr><td>stockBefore</td><td class="type">Number</td><td class="desc">Tồn kho trước giao dịch</td></tr>
+      <tr><td>stockAfter</td><td class="type">Number</td><td class="desc">Tồn kho sau giao dịch</td></tr>
+      <tr><td>costPrice</td><td class="type">Number, nullable</td><td class="desc">Giá nhập (chỉ khi type=import)</td></tr>
+      <tr><td>totalCost</td><td class="type">Number, nullable</td><td class="desc">Tổng tiền nhập = qty × costPrice</td></tr>
+      <tr><td>supplier</td><td class="type">ObjectId → suppliers</td><td class="desc">Nhà cung cấp (khi nhập hàng)</td></tr>
+      <tr><td>reference</td><td class="type">String</td><td class="desc">Mã phiếu nhập hoặc Order ID</td></tr>
+      <tr><td>note</td><td class="type">String</td><td class="desc">Ghi chú lý do điều chỉnh</td></tr>
+      <tr><td>createdBy</td><td class="type">ObjectId → users</td><td class="desc">Nhân viên thực hiện</td></tr>
+      <tr><td>createdAt</td><td class="type">Date</td><td class="desc">Timestamp</td></tr>
+    </table>
+  </div>
+
+  <!-- Transactions -->
+  <div class="tbl-wrap">
+    <div class="tbl-head">💰 <em>transactions</em> — Dòng tiền P&L</div>
+    <table>
+      <tr><th>Field</th><th>Type / Enum</th><th>Mô tả</th></tr>
+      <tr><td>type</td><td class="type">Enum</td><td class="desc">revenue | expense | refund | adjustment</td></tr>
+      <tr><td>category</td><td class="type">Enum</td><td class="desc">product_sale | shipping_fee | import_cost | salary | rent | marketing | tool | other</td></tr>
+      <tr><td>amount</td><td class="type">Number (luôn dương)</td><td class="desc">Số tiền giao dịch</td></tr>
+      <tr><td>currency</td><td class="type">String, default VND</td><td class="desc">Đơn vị tiền tệ</td></tr>
+      <tr><td>direction</td><td class="type">Enum: in|out</td><td class="desc">Tiền vào (revenue) hay tiền ra (expense)</td></tr>
+      <tr><td>paymentMethod</td><td class="type">Enum</td><td class="desc">cash | bank_transfer | vnpay | stripe</td></tr>
+      <tr><td>reference</td><td class="type">String</td><td class="desc">Order Code hoặc mã phiếu chi</td></tr>
+      <tr><td>orderId</td><td class="type">ObjectId → orders</td><td class="desc">Liên kết đơn hàng (nếu có)</td></tr>
+      <tr><td>description</td><td class="type">String, required</td><td class="desc">Mô tả giao dịch</td></tr>
+      <tr><td>date</td><td class="type">Date, required</td><td class="desc">Ngày thực hiện giao dịch thực tế</td></tr>
+      <tr><td>attachments</td><td class="type">String[]</td><td class="desc">URL ảnh hóa đơn, chứng từ</td></tr>
+      <tr><td>createdBy</td><td class="type">ObjectId → users</td><td class="desc">Ai tạo bản ghi</td></tr>
+    </table>
+  </div>
+
+  <!-- Other Collections -->
+  <div class="tbl-wrap">
+    <div class="tbl-head">👤 <em>users</em> · <em>reviews</em> · <em>coupons</em> · <em>categories</em> · <em>brands</em> · <em>suppliers</em></div>
+    <table>
+      <tr><th>Collection</th><th>Key Fields</th><th>Ghi chú quan trọng</th></tr>
+      <tr><td>users</td><td class="type">email, passwordHash, role (admin|manager|staff|cashier|customer), addresses[], wishlist[], totalSpent, loyaltyPoints</td><td class="desc">Role-based access control toàn hệ thống</td></tr>
+      <tr><td>reviews</td><td class="type">product, user, order, rating (1-5), title, content, images[], pros[], cons[], isVerified, isApproved</td><td class="desc">isVerified = đã mua hàng. isApproved = admin duyệt hiển thị</td></tr>
+      <tr><td>coupons</td><td class="type">code (unique), type (percent|fixed|shipping), value, minOrderValue, maxDiscount, maxUses, usedCount, usedBy[], startAt, expireAt, isActive</td><td class="desc">usedBy[] để tránh dùng nhiều lần</td></tr>
+      <tr><td>categories</td><td class="type">name, slug, parent (ObjectId self-ref), icon, description, order, isActive</td><td class="desc">Tree structure hỗ trợ danh mục con</td></tr>
+      <tr><td>brands</td><td class="type">name, slug, logo, country, description, isActive</td><td class="desc">Akko, Logitech, Sony, HyperX, Edifier...</td></tr>
+      <tr><td>suppliers</td><td class="type">name, contact, phone, email, address, paymentTerms, bankInfo, notes</td><td class="desc">Nhà cung cấp — liên kết với inventory_logs</td></tr>
+      <tr><td>sessions</td><td class="type">Managed by NextAuth</td><td class="desc">JWT hoặc database sessions</td></tr>
+    </table>
+  </div>
+
+  <!-- Aggregation example -->
+  <h3 style="margin-bottom:12px;margin-top:32px">Aggregation Pipeline — Thống kê thực tế</h3>
+  <div class="g2">
+    <div>
+      <div class="code-label">📊 Doanh thu theo tháng</div>
+      <div class="code">
+<span class="k">db</span>.<span class="n">orders</span>.<span class="t">aggregate</span>([
+  { <span class="s">$match</span>: {
+    status: <span class="s">"delivered"</span>,
+    <span class="s">"payment.status"</span>: <span class="s">"paid"</span>
+  }},
+  { <span class="s">$group</span>: {
+    _id: {
+      year:  { <span class="s">$year</span>: <span class="s">"$createdAt"</span> },
+      month: { <span class="s">$month</span>: <span class="s">"$createdAt"</span> }
+    },
+    revenue:   { <span class="s">$sum</span>: <span class="s">"$total"</span> },
+    orderCount:{ <span class="s">$sum</span>: <span class="k">1</span> },
+    avgOrder:  { <span class="s">$avg</span>: <span class="s">"$total"</span> },
+    <span class="c">// Online vs POS split</span>
+    onlineRev: { <span class="s">$sum</span>: {
+      <span class="s">$cond</span>: [{ <span class="s">$eq</span>:[<span class="s">"$channel"</span>,<span class="s">"online"</span>]},<span class="s">"$total"</span>,<span class="k">0</span>]
+    }}
+  }},
+  { <span class="s">$sort</span>: { <span class="s">"_id.year"</span>: <span class="k">1</span>, <span class="s">"_id.month"</span>: <span class="k">1</span> }}
+])
+      </div>
+    </div>
+    <div>
+      <div class="code-label">📦 Sản phẩm sắp hết hàng</div>
+      <div class="code">
+<span class="k">db</span>.<span class="n">products</span>.<span class="t">aggregate</span>([
+  { <span class="s">$match</span>: {
+    isActive: <span class="k">true</span>,
+    <span class="s">$expr</span>: { <span class="s">$lte</span>: [
+      <span class="s">"$stock"</span>,
+      <span class="s">"$lowStockAlert"</span>
+    ]}
+  }},
+  { <span class="s">$lookup</span>: {
+    from: <span class="s">"inventory_logs"</span>,
+    let: { pid: <span class="s">"$_id"</span> },
+    pipeline: [
+      { <span class="s">$match</span>: { <span class="s">$expr</span>: {
+        <span class="s">$and</span>: [
+          { <span class="s">$eq</span>: [<span class="s">"$product"</span>, <span class="s">"$$pid"</span>] },
+          { <span class="s">$eq</span>: [<span class="s">"$type"</span>, <span class="s">"import"</span>] }
+        ]
+      }}},
+      { <span class="s">$sort</span>: { createdAt: <span class="k">-1</span> }},
+      { <span class="s">$limit</span>: <span class="k">1</span> }
+    ],
+    as: <span class="s">"lastImport"</span>
+  }},
+  { <span class="s">$sort</span>: { stock: <span class="k">1</span> }}
+])
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 07 TEAM ROLES -->
+<!-- ═══════════════════════════════════════ -->
+<section id="roles">
+  <div class="sec-label">07 — Organization</div>
+  <h2>Team Roles & Phân Quyền Hệ Thống</h2>
+
+  <p style="color:var(--ink2);margin-bottom:28px">4 roles được thiết kế cho team 2–5 người. Một người có thể đảm nhiệm nhiều roles.</p>
+
+  <div class="g2">
+    <div class="role-card">
+      <div class="role-head">
+        <div class="role-badge rb-admin">ADMIN</div>
+        <div class="role-name">Chủ shop / Founder</div>
+      </div>
+      <div class="role-body">
+        <ul>
+          <li>✅ Toàn quyền trên mọi tính năng</li>
+          <li>✅ Xem costPrice và lợi nhuận thực</li>
+          <li>✅ Quản lý nhân viên, phân quyền</li>
+          <li>✅ Xóa đơn hàng, hoàn tiền</li>
+          <li>✅ Cài đặt hệ thống, tích hợp payment</li>
+          <li>✅ Export toàn bộ dữ liệu</li>
+          <li>✅ Xem báo cáo P&L đầy đủ</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="role-card">
+      <div class="role-head">
+        <div class="role-badge rb-manager">MANAGER</div>
+        <div class="role-name">Quản lý / Trưởng nhóm</div>
+      </div>
+      <div class="role-body">
+        <ul>
+          <li>✅ Quản lý đơn hàng (mọi trạng thái)</li>
+          <li>✅ Nhập kho, điều chỉnh tồn</li>
+          <li>✅ Tạo/sửa sản phẩm và danh mục</li>
+          <li>✅ Tạo mã giảm giá, flash sale</li>
+          <li>✅ Xem báo cáo doanh thu (không xem costPrice)</li>
+          <li>❌ Không xóa dữ liệu vĩnh viễn</li>
+          <li>❌ Không cài đặt payment gateway</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="role-card">
+      <div class="role-head">
+        <div class="role-badge rb-staff">STAFF</div>
+        <div class="role-name">Nhân viên bán hàng</div>
+      </div>
+      <div class="role-body">
+        <ul>
+          <li>✅ Xử lý đơn hàng (confirm, pack, ship)</li>
+          <li>✅ Xem tồn kho (không chỉnh)</li>
+          <li>✅ Chat/liên hệ khách hàng</li>
+          <li>✅ Thêm ghi chú staff vào đơn</li>
+          <li>❌ Không xem báo cáo tài chính</li>
+          <li>❌ Không sửa giá, không tạo SP mới</li>
+          <li>❌ Không truy cập admin dashboard đầy đủ</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="role-card">
+      <div class="role-head">
+        <div class="role-badge rb-cashier">CASHIER</div>
+        <div class="role-name">Thu ngân (POS only)</div>
+      </div>
+      <div class="role-body">
+        <ul>
+          <li>✅ Truy cập màn hình POS</li>
+          <li>✅ Tạo đơn hàng offline tại quầy</li>
+          <li>✅ Tìm kiếm sản phẩm, quét barcode</li>
+          <li>✅ Xử lý thanh toán tiền mặt / chuyển khoản</li>
+          <li>✅ In hóa đơn</li>
+          <li>❌ Không truy cập admin dashboard</li>
+          <li>❌ Không xem đơn online</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Org chart simple -->
+  <h3 style="margin-bottom:16px">Gợi ý phân công cho team 2–5 người</h3>
+  <div class="g3">
+    <div class="accent-box ab-cyan">
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:.1em;color:var(--cyan);margin-bottom:10px">TEAM 2 NGƯỜI</div>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.8">
+        <strong>Người 1:</strong> Admin — Cài đặt, tài chính, nhập hàng<br>
+        <strong>Người 2:</strong> Manager — Xử lý đơn, CS, content
+      </p>
+    </div>
+    <div class="accent-box ab-gold">
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:.1em;color:var(--gold);margin-bottom:10px">TEAM 3–4 NGƯỜI</div>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.8">
+        <strong>Người 1:</strong> Admin<br>
+        <strong>Người 2:</strong> Manager + Staff<br>
+        <strong>Người 3:</strong> Staff (đóng hàng, giao hàng)<br>
+        <strong>Người 4:</strong> Cashier (quầy offline)
+      </p>
+    </div>
+    <div class="accent-box ab-purple">
+      <div style="font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:.1em;color:var(--purple);margin-bottom:10px">TEAM 5 NGƯỜI</div>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.8">
+        <strong>Người 1:</strong> Admin + Founder<br>
+        <strong>Người 2:</strong> Manager (ops)<br>
+        <strong>Người 3:</strong> Staff (online CS)<br>
+        <strong>Người 4:</strong> Staff (kho, ship)<br>
+        <strong>Người 5:</strong> Cashier + content
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 08 FEATURES -->
+<!-- ═══════════════════════════════════════ -->
+<section id="features">
+  <div class="sec-label">08 — Features</div>
+  <h2>Danh Sách Tính Năng Đầy Đủ</h2>
+
+  <div class="g2">
+    <div>
+      <h3 style="color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:.12em;margin-bottom:16px">🛍️ CUSTOMER EXPERIENCE</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card" style="padding:16px 20px"><p>🔍 <strong>Search & Filter</strong> — Full-text search, filter theo danh mục / thương hiệu / giá / switch type / kết nối / màu sắc. Sort: mới nhất, bán chạy, giá tăng/giảm.</p></div>
+        <div class="card" style="padding:16px 20px"><p>🛒 <strong>Cart & Checkout</strong> — Guest checkout không cần tài khoản. Save địa chỉ nhiều nơi. Áp mã giảm giá. Tính phí ship tự động theo GHN API.</p></div>
+        <div class="card" style="padding:16px 20px"><p>💳 <strong>Thanh toán đa kênh</strong> — VNPay (QR, ATM, thẻ), chuyển khoản ngân hàng, COD. Xác nhận tự động qua webhook.</p></div>
+        <div class="card" style="padding:16px 20px"><p>📦 <strong>Order Tracking</strong> — Timeline theo dõi đơn hàng chi tiết. Tích hợp tracking GHN để xem tình trạng vận chuyển thực tế.</p></div>
+        <div class="card" style="padding:16px 20px"><p>🔔 <strong>Notifications</strong> — Gửi email + Zalo OA tự động: xác nhận đơn, đóng gói xong, đang giao, đã giao.</p></div>
+        <div class="card" style="padding:16px 20px"><p>⭐ <strong>Review System</strong> — Chỉ user đã nhận hàng mới review được (isVerified). Upload ảnh thực tế. Pros/Cons. Admin duyệt trước khi hiển thị.</p></div>
+        <div class="card" style="padding:16px 20px"><p>❤️ <strong>Wishlist & Compare</strong> — Lưu yêu thích. So sánh specs tối đa 3 sản phẩm cùng danh mục side-by-side.</p></div>
+        <div class="card" style="padding:16px 20px"><p>👤 <strong>User Account</strong> — Lịch sử mua hàng, quản lý địa chỉ, đổi mật khẩu, loyalty points (tùy chọn).</p></div>
+      </div>
+    </div>
+    <div>
+      <h3 style="color:var(--mag);font-family:'Orbitron',sans-serif;font-size:12px;letter-spacing:.12em;margin-bottom:16px">⚙️ OPERATIONS & ADMIN</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card mag" style="padding:16px 20px"><p>📊 <strong>Dashboard Tổng quan</strong> — KPIs: doanh thu, số đơn, AOV, lợi nhuận. Charts: doanh thu theo ngày/tuần/tháng, online vs offline, kênh thanh toán.</p></div>
+        <div class="card mag" style="padding:16px 20px"><p>📦 <strong>Quản lý Kho</strong> — Nhập hàng từ nhà cung cấp. Điều chỉnh tồn (hư hỏng, kiểm kê). Cảnh báo sắp hết. Lịch sử xuất nhập đầy đủ.</p></div>
+        <div class="card mag" style="padding:16px 20px"><p>🚚 <strong>Xử lý Đơn hàng</strong> — Cập nhật trạng thái hàng loạt. In phiếu giao hàng (A5). Tạo vận đơn GHN/GHTK tự động. Ghi chú nội bộ.</p></div>
+        <div class="card mag" style="padding:16px 20px"><p>💰 <strong>Quản lý Tài chính</strong> — Ghi nhận chi phí (nhập hàng, lương, mặt bằng, marketing). Báo cáo P&L theo tháng. Export Excel.</p></div>
+        <div class="card mag" style="padding:16px 20px"><p>🎁 <strong>Khuyến mãi</strong> — Tạo mã giảm giá (%). Flash sale có giờ kết thúc. Banner trang chủ. Hiển thị sản phẩm featured.</p></div>
+        <div class="card mag" style="padding:16px 20px"><p>🖥️ <strong>POS Offline</strong> — Giao diện bán tại quầy. Quét barcode. Thanh toán tiền mặt/chuyển khoản/QR. In hóa đơn. Sync tồn kho ngay.</p></div>
+        <div class="card mag" style="padding:16px 20px"><p>👥 <strong>Quản lý Khách hàng</strong> — Lịch sử mua, total spent, hạng VIP. Ghi chú CRM. Tìm kiếm + filter khách.</p></div>
+        <div class="card mag" style="padding:16px 20px"><p>📋 <strong>Báo cáo xuất Excel</strong> — Doanh thu, đơn hàng, tồn kho, lịch sử giao dịch. Sẵn sàng nộp kế toán.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 09 ROADMAP -->
+<!-- ═══════════════════════════════════════ -->
+<section id="roadmap">
+  <div class="sec-label">09 — Timeline</div>
+  <h2>Roadmap 16 Tuần — Chi Tiết</h2>
+
+  <div class="roadmap">
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 1</div>
+        <div class="rm-dur">Tuần 1–2</div>
+      </div>
+      <div class="rm-content">
+        <h3>Foundation Setup</h3>
+        <p>Khởi tạo project Next.js 15, cấu hình TypeScript + Tailwind + ESLint. Kết nối MongoDB Atlas, tạo Mongoose models cơ bản. Setup NextAuth v5 với Google OAuth + Credentials. Deploy lên Vercel, CI/CD từ GitHub. Tạo layout chính, navbar, footer với design cyberpunk light.</p>
+        <div class="rm-tags">
+          <span class="rm-tag important">Next.js init</span>
+          <span class="rm-tag important">MongoDB connect</span>
+          <span class="rm-tag important">Auth system</span>
+          <span class="rm-tag">Vercel deploy</span>
+          <span class="rm-tag">Base layout</span>
+          <span class="rm-tag">TypeScript setup</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 2</div>
+        <div class="rm-dur">Tuần 3–4</div>
+      </div>
+      <div class="rm-content">
+        <h3>Product Catalog</h3>
+        <p>CRUD sản phẩm hoàn chỉnh. Upload ảnh lên Cloudinary. Trang danh sách sản phẩm với filter + sort + pagination. Trang chi tiết sản phẩm với gallery, specs, reviews placeholder. Atlas Search để search full-text. Categories và brands.</p>
+        <div class="rm-tags">
+          <span class="rm-tag important">Product CRUD</span>
+          <span class="rm-tag important">Cloudinary upload</span>
+          <span class="rm-tag important">Product list + filter</span>
+          <span class="rm-tag">Atlas Search</span>
+          <span class="rm-tag">Product detail page</span>
+          <span class="rm-tag">Categories</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 3</div>
+        <div class="rm-dur">Tuần 5–6</div>
+      </div>
+      <div class="rm-content">
+        <h3>Cart, Checkout & Payment</h3>
+        <p>Giỏ hàng với Zustand (persist). Checkout flow đầy đủ: địa chỉ, phương thức giao hàng, mã giảm giá, xem lại. Tích hợp VNPay (QR code, ATM, VISA). Webhook nhận trạng thái thanh toán. Tạo đơn hàng, gửi email xác nhận qua Resend. Trang order tracking.</p>
+        <div class="rm-tags">
+          <span class="rm-tag important">Cart Zustand</span>
+          <span class="rm-tag important">Checkout flow</span>
+          <span class="rm-tag important">VNPay integration</span>
+          <span class="rm-tag important">Order creation</span>
+          <span class="rm-tag">Email confirmation</span>
+          <span class="rm-tag">Order tracking page</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 4</div>
+        <div class="rm-dur">Tuần 7–8</div>
+      </div>
+      <div class="rm-content">
+        <h3>Admin Dashboard — Core</h3>
+        <p>Dashboard tổng quan với charts doanh thu (Recharts). Quản lý đơn hàng: xem danh sách, filter theo trạng thái, cập nhật trạng thái, ghi chú. Quản lý sản phẩm admin. Trang khách hàng. RBAC middleware cho API routes. Admin layout riêng biệt.</p>
+        <div class="rm-tags">
+          <span class="rm-tag important">Admin layout</span>
+          <span class="rm-tag important">Order management</span>
+          <span class="rm-tag important">Revenue charts</span>
+          <span class="rm-tag important">RBAC middleware</span>
+          <span class="rm-tag">Product admin</span>
+          <span class="rm-tag">Customer list</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 5</div>
+        <div class="rm-dur">Tuần 9–10</div>
+      </div>
+      <div class="rm-content">
+        <h3>Inventory & Finance</h3>
+        <p>Module quản lý kho: nhập hàng từ nhà cung cấp, điều chỉnh tồn, cảnh báo sắp hết. Lịch sử xuất nhập. Module tài chính: ghi chi phí, báo cáo P&L. Tích hợp GHN API tính phí ship và tạo vận đơn. In phiếu giao hàng A5.</p>
+        <div class="rm-tags">
+          <span class="rm-tag important">Inventory management</span>
+          <span class="rm-tag important">Finance module</span>
+          <span class="rm-tag important">GHN API</span>
+          <span class="rm-tag">P&L report</span>
+          <span class="rm-tag">Print shipping label</span>
+          <span class="rm-tag">Low stock alerts</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 6</div>
+        <div class="rm-dur">Tuần 11–12</div>
+      </div>
+      <div class="rm-content">
+        <h3>POS & Offline Store</h3>
+        <p>Xây dựng giao diện POS cho bán tại quầy: tìm kiếm sản phẩm, quét barcode camera, giỏ hàng POS, xử lý thanh toán tiền mặt/chuyển khoản/QR. Tạo đơn offline, sync tồn kho real-time. In hóa đơn nhiệt. User role Cashier.</p>
+        <div class="rm-tags">
+          <span class="rm-tag important">POS interface</span>
+          <span class="rm-tag important">Barcode scanner</span>
+          <span class="rm-tag important">Offline orders</span>
+          <span class="rm-tag">Thermal print</span>
+          <span class="rm-tag">Cashier role</span>
+          <span class="rm-tag">Real-time stock sync</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 7</div>
+        <div class="rm-dur">Tuần 13–14</div>
+      </div>
+      <div class="rm-content">
+        <h3>Advanced Features</h3>
+        <p>Review & rating system. Wishlist và compare sản phẩm. Mã giảm giá và flash sale. Zalo OA notification. Loyalty points cơ bản. SEO: sitemap.xml, robots.txt, schema.org JSON-LD cho sản phẩm. Performance: lazy loading, image optimization.</p>
+        <div class="rm-tags">
+          <span class="rm-tag">Review system</span>
+          <span class="rm-tag">Wishlist</span>
+          <span class="rm-tag">Coupons & Flash sale</span>
+          <span class="rm-tag important">SEO optimization</span>
+          <span class="rm-tag">Zalo notification</span>
+          <span class="rm-tag">Loyalty points</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="rm-row">
+      <div>
+        <div class="rm-phase">PHASE 8</div>
+        <div class="rm-dur">Tuần 15–16</div>
+      </div>
+      <div class="rm-content">
+        <h3>Testing, Polish & Launch 🚀</h3>
+        <p>Vitest unit tests cho business logic. E2E test checkout flow. Performance audit (Core Web Vitals). Security audit (CORS, rate limiting, input validation). Data seeding cho production. Training nhân viên dùng admin. Soft launch với beta users. Fix bugs. Full launch.</p>
+        <div class="rm-tags">
+          <span class="rm-tag important">Testing</span>
+          <span class="rm-tag important">Performance audit</span>
+          <span class="rm-tag important">Security review</span>
+          <span class="rm-tag">Staff training</span>
+          <span class="rm-tag">Soft launch</span>
+          <span class="rm-tag important">🚀 FULL LAUNCH</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 10 COST -->
+<!-- ═══════════════════════════════════════ -->
+<section id="cost">
+  <div class="sec-label">10 — Economics</div>
+  <h2>Chi Phí Vận Hành Hàng Tháng</h2>
+
+  <div class="g4" style="margin-bottom:28px">
+    <div class="card">
+      <div class="card-num">~0đ</div>
+      <h3>Giai đoạn MVP</h3>
+      <div class="card-label">TỚI ~10K PAGEVIEWS/THÁNG</div>
+      <p style="margin-top:10px;font-size:13px;color:var(--ink2)">Vercel free + MongoDB Atlas M0 free + Cloudinary free + Resend free tier = hoàn toàn miễn phí để bắt đầu.</p>
+    </div>
+    <div class="card gold">
+      <div class="card-num" style="color:var(--gold)">~500K</div>
+      <h3>Scale nhỏ</h3>
+      <div class="card-label">50K PAGEVIEWS / THÁNG</div>
+      <p style="margin-top:10px;font-size:13px;color:var(--ink2)">Vercel Pro $20 + MongoDB M10 $57 + Cloudinary $0 + Resend $0 ≈ 500K/tháng.</p>
+    </div>
+    <div class="card purple">
+      <div class="card-num" style="color:var(--purple)">~2M</div>
+      <h3>Scale vừa</h3>
+      <div class="card-label">200K PAGEVIEWS / THÁNG</div>
+      <p style="margin-top:10px;font-size:13px;color:var(--ink2)">Vercel Pro + MongoDB M20 + Cloudinary Plus + Algolia ≈ 2M/tháng.</p>
+    </div>
+    <div class="card green">
+      <div class="card-num" style="color:var(--green)">Free</div>
+      <h3>Tên miền</h3>
+      <div class="card-label">NHO TÍNH VÀO</div>
+      <p style="margin-top:10px;font-size:13px;color:var(--ink2)">nexgear.vn: ~250K/năm. nexgear.store: ~150K/năm. Đặt ngay để giữ tên.</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <div class="tbl-head">💰 <em>Chi tiết chi phí</em> — So sánh theo giai đoạn</div>
+    <table>
+      <tr><th>Dịch vụ</th><th>MVP (miễn phí)</th><th>Scale nhỏ (~500K/tháng)</th><th>Ghi chú</th></tr>
+      <tr><td>Vercel (hosting)</td><td class="type">Free tier</td><td class="type">Pro $20/tháng</td><td class="desc">Free đủ dùng cho đến khi có traffic lớn</td></tr>
+      <tr><td>MongoDB Atlas</td><td class="type">M0 Free (512MB)</td><td class="type">M10 $57/tháng</td><td class="desc">M0 đủ cho ~10,000 sản phẩm + đơn hàng</td></tr>
+      <tr><td>Cloudinary</td><td class="type">Free (25 credits)</td><td class="type">Free vẫn đủ</td><td class="desc">1 credit = 1 ảnh transform. Free = ~25K ảnh</td></tr>
+      <tr><td>Resend (email)</td><td class="type">Free (3,000/tháng)</td><td class="type">Free vẫn đủ</td><td class="desc">3,000 email/tháng miễn phí là quá đủ</td></tr>
+      <tr><td>VNPay</td><td class="type">0đ cố định</td><td class="type">1.1–1.5% / giao dịch</td><td class="desc">Phí % trên doanh thu, không có phí hàng tháng</td></tr>
+      <tr><td>GHN API</td><td class="type">Miễn phí</td><td class="type">Miễn phí</td><td class="desc">Tính phí theo mỗi vận đơn tạo (cộng vào khách)</td></tr>
+      <tr><td>Tên miền .vn</td><td class="type">~250K/năm</td><td class="type">~250K/năm</td><td class="desc">Đăng ký tại Tenten, Mắt Bão, NameCheap</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="padding:60px 0;border-top:1px solid var(--border);position:relative;z-index:1">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px">
+    <div>
+      <div style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;margin-bottom:8px">NEX<span style="color:var(--cyan)">GEAR</span></div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.2em">NEXT-GEN GEAR STORE — FULL PROJECT BLUEPRINT</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink3);margin-top:6px">Team: 2–5 người · Online + Offline · MongoDB + Next.js 15</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="chip c">Next.js 15</span>
+      <span class="chip m">MongoDB Atlas</span>
+      <span class="chip g">Tailwind v4</span>
+      <span class="chip p">shadcn/ui</span>
+      <span class="chip gr">VNPay</span>
+      <span class="chip out">TypeScript</span>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
+</body>
+</html>

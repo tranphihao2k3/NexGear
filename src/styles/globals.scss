@@ -1,0 +1,29 @@
+// ============================================================
+// NEXGEAR — Global Styles Entry Point
+// File: globals.scss
+// Import thứ tự: tokens → mixins → base → components
+// ============================================================
+
+// 1. Design Tokens (variables only, no output)
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+// 2. Base Reset & Utilities
+@use 'base';
+
+// 3. Components (uncomment khi tạo xong)
+// @use 'components/button';
+// @use 'components/input';
+// @use 'components/badge';
+// @use 'components/card';
+// @use 'components/navbar';
+// @use 'components/modal';
+// @use 'components/toast';
+// @use 'components/skeleton';
+
+// ── GOOGLE FONTS (paste vào layout.tsx thay vì đây) ─────────
+// <link href="https://fonts.googleapis.com/css2?
+//   family=Orbitron:wght@400;700;900&
+//   family=DM+Sans:wght@300;400;500;600&
+//   family=JetBrains+Mono:wght@400;600&
+//   display=swap" rel="stylesheet">

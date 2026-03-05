@@ -1,0 +1,478 @@
+// P — Yêu Thích /wishlist
+
+.page {
+    min-height: 100vh;
+}
+
+.breadcrumbBar {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    padding: $sp-3 0;
+}
+
+.breadcrumbInner {
+    @include container;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.bcLink {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: none;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.bcSep {
+    color: $color-ink3;
+    font-size: 12px;
+}
+
+.bcCurrent {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE HEADER
+// ════════════════════════════════════════════════════════════
+.pageHeader {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    padding: $sp-6 0;
+}
+
+.pageHeaderInner {
+    @include container;
+    @include flex-between;
+    gap: $sp-4;
+    flex-wrap: wrap;
+}
+
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.pageTitle {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    margin: 0;
+}
+
+.headerMeta {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    flex-wrap: wrap;
+}
+
+.itemCount {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+}
+
+.savingsChip {
+    @include font-mono($text-xs, $fw-semibold);
+    background: $color-green-light;
+    color: $color-green;
+    border: 1px solid rgba(29, 185, 106, 0.2);
+    border-radius: $r-full;
+    padding: 2px $sp-4;
+    font-size: 11px;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.shareBtn {
+    @include font-body($text-sm, $fw-medium);
+    background: none;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    padding: $sp-2 $sp-4;
+    color: $color-ink3;
+    cursor: pointer;
+    transition: $transition-fast;
+    height: 40px;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// EMPTY STATE
+// ════════════════════════════════════════════════════════════
+.emptyWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: $sp-5;
+    text-align: center;
+    padding: $sp-8;
+}
+
+.emptyIcon {
+    font-size: 80px;
+    color: $color-ink3;
+    opacity: 0.2;
+    @include font-display($text-3xl, $fw-bold);
+}
+
+.emptyTitle {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    margin: 0;
+    letter-spacing: $ls-wide;
+}
+
+.emptySub {
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink3;
+    margin: 0;
+    max-width: 360px;
+}
+
+// ════════════════════════════════════════════════════════════
+// LIST SECTION
+// ════════════════════════════════════════════════════════════
+.listSection {
+    padding: $sp-6 0 $sp-16;
+}
+
+.listInner {
+    @include container;
+}
+
+// Toolbar
+.toolbar {
+    @include flex-between;
+    margin-bottom: $sp-5;
+    gap: $sp-3;
+}
+
+.sortSelect {
+    @include input-base;
+    height: 38px;
+    min-width: 200px;
+    cursor: pointer;
+    @include font-body($text-sm, $fw-medium);
+}
+
+.viewToggle {
+    display: flex;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    overflow: hidden;
+}
+
+.viewBtn {
+    width: 38px;
+    height: 36px;
+    background: $color-white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: $color-ink3;
+    transition: $transition-fast;
+
+    &:not(:last-child) {
+        border-right: 1px solid $color-border;
+    }
+
+    &:hover {
+        background: $color-bg;
+    }
+}
+
+.viewBtnActive {
+    background: $color-cyan-light;
+    color: $color-cyan;
+}
+
+// ════════════════════════════════════════════════════════════
+// GRID view
+// ════════════════════════════════════════════════════════════
+.wishGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+
+    @include desktop-s {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.wishCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+    transition: $transition-fast;
+    display: flex;
+    flex-direction: column;
+
+    &::before {
+        content: '';
+        height: 2.5px;
+        background: $gradient-top-bar;
+        display: block;
+    }
+
+    &:hover {
+        box-shadow: $shadow-md;
+        transform: translateY(-2px);
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// LIST view
+// ════════════════════════════════════════════════════════════
+.wishList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.wishRow {
+    display: flex;
+    gap: $sp-5;
+    align-items: center;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+    transition: $transition-fast;
+    padding: $sp-4;
+
+    &:hover {
+        border-color: $color-cyan;
+        box-shadow: $shadow-md;
+    }
+
+    .imgWrap {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0;
+    }
+
+    .itemInfo {
+        flex: 1;
+    }
+
+    .itemActions {
+        display: flex;
+        gap: $sp-2;
+        align-items: center;
+        flex-shrink: 0;
+        flex-direction: row;
+        width: auto;
+    }
+}
+
+// Image
+.imgWrap {
+    position: relative;
+    overflow: hidden;
+}
+
+.imgLink {
+    display: block;
+    text-decoration: none;
+}
+
+.img {
+    width: 100%;
+    aspect-ratio: 1;
+    background: $color-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    opacity: 0.25;
+    transition: $transition-fast;
+
+    .wishCard:hover & {
+        opacity: 0.35;
+    }
+}
+
+.saleBadge {
+    position: absolute;
+    top: $sp-2;
+    left: $sp-2;
+    @include font-display($text-xs, $fw-bold);
+    background: $color-magenta;
+    color: $color-white;
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    font-size: 9px;
+    letter-spacing: $ls-wide;
+    z-index: 2;
+}
+
+.outStock {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, .85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include font-display($text-xs, $fw-bold);
+    color: $color-ink3;
+    letter-spacing: $ls-wide;
+    font-size: 11px;
+    z-index: 3;
+}
+
+.removeBtn {
+    position: absolute;
+    top: $sp-2;
+    right: $sp-2;
+    width: 24px;
+    height: 24px;
+    border-radius: $r-full;
+    background: rgba(255, 255, 255, .9);
+    border: 1px solid $color-border;
+    cursor: pointer;
+    font-size: 10px;
+    color: $color-ink3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    opacity: 0;
+    transition: $transition-fast;
+
+    .wishCard:hover &,
+    .wishRow:hover & {
+        opacity: 1;
+    }
+
+    &:hover {
+        background: $color-magenta;
+        color: $color-white;
+        border-color: $color-magenta;
+    }
+}
+
+// Item info
+.itemInfo {
+    padding: $sp-4;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+
+    .wishRow & {
+        padding: 0;
+    }
+}
+
+.itemBrand {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-cyan;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 9px;
+}
+
+.itemName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    text-decoration: none;
+    @include truncate(2);
+    transition: $transition-fast;
+    line-height: $lh-snug;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.itemRating {
+    display: flex;
+    align-items: center;
+    gap: $sp-1;
+}
+
+.stars {
+    display: inline-flex;
+    gap: 1px;
+}
+
+.starFull {
+    color: $color-gold;
+    font-size: 11px;
+}
+
+.starEmpty {
+    color: $color-bg3;
+    font-size: 11px;
+}
+
+.ratingNum {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-gold;
+}
+
+.priceRow {
+    display: flex;
+    align-items: baseline;
+    gap: $sp-2;
+}
+
+.itemPrice {
+    @include font-mono($text-base, $fw-bold);
+    color: $color-cyan;
+}
+
+.itemOriginal {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+    font-size: 11px;
+}
+
+.addedDate {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    font-size: 10px;
+}
+
+// Actions
+.itemActions {
+    padding: $sp-3 $sp-4 $sp-4;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+
+    .wishRow & {
+        padding: 0;
+        flex-direction: row;
+        width: 240px;
+    }
+}

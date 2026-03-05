@@ -1,0 +1,25 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px $sp-2;
+    border-radius: $r-full;
+    font-family: $font-display;
+    font-size: $text-sm;
+    font-weight: $fw-semibold;
+    line-height: $lh-tight;
+
+    &.default {
+        background-color: $color-bg3;
+        color: $color-ink2;
+    }
+
+    &.success {
+        background-color: $color-green-light;
+        color: $color-green;
+    }
+
+    &.destructive {
+        background-color: $color-red-light;
+        color: $color-red;
+    }
+}

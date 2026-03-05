@@ -1,0 +1,26 @@
+.inputWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+    width: 100%;
+}
+
+.input {
+    width: 100%;
+    padding: $sp-2;
+    font-family: $font-body;
+    font-size: $text-base;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    outline: none;
+    transition: border-color 0.2s;
+
+    &:focus {
+        border-color: $color-cyan;
+    }
+
+    &:disabled {
+        background-color: $color-bg2;
+        cursor: not-allowed;
+    }
+}

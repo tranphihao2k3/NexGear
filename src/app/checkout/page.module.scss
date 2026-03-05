@@ -1,0 +1,730 @@
+// P05 — Thanh Toán /checkout
+
+// ════════════════════════════════════════════════════════════
+// PAGE
+// ════════════════════════════════════════════════════════════
+.page {
+    min-height: 100vh;
+}
+
+.breadcrumbBar {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    padding: $sp-3 0;
+}
+
+.breadcrumbInner {
+    @include container;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.bcLink {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: none;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.bcSep {
+    color: $color-ink3;
+    font-size: 12px;
+}
+
+.bcCurrent {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+}
+
+.pageInner {
+    @include container;
+    padding-top: $sp-8;
+    padding-bottom: $sp-16;
+}
+
+// ════════════════════════════════════════════════════════════
+// STEP BAR
+// ════════════════════════════════════════════════════════════
+.stepBar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: $sp-8;
+
+    @include mobile {
+        margin-bottom: $sp-5;
+    }
+}
+
+.stepItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-2;
+    min-width: 100px;
+
+    @include mobile {
+        min-width: 60px;
+    }
+}
+
+.stepCircle {
+    width: 36px;
+    height: 36px;
+    border-radius: $r-full;
+    border: 2px solid $color-border2;
+    background: $color-white;
+    color: $color-ink3;
+    @include font-display($text-sm, $fw-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-fast;
+}
+
+.stepLabel {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-ink3;
+    white-space: nowrap;
+    transition: $transition-fast;
+}
+
+// States
+.stepActive .stepCircle {
+    background: $color-cyan;
+    border-color: $color-cyan;
+    color: $color-white;
+    box-shadow: $shadow-glow-cyan;
+}
+
+.stepActive .stepLabel {
+    @include font-body($text-xs, $fw-bold);
+    color: $color-cyan;
+}
+
+.stepDone .stepCircle {
+    background: $color-green;
+    border-color: $color-green;
+    color: $color-white;
+}
+
+.stepDone .stepLabel {
+    color: $color-green;
+}
+
+.stepLine {
+    flex: 1;
+    height: 2px;
+    background: $color-border2;
+    margin-bottom: $sp-5; // align with center of circle
+    transition: $transition-fast;
+    min-width: 40px;
+}
+
+.stepLineDone {
+    background: $color-green;
+}
+
+// ════════════════════════════════════════════════════════════
+// LAYOUT
+// ════════════════════════════════════════════════════════════
+.pageGrid {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: $sp-8;
+    align-items: start;
+
+    @include desktop-s {
+        grid-template-columns: 1fr 320px;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// FORM CARD
+// ════════════════════════════════════════════════════════════
+.formCol {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.formCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    padding: $sp-8;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+    animation: slideIn 0.25s ease;
+
+    @include mobile {
+        padding: $sp-5;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.formCardTitle {
+    @include font-display($text-base, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    margin: 0;
+    padding-bottom: $sp-5;
+    border-bottom: 1px solid $color-border;
+}
+
+// ── Grid layouts ─────────────────────────────────────────
+.formGrid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.formGrid3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-4;
+
+    @include tablet {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ── Field ─────────────────────────────────────────────────
+.fieldWrap {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.fieldLabel {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.fieldInput {
+    @include input-base;
+    height: 44px;
+}
+
+.fieldInputErr {
+    border-color: $color-red !important;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+}
+
+.fieldSelect {
+    @include input-base;
+    height: 44px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A7870' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.fieldTextarea {
+    @include input-base;
+    padding: $sp-3 $sp-4;
+    resize: vertical;
+    min-height: 80px;
+    font-family: $font-body;
+    line-height: $lh-normal;
+}
+
+.fieldErr {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-red;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &::before {
+        content: '↑';
+    }
+}
+
+// ── Info review bar ───────────────────────────────────────
+.infoReview {
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    padding: $sp-4 $sp-5;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+    position: relative;
+}
+
+.infoReviewRow {
+    display: flex;
+    gap: $sp-3;
+    @include font-body($text-sm, $fw-regular);
+}
+
+.infoKey {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+    min-width: 70px;
+    padding-top: 1px;
+}
+
+.infoVal {
+    color: $color-ink2;
+}
+
+.editBtn {
+    @include font-mono($text-xs, $fw-semibold);
+    position: absolute;
+    top: $sp-3;
+    right: $sp-3;
+    background: none;
+    border: 1px solid $color-border2;
+    border-radius: $r-1;
+    color: $color-cyan;
+    padding: 2px $sp-3;
+    cursor: pointer;
+    font-size: 10px;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-cyan;
+        color: $color-white;
+        border-color: $color-cyan;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// RADIO CARDS
+// ════════════════════════════════════════════════════════════
+.radioGroup {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.radioNative {
+    display: none;
+}
+
+.radioCard {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    padding: $sp-4 $sp-5;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    cursor: pointer;
+    transition: $transition-fast;
+    background: $color-white;
+    position: relative;
+
+    &:hover {
+        border-color: $color-cyan;
+        background: $color-cyan-light;
+    }
+}
+
+.radioCardActive {
+    border-color: $color-cyan;
+    background: $color-cyan-light;
+    box-shadow: $shadow-glow-cyan;
+}
+
+.radioIcon {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.radioInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.radioLabel {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+}
+
+.radioDesc {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.radioFee {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-ink;
+    flex-shrink: 0;
+}
+
+.feeFree {
+    @include font-display($text-xs, $fw-bold);
+    color: $color-green;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.radioCheck {
+    width: 18px;
+    height: 18px;
+    border-radius: $r-full;
+    border: 2px solid $color-border2;
+    flex-shrink: 0;
+    transition: $transition-fast;
+    position: relative;
+
+    .radioCardActive & {
+        border-color: $color-cyan;
+        background: $color-cyan;
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border-radius: $r-full;
+            background: $color-white;
+        }
+    }
+}
+
+// ── COD / Transfer extra info ─────────────────────────────
+.codNote {
+    @include font-body($text-sm, $fw-regular);
+    background: $color-gold-light;
+    color: darken(#F0A500, 15%);
+    border: 1px solid rgba(240, 165, 0, 0.2);
+    border-radius: $r-2;
+    padding: $sp-3 $sp-4;
+}
+
+.transferInfo {
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    padding: $sp-4 $sp-5;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.transferRow {
+    @include flex-between;
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+
+    strong {
+        @include font-mono($text-sm, $fw-semibold);
+        color: $color-ink;
+    }
+}
+
+// Terms
+.termsNote {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    line-height: $lh-normal;
+}
+
+.termsLink {
+    color: $color-cyan;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Form actions
+.formActions {
+    @include flex-between;
+    gap: $sp-3;
+    padding-top: $sp-5;
+    border-top: 1px solid $color-border;
+}
+
+// ════════════════════════════════════════════════════════════
+// ORDER SUMMARY SIDEBAR
+// ════════════════════════════════════════════════════════════
+.summaryCol {
+    position: sticky;
+    top: calc($nav-height + $sp-6);
+
+    @include tablet {
+        position: static;
+    }
+}
+
+.summaryCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+
+    &::before {
+        content: '';
+        display: block;
+        height: 3px;
+        background: $gradient-top-bar;
+    }
+
+    padding: $sp-6;
+}
+
+.summaryTitle {
+    @include font-display($text-base, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    margin: 0 0 $sp-5;
+}
+
+.summaryItems {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    margin-bottom: $sp-5;
+}
+
+.summaryItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.summaryItemImg {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    border-radius: $r-2;
+    background: $color-bg2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+
+.summaryItemQty {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    @include font-mono($text-xs, $fw-bold);
+    background: $color-ink;
+    color: $color-white;
+    width: 18px;
+    height: 18px;
+    border-radius: $r-full;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+}
+
+.summaryItemInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.summaryItemName {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+    @include truncate(1);
+}
+
+.summaryItemVariant {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.summaryItemPrice {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-ink;
+    flex-shrink: 0;
+}
+
+.summaryDivider {
+    height: 1px;
+    background: $color-border;
+    margin-bottom: $sp-4;
+}
+
+.summaryRows {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    margin-bottom: $sp-4;
+}
+
+.summaryRow {
+    @include flex-between;
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+
+    span:last-child {
+        @include font-mono($text-sm, $fw-semibold);
+        color: $color-ink;
+    }
+}
+
+.summaryDisc {
+    color: $color-green;
+
+    span {
+        color: $color-green !important;
+    }
+}
+
+.freeShip {
+    @include font-display($text-xs, $fw-bold);
+    color: $color-green !important;
+    letter-spacing: $ls-wide;
+    font-size: 10px !important;
+}
+
+.totalRow {
+    @include flex-between;
+    align-items: baseline;
+    margin-bottom: $sp-1;
+}
+
+.totalLabel {
+    @include font-body($text-base, $fw-semibold);
+    color: $color-ink;
+}
+
+.totalAmount {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-cyan;
+}
+
+.totalVat {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-align: right;
+}
+
+// ════════════════════════════════════════════════════════════
+// SUCCESS STATE
+// ════════════════════════════════════════════════════════════
+.successWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    text-align: center;
+    gap: $sp-5;
+    padding: $sp-8;
+    animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.successIcon {
+    font-size: 80px;
+    animation: pop 0.4s 0.2s both;
+}
+
+@keyframes pop {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.successTitle {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    margin: 0;
+}
+
+.successMsg {
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink2;
+    margin: 0;
+}
+
+.orderId {
+    @include font-mono($text-base, $fw-bold);
+    color: $color-cyan;
+}
+
+.successSub {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    max-width: 480px;
+    margin: 0;
+}
+
+.successActions {
+    display: flex;
+    gap: $sp-4;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: $sp-4;
+}

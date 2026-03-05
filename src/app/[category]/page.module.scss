@@ -1,0 +1,895 @@
+// P02 — Danh Sách Sản Phẩm (dynamic [category] route)
+// Auto-injected tokens + mixins via next.config sassOptions
+
+// ════════════════════════════════════════════════════════════
+// PAGE WRAPPER
+// ════════════════════════════════════════════════════════════
+.page {
+    min-height: 100vh;
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGE HEADER — Breadcrumb + H1
+// ════════════════════════════════════════════════════════════
+.pageHeader {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    padding: $sp-6 0;
+}
+
+.pageHeaderInner {
+    @include container;
+}
+
+// Breadcrumb
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    margin-bottom: $sp-4;
+}
+
+.bcLink {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: none;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.bcSep {
+    color: $color-ink3;
+    font-size: 12px;
+}
+
+.bcCurrent {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+}
+
+// Header row
+.headerRow {
+    @include flex-between;
+    align-items: flex-end;
+    gap: $sp-4;
+
+    @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.h1 {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    text-transform: uppercase;
+    margin: 0 0 $sp-1 0;
+}
+
+.headerDesc {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    margin: 0;
+}
+
+.resultCount {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+
+    @include mobile {
+        align-items: flex-start;
+    }
+}
+
+.countNum {
+    @include font-mono($text-xl, $fw-bold);
+    color: $color-cyan;
+    line-height: 1;
+}
+
+.countLabel {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN BODY — Sidebar + Content
+// ════════════════════════════════════════════════════════════
+.body {
+    padding: $sp-8 0 $sp-16;
+}
+
+.bodyInner {
+    @include container;
+    display: grid;
+    grid-template-columns: $sidebar-width 1fr;
+    gap: $sp-8;
+    align-items: start;
+
+    @include desktop-s {
+        grid-template-columns: 200px 1fr;
+        gap: $sp-6;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// MOBILE FILTER BUTTON
+// ════════════════════════════════════════════════════════════
+.mobileFilterBtn {
+    display: none;
+    @include font-display($text-xs, $fw-bold);
+    background: $color-ink;
+    color: $color-white;
+    border: none;
+    border-radius: $r-1;
+    padding: $sp-3 $sp-5;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    align-items: center;
+    gap: $sp-2;
+    text-transform: uppercase;
+    transition: $transition-fast;
+    width: fit-content;
+
+    &:hover {
+        background: $color-cyan;
+    }
+
+    @include tablet {
+        display: flex;
+    }
+}
+
+.filterBadge {
+    @include font-mono($text-xs, $fw-bold);
+    background: $color-magenta;
+    color: $color-white;
+    border-radius: $r-full;
+    padding: 1px 6px;
+    font-size: 10px;
+}
+
+// ════════════════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════════════════
+.sidebar {
+    position: sticky;
+    top: calc($nav-height + 52px); // nav + categories (nếu có)
+
+    // Flex column: scroll hần lọai, nút action dính dưới
+    display: flex;
+    flex-direction: column;
+
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden; // clip kết hợp với flex
+
+    @include tablet {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 300px;
+        max-height: 100vh;
+        border-radius: 0;
+        border: none;
+        border-right: 1px solid $color-border;
+        z-index: $z-modal;
+        transform: translateX(-110%);
+        transition: transform 0.3s ease;
+    }
+}
+
+.sidebarOpen {
+    @include tablet {
+        transform: translateX(0);
+        box-shadow: $shadow-xl;
+    }
+}
+
+.sidebarOverlay {
+    display: none;
+
+    @include tablet {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: calc($z-modal - 1);
+        backdrop-filter: blur(2px);
+    }
+}
+
+.sidebarClose {
+    display: none;
+    position: absolute;
+    top: $sp-4;
+    right: $sp-4;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: $color-ink3;
+
+    @include tablet {
+        display: block;
+    }
+}
+
+.sidebarHead {
+    @include flex-between;
+    margin-bottom: $sp-5;
+    align-items: center;
+    flex-shrink: 0; // không co khi scroll
+    padding: $sp-6 $sp-6 0;
+}
+
+.sidebarTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+
+    &::before {
+        content: '';
+        display: inline-block;
+        width: 3px;
+        height: 16px;
+        background: $gradient-accent;
+        border-radius: $r-full;
+    }
+}
+
+.clearBtn {
+    @include font-mono($text-xs, $fw-semibold);
+    background: none;
+    border: none;
+    color: $color-magenta;
+    cursor: pointer;
+    padding: 0;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-magenta-dark;
+        text-decoration: underline;
+    }
+}
+
+// -- Đây là vùng scroll của sidebar --
+// Ta wrap phần này trong .sidebarScroll trong TSX
+.sidebarScroll {
+    flex: 1; // chiếm hết không gian còn lại
+    overflow-y: auto;
+    @include custom-scrollbar;
+    padding: 0 $sp-6;
+    padding-bottom: $sp-4;
+}
+
+// ── Filter Group ──────────────────────────────────────────
+.filterGroup {
+    padding: $sp-4 0;
+    border-top: 1px solid $color-border;
+}
+
+.filterGroupLabel {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    margin-bottom: $sp-3;
+}
+
+// ── Price Range ───────────────────────────────────────────
+.priceDisplay {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    margin-bottom: $sp-4;
+}
+
+.priceVal {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+    background: $color-cyan-light;
+    border-radius: $r-1;
+    padding: 2px $sp-3;
+    font-size: 11px;
+}
+
+.priceDash {
+    color: $color-ink3;
+    font-size: 11px;
+}
+
+.rangeWrap {
+    position: relative;
+    height: 28px;
+}
+
+.rangeInput {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+    pointer-events: none;
+    outline: none;
+
+    &::-webkit-slider-track {
+        background: $color-bg3;
+        height: 4px;
+        border-radius: $r-full;
+    }
+
+    &::-webkit-slider-thumb {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: $r-full;
+        background: $color-cyan;
+        border: 2px solid $color-white;
+        box-shadow: $shadow-sm;
+        cursor: pointer;
+        pointer-events: all;
+        transition: $transition-fast;
+
+        &:hover {
+            transform: scale(1.2);
+        }
+    }
+
+    &::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: $r-full;
+        background: $color-cyan;
+        border: 2px solid $color-white;
+        cursor: pointer;
+        pointer-events: all;
+    }
+}
+
+.rangeLabels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: $sp-2;
+
+    span {
+        @include font-mono($text-xs, $fw-regular);
+        color: $color-ink3;
+        font-size: 10px;
+    }
+}
+
+// ── Checkbox Group ────────────────────────────────────────
+.checkGroup {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.checkLabel {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    cursor: pointer;
+
+    &:hover .checkText {
+        color: $color-ink;
+    }
+
+    &:hover .checkBox {
+        border-color: $color-cyan;
+    }
+}
+
+.checkInput {
+    display: none; // hide native, use custom
+}
+
+.checkBox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-1;
+    background: $color-white;
+    flex-shrink: 0;
+    transition: $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    .checkInput:checked+& {
+        background: $color-cyan;
+        border-color: $color-cyan;
+
+        &::after {
+            content: '';
+            display: block;
+            width: 5px;
+            height: 8px;
+            border: 2px solid $color-white;
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+    }
+}
+
+.checkText {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+    transition: $transition-fast;
+}
+
+// ── Action buttons — dính đáy sidebar --
+.filterActions {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    padding: $sp-5 $sp-6 $sp-6;
+    border-top: 2px solid $color-border;
+    background: $color-white; // che nền khi scroll
+    flex-shrink: 0; // không co vào
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+}
+
+// ════════════════════════════════════════════════════════════
+// TOOLBAR
+// ════════════════════════════════════════════════════════════
+.toolbar {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    padding: $sp-3 $sp-5;
+    @include flex-between;
+    gap: $sp-4;
+    margin-bottom: $sp-5;
+    flex-wrap: wrap;
+}
+
+.toolbarLeft {
+    display: flex;
+    align-items: center;
+}
+
+.toolbarCount {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+
+    strong {
+        color: $color-ink;
+        font-weight: $fw-semibold;
+    }
+}
+
+.toolbarRight {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+}
+
+// Sort
+.sortWrap {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.sortLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.sortSelect {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+    background: $color-bg;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    padding: $sp-1 $sp-6 $sp-1 $sp-3;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237A7870' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    transition: $transition-fast;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+// View toggle
+.viewToggle {
+    display: flex;
+    gap: 2px;
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    padding: 3px;
+}
+
+.viewBtn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: $r-1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-fast;
+    color: $color-ink3;
+
+    &:hover {
+        background: $color-bg2;
+        color: $color-ink;
+    }
+}
+
+.viewBtnActive {
+    background: $color-ink !important;
+    color: $color-white !important;
+}
+
+// View icons
+.viewIcon4,
+.viewIcon3,
+.viewIconList {
+    display: grid;
+    gap: 2px;
+
+    span {
+        background: currentColor;
+        border-radius: 1px;
+        display: block;
+    }
+}
+
+.viewIcon4 {
+    grid-template-columns: repeat(4, 4px);
+
+    span {
+        width: 4px;
+        height: 14px;
+    }
+}
+
+.viewIcon3 {
+    grid-template-columns: repeat(3, 4px);
+
+    span {
+        width: 4px;
+        height: 14px;
+    }
+}
+
+.viewIconList {
+    grid-template-columns: 1fr;
+
+    span {
+        width: 18px;
+        height: 3px;
+    }
+}
+
+// ── Active filter tags ────────────────────────────────────
+.activeTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-2;
+    margin-bottom: $sp-5;
+}
+
+.activeTag {
+    @include font-mono($text-xs, $fw-semibold);
+    background: $color-cyan-light;
+    color: $color-cyan-dark;
+    border: 1px solid rgba(0, 196, 173, 0.3);
+    border-radius: $r-full;
+    padding: $sp-1 $sp-3;
+    cursor: pointer;
+    font-size: 11px;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-magenta-light;
+        color: $color-magenta;
+        border-color: rgba(240, 53, 106, 0.3);
+    }
+}
+
+.clearTagsBtn {
+    @include font-mono($text-xs, $fw-semibold);
+    background: none;
+    border: 1px dashed $color-border2;
+    border-radius: $r-full;
+    padding: $sp-1 $sp-3;
+    cursor: pointer;
+    color: $color-ink3;
+    font-size: 11px;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-magenta;
+        color: $color-magenta;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// PRODUCT GRID
+// ════════════════════════════════════════════════════════════
+.productGrid {
+    &.grid--grid4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: $sp-4;
+
+        @include desktop-s {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @include tablet {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @include mobile {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &.grid--grid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: $sp-4;
+
+        @include tablet {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @include mobile {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &.grid--list {
+        display: flex;
+        flex-direction: column;
+        gap: $sp-4;
+    }
+}
+
+// ── List view card ────────────────────────────────────────
+.listCard {
+    @include card-base;
+    @include card-hover;
+    @include card-top-bar;
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    gap: $sp-6;
+    padding: $sp-5;
+    align-items: center;
+
+    @include tablet {
+        grid-template-columns: 120px 1fr;
+        gap: $sp-4;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.listCardImage {
+    position: relative;
+    height: 140px;
+    border-radius: $r-2;
+    background: $color-bg2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    @include mobile {
+        height: 180px;
+    }
+}
+
+.listImageFallback {
+    font-size: 40px;
+    opacity: 0.3;
+}
+
+.listBadge {
+    @include font-mono($text-xs, $fw-bold);
+    position: absolute;
+    top: $sp-2;
+    left: $sp-2;
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.badgeHot {
+    background: $color-gold-light;
+    color: $color-gold;
+}
+
+.badgeNew {
+    background: $color-cyan-light;
+    color: $color-cyan-dark;
+}
+
+.badgeSale {
+    background: $color-magenta-light;
+    color: $color-magenta;
+}
+
+.listCardBody {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.listBrand {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.listName {
+    @include font-body($text-md, $fw-semibold);
+    color: $color-ink;
+    margin: 0;
+    @include truncate(2);
+}
+
+.listMeta {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+}
+
+.listSku {
+    @include font-mono($text-xs, $fw-regular);
+    color: $color-ink3;
+    font-size: 11px;
+}
+
+.listRating {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-gold;
+    font-size: 12px;
+}
+
+.listRatingCount {
+    color: $color-ink3;
+    font-weight: $fw-regular;
+    margin-left: 2px;
+}
+
+.listCardPrice {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $sp-3;
+    flex-shrink: 0;
+
+    @include tablet {
+        align-items: flex-start;
+        grid-column: 1 / -1;
+    }
+}
+
+.listPrice {
+    @include font-mono($text-xl, $fw-bold);
+    color: $color-cyan;
+}
+
+.listOldPrice {
+    @include font-mono($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: line-through;
+}
+
+// ════════════════════════════════════════════════════════════
+// PAGINATION — cố định chiều cao, luôn ở đúng vị trí
+// ════════════════════════════════════════════════════════════
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+    margin-top: $sp-10;
+    min-height: 60px; // giữ chiều cao cố định
+    flex-wrap: wrap;
+
+    // Đường viền trên phân cách với product grid
+    padding-top: $sp-6;
+    border-top: 1px solid $color-border;
+}
+
+.pageBtn {
+    @include font-mono($text-sm, $fw-semibold);
+    min-width: 36px;
+    height: 36px;
+    padding: 0 $sp-2;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    background: $color-white;
+    color: $color-ink;
+    cursor: pointer;
+    transition: $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover:not(:disabled) {
+        border-color: $color-cyan;
+        color: $color-cyan;
+        background: $color-cyan-light;
+    }
+}
+
+.pageBtnActive {
+    background: $color-ink !important;
+    border-color: $color-ink !important;
+    color: $color-white !important;
+    cursor: default;
+}
+
+.pageBtnDisabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.pageEllipsis {
+    @include font-mono($text-sm, $fw-regular);
+    color: $color-ink3;
+    padding: 0 $sp-1;
+    line-height: 36px;
+}
+
+.pageInfo {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    margin-left: $sp-4;
+
+    strong {
+        @include font-mono($text-sm, $fw-bold);
+        color: $color-ink;
+    }
+}

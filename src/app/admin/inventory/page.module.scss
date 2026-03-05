@@ -1,0 +1,342 @@
+// ============================================================
+// NEXGEAR — Admin Inventory Styles (A04)
+// ============================================================
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+}
+
+.importBtn {
+    @include btn-base;
+    @include btn-size-lg;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+// Filter row
+.filters {
+    display: flex;
+    gap: $sp-3;
+    margin-bottom: $sp-4;
+    flex-wrap: wrap;
+}
+
+.filterChip {
+    @include btn-base;
+    @include btn-size-sm;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+
+    &:hover {
+        background: $admin-card-bg2;
+    }
+
+    &.active {
+        background: rgba($color-cyan, 0.1);
+        color: $color-cyan;
+        border-color: rgba($color-cyan, 0.3);
+    }
+}
+
+// Table
+.tableWrapper {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow-x: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.table th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    text-align: left;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-surface;
+}
+
+.table td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+}
+
+.table tr {
+    transition: $transition-fast;
+
+    &:hover td {
+        background: $admin-hover;
+    }
+
+    &:last-child td {
+        border-bottom: none;
+    }
+}
+
+.productCell {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.productEmoji {
+    font-size: $text-lg;
+}
+
+.productName {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.productSku {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.stockQty {
+    @include font-mono($text-sm, $fw-semibold);
+
+    &.critical {
+        color: $color-magenta;
+    }
+
+    &.low {
+        color: $color-gold;
+    }
+
+    &.ok {
+        color: $color-green;
+    }
+}
+
+.stockBar {
+    width: 80px;
+    height: $sp-1;
+    background: $admin-card-bg2;
+    border-radius: $r-full;
+    overflow: hidden;
+}
+
+.stockBarFill {
+    height: 100%;
+    border-radius: $r-full;
+    transition: $transition-base;
+
+    &.critical {
+        background: $color-magenta;
+    }
+
+    &.low {
+        background: $color-gold;
+    }
+
+    &.ok {
+        background: $color-green;
+    }
+}
+
+.date {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.actionBtn {
+    @include btn-base;
+    @include btn-size-sm;
+    background: $admin-card-bg2;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+}
+
+// Import log section
+.logSection {
+    margin-top: $sp-6;
+}
+
+.logTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    margin-bottom: $sp-4;
+}
+
+.logList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.logItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    padding: $sp-3 $sp-4;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+}
+
+.logDate {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    min-width: 100px;
+}
+
+.logAction {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+    flex: 1;
+}
+
+.logQty {
+    @include font-mono($text-sm, $fw-semibold);
+
+    &.in {
+        color: $color-green;
+    }
+
+    &.out {
+        color: $color-magenta;
+    }
+}
+
+// Modal
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: $z-modal;
+    @include flex-center;
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 480px;
+    max-width: 90vw;
+}
+
+.modalHeader {
+    @include flex-between;
+    padding: $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.modalTitle {
+    @include font-display($text-md, $fw-bold);
+    color: $admin-ink;
+}
+
+.modalClose {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    cursor: pointer;
+
+    &:hover {
+        background: $admin-hover;
+    }
+}
+
+.modalBody {
+    padding: $sp-5;
+}
+
+.formGroup {
+    margin-bottom: $sp-4;
+}
+
+.formLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.modalFooter {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    gap: $sp-3;
+    justify-content: flex-end;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg2;
+    color: $admin-ink2;
+    border: 1px solid $admin-border;
+
+    &:hover {
+        background: $admin-surface;
+    }
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}

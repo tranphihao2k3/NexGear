@@ -1,0 +1,269 @@
+.page {
+    min-height: calc(100vh - $nav-height);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $sp-16 $sp-4;
+}
+
+.container {
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+// ════════════════════════════════════════════════════════════
+// CHECKMARK ANIMATION
+// ════════════════════════════════════════════════════════════
+.checkWrap {
+    margin-bottom: $sp-8;
+}
+
+.checkCircle {
+    width: 120px;
+    height: 120px;
+    border-radius: $r-full;
+    background: rgba(0, 196, 173, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 0 rgba(0, 196, 173, 0.4);
+}
+
+.checkSvg {
+    width: 80px;
+    height: 80px;
+}
+
+.checkOutline {
+    stroke: $color-cyan;
+    stroke-width: 2;
+    stroke-dasharray: 160;
+    stroke-dashoffset: 160;
+}
+
+.checkMark {
+    stroke: $color-cyan;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+}
+
+.animate {
+    .checkCircle {
+        animation: pulseRipple 2s ease-out forwards;
+    }
+
+    .checkOutline {
+        animation: drawCircle 0.6s ease-out forwards;
+    }
+
+    .checkMark {
+        animation: drawCheck 0.4s 0.5s ease-out forwards;
+    }
+}
+
+@keyframes drawCircle {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes drawCheck {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes pulseRipple {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 196, 173, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 40px rgba(0, 196, 173, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 196, 173, 0);
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// MESSAGES & CARD
+// ════════════════════════════════════════════════════════════
+.title {
+    @include font-display($text-3xl, $fw-bold);
+    color: $color-ink;
+    margin: 0 0 $sp-3;
+    letter-spacing: $ls-wide;
+}
+
+.subtitle {
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink3;
+    margin: 0 0 $sp-8;
+    max-width: 480px;
+}
+
+.orderCard {
+    background: $color-white;
+    width: 100%;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+    margin-bottom: $sp-10;
+    text-align: left;
+    box-shadow: $shadow-md;
+
+    &::before {
+        content: '';
+        display: block;
+        height: 4px;
+        background: linear-gradient(90deg, $color-cyan, $color-magenta);
+    }
+}
+
+.cardHeader {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+    padding: $sp-6;
+    background: $color-bg2;
+    border-bottom: 1px solid $color-border;
+
+    @include mobile {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.cardCol {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+}
+
+.colLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    font-size: 10px;
+}
+
+.colValue {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+}
+
+.colValueHighlight {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-magenta;
+}
+
+.colValueHighlightCyan {
+    @include font-mono($text-base, $fw-bold);
+    color: $color-cyan;
+}
+
+.cardBody {
+    padding: $sp-8 $sp-6;
+}
+
+.emailNotice {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+    margin: 0 0 $sp-8;
+    padding: $sp-3 $sp-4;
+    background: rgba(0, 196, 173, 0.05);
+    border: 1px dashed rgba(0, 196, 173, 0.3);
+    border-radius: $r-2;
+
+    strong {
+        color: $color-ink;
+    }
+}
+
+// Simple Steps
+.steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-2;
+    position: relative;
+    z-index: 2;
+}
+
+.stepDot {
+    width: 32px;
+    height: 32px;
+    border-radius: $r-full;
+    background: $color-white;
+    border: 2px solid $color-border;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    @include font-display($text-sm, $fw-bold);
+    color: $color-ink3;
+    transition: $transition-fast;
+}
+
+.stepText {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-ink3;
+    white-space: nowrap;
+}
+
+.stepDone {
+    .stepDot {
+        background: $color-cyan;
+        border-color: $color-cyan;
+        color: $color-white;
+    }
+
+    .stepText {
+        color: $color-cyan;
+    }
+}
+
+.stepActive {
+    .stepDot {
+        border-color: $color-cyan;
+        color: $color-cyan;
+        box-shadow: 0 0 0 3px rgba(0, 196, 173, 0.15);
+    }
+
+    .stepText {
+        color: $color-ink;
+        font-weight: $fw-bold;
+    }
+}
+
+.stepLine {
+    flex: 1;
+    height: 2px;
+    background: $color-border;
+    margin: 0 $sp-2;
+    transform: translateY(-10px);
+}
+
+.actions {
+    display: flex;
+    gap: $sp-4;
+    width: 100%;
+
+    @include mobile {
+        flex-direction: column;
+    }
+}

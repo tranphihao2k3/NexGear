@@ -1,0 +1,213 @@
+// ============================================================
+// NEXGEAR — Admin Sidebar Styles
+// ============================================================
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: $admin-sidebar;
+    background: $admin-sidebar-bg;
+    border-right: 1px solid $admin-border;
+    display: flex;
+    flex-direction: column;
+    z-index: $z-nav;
+    transition: transform $transition-slow;
+
+    @include tablet {
+        transform: translateX(-100%);
+
+        &.open {
+            transform: translateX(0);
+        }
+    }
+}
+
+.logo {
+    padding: $sp-6 $sp-5;
+    border-bottom: 1px solid $admin-border;
+
+    a {
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+        text-decoration: none;
+    }
+}
+
+.logoText {
+    @include font-display($text-md, $fw-bold);
+    color: $color-white;
+    letter-spacing: $ls-wide;
+}
+
+.logoAccent {
+    color: $color-cyan;
+}
+
+.menuLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wider;
+    padding: $sp-5 $sp-5 $sp-2;
+}
+
+.nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: $sp-2 0;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-3 $sp-5;
+    margin: $sp-1 $sp-2;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    @include font-body($text-sm, $fw-medium);
+    text-decoration: none;
+    transition: $transition-fast;
+    cursor: pointer;
+    position: relative;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+
+    &.active {
+        background: rgba($color-cyan, 0.1);
+        color: $color-cyan;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: $sp-2;
+            bottom: $sp-2;
+            width: 3px;
+            background: $color-cyan;
+            border-radius: 0 $r-full $r-full 0;
+        }
+    }
+}
+
+.navIcon {
+    font-size: $text-md;
+    width: $sp-5;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.navText {
+    flex: 1;
+}
+
+.navBadge {
+    @include font-mono($text-xs, $fw-semibold);
+    background: $color-magenta;
+    color: $color-white;
+    padding: $sp-1 $sp-2;
+    border-radius: $r-full;
+    min-width: $sp-5;
+    text-align: center;
+    line-height: 1;
+}
+
+.divider {
+    height: 1px;
+    background: $admin-border;
+    margin: $sp-3 $sp-5;
+}
+
+.footer {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-2;
+    border-radius: $r-2;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+    }
+}
+
+.avatar {
+    width: $sp-8;
+    height: $sp-8;
+    border-radius: $r-full;
+    background: $gradient-accent;
+    @include flex-center;
+    @include font-display($text-xs, $fw-bold);
+    color: $color-white;
+    flex-shrink: 0;
+}
+
+.userName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $admin-ink;
+    @include truncate;
+}
+
+.userRole {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+// Mobile overlay
+.overlay {
+    display: none;
+
+    @include tablet {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: calc(#{$z-nav} - 1);
+        backdrop-filter: blur(4px);
+    }
+}
+
+// Mobile toggle button
+.mobileToggle {
+    display: none;
+
+    @include tablet {
+        display: flex;
+        position: fixed;
+        top: $sp-4;
+        left: $sp-4;
+        z-index: calc(#{$z-nav} + 1);
+        width: $sp-10;
+        height: $sp-10;
+        background: $admin-card-bg;
+        border: 1px solid $admin-border;
+        border-radius: $r-2;
+        @include flex-center;
+        color: $admin-ink;
+        font-size: $text-lg;
+        cursor: pointer;
+    }
+}
+
+// ── PRINT: ẩn sidebar khi in ──────────────────────────────
+@media print {
+
+    .sidebar,
+    .overlay,
+    .mobileToggle {
+        display: none !important;
+    }
+}

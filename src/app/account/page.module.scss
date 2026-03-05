@@ -1,0 +1,557 @@
+// P08 — Tài Khoản /account
+
+.page {
+    min-height: 100vh;
+}
+
+.breadcrumbBar {
+    background: $color-white;
+    border-bottom: 1px solid $color-border;
+    padding: $sp-3 0;
+}
+
+.breadcrumbInner {
+    @include container;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.bcLink {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    text-decoration: none;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.bcSep {
+    color: $color-ink3;
+    font-size: 12px;
+}
+
+.bcCurrent {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+}
+
+.pageInner {
+    @include container;
+    padding-top: $sp-8;
+    padding-bottom: $sp-16;
+}
+
+// ── Grid Layout ────────────────────────────────────────────
+.pageGrid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: $sp-8;
+    align-items: start;
+
+    @include desktop-s {
+        grid-template-columns: 240px 1fr;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════════════════
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    position: sticky;
+    top: calc($nav-height + $sp-6);
+
+    @include tablet {
+        position: static;
+    }
+}
+
+// Avatar card
+.avatarCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+    padding: $sp-6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-3;
+    text-align: center;
+
+    &::before {
+        content: '';
+        display: block;
+        height: 3px;
+        background: $gradient-top-bar;
+        margin: -$sp-6 -$sp-6 $sp-3;
+        width: calc(100% + #{$sp-12});
+    }
+}
+
+.avatarWrap {
+    position: relative;
+    width: 72px;
+    height: 72px;
+}
+
+.avatarText {
+    width: 72px;
+    height: 72px;
+    border-radius: $r-full;
+    background: linear-gradient(135deg, $color-cyan, $color-purple);
+    color: $color-white;
+    @include font-display($text-lg, $fw-bold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: $ls-wide;
+    font-size: 18px;
+}
+
+.avatarImg {
+    width: 72px;
+    height: 72px;
+    border-radius: $r-full;
+    object-fit: cover;
+    border: 2px solid $color-border;
+}
+
+.avatarEdit {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 24px;
+    height: 24px;
+    border-radius: $r-full;
+    border: 2px solid $color-white;
+    background: $color-cyan;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+.avatarName {
+    @include font-body($text-base, $fw-semibold);
+    color: $color-ink;
+}
+
+.avatarEmail {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    word-break: break-all;
+}
+
+.tierBadge {
+    @include font-display($text-xs, $fw-bold);
+    background: linear-gradient(135deg, $color-gold-light, lighten(#F0A500, 35%));
+    color: darken(#F0A500, 10%);
+    border: 1px solid rgba(240, 165, 0, 0.3);
+    padding: $sp-1 $sp-4;
+    border-radius: $r-full;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    gap: $sp-1;
+}
+
+.tierIcon {
+    font-size: 12px;
+}
+
+.pointsRow {
+    @include flex-between;
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $color-bg2;
+    border-radius: $r-2;
+}
+
+.pointsLabel {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.pointsVal {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-gold;
+}
+
+// Side nav
+.sideNav {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    overflow: hidden;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-3 $sp-5;
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink2;
+    text-decoration: none;
+    border-bottom: 1px solid $color-border;
+    transition: $transition-fast;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: $color-bg;
+        color: $color-cyan;
+    }
+}
+
+.navItemActive {
+    background: $color-cyan-light;
+    color: $color-cyan;
+    font-weight: $fw-semibold;
+    border-left: 3px solid $color-cyan;
+}
+
+.navIcon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.navArrow {
+    margin-left: auto;
+    color: $color-ink3;
+    font-size: 16px;
+}
+
+.logoutBtn {
+    @include font-body($text-sm, $fw-medium);
+    background: none;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    padding: $sp-3 $sp-5;
+    color: $color-ink3;
+    cursor: pointer;
+    text-align: left;
+    transition: $transition-fast;
+    width: 100%;
+
+    &:hover {
+        border-color: $color-magenta;
+        color: $color-magenta;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN CONTENT
+// ════════════════════════════════════════════════════════════
+.mainCol {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+// Stats Row
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+
+    @include desktop-s {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.statCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    padding: $sp-5 $sp-4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-2;
+    text-align: center;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        box-shadow: $shadow-md;
+    }
+}
+
+.statIcon {
+    font-size: 24px;
+}
+
+.statValue {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-cyan;
+}
+
+.statLabel {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    text-align: center;
+}
+
+// Card
+.card {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    padding: $sp-6;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+.cardTitle {
+    @include font-display($text-base, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    margin: 0;
+    padding-bottom: $sp-4;
+    border-bottom: 1px solid $color-border;
+}
+
+.cardTitleRow {
+    @include flex-between;
+    padding-bottom: $sp-4;
+    border-bottom: 1px solid $color-border;
+}
+
+.viewAllLink {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-cyan;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Saved banner
+.savedBanner {
+    background: $color-green-light;
+    border: 1px solid rgba(29, 185, 106, 0.2);
+    border-radius: $r-2;
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-green;
+    padding: $sp-3 $sp-4;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Form
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fieldFull {
+    grid-column: 1 / -1;
+}
+
+.fieldWrap {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.fieldLabel {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.fieldInput {
+    @include input-base;
+    height: 44px;
+}
+
+.fieldReadonly {
+    background: $color-bg2 !important;
+    cursor: not-allowed;
+    color: $color-ink3 !important;
+}
+
+.cardActions {
+    padding-top: $sp-4;
+    border-top: 1px solid $color-border;
+    display: flex;
+    justify-content: flex-end;
+}
+
+// Mini order rows
+.miniOrderRow {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    gap: $sp-4;
+    align-items: center;
+    padding: $sp-3 0;
+    border-bottom: 1px solid $color-border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr auto;
+        gap: $sp-2;
+    }
+}
+
+.miniOrderId {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-ink;
+}
+
+.miniOrderDate {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.miniOrderStatus {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink2;
+}
+
+.statusDot {
+    width: 8px;
+    height: 8px;
+    border-radius: $r-full;
+}
+
+.status_shipped {
+    background: $color-cyan;
+}
+
+.status_delivered {
+    background: $color-green;
+}
+
+.status_pending {
+    background: $color-gold;
+}
+
+.status_cancelled {
+    background: $color-magenta;
+}
+
+.miniOrderTotal {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-ink;
+}
+
+.miniOrderView {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-cyan;
+    text-decoration: none;
+    border: 1px solid rgba(0, 196, 173, .3);
+    border-radius: $r-1;
+    padding: 2px $sp-3;
+    font-size: 10px;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-cyan;
+        color: $color-white;
+        border-color: $color-cyan;
+    }
+}
+
+// ── Loading State ────────────────────────────────────────────
+.loadingWrap {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-4;
+    min-height: 60vh;
+    color: $color-ink3;
+    @include font-body($text-sm);
+}
+
+.spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid $color-border;
+    border-top-color: $color-cyan;
+    border-radius: $r-full;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+// ── Stat card colors ─────────────────────────────────────────
+.stat_cyan .statValue { color: $color-cyan; }
+.stat_gold .statValue { color: $color-gold; }
+.stat_green .statValue { color: $color-green; }
+.stat_magenta .statValue { color: $color-magenta; }
+
+// ── Empty orders ─────────────────────────────────────────────
+.emptyOrders {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-3;
+    padding: $sp-10;
+    color: $color-ink3;
+
+    span { font-size: 32px; opacity: 0.4; }
+    p { margin: 0; @include font-body($text-sm); }
+}
+
+.shopNowLink {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+    text-decoration: none;
+    transition: $transition-fast;
+
+    &:hover { text-decoration: underline; }
+}

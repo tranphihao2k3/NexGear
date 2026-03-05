@@ -1,0 +1,291 @@
+// ============================================================
+// NEXGEAR — Mixins & Utilities
+// File: _mixins.scss
+// ============================================================
+@use '@/styles/tokens' as *;
+
+// ── RESPONSIVE MIXINS ───────────────────────────────────────
+@mixin mobile-s {
+    @media (max-width: #{$bp-mobile-s}) {
+        @content;
+    }
+}
+
+@mixin mobile {
+    @media (max-width: #{$bp-mobile}) {
+        @content;
+    }
+}
+
+@mixin tablet {
+    @media (max-width: #{$bp-tablet}) {
+        @content;
+    }
+}
+
+@mixin desktop-s {
+    @media (max-width: #{$bp-desktop-s}) {
+        @content;
+    }
+}
+
+@mixin desktop {
+    @media (min-width: #{$bp-desktop}) {
+        @content;
+    }
+}
+
+@mixin above-mobile {
+    @media (min-width: #{$bp-mobile}) {
+        @content;
+    }
+}
+
+@mixin above-tablet {
+    @media (min-width: #{$bp-tablet}) {
+        @content;
+    }
+}
+
+@mixin above-desktop {
+    @media (min-width: #{$bp-desktop-s}) {
+        @content;
+    }
+}
+
+// ── TYPOGRAPHY ──────────────────────────────────────────────
+@mixin font-display($size: $text-xl, $weight: $fw-bold) {
+    font-family: $font-display;
+    font-size: $size;
+    font-weight: $weight;
+    letter-spacing: $ls-tight;
+    line-height: $lh-snug;
+}
+
+@mixin font-body($size: $text-base, $weight: $fw-regular) {
+    font-family: $font-body;
+    font-size: $size;
+    font-weight: $weight;
+    line-height: $lh-relaxed;
+}
+
+@mixin font-mono($size: $text-sm, $weight: $fw-regular) {
+    font-family: $font-mono;
+    font-size: $size;
+    font-weight: $weight;
+    line-height: $lh-normal;
+}
+
+@mixin section-label {
+    @include font-display($text-xs, $fw-bold);
+    letter-spacing: $ls-widest;
+    color: $color-magenta;
+    text-transform: uppercase;
+    margin-bottom: $sp-2;
+}
+
+// ── LAYOUT ──────────────────────────────────────────────────
+@mixin container {
+    max-width: $max-width;
+    margin: 0 auto;
+    padding: 0 $page-padding;
+
+    @include tablet {
+        padding: 0 $page-padding-sm;
+    }
+}
+
+@mixin flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+@mixin grid($cols: 2, $gap: $sp-4) {
+    display: grid;
+    grid-template-columns: repeat($cols, 1fr);
+    gap: $gap;
+}
+
+// ── CARD BASE ───────────────────────────────────────────────
+@mixin card-base {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    overflow: hidden;
+    position: relative;
+}
+
+@mixin card-top-bar($gradient: $gradient-top-bar) {
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2.5px;
+        background: $gradient;
+    }
+}
+
+@mixin card-hover {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-lg, 0 0 0 1px $color-cyan;
+    }
+}
+
+// ── BUTTON BASE ─────────────────────────────────────────────
+@mixin btn-base {
+    @include font-display($text-xs, $fw-bold);
+    letter-spacing: $ls-wide;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+    border: none;
+    cursor: pointer;
+    transition: $transition-fast;
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: $r-1;
+
+    &:disabled,
+    &[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+// Button sizes
+@mixin btn-size-sm {
+    padding: 7px 14px;
+    font-size: 11px;
+}
+
+@mixin btn-size-md {
+    padding: 10px 22px;
+    font-size: 12px;
+}
+
+// default
+@mixin btn-size-lg {
+    padding: 13px 28px;
+    font-size: 12px;
+}
+
+@mixin btn-size-xl {
+    padding: 16px 36px;
+    font-size: 13px;
+}
+
+// ── INPUT BASE ──────────────────────────────────────────────
+@mixin input-base {
+    @include font-body($text-base);
+    background: $color-white;
+    color: $color-ink;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    padding: 10px 14px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    appearance: none;
+
+    &::placeholder {
+        color: $color-ink3;
+    }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+
+    &.error,
+    &[aria-invalid='true'] {
+        border-color: $color-magenta;
+        box-shadow: $shadow-glow-mag;
+    }
+
+    &.success {
+        border-color: $color-green;
+        box-shadow: 0 0 0 3px rgba(29, 185, 106, 0.15);
+    }
+
+    &:disabled {
+        background: $color-bg2;
+        color: $color-ink3;
+        cursor: not-allowed;
+    }
+}
+
+// ── SCROLLBAR ───────────────────────────────────────────────
+@mixin custom-scrollbar($thumb: $color-bg3, $track: transparent) {
+    scrollbar-width: thin;
+    scrollbar-color: $thumb $track;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: $track;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $thumb;
+        border-radius: $r-full;
+    }
+}
+
+// ── TRUNCATE ────────────────────────────────────────────────
+@mixin truncate($lines: 1) {
+    @if $lines ==1 {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    @else {
+        display: -webkit-box;
+        -webkit-line-clamp: $lines;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+// ── SKELETON LOADING ────────────────────────────────────────
+@mixin skeleton {
+    background: linear-gradient(90deg,
+            $color-bg3 0%,
+            $color-bg2 50%,
+            $color-bg3 100%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: $r-2;
+}
+
+// ── GLASS EFFECT ────────────────────────────────────────────
+@mixin glass($opacity: 0.92) {
+    background: rgba($color-bg, $opacity);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+// ── GRID BG PATTERN ─────────────────────────────────────────
+@mixin grid-bg-pattern {
+    background-image:
+        linear-gradient(rgba(0, 196, 173, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 196, 173, 0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+}

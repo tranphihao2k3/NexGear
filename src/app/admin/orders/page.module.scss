@@ -1,0 +1,507 @@
+// ============================================================
+// NEXGEAR — Admin Orders Page Styles (A02)
+// ============================================================
+
+// ── HEADER ──────────────────────────────────────────────────
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+}
+
+.headerRight {
+    display: flex;
+    gap: $sp-3;
+}
+
+.actionBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-card-bg;
+    color: $admin-ink;
+    border: 1px solid $admin-border;
+
+    &:hover {
+        background: $admin-card-bg2;
+        border-color: $admin-border2;
+    }
+
+    &.primary {
+        background: $color-cyan;
+        color: $color-ink;
+        border: none;
+
+        &:hover {
+            background: $color-cyan-dark;
+        }
+    }
+}
+
+// ── FILTER TABS ─────────────────────────────────────────────
+.filterTabs {
+    display: flex;
+    gap: $sp-1;
+    margin-bottom: $sp-5;
+    border-bottom: 1px solid $admin-border;
+    overflow-x: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.filterTab {
+    @include font-display($text-xs, $fw-bold);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    padding: $sp-3 $sp-4;
+    color: $admin-ink3;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+    position: relative;
+
+    &:hover {
+        color: $admin-ink2;
+    }
+
+    &.active {
+        color: $color-cyan;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: $color-cyan;
+        }
+    }
+}
+
+.tabCount {
+    @include font-mono($text-xs, $fw-semibold);
+    background: $admin-card-bg2;
+    color: $admin-ink3;
+    padding: $sp-1 $sp-2;
+    border-radius: $r-full;
+    margin-left: $sp-2;
+
+    .active & {
+        background: rgba($color-cyan, 0.15);
+        color: $color-cyan;
+    }
+}
+
+// ── SEARCH & FILTER BAR ────────────────────────────────────
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    margin-bottom: $sp-4;
+    flex-wrap: wrap;
+}
+
+.searchBox {
+    flex: 1;
+    min-width: 200px;
+    position: relative;
+}
+
+.searchInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-4;
+    padding-left: $sp-10;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.searchIcon {
+    position: absolute;
+    left: $sp-3;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $admin-ink3;
+    font-size: $text-md;
+}
+
+.filterBtn {
+    @include btn-base;
+    @include btn-size-sm;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+
+    &:hover {
+        background: $admin-card-bg2;
+        color: $admin-ink;
+    }
+}
+
+.bulkActions {
+    display: flex;
+    gap: $sp-2;
+    align-items: center;
+}
+
+.bulkLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-cyan;
+}
+
+// ── ORDERS TABLE ────────────────────────────────────────────
+.tableWrapper {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow-x: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 800px;
+}
+
+.table th {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    text-align: left;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    background: $admin-surface;
+    position: sticky;
+    top: 0;
+}
+
+.table td {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    vertical-align: middle;
+}
+
+.table tr {
+    transition: $transition-fast;
+
+    &:hover td {
+        background: $admin-hover;
+    }
+
+    &:last-child td {
+        border-bottom: none;
+    }
+}
+
+.checkbox {
+    width: $sp-4;
+    height: $sp-4;
+    accent-color: $color-cyan;
+    cursor: pointer;
+}
+
+.orderId {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.customer {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+}
+
+.customerName {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.customerEmail {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.amount {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-cyan;
+}
+
+.date {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.items {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+    @include truncate;
+    max-width: 180px;
+}
+
+// Status badges
+.statusBadge {
+    @include font-display($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    &.pending {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+
+    &.confirmed {
+        background: rgba($color-cyan, 0.15);
+        color: $color-cyan;
+    }
+
+    &.packing {
+        background: rgba($color-purple, 0.15);
+        color: $color-purple;
+    }
+
+    &.shipped {
+        background: rgba($color-purple, 0.15);
+        color: $color-purple;
+    }
+
+    &.delivered {
+        background: rgba($color-green, 0.15);
+        color: $color-green;
+    }
+
+    &.cancelled {
+        background: rgba($color-magenta, 0.15);
+        color: $color-magenta;
+    }
+}
+
+// Actions column
+.rowActions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.rowActionBtn {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink3;
+    font-size: $text-sm;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+        border-color: $admin-border2;
+    }
+}
+
+// ── PAGINATION ──────────────────────────────────────────────
+.pagination {
+    @include flex-between;
+    padding: $sp-4;
+    border-top: 1px solid $admin-border;
+}
+
+.pageInfo {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+}
+
+.pageButtons {
+    display: flex;
+    gap: $sp-1;
+}
+
+.pageBtn {
+    @include flex-center;
+    min-width: $sp-8;
+    height: $sp-8;
+    padding: 0 $sp-2;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-1;
+    color: $admin-ink2;
+    @include font-mono($text-xs, $fw-semibold);
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+
+    &.active {
+        background: $color-cyan;
+        color: $color-ink;
+        border-color: $color-cyan;
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
+// ── ORDER DETAIL DRAWER ─────────────────────────────────────
+.drawerOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: $z-modal;
+    backdrop-filter: blur(4px);
+}
+
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 480px;
+    max-width: 90vw;
+    background: $admin-card-bg;
+    border-left: 1px solid $admin-border;
+    z-index: calc(#{$z-modal} + 1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+}
+
+.drawerHeader {
+    @include flex-between;
+    padding: $sp-5;
+    border-bottom: 1px solid $admin-border;
+    position: sticky;
+    top: 0;
+    background: $admin-card-bg;
+    z-index: 1;
+}
+
+.drawerTitle {
+    @include font-display($text-md, $fw-bold);
+    color: $admin-ink;
+}
+
+.drawerClose {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    font-size: $text-md;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+}
+
+.drawerBody {
+    flex: 1;
+    padding: $sp-5;
+}
+
+.drawerSection {
+    margin-bottom: $sp-5;
+}
+
+.drawerSectionTitle {
+    @include font-display($text-xs, $fw-bold);
+    color: $admin-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wider;
+    margin-bottom: $sp-3;
+}
+
+.drawerRow {
+    @include flex-between;
+    padding: $sp-2 0;
+}
+
+.drawerLabel {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+}
+
+.drawerValue {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+}
+
+.drawerFooter {
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    gap: $sp-3;
+    background: $admin-card-bg;
+    position: sticky;
+    bottom: 0;
+}
+
+// ── STATUS DROPDOWN ─────────────────────────────────────────
+.statusDropdown {
+    position: relative;
+}
+
+.statusSelect {
+    @include font-body($text-sm);
+    background: $admin-card-bg;
+    color: $admin-ink;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-2 $sp-8 $sp-2 $sp-3;
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: $transition-fast;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}

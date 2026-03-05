@@ -1,0 +1,599 @@
+// P — Tìm kiếm /search
+
+.page {
+    min-height: 100vh;
+}
+
+// ════════════════════════════════════════════════════════════
+// SEARCH HERO
+// ════════════════════════════════════════════════════════════
+.searchHero {
+    background: $color-ink;
+    padding: $sp-12 0;
+    position: relative;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: $gradient-top-bar;
+    }
+}
+
+.searchHeroInner {
+    @include container;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-6;
+}
+
+.searchTitle {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-white;
+    letter-spacing: $ls-wide;
+    margin: 0;
+    text-align: center;
+}
+
+// Search box
+.searchBoxWrap {
+    position: relative;
+    width: 100%;
+    max-width: 680px;
+    z-index: 50;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    background: $color-white;
+    border-radius: $r-2;
+    overflow: hidden;
+    box-shadow: $shadow-xl;
+    height: 56px;
+}
+
+.searchIcon {
+    padding: 0 $sp-4;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.searchInput {
+    flex: 1;
+    height: 100%;
+    border: none;
+    outline: none;
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink;
+    background: transparent;
+    padding: 0;
+
+    &::placeholder {
+        color: $color-ink3;
+    }
+}
+
+.clearBtn {
+    padding: 0 $sp-3;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $color-ink3;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: $transition-fast;
+
+    &:hover {
+        opacity: 1;
+        color: $color-magenta;
+    }
+}
+
+.searchBtn {
+    height: 100%;
+    padding: 0 $sp-6;
+    background: $color-cyan;
+    border: none;
+    @include font-display($text-sm, $fw-bold);
+    color: $color-white;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+// Suggestions dropdown
+.suggBox {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    box-shadow: $shadow-xl;
+    overflow: hidden;
+    z-index: 100;
+    animation: dropIn 0.15s ease;
+}
+
+@keyframes dropIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.suggSection {
+    border-bottom: 1px solid $color-border;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.suggLabel {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 9px;
+    padding: $sp-3 $sp-4 $sp-1;
+}
+
+.suggItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    width: 100%;
+    padding: $sp-3 $sp-4;
+    background: none;
+    border: none;
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+    cursor: pointer;
+    text-align: left;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-cyan-light;
+        color: $color-cyan;
+    }
+}
+
+.suggArrow {
+    margin-left: auto;
+    color: $color-ink3;
+    font-size: 12px;
+}
+
+// Product suggestion
+.suggProduct {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-3 $sp-4;
+    text-decoration: none;
+    transition: $transition-fast;
+    border-top: 1px solid $color-border;
+
+    &:hover {
+        background: $color-bg;
+    }
+}
+
+.suggProductImg {
+    width: 40px;
+    height: 40px;
+    border-radius: $r-1;
+    background: $color-bg2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.suggProductInfo {
+    flex: 1;
+}
+
+.suggProductName {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+    @include truncate(1);
+}
+
+.suggProductPrice {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-cyan;
+}
+
+// Hot tags
+.hotTags {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.hotTagsLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    color: rgba(255, 255, 255, .5);
+    font-size: 10px;
+}
+
+.hotTag {
+    @include font-body($text-xs, $fw-medium);
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 255, 255, .12);
+    color: rgba(255, 255, 255, .7);
+    border-radius: $r-full;
+    padding: $sp-1 $sp-4;
+    cursor: pointer;
+    transition: $transition-fast;
+    font-size: 12px;
+
+    &:hover {
+        background: rgba(0, 196, 173, .15);
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// RESULTS SECTION
+// ════════════════════════════════════════════════════════════
+.resultsSection {
+    padding: $sp-8 0 $sp-16;
+}
+
+.resultsInner {
+    @include container;
+}
+
+// Toolbar
+.toolbar {
+    @include flex-between;
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.toolbarLeft {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    flex: 1;
+}
+
+.resultCount {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+
+    strong {
+        color: $color-ink;
+    }
+
+    em {
+        color: $color-cyan;
+        font-style: normal;
+    }
+}
+
+.catChips {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.catChip {
+    @include font-mono($text-xs, $fw-semibold);
+    background: $color-white;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-full;
+    padding: 3px $sp-4;
+    cursor: pointer;
+    color: $color-ink2;
+    font-size: 11px;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+}
+
+.catChipActive {
+    background: $color-cyan;
+    border-color: $color-cyan;
+    color: $color-white;
+}
+
+.sortSelect {
+    @include input-base;
+    height: 38px;
+    min-width: 180px;
+    cursor: pointer;
+    @include font-body($text-sm, $fw-medium);
+}
+
+// Result list
+.resultList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.resultCard {
+    display: flex;
+    align-items: center;
+    gap: $sp-5;
+    padding: $sp-5;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    text-decoration: none;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        box-shadow: $shadow-md;
+        transform: translateX(4px);
+    }
+
+    @include mobile {
+        flex-wrap: wrap;
+    }
+}
+
+.resultImg {
+    width: 80px;
+    height: 80px;
+    border-radius: $r-2;
+    background: $color-bg2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    opacity: 0.4;
+    flex-shrink: 0;
+}
+
+.resultInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+    min-width: 0;
+}
+
+.resultBrand {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.resultName {
+    @include font-body($text-base, $fw-semibold);
+    color: $color-ink;
+    @include truncate(1);
+}
+
+.resultTags {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.tagChip {
+    @include font-mono($text-xs, $fw-regular);
+    background: $color-bg2;
+    color: $color-ink3;
+    border: 1px solid $color-border;
+    border-radius: $r-1;
+    padding: 1px $sp-2;
+    font-size: 10px;
+}
+
+.resultMeta {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.stars {
+    display: inline-flex;
+    gap: 1px;
+}
+
+.starFull {
+    color: $color-gold;
+    font-size: 12px;
+}
+
+.starEmpty {
+    color: $color-bg3;
+    font-size: 12px;
+}
+
+.resultRating {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-gold;
+}
+
+.resultRatingCount {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.resultRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $sp-3;
+    flex-shrink: 0;
+}
+
+.resultPrice {
+    @include font-mono($text-base, $fw-bold);
+    color: $color-cyan;
+}
+
+.resultCta {
+    @include font-display($text-xs, $fw-bold);
+    color: $color-cyan;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+    opacity: 0;
+    transition: $transition-fast;
+
+    .resultCard:hover & {
+        opacity: 1;
+    }
+}
+
+// No results
+.noResults {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $sp-4;
+    padding: $sp-16 0;
+    text-align: center;
+}
+
+.noResultsIcon {
+    font-size: 64px;
+    opacity: 0.3;
+}
+
+.noResultsTitle {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    margin: 0;
+}
+
+.noResultsSub {
+    @include font-body($text-base, $fw-regular);
+    color: $color-ink3;
+    margin: 0;
+}
+
+.suggChips {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.suggChip {
+    @include font-body($text-sm, $fw-medium);
+    background: $color-white;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-full;
+    padding: $sp-2 $sp-5;
+    cursor: pointer;
+    color: $color-ink2;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+        background: $color-cyan-light;
+    }
+}
+
+// Initial/trending state
+.initialState {
+    padding: $sp-8 0;
+}
+
+.trendingSection {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-4;
+    padding: $sp-6;
+}
+
+.trendingLabel {
+    @include section-label;
+    margin-bottom: $sp-5;
+}
+
+.trendingGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-3;
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.trendingCard {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-4;
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    cursor: pointer;
+    text-align: left;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        background: $color-cyan-light;
+    }
+}
+
+.trendingRank {
+    @include font-display($text-base, $fw-bold);
+    color: $color-cyan;
+    width: 24px;
+    flex-shrink: 0;
+    text-align: center;
+}
+
+.trendingText {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+    flex: 1;
+}
+
+.trendingArrow {
+    color: $color-ink3;
+    opacity: 0;
+    transition: $transition-fast;
+
+    .trendingCard:hover & {
+        opacity: 1;
+        color: $color-cyan;
+    }
+}

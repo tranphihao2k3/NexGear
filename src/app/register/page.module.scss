@@ -1,0 +1,427 @@
+// P14 — Đăng ký /register
+// Reuse structure from login — extend with perks + pw strength
+
+.page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// HERO (shared with login, but with perk list)
+// ════════════════════════════════════════════════════════════
+.heroCol {
+    position: relative;
+    background: $color-ink;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $sp-12;
+
+    @include tablet {
+        display: none;
+    }
+
+    // Accent bar top
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: $gradient-top-bar;
+    }
+}
+
+.heroInner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+    max-width: 420px;
+}
+
+.heroLogo {
+    @include font-display($text-2xl, $fw-bold);
+    letter-spacing: $ls-wider;
+}
+
+.logoNex {
+    color: $color-white;
+}
+
+.logoGear {
+    color: $color-cyan;
+}
+
+.heroTitle {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-white;
+    line-height: 1.2;
+    margin: 0;
+    letter-spacing: $ls-wide;
+}
+
+.heroSub {
+    @include font-body($text-base, $fw-regular);
+    color: rgba(255, 255, 255, .6);
+    line-height: $lh-relaxed;
+    margin: 0;
+}
+
+// Perks list
+.perks {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    margin-top: $sp-2;
+}
+
+.perkItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    @include font-body($text-sm, $fw-regular);
+    color: rgba(255, 255, 255, .75);
+}
+
+.perkIcon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.heroBg {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 40px;
+    padding: 40px;
+    opacity: 0.08;
+    pointer-events: none;
+}
+
+.heroDot {
+    width: 4px;
+    height: 4px;
+    border-radius: $r-full;
+    background: $color-cyan;
+    align-self: center;
+    justify-self: center;
+}
+
+// ════════════════════════════════════════════════════════════
+// FORM COLUMN
+// ════════════════════════════════════════════════════════════
+.formCol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $sp-8 $sp-8;
+    background: $color-bg;
+    overflow-y: auto;
+
+    @include mobile {
+        padding: $sp-6 $sp-5;
+    }
+}
+
+.formWrap {
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.formHead {
+    margin-bottom: $sp-2;
+}
+
+.formTitle {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    margin: 0 0 $sp-2;
+}
+
+.formSub {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    margin: 0;
+}
+
+.formLink {
+    color: $color-cyan;
+    text-decoration: none;
+    font-weight: $fw-semibold;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.oauthBtn {
+    @include flex-center;
+    gap: $sp-3;
+    width: 100%;
+    height: 48px;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    background: $color-white;
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-ink;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        background: $color-cyan-light;
+    }
+}
+
+.dividerRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.dividerLine {
+    flex: 1;
+    height: 1px;
+    background: $color-border;
+}
+
+.dividerText {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+    white-space: nowrap;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.fieldWrap {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+}
+
+.fieldLabel {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    font-size: 10px;
+}
+
+.fieldInner {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.fieldIcon {
+    position: absolute;
+    left: $sp-3;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.fieldInput {
+    @include input-base;
+    height: 46px;
+    padding-left: $sp-10;
+    padding-right: $sp-4;
+    width: 100%;
+}
+
+.fieldErr {
+    border-color: $color-red !important;
+}
+
+.showPwBtn {
+    position: absolute;
+    right: $sp-3;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    opacity: 0.6;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+.matchOk {
+    position: absolute;
+    right: $sp-3;
+    color: $color-green;
+    font-weight: $fw-bold;
+    font-size: 16px;
+}
+
+.errMsg {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-red;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+// Password strength
+.pwStrengthRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    margin-top: 3px;
+}
+
+.pwBars {
+    display: flex;
+    gap: $sp-1;
+    flex: 1;
+}
+
+.pwBar {
+    flex: 1;
+    height: 4px;
+    border-radius: $r-full;
+    background: $color-bg3;
+    transition: $transition-fast;
+}
+
+.pwLabel {
+    @include font-mono($text-xs, $fw-semibold);
+    font-size: 10px;
+    min-width: 60px;
+    text-align: right;
+}
+
+.pwWeak {
+    background: $color-red;
+    color: $color-red;
+}
+
+.pwFair {
+    background: $color-gold;
+    color: $color-gold;
+}
+
+.pwGood {
+    background: $color-cyan;
+    color: $color-cyan;
+}
+
+.pwStrong {
+    background: $color-green;
+    color: $color-green;
+}
+
+// Agree terms
+.rememberRow {
+    display: flex;
+    align-items: flex-start;
+    gap: $sp-2;
+    cursor: pointer;
+}
+
+.agreeErr .checkBox {
+    border-color: $color-red;
+}
+
+.checkNative {
+    display: none;
+}
+
+.checkBox {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-1;
+    background: $color-white;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    transition: $transition-fast;
+
+    .checkNative:checked+& {
+        background: $color-cyan;
+        border-color: $color-cyan;
+
+        &::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 7px;
+            border: 2px solid $color-white;
+            border-top: none;
+            border-left: none;
+            transform: rotate(45deg) translate(-1px, -1px);
+        }
+    }
+}
+
+.rememberText {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink2;
+    line-height: $lh-normal;
+}
+
+// Success
+.successWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    text-align: center;
+    gap: $sp-5;
+    padding: $sp-8;
+    animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.successIcon {
+    font-size: 72px;
+}
+
+.successTitle {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    letter-spacing: $ls-wide;
+    margin: 0;
+}
+
+.successMsg {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+    max-width: 380px;
+    margin: 0;
+}

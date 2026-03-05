@@ -1,0 +1,1977 @@
+// ============================================================
+// NEXGEAR — POS Page Styles (Admin Dark Theme)
+// Layout: Left = compact product list rows | Right = cart + checkout
+// ============================================================
+
+// ── LAYOUT ────────────────────────────────────────────────────
+.posLayout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: $sp-3;
+    height: calc(100vh - 100px);
+    overflow: hidden;
+
+    @include desktop-s {
+        grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// LEFT PANEL — Product Browser
+// ══════════════════════════════════════════════════════════════
+.leftPanel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: $sp-3;
+}
+
+.leftToolbar {
+    flex-shrink: 0;
+}
+
+// ─ Search bar
+.searchBar {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: 6px $sp-3;
+    margin-bottom: $sp-2;
+    transition: $transition-fast;
+
+    &:focus-within {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.searchIcon {
+    font-size: $text-sm;
+    flex-shrink: 0;
+}
+
+.searchInput {
+    @include font-body($text-sm);
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: $admin-ink;
+    caret-color: $color-cyan;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+}
+
+.clearBtn {
+    @include flex-center;
+    width: 20px;
+    height: 20px;
+    background: $admin-hover;
+    border: none;
+    border-radius: $r-full;
+    color: $admin-ink3;
+    font-size: 12px;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $admin-ink;
+        background: $admin-border2;
+    }
+}
+
+// ─ Category bar
+.catBar {
+    display: flex;
+    gap: $sp-1;
+    overflow-x: auto;
+    padding-bottom: $sp-1;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+}
+
+.catChip {
+    @include font-mono(12px, $fw-semibold);
+    padding: 4px $sp-3;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-full;
+    color: $admin-ink3;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-card-bg2;
+        color: $admin-ink;
+    }
+
+    &.active {
+        background: rgba(0, 196, 173, 0.12);
+        color: $color-cyan;
+        border-color: rgba(0, 196, 173, 0.35);
+    }
+}
+
+// ─ Loading
+.loadingState {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-4;
+    flex: 1;
+    color: $admin-ink3;
+    @include font-body($text-sm);
+}
+
+.spinner {
+    width: 28px;
+    height: 28px;
+    border: 2px solid $admin-border;
+    border-top-color: $color-cyan;
+    border-radius: $r-full;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PRODUCT LIST (Row-based layout)
+// ══════════════════════════════════════════════════════════════
+.productList {
+    flex: 1;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+}
+
+// ─ Header row (table header)
+.listHeader {
+    display: grid;
+    grid-template-columns: 48px 1fr 120px 60px 40px;
+    gap: $sp-2;
+    align-items: center;
+    padding: $sp-2 $sp-3;
+    border-bottom: 1px solid $admin-border2;
+    background: $admin-surface;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    span {
+        @include font-mono(11px, $fw-bold);
+        color: $admin-ink3;
+        letter-spacing: $ls-wider;
+        text-transform: uppercase;
+    }
+}
+
+// ─ Product row
+.productRow {
+    display: grid;
+    grid-template-columns: 48px 1fr 120px 60px 40px;
+    gap: $sp-2;
+    align-items: center;
+    padding: $sp-2 $sp-3;
+    border-bottom: 1px solid $admin-border;
+    cursor: pointer;
+    transition: $transition-fast;
+    user-select: none;
+
+    &:hover:not(.rowOos) {
+        background: $admin-hover;
+    }
+
+    &.rowOos {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    &.rowInCart {
+        background: rgba(0, 196, 173, 0.04);
+        border-left: 2px solid $color-cyan;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+// ─ Column: Thumbnail
+.colImg {
+    width: 48px;
+    height: auto;
+    display: flex;
+    align-items: center;
+}
+
+.thumb {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: $r-2;
+    background: $admin-surface;
+    overflow: hidden;
+    @include flex-center;
+    flex-shrink: 0;
+    border: 1px solid $admin-border;
+}
+
+.thumbEmoji {
+    font-size: $text-md;
+    opacity: 0.4;
+}
+
+.cartBadge {
+    @include font-mono(11px, $fw-bold);
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: $color-cyan;
+    color: $color-ink;
+    width: 18px;
+    height: 18px;
+    border-radius: $r-full;
+    @include flex-center;
+    z-index: 1;
+}
+
+// ─ Column: Name
+.colName {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.prodName {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink;
+    @include truncate;
+    line-height: 1.3;
+}
+
+.prodMeta {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    margin-top: 1px;
+}
+
+.prodMeta {
+    @include font-mono(11px);
+    color: $admin-ink3;
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.catTag {
+    @include font-mono(12px, $fw-semibold);
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    padding: 1px 6px;
+    border-radius: $r-full;
+    color: $admin-ink3;
+    letter-spacing: $ls-wide;
+}
+
+// ─ Column: Price
+.colPrice {
+    text-align: right;
+    min-width: 0;
+}
+
+.prodPrice {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-cyan;
+}
+
+.prodOriginal {
+    @include font-mono(11px);
+    color: $admin-ink3;
+    text-decoration: line-through;
+}
+
+// ─ Column: Stock
+.colStock {
+    text-align: center;
+}
+
+.stockBadge {
+    @include font-mono(12px, $fw-semibold);
+    display: inline-block;
+    padding: 2px $sp-2;
+    border-radius: $r-full;
+
+    &.ok {
+        color: $color-green;
+    }
+
+    &.low {
+        color: $color-gold;
+    }
+
+    &.oos {
+        color: $color-magenta;
+    }
+}
+
+// ─ Column: Add button
+.colAdd {
+    @include flex-center;
+}
+
+.addBtn {
+    @include flex-center;
+    width: 28px;
+    height: 28px;
+    background: rgba(0, 196, 173, 0.12);
+    border: 1px solid rgba(0, 196, 173, 0.3);
+    border-radius: $r-2;
+    color: $color-cyan;
+    font-size: $text-md;
+    font-weight: 700;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover:not(:disabled) {
+        background: rgba(0, 196, 173, 0.25);
+        transform: scale(1.05);
+    }
+
+    &:disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+    }
+}
+
+// ─ Empty state
+.emptyState {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-3;
+    padding: $sp-16;
+    color: $admin-ink3;
+    @include font-body($text-sm);
+
+    span:first-child {
+        font-size: $text-2xl;
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// RIGHT PANEL — Cart + Checkout
+// ══════════════════════════════════════════════════════════════
+.rightPanel {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+// ─ Tab bar
+.panelTabs {
+    display: flex;
+    border-bottom: 1px solid $admin-border;
+    flex-shrink: 0;
+}
+
+.panelTab {
+    @include font-mono($text-xs, $fw-semibold);
+    flex: 1;
+    padding: $sp-3;
+    background: transparent;
+    border: none;
+    color: $admin-ink3;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+    transition: $transition-fast;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+
+    &:hover {
+        color: $admin-ink;
+        background: $admin-hover;
+    }
+
+    &.tabActive {
+        color: $color-cyan;
+        border-bottom-color: $color-cyan;
+        background: rgba(0, 196, 173, 0.04);
+    }
+}
+
+.tabBadge {
+    @include font-mono(11px, $fw-bold);
+    background: $color-cyan;
+    color: $color-ink;
+    min-width: 18px;
+    height: 18px;
+    border-radius: $r-full;
+    @include flex-center;
+    padding: 0 4px;
+}
+
+// ─ Cart header
+.cartHeader {
+    @include flex-between;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    flex-shrink: 0;
+}
+
+.cartHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.cartTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.cartCount {
+    @include font-mono(12px, $fw-bold);
+    background: rgba(0, 196, 173, 0.14);
+    color: $color-cyan;
+    padding: 2px $sp-2;
+    border-radius: $r-full;
+}
+
+.clearCartBtn {
+    @include font-mono(12px, $fw-semibold);
+    background: none;
+    border: 1px solid transparent;
+    color: $admin-ink3;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: $r-2;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-magenta;
+        border-color: rgba(240, 53, 106, 0.3);
+    }
+}
+
+// ─ Customer section
+.customerSection {
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.sectionLabel {
+    @include font-mono(11px, $fw-bold);
+    color: $admin-ink3;
+    letter-spacing: $ls-wider;
+    margin-bottom: $sp-2;
+}
+
+.customerSelected {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    background: rgba(0, 196, 173, 0.06);
+    border: 1px solid rgba(0, 196, 173, 0.2);
+    border-radius: $r-2;
+    padding: $sp-2 $sp-3;
+}
+
+.custAvatar {
+    @include font-display($text-sm, $fw-bold);
+    width: 32px;
+    height: 32px;
+    border-radius: $r-full;
+    background: $color-cyan;
+    color: $color-ink;
+    @include flex-center;
+    flex-shrink: 0;
+}
+
+.custInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.custName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $admin-ink;
+    @include truncate;
+}
+
+.custSub {
+    @include font-mono(12px);
+    color: $admin-ink3;
+}
+
+.custDeselect {
+    background: none;
+    border: none;
+    color: $admin-ink3;
+    cursor: pointer;
+    font-size: $text-sm;
+    padding: $sp-1;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-magenta;
+    }
+}
+
+.custSearchWrap {
+    position: relative;
+}
+
+.custInput {
+    @include font-body($text-xs);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.custDropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: $admin-card-bg2;
+    border: 1px solid $admin-border2;
+    border-radius: $r-2;
+    z-index: $z-dropdown;
+    box-shadow: $shadow-lg;
+    max-height: 180px;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+}
+
+.custOption {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+    }
+}
+
+.custOptAv {
+    @include font-mono(12px, $fw-bold);
+    width: 26px;
+    height: 26px;
+    border-radius: $r-full;
+    background: $admin-surface;
+    color: $color-cyan;
+    @include flex-center;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 196, 173, 0.3);
+}
+
+.custOptName {
+    @include font-body($text-xs, $fw-medium);
+    color: $admin-ink;
+}
+
+.custOptSub {
+    @include font-mono(11px);
+    color: $admin-ink3;
+}
+
+.custNoResult {
+    @include font-body($text-xs);
+    color: $admin-ink3;
+    padding: $sp-3;
+    text-align: center;
+}
+
+.custManual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-2;
+    margin-top: $sp-2;
+}
+
+.custManualInput {
+    @include font-body($text-xs);
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: rgba(0, 196, 173, 0.4);
+    }
+}
+
+// ─ Empty cart
+.emptyCart {
+    flex: 1;
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-3;
+    color: $admin-ink3;
+    padding: $sp-10;
+    @include font-body($text-sm);
+
+    &>span:first-child {
+        font-size: 32px;
+        opacity: 0.4;
+    }
+}
+
+.kbHint {
+    @include font-mono(11px);
+    color: $admin-ink3;
+    background: $admin-surface;
+    padding: 2px $sp-2;
+    border-radius: $r-2;
+    border: 1px solid $admin-border;
+}
+
+// ─ Cart items scroll zone
+.cartItems {
+    flex: 1;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+}
+
+.cartItem {
+    display: flex;
+    gap: $sp-3;
+    padding: $sp-3 $sp-4;
+    border-bottom: 1px solid $admin-border;
+    transition: background $transition-fast;
+
+    &:hover {
+        background: $admin-hover;
+    }
+}
+
+.itemThumb {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: $r-2;
+    background: $admin-surface;
+    overflow: hidden;
+    flex-shrink: 0;
+    @include flex-center;
+    font-size: $text-md;
+    border: 1px solid $admin-border;
+}
+
+.itemBody {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.itemRow1 {
+    @include flex-between;
+    gap: $sp-2;
+}
+
+.itemName {
+    @include font-body($text-xs, $fw-semibold);
+    color: $admin-ink;
+    @include truncate;
+    flex: 1;
+}
+
+.itemRemove {
+    @include flex-center;
+    width: 18px;
+    height: 18px;
+    background: transparent;
+    border: none;
+    color: $admin-ink3;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: $r-full;
+    flex-shrink: 0;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-magenta;
+        background: rgba(240, 53, 106, 0.1);
+    }
+}
+
+.itemRow2 {
+    @include flex-between;
+    gap: $sp-2;
+}
+
+.qtyCtrl {
+    display: flex;
+    align-items: center;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow: hidden;
+}
+
+.qBtn {
+    @include flex-center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    color: $admin-ink2;
+    cursor: pointer;
+    font-size: $text-sm;
+    transition: $transition-fast;
+
+    &:hover:not(:disabled) {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+}
+
+.qVal {
+    @include font-mono($text-sm, $fw-bold);
+    color: $admin-ink;
+    min-width: 24px;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.qInput {
+    @include font-mono($text-sm, $fw-bold);
+    width: 36px;
+    text-align: center;
+    background: $admin-surface;
+    border: none;
+    color: $color-cyan;
+    outline: none;
+    padding: 2px;
+}
+
+.itemPriceStack {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.itemUnit {
+    @include font-mono(11px);
+    color: $admin-ink3;
+}
+
+.itemTotal {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-cyan;
+}
+
+.itemRow3 {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.discToggle {
+    @include font-mono(11px, $fw-semibold);
+    padding: 2px 8px;
+    background: transparent;
+    border: 1px solid $admin-border;
+    border-radius: $r-full;
+    color: $admin-ink3;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &:hover {
+        border-color: rgba(240, 165, 0, 0.5);
+        color: $color-gold;
+    }
+
+    &.active {
+        border-color: rgba(240, 165, 0, 0.4);
+        background: rgba(240, 165, 0, 0.08);
+        color: $color-gold;
+    }
+}
+
+.itemNote {
+    @include font-body(12px);
+    flex: 1;
+    padding: 2px $sp-2;
+    background: transparent;
+    border: none;
+    border-bottom: 1px dashed $admin-border;
+    color: $admin-ink3;
+    outline: none;
+    min-width: 0;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.15);
+    }
+
+    &:focus {
+        border-bottom-color: rgba(0, 196, 173, 0.4);
+        color: $admin-ink2;
+    }
+}
+
+.discEditor {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    background: rgba(240, 165, 0, 0.06);
+    border: 1px solid rgba(240, 165, 0, 0.2);
+    border-radius: $r-2;
+    padding: $sp-1 $sp-2;
+
+    span {
+        @include font-mono(11px);
+        color: $color-gold;
+        white-space: nowrap;
+    }
+}
+
+.discInput {
+    @include font-mono($text-sm, $fw-bold);
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: $color-gold;
+    min-width: 0;
+
+    &::placeholder {
+        color: rgba(240, 165, 0, 0.3);
+    }
+}
+
+.discConfirm {
+    @include flex-center;
+    width: 20px;
+    height: 20px;
+    border-radius: $r-full;
+    background: rgba(29, 185, 106, 0.15);
+    border: 1px solid rgba(29, 185, 106, 0.3);
+    color: $color-green;
+    cursor: pointer;
+    font-size: $text-sm;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(29, 185, 106, 0.3);
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// CART FOOTER
+// ══════════════════════════════════════════════════════════════
+.cartFooter {
+    border-top: 2px solid $admin-border;
+    padding: $sp-3 $sp-4;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.06));
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.footerSection {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-3;
+}
+
+// ─ Discount
+.discRow {
+    display: flex;
+    gap: $sp-2;
+}
+
+.discTypeSw {
+    display: flex;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.discTypeBtn {
+    @include font-mono(12px, $fw-bold);
+    padding: $sp-1 $sp-3;
+    background: transparent;
+    border: none;
+    color: $admin-ink3;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &.active {
+        background: rgba(240, 165, 0, 0.15);
+        color: $color-gold;
+    }
+
+    &:hover:not(.active) {
+        background: $admin-hover;
+        color: $admin-ink;
+    }
+}
+
+.discValInput {
+    @include font-mono($text-sm, $fw-bold);
+    flex: 1;
+    padding: $sp-1 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $color-gold;
+    outline: none;
+    min-width: 0;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+        font-weight: 400;
+    }
+
+    &:focus {
+        border-color: rgba(240, 165, 0, 0.4);
+    }
+}
+
+// ─ Coupon
+.couponRow {
+    display: flex;
+    gap: $sp-2;
+}
+
+.couponInput {
+    @include font-mono($text-xs, $fw-semibold);
+    flex: 1;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    letter-spacing: $ls-wide;
+    min-width: 0;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+        font-weight: 400;
+        letter-spacing: 0;
+    }
+
+    &:focus {
+        border-color: rgba(123, 63, 242, 0.4);
+    }
+}
+
+.couponBtn {
+    @include font-mono(12px, $fw-bold);
+    padding: $sp-2 $sp-3;
+    background: rgba(123, 63, 242, 0.15);
+    border: 1px solid rgba(123, 63, 242, 0.35);
+    border-radius: $r-2;
+    color: $color-purple;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover:not(:disabled) {
+        background: rgba(123, 63, 242, 0.25);
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+.couponErr {
+    @include font-body($text-xs);
+    color: $color-magenta;
+    padding: $sp-1 $sp-2;
+    background: rgba(240, 53, 106, 0.08);
+    border-radius: $r-2;
+}
+
+.couponOk {
+    @include font-body($text-xs);
+    color: $color-green;
+    background: rgba(29, 185, 106, 0.08);
+    border: 1px solid rgba(29, 185, 106, 0.2);
+    border-radius: $r-2;
+    padding: $sp-1 $sp-3;
+    @include flex-between;
+
+    button {
+        background: none;
+        border: none;
+        color: $admin-ink3;
+        cursor: pointer;
+        font-size: $text-xs;
+
+        &:hover {
+            color: $color-magenta;
+        }
+    }
+}
+
+// ─ Note & Park
+.noteInput {
+    @include font-body($text-xs);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    resize: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: rgba(0, 196, 173, 0.3);
+    }
+}
+
+.parkRow {
+    display: flex;
+    gap: $sp-2;
+}
+
+.parkInput {
+    @include font-body($text-xs);
+    flex: 1;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    min-width: 0;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+
+    &:focus {
+        border-color: $admin-border2;
+    }
+}
+
+.parkBtn {
+    @include font-mono(12px, $fw-bold);
+    padding: $sp-2 $sp-3;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid $admin-border2;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: $admin-ink;
+    }
+}
+
+// ─ Price summary
+.priceSummary {
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-3;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.priceRow {
+    @include flex-between;
+    @include font-body($text-sm);
+    color: $admin-ink2;
+
+    span:last-child {
+        @include font-mono($text-sm, $fw-semibold);
+        color: $admin-ink;
+    }
+}
+
+.discLine {
+    color: $color-gold;
+
+    span:last-child {
+        color: $color-gold;
+    }
+}
+
+.grandRow {
+    padding-top: $sp-2;
+    margin-top: $sp-1;
+    border-top: 1px solid $admin-border2;
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink;
+
+    span:last-child {
+        @include font-mono($text-lg, $fw-bold);
+        color: $color-cyan;
+    }
+}
+
+// ─ Payment
+.pmGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-2;
+}
+
+.pmBtn {
+    @include flex-center;
+    flex-direction: column;
+    gap: 2px;
+    padding: $sp-2 $sp-1;
+    background: $admin-surface;
+    border: 1.5px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink2;
+    cursor: pointer;
+    transition: $transition-fast;
+    position: relative;
+
+    &:hover {
+        border-color: $admin-border2;
+        background: $admin-hover;
+    }
+
+    &.pmActive {
+        border-color: $color-cyan;
+        background: rgba(0, 196, 173, 0.08);
+        color: $color-cyan;
+
+        .pmKb {
+            color: rgba(0, 196, 173, 0.6);
+        }
+    }
+
+    span:nth-child(2) {
+        @include font-mono(11px, $fw-semibold);
+        letter-spacing: $ls-wide;
+    }
+}
+
+.pmKb {
+    @include font-mono(12px);
+    color: $admin-ink3;
+    position: absolute;
+    top: 3px;
+    right: 4px;
+}
+
+// ─ Cash box
+.cashBox {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.cashInput {
+    @include font-mono($text-sm, $fw-bold);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder {
+        color: $admin-ink3;
+        font-weight: 400;
+    }
+
+    &:focus {
+        border-color: rgba(0, 196, 173, 0.4);
+    }
+}
+
+.quickAmts {
+    display: flex;
+    gap: $sp-1;
+    flex-wrap: wrap;
+}
+
+.qAmt {
+    @include font-mono(11px, $fw-semibold);
+    padding: 3px 8px;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-full;
+    color: $admin-ink2;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.1);
+        border-color: rgba(0, 196, 173, 0.35);
+        color: $color-cyan;
+    }
+
+    &.exactAmt {
+        border-color: rgba(29, 185, 106, 0.35);
+        color: $color-green;
+        background: rgba(29, 185, 106, 0.06);
+
+        &:hover {
+            background: rgba(29, 185, 106, 0.15);
+        }
+    }
+}
+
+.changeOk {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-green;
+    background: rgba(29, 185, 106, 0.08);
+    border: 1px solid rgba(29, 185, 106, 0.2);
+    border-radius: $r-2;
+    padding: $sp-2 $sp-3;
+    text-align: center;
+
+    strong {
+        @include font-mono($text-md, $fw-bold);
+    }
+}
+
+.changeShort {
+    @include font-mono($text-sm, $fw-semibold);
+    color: $color-magenta;
+    background: rgba(240, 53, 106, 0.08);
+    border: 1px solid rgba(240, 53, 106, 0.2);
+    border-radius: $r-2;
+    padding: $sp-2 $sp-3;
+    text-align: center;
+
+    strong {
+        @include font-mono($text-md, $fw-bold);
+    }
+}
+
+// ─ Checkout button
+.checkoutBtn {
+    @include btn-base;
+    @include btn-size-lg;
+    width: 100%;
+    background: $color-cyan;
+    color: $color-ink;
+    font-size: 13px;
+    letter-spacing: $ls-wider;
+
+    &:hover:not(:disabled) {
+        background: $color-cyan-dark;
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+// ─ Keyboard bar
+.kbBar {
+    display: flex;
+    justify-content: center;
+    gap: $sp-4;
+    flex-wrap: wrap;
+    padding-top: $sp-1;
+
+    span {
+        @include font-mono(12px);
+        color: $admin-ink3;
+        letter-spacing: $ls-wide;
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// PARKED ORDERS PANEL
+// ══════════════════════════════════════════════════════════════
+.parkedPanel {
+    flex: 1;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+    padding: $sp-3;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.parkedCard {
+    @include flex-between;
+    gap: $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-3 $sp-4;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $admin-border2;
+    }
+}
+
+.parkedInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.parkedLabel {
+    @include font-body($text-sm, $fw-semibold);
+    color: $admin-ink;
+    @include truncate;
+}
+
+.parkedMeta {
+    @include font-mono(12px);
+    color: $color-cyan;
+    margin-top: 2px;
+}
+
+.parkedTime {
+    @include font-mono(11px);
+    color: $admin-ink3;
+    margin-top: 1px;
+}
+
+.parkedActions {
+    display: flex;
+    gap: $sp-2;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.restoreBtn {
+    @include font-mono(12px, $fw-bold);
+    padding: $sp-1 $sp-3;
+    background: rgba(0, 196, 173, 0.12);
+    border: 1px solid rgba(0, 196, 173, 0.3);
+    border-radius: $r-2;
+    color: $color-cyan;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.25);
+    }
+}
+
+.delParkedBtn {
+    @include flex-center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: $r-2;
+    color: $admin-ink3;
+    cursor: pointer;
+    font-size: $text-xs;
+    transition: $transition-fast;
+
+    &:hover {
+        color: $color-magenta;
+        border-color: rgba(240, 53, 106, 0.3);
+        background: rgba(240, 53, 106, 0.08);
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// RECEIPT / INVOICE MODAL — Professional Design
+// ══════════════════════════════════════════════════════════════
+.receiptOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: $z-modal;
+    @include flex-center;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.receiptModal {
+    background: #ffffff;
+    color: #111;
+    border-radius: $r-4;
+    width: 480px;
+    max-height: 92vh;
+    overflow-y: auto;
+    @include custom-scrollbar(rgba(0, 0, 0, 0.1));
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.35);
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+// ─ Print area (excludes action buttons)
+.rcPrintArea {
+    padding: $sp-8 $sp-6;
+}
+
+// ─ Header
+.rcHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $sp-4;
+}
+
+
+
+.rcLogo {
+    @include font-display(28px, $fw-black);
+    color: #0C0C0C;
+    letter-spacing: $ls-wide;
+    line-height: 1;
+
+    em {
+        color: #00C4AD;
+        font-style: normal;
+    }
+}
+
+.rcSlogan {
+    @include font-mono(8px);
+    color: #bbb;
+    letter-spacing: $ls-wider;
+    margin-top: $sp-1;
+}
+
+.rcInvoiceLabel {
+    @include font-display($text-xs, $fw-bold);
+    color: #00C4AD;
+    letter-spacing: $ls-wider;
+    border: 1.5px solid #00C4AD;
+    padding: $sp-1 $sp-3;
+    border-radius: $r-1;
+    white-space: nowrap;
+}
+
+// ─ Store info
+.rcStoreInfo {
+    font-size: 10px;
+    color: #888;
+    line-height: 1.8;
+    margin-bottom: $sp-3;
+}
+
+// ─ Decorative divider (dashed pattern)
+.rcDividerDeco {
+    height: 1px;
+    background: repeating-linear-gradient(90deg,
+            #ddd 0, #ddd 4px,
+            transparent 4px, transparent 8px);
+    margin: $sp-3 0;
+}
+
+// ─ Order info
+.rcOrderInfo {
+    margin: $sp-2 0;
+}
+
+.rcInfoGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-2;
+    margin-bottom: $sp-3;
+}
+
+
+
+.rcInfoLabel {
+    @include font-mono(8px, $fw-semibold);
+    color: #bbb;
+    letter-spacing: $ls-wider;
+    margin-bottom: 2px;
+}
+
+.rcInfoValue {
+    @include font-mono($text-xs, $fw-bold);
+    color: #111;
+}
+
+.rcCustomerBox {
+    background: #f9f9f7;
+    border: 1px solid #eee;
+    border-radius: $r-2;
+    padding: $sp-2 $sp-3;
+}
+
+.rcCustDetail {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: $sp-1;
+}
+
+.rcCustName {
+    @include font-body($text-sm, $fw-semibold);
+    color: #111;
+}
+
+.rcCustPhone {
+    @include font-mono(10px);
+    color: #888;
+}
+
+// ─ Items table
+.rcTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: $sp-1 0;
+}
+
+.rcTable thead tr {
+    border-bottom: 1.5px solid #111;
+}
+
+// Table headers
+.rcThNum,
+.rcThName,
+.rcThQty,
+.rcThPrice,
+.rcThTotal {
+    @include font-mono(8px, $fw-bold);
+    letter-spacing: $ls-wider;
+    color: #999;
+    padding: $sp-2 $sp-1;
+    text-align: left;
+}
+
+.rcThNum {
+    width: 24px;
+    text-align: center;
+}
+
+.rcThQty,
+.rcThPrice,
+.rcThTotal {
+    text-align: right;
+}
+
+// Table cells
+.rcTdNum,
+.rcTdName,
+.rcTdQty,
+.rcTdPrice,
+.rcTdTotal {
+    font-size: 11px;
+    padding: $sp-2 $sp-1;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+}
+
+.rcTdNum {
+    @include font-mono(10px);
+    color: #ccc;
+    text-align: center;
+}
+
+.rcTdName {
+    @include font-body($text-xs, $fw-medium);
+    color: #222;
+}
+
+.rcItemSku {
+    @include font-mono(9px);
+    color: #ccc;
+    margin-top: 1px;
+}
+
+.rcItemDiscNote {
+    font-size: 9px;
+    color: #F0A500;
+    margin-top: 1px;
+}
+
+.rcTdQty {
+    @include font-mono($text-xs, $fw-bold);
+    text-align: right;
+    color: #333;
+}
+
+.rcTdPrice {
+    @include font-mono(10px);
+    text-align: right;
+    color: #666;
+}
+
+.rcTdTotal {
+    @include font-mono($text-xs, $fw-bold);
+    text-align: right;
+    color: #111;
+}
+
+// ─ Summary
+.rcSummary {
+    margin: $sp-1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.rcSumRow {
+    @include flex-between;
+    @include font-body($text-xs);
+    color: #666;
+    padding: 3px 0;
+
+    span:last-child {
+        @include font-mono($text-xs, $fw-semibold);
+        color: #111;
+    }
+}
+
+.rcDisc {
+    color: #F0A500;
+
+    span:last-child {
+        color: #F0A500;
+    }
+}
+
+.rcGrandTotal {
+    @include flex-between;
+    padding: $sp-3 0 $sp-2;
+    border-top: 2px solid #0C0C0C;
+    margin-top: $sp-1;
+    @include font-display($text-sm, $fw-bold);
+    color: #0C0C0C;
+    letter-spacing: $ls-wide;
+
+    span:last-child {
+        @include font-mono($text-lg, $fw-bold);
+        color: #00C4AD;
+    }
+}
+
+// ─ Cash box
+.rcCashBox {
+    background: #f9f9f7;
+    border: 1px solid #eee;
+    border-radius: $r-2;
+    padding: $sp-2 $sp-3;
+    margin: $sp-2 0;
+}
+
+.rcChangeVal {
+    @include font-mono($text-md, $fw-bold);
+    color: #00C4AD;
+}
+
+// ─ Signature area
+.rcSignature {
+    display: flex;
+    justify-content: space-around;
+    gap: $sp-8;
+    margin: $sp-8 0 $sp-4;
+}
+
+.rcSigBlock {
+    text-align: center;
+    flex: 1;
+}
+
+.rcSigLabel {
+    @include font-mono(9px, $fw-semibold);
+    color: #999;
+    letter-spacing: $ls-wide;
+    margin-bottom: $sp-8;
+}
+
+.rcSigLine {
+    border-bottom: 1px dotted #ccc;
+    margin-bottom: $sp-1;
+}
+
+.rcSigName {
+    @include font-mono(10px, $fw-bold);
+    color: #111;
+}
+
+// ─ Stamp
+.rcStamp {
+    display: flex;
+    justify-content: center;
+    margin: $sp-4 0;
+}
+
+.rcStampCircle {
+    width: 80px;
+    height: 80px;
+    border: 2.5px solid rgba(0, 196, 173, 0.45);
+    border-radius: $r-full;
+    @include flex-center;
+    flex-direction: column;
+    transform: rotate(-12deg);
+    opacity: 0.55;
+}
+
+.rcStampText {
+    @include font-display(10px, $fw-black);
+    color: #00C4AD;
+    letter-spacing: $ls-wide;
+}
+
+.rcStampSub {
+    @include font-mono(6px, $fw-bold);
+    color: #00C4AD;
+    letter-spacing: $ls-wider;
+    margin-top: 1px;
+}
+
+// ─ Footer
+.rcFooter {
+    text-align: center;
+    margin-top: $sp-4;
+}
+
+.rcFooterLine {
+    font-size: 10px;
+    color: #aaa;
+    line-height: 1.7;
+}
+
+.rcFooterBrand {
+    @include font-display($text-sm, $fw-bold);
+    color: #ddd;
+    margin-top: $sp-3;
+    letter-spacing: $ls-wider;
+
+    em {
+        color: #00C4AD;
+        font-style: normal;
+    }
+}
+
+// ─ Action buttons (sticky bottom, not printed)
+.rcActions {
+    display: flex;
+    gap: $sp-2;
+    padding: $sp-4 $sp-6;
+    border-top: 1px solid #eee;
+    background: #fafaf8;
+    border-radius: 0 0 $r-4 $r-4;
+    flex-shrink: 0;
+}
+
+.rcPrint {
+    @include font-mono($text-xs, $fw-bold);
+    flex: 2;
+    padding: $sp-3;
+    background: #0C0C0C;
+    color: #fff;
+    border: none;
+    border-radius: $r-2;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover {
+        background: #222;
+    }
+}
+
+.rcNewOrder {
+    @include font-mono($text-xs, $fw-bold);
+    flex: 2;
+    padding: $sp-3;
+    background: rgba(0, 196, 173, 0.12);
+    color: #00C4AD;
+    border: 1.5px solid rgba(0, 196, 173, 0.4);
+    border-radius: $r-2;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.2);
+    }
+}
+
+.rcClose {
+    @include font-mono($text-xs, $fw-bold);
+    padding: $sp-3 $sp-4;
+    background: transparent;
+    color: #999;
+    border: 1px solid #ddd;
+    border-radius: $r-2;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover {
+        background: #f0f0f0;
+        color: #111;
+    }
+}
+
+// ══════════════════════════════════════════════════════════════
+// @MEDIA PRINT — In hoá đơn Y HỆT trên màn hình
+// Vì CSS Modules hash tên class, nên chỉ có thể dùng print
+// rules ở CÙNG file module — đảm bảo tên class khớp 100%.
+// ══════════════════════════════════════════════════════════════
+@media print {
+
+    // Ẩn toàn bộ POS layout (sản phẩm + giỏ hàng)
+    .posLayout {
+        display: none !important;
+    }
+
+    // Receipt overlay: bỏ nền đen, bỏ fixed, bỏ blur
+    .receiptOverlay {
+        position: static !important;
+        background: none !important;
+        backdrop-filter: none !important;
+        z-index: auto !important;
+        display: block !important;
+        animation: none !important;
+    }
+
+    // Receipt modal: bỏ shadow, bỏ max-height, full width
+    .receiptModal {
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        width: 100% !important;
+        max-width: 520px !important;
+        max-height: none !important;
+        overflow: visible !important;
+        margin: 0 auto !important;
+        animation: none !important;
+    }
+
+    // Print area — đủ padding
+    .rcPrintArea {
+        padding: 16px 8px !important;
+    }
+
+    // Ẩn nút in / đóng / đơn mới
+    .rcActions {
+        display: none !important;
+    }
+
+    // Con dấu — hiện màu khi in
+    .rcStampCircle {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    // Đảm bảo background color in ra
+    .rcCustomerBox,
+    .rcCashBox {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    // Divider deco background
+    .rcDividerDeco {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
