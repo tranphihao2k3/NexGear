@@ -5,7 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
-import { useToast } from '@/components/ui'
+import { CyberpunkLoader, useToast } from '@/components/ui'
 
 interface Staff {
     _id: string
@@ -208,9 +208,7 @@ export default function AdminStaffPage() {
             </div>
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
-                    Đang tải...
-                </div>
+                <CyberpunkLoader message="Đang tải nhân viên..." compact />
             ) : staffList.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
                     Chưa có nhân viên nào

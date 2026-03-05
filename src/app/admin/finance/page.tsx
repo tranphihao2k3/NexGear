@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
 import { downloadCsv, toCsv } from '@/lib/csv'
 
 interface Transaction {
@@ -244,9 +245,7 @@ export default function AdminFinancePage() {
                     <span className={styles.tableTitle}>Giao dịch gần đây</span>
                 </div>
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.5)' }}>
-                        Đang tải...
-                    </div>
+                    <CyberpunkLoader message="Đang tải báo cáo tài chính..." compact />
                 ) : transactions.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.5)' }}>
                         Chưa có giao dịch nào

@@ -5,6 +5,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
 import { downloadCsv, toCsv } from '@/lib/csv'
 
 interface Customer {
@@ -115,9 +116,7 @@ export default function AdminCustomersPage() {
                 {/* Customer Table */}
                 <div className={styles.tableWrapper}>
                     {loading ? (
-                        <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
-                            Đang tải...
-                        </div>
+                        <CyberpunkLoader message="Đang tải khách hàng..." compact />
                     ) : customers.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
                             Không có khách hàng nào

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './page.module.scss';
-import { useToast } from '@/components/ui';
+import { CyberpunkLoader, useToast } from '@/components/ui';
 
 interface Category {
     _id: string;
@@ -125,7 +125,7 @@ export default function AdminCategoriesPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {loading ? <tr><td colSpan={6}>Đang tải...</td></tr> : categories.map(cat => (
+                        {loading ? <tr><td colSpan={6}><CyberpunkLoader message="Đang tải danh mục..." compact /></td></tr> : categories.map(cat => (
                             <tr key={cat._id}>
                                 <td style={{ fontSize: '24px' }}>{cat.icon || '📁'}</td>
                                 <td style={{ color: '#fff', fontWeight: 500 }}>{cat.name}</td>

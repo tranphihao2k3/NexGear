@@ -9,6 +9,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
 import { downloadCsv, toCsv } from '@/lib/csv'
 
 // ── TYPES ───────────────────────────────────────────────────
@@ -98,11 +99,7 @@ export default function AdminDashboardPage() {
     }, [])
 
     if (loading) {
-        return (
-            <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.5)' }}>
-                Đang tải dashboard...
-            </div>
-        )
+        return <CyberpunkLoader message="Đang tải dashboard..." />
     }
 
     if (!data) {

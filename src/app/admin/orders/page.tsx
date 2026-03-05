@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import styles from './page.module.scss'
+import { CyberpunkLoader } from '@/components/ui'
 import { downloadCsv, toCsv } from '@/lib/csv'
 
 // ── TYPES ───────────────────────────────────────────────────
@@ -314,9 +315,7 @@ export default function AdminOrdersPage() {
             {/* Orders Table */}
             <div className={styles.tableWrapper}>
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
-                        Đang tải...
-                    </div>
+                    <CyberpunkLoader message="Đang tải đơn hàng..." compact />
                 ) : orders.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: '40px', color: 'rgba(255,255,255,0.5)' }}>
                         Không có đơn hàng nào
