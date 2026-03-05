@@ -5,6 +5,7 @@
 // ============================================================
 import type { Metadata } from 'next'
 import AdminSidebar from '@/components/admin/AdminSidebar'
+import AdminPusherListener from '@/components/admin/AdminPusherListener'
 import styles from './layout.module.scss'
 
 export const metadata: Metadata = {
@@ -22,6 +23,7 @@ export default function AdminLayout({
         <div className={styles.adminLayout}>
             <AdminSidebar />
             <div className={styles.mainContent}>
+                <AdminPusherListener />
                 <div className={styles.pageContent}>
                     {children}
                 </div>

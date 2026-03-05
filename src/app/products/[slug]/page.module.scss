@@ -3,33 +3,73 @@
 // ════════════════════════════════════════════════════════════
 
 @keyframes scan-sweep {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100%); }
+    0% {
+        transform: translateY(-100%);
+    }
+
+    100% {
+        transform: translateY(100%);
+    }
 }
 
 @keyframes pulse-glow {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.4;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 @keyframes fade-in {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes neon-line {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 @keyframes loading-pulse {
-    0%, 100% { transform: scale(1); opacity: 0.6; }
-    50% { transform: scale(1.15); opacity: 1; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
 }
 
 @keyframes tab-slide {
-    from { width: 0; }
-    to { width: 100%; }
+    from {
+        width: 0;
+    }
+
+    to {
+        width: 100%;
+    }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -38,32 +78,10 @@
 .page {
     min-height: 100vh;
     position: relative;
-    background: $color-bg;
+    background: transparent;
 }
 
-.pageScanlines {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.015;
 
-    &::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        width: 100%;
-        height: 200%;
-        background: repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 2px,
-            rgba(0, 196, 173, 0.4) 2px,
-            rgba(0, 196, 173, 0.4) 4px
-        );
-        animation: scan-sweep 10s linear infinite;
-    }
-}
 
 // Loading
 .loadingWrap {
@@ -94,22 +112,27 @@
     @include font-body($text-sm, $fw-medium);
     color: #00C4AD;
     text-decoration: none;
-    &:hover { text-decoration: underline; }
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 // ════════════════════════════════════════════════════════════
 // BREADCRUMB
 // ════════════════════════════════════════════════════════════
 .breadcrumbBar {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 196, 173, 0.08);
+    background: rgba(var(--surface-rgb), 0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
     padding: $sp-3 0;
     position: relative;
     z-index: 2;
 }
 
-.breadcrumbInner { @include container; }
+.breadcrumbInner {
+    @include container;
+}
 
 .breadcrumb {
     display: flex;
@@ -124,7 +147,10 @@
     text-decoration: none;
     transition: color 0.15s ease;
     letter-spacing: 0.02em;
-    &:hover { color: #00C4AD; }
+
+    &:hover {
+        color: #00C4AD;
+    }
 }
 
 .bcSep {
@@ -134,7 +160,7 @@
 
 .bcCurrent {
     @include font-mono($text-xs, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     @include truncate(1);
     max-width: 300px;
 }
@@ -169,7 +195,9 @@
 // ════════════════════════════════════════════════════════════
 // GALLERY
 // ════════════════════════════════════════════════════════════
-.galleryCol { position: relative; }
+.galleryCol {
+    position: relative;
+}
 
 .gallerySticky {
     position: sticky;
@@ -219,8 +247,8 @@
     position: relative;
     height: 480px;
     border-radius: $r-3;
-    background-color: $color-white;
-    border: 1px solid rgba(0, 196, 173, 0.12);
+    background-color: var(--surface);
+    border: 1px solid var(--border);
     overflow: hidden;
     cursor: zoom-in;
     transition: all 0.25s ease;
@@ -260,10 +288,29 @@
         border-color: rgba(0, 196, 173, 0.25);
         border-style: solid;
 
-        &:nth-child(1) { top: 0; left: 0; border-width: 1.5px 0 0 1.5px; }
-        &:nth-child(2) { top: 0; right: 0; border-width: 1.5px 1.5px 0 0; }
-        &:nth-child(3) { bottom: 0; left: 0; border-width: 0 0 1.5px 1.5px; }
-        &:nth-child(4) { bottom: 0; right: 0; border-width: 0 1.5px 1.5px 0; }
+        &:nth-child(1) {
+            top: 0;
+            left: 0;
+            border-width: 1.5px 0 0 1.5px;
+        }
+
+        &:nth-child(2) {
+            top: 0;
+            right: 0;
+            border-width: 1.5px 1.5px 0 0;
+        }
+
+        &:nth-child(3) {
+            bottom: 0;
+            left: 0;
+            border-width: 0 0 1.5px 1.5px;
+        }
+
+        &:nth-child(4) {
+            bottom: 0;
+            right: 0;
+            border-width: 0 1.5px 1.5px 0;
+        }
     }
 
     .mainImg:hover & span {
@@ -289,8 +336,8 @@
     bottom: $sp-3;
     left: $sp-3;
     @include font-mono(10px, $fw-semibold);
-    color: $color-ink3;
-    background: rgba(255, 255, 255, 0.8);
+    color: var(--ink3);
+    background: var(--bg3);
     padding: 2px $sp-2;
     border-radius: $r-1;
     backdrop-filter: blur(4px);
@@ -309,8 +356,8 @@
     width: 72px;
     height: 72px;
     border-radius: $r-2;
-    border: 1.5px solid $color-border;
-    background: $color-white;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
     cursor: pointer;
     overflow: hidden;
     transition: all 0.2s ease;
@@ -362,18 +409,18 @@
 
 .tagPill {
     @include font-mono(9px, $fw-semibold);
-    color: $color-ink3;
+    color: var(--ink3);
     text-transform: uppercase;
     letter-spacing: $ls-wide;
     padding: 2px $sp-2;
-    border: 1px solid $color-border;
+    border: 1px solid var(--border);
     border-radius: $r-1;
-    background: $color-white;
+    background: var(--surface);
 }
 
 .productTitle {
     @include font-body($text-xl, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
     margin: 0;
     line-height: 1.3;
 
@@ -390,11 +437,28 @@
     flex-wrap: wrap;
 }
 
-.stars { display: inline-flex; gap: 1px; font-size: 14px; }
-.starsLg { font-size: 20px; }
-.starFull { color: $color-gold; }
-.starHalf { color: $color-gold; opacity: 0.6; }
-.starEmpty { color: $color-bg3; }
+.stars {
+    display: inline-flex;
+    gap: 1px;
+    font-size: 14px;
+}
+
+.starsLg {
+    font-size: 20px;
+}
+
+.starFull {
+    color: $color-gold;
+}
+
+.starHalf {
+    color: $color-gold;
+    opacity: 0.6;
+}
+
+.starEmpty {
+    color: $color-bg3;
+}
 
 .ratingNum {
     @include font-mono($text-sm, $fw-bold);
@@ -405,7 +469,10 @@
     @include font-body($text-xs, $fw-regular);
     color: #00C4AD;
     text-decoration: none;
-    &:hover { text-decoration: underline; }
+
+    &:hover {
+        text-decoration: underline;
+    }
 }
 
 .metaDivider {
@@ -416,13 +483,17 @@
 
 .metaText {
     @include font-body($text-xs, $fw-regular);
-    color: $color-ink3;
-    strong { color: $color-ink2; font-weight: $fw-semibold; }
+    color: var(--ink2);
+
+    strong {
+        color: var(--ink);
+        font-weight: $fw-semibold;
+    }
 }
 
 .skuText {
     @include font-mono(11px, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -430,9 +501,9 @@
 // ════════════════════════════════════════════════════════════
 .priceCard {
     position: relative;
-    background: $color-white;
-    border: 1px solid rgba(0, 196, 173, 0.15);
-    border-radius: $r-3;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: $r-2;
     padding: $sp-5 $sp-6;
     overflow: hidden;
 
@@ -518,14 +589,12 @@
 // ════════════════════════════════════════════════════════════
 .neonDivider {
     height: 1px;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(0, 196, 173, 0.2),
-        rgba(0, 196, 173, 0.4),
-        rgba(0, 196, 173, 0.2),
-        transparent
-    );
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(0, 196, 173, 0.2),
+            rgba(0, 196, 173, 0.4),
+            rgba(0, 196, 173, 0.2),
+            transparent);
     animation: neon-line 4s ease-in-out infinite;
 }
 
@@ -543,10 +612,17 @@
     align-items: center;
     gap: $sp-2;
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink2;
+    color: var(--ink2);
 
-    svg { color: rgba(0, 196, 173, 0.6); }
-    strong { color: #00C4AD; font-weight: $fw-semibold; margin-left: $sp-1; }
+    svg {
+        color: rgba(0, 196, 173, 0.6);
+    }
+
+    strong {
+        color: #00C4AD;
+        font-weight: $fw-semibold;
+        margin-left: $sp-1;
+    }
 }
 
 .variantOptions {
@@ -560,10 +636,10 @@
     align-items: center;
     gap: $sp-2;
     padding: $sp-2 $sp-3;
-    border: 1.5px solid $color-border2;
+    border: 1.5px solid var(--border2);
     border-radius: $r-2;
-    background: $color-white;
-    color: $color-ink2;
+    background: var(--surface);
+    color: var(--ink2);
     cursor: pointer;
     @include font-body($text-sm, $fw-medium);
     transition: all 0.2s ease;
@@ -584,18 +660,23 @@
 
     &:hover:not(:disabled) {
         border-color: rgba(0, 196, 173, 0.5);
-        color: $color-ink;
-        &::before { transform: scaleX(1); }
+        color: var(--ink);
+
+        &::before {
+            transform: scaleX(1);
+        }
     }
 }
 
 .variantBtnActive {
     border-color: #00C4AD;
     background: rgba(0, 196, 173, 0.04);
-    color: $color-ink;
+    color: var(--ink);
     box-shadow: 0 0 0 1px rgba(0, 196, 173, 0.2), 0 0 12px rgba(0, 196, 173, 0.06);
 
-    &::before { transform: scaleX(1); }
+    &::before {
+        transform: scaleX(1);
+    }
 }
 
 .variantBtnDisabled {
@@ -609,7 +690,7 @@
     border-radius: $r-1;
     object-fit: cover;
     flex-shrink: 0;
-    border: 1px solid $color-border;
+    border: 1px solid var(--border);
 }
 
 .variantInfo {
@@ -619,7 +700,9 @@
     text-align: left;
 }
 
-.variantName { font-size: 13px; }
+.variantName {
+    font-size: 13px;
+}
 
 .variantPrice {
     @include font-mono(10px, $fw-semibold);
@@ -647,45 +730,48 @@
 .qtyStepper {
     display: flex;
     align-items: center;
-    border: 1.5px solid $color-border2;
+    border: 1.5px solid var(--border2);
     border-radius: $r-2;
     overflow: hidden;
     height: 40px;
 }
 
 .qtyBtn {
-    width: 40px;
+    width: 44px;
     height: 100%;
     border: none;
-    background: $color-bg;
-    color: $color-ink;
-    font-size: 18px;
+    background: transparent;
+    color: var(--ink);
+    font-size: 20px;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    @include flex-center;
 
     &:hover:not(:disabled) {
         background: #00C4AD;
-        color: $color-white;
+        color: #FFFFFF;
+        box-shadow: 0 0 15px rgba(0, 196, 173, 0.3);
     }
 
     &:disabled {
-        opacity: 0.3;
+        opacity: 0.2;
         cursor: not-allowed;
     }
 }
 
 .qtyNum {
     @include font-mono($text-lg, $fw-bold);
-    min-width: 48px;
+    min-width: 54px;
     text-align: center;
-    color: $color-ink;
-    border-left: 1px solid $color-border;
-    border-right: 1px solid $color-border;
+    color: #00C4AD;
+    text-shadow: 0 0 10px rgba(0, 196, 173, 0.4);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: $color-white;
+    background: var(--bg2);
 }
 
 .stockText {
@@ -693,8 +779,12 @@
     align-items: center;
     gap: 6px;
     @include font-body($text-sm, $fw-regular);
-    color: $color-ink3;
-    strong { color: $color-green; font-weight: $fw-semibold; }
+    color: var(--ink3);
+
+    strong {
+        color: $color-green;
+        font-weight: $fw-semibold;
+    }
 }
 
 .stockDot {
@@ -714,12 +804,16 @@
 
 .totalPreview {
     @include font-mono($text-sm, $fw-medium);
-    color: $color-ink2;
+    color: var(--ink2);
     padding: $sp-2 $sp-3;
     background: rgba(0, 196, 173, 0.04);
     border: 1px dashed rgba(0, 196, 173, 0.2);
     border-radius: $r-2;
-    strong { color: #00C4AD; font-weight: $fw-bold; }
+
+    strong {
+        color: #00C4AD;
+        font-weight: $fw-bold;
+    }
 }
 
 // ════════════════════════════════════════════════════════════
@@ -734,10 +828,61 @@
 .ctaRow {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: $sp-3;
+    gap: $sp-4;
 
     @include mobile {
         grid-template-columns: 1fr;
+    }
+}
+
+.cartBtn {
+    border-width: 2px !important;
+    @include font-display(11px, $fw-bold);
+    letter-spacing: $ls-wide;
+    position: relative;
+    overflow: hidden;
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.08) !important;
+        box-shadow: 0 0 15px rgba(0, 196, 173, 0.15) !important;
+    }
+}
+
+.buyBtn {
+    background: #00C4AD !important;
+    color: #000000 !important;
+    @include font-display($text-sm, $fw-black);
+    letter-spacing: 0.08em;
+    position: relative;
+    overflow: hidden;
+    border: none !important;
+    box-shadow: 0 4px 14px rgba(0, 196, 173, 0.3);
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+        transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &:hover:not(:disabled) {
+        background: #00DDBB !important;
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 25px rgba(0, 196, 173, 0.5);
+
+        &::after {
+            left: 100%;
+        }
+    }
+
+    &:disabled {
+        background: var(--bg3) !important;
+        color: var(--ink3) !important;
+        box-shadow: none;
     }
 }
 
@@ -746,14 +891,17 @@
     align-items: center;
     gap: $sp-2;
     @include font-body($text-xs, $fw-medium);
-    color: $color-gold;
-    background: rgba(240, 165, 0, 0.06);
-    border: 1px solid rgba(240, 165, 0, 0.15);
+    color: var(--gold);
+    background: rgba(240, 165, 0, 0.08);
+    border: 1px solid rgba(240, 165, 0, 0.2);
     border-radius: $r-2;
     padding: $sp-2 $sp-3;
     margin: 0;
 
-    svg { flex-shrink: 0; color: $color-gold; }
+    svg {
+        flex-shrink: 0;
+        color: $color-gold;
+    }
 }
 
 .wishlistBtn {
@@ -761,21 +909,31 @@
     align-items: center;
     justify-content: center;
     gap: $sp-2;
-    padding: $sp-2 $sp-4;
-    border: 1px solid $color-border;
-    border-radius: $r-2;
-    background: $color-white;
-    color: $color-ink3;
-    @include font-body($text-sm, $fw-medium);
+    padding: $sp-3 $sp-4;
+    border: 1px solid var(--border);
+    border-radius: $r-1;
+    background: rgba(var(--surface-rgb), 0.5);
+    color: var(--ink3);
+    @include font-display($text-xs, $fw-bold);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
 
     &:hover {
-        border-color: $color-magenta;
-        color: $color-magenta;
-        background: rgba(240, 53, 106, 0.04);
+        border-color: #F0356A;
+        color: #F0356A;
+        background: rgba(240, 53, 106, 0.05);
+        box-shadow: 0 0 15px rgba(240, 53, 106, 0.1);
 
-        svg { color: $color-magenta; }
+        svg {
+            color: #F0356A;
+            transform: scale(1.1);
+        }
+    }
+
+    svg {
+        transition: transform 0.2s ease;
     }
 }
 
@@ -795,40 +953,38 @@
 .serviceCard {
     display: flex;
     align-items: flex-start;
-    gap: $sp-3;
-    padding: $sp-4;
-    background: $color-white;
-    border: 1px solid $color-border;
-    border-radius: $r-2;
-    transition: all 0.2s ease;
+    gap: $sp-4;
+    padding: $sp-5;
+    background: rgba(var(--surface-rgb), 0.5);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--border);
+    border-radius: $r-1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
 
-    &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background: #00C4AD;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-
     &:hover {
-        border-color: rgba(0, 196, 173, 0.2);
-        box-shadow: 0 2px 12px rgba(0, 196, 173, 0.06);
+        border-color: rgba(0, 196, 173, 0.3);
+        border-left-color: #00C4AD;
+        background: rgba(var(--surface-rgb), 0.8);
+        transform: translateX(4px);
+        box-shadow:
+            0 4px 20px rgba(0, 0, 0, 0.2),
+            inset 0 0 20px rgba(0, 196, 173, 0.03);
 
-        &::before { opacity: 1; }
-        svg { color: #00C4AD; }
+        svg {
+            color: #00C4AD;
+            filter: drop-shadow(0 0 5px rgba(0, 196, 173, 0.4));
+        }
     }
 
     svg {
         flex-shrink: 0;
-        color: $color-ink3;
+        color: var(--ink3);
         margin-top: 2px;
-        transition: color 0.2s ease;
+        font-size: 20px;
+        transition: all 0.3s ease;
     }
 
     div {
@@ -838,13 +994,16 @@
     }
 
     strong {
-        @include font-body($text-xs, $fw-semibold);
-        color: $color-ink;
+        @include font-display(11px, $fw-bold);
+        color: var(--ink);
+        letter-spacing: $ls-wide;
+        text-transform: uppercase;
     }
 
     span {
         @include font-body(11px, $fw-regular);
-        color: $color-ink3;
+        color: var(--ink3);
+        line-height: $lh-tight;
     }
 }
 
@@ -854,8 +1013,8 @@
 .detailSection {
     position: relative;
     z-index: 2;
-    background: $color-white;
-    border-top: 1px solid $color-border;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
 
     &::before {
         content: '';
@@ -880,7 +1039,7 @@
     gap: $sp-1;
     position: relative;
     margin-bottom: $sp-8;
-    border-bottom: 1px solid $color-border;
+    border-bottom: 1px solid var(--border);
 }
 
 .tabNavLine {
@@ -889,7 +1048,7 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: $color-border;
+    background: var(--border);
 }
 
 .tabBtn {
@@ -905,7 +1064,9 @@
     position: relative;
     transition: color 0.2s ease;
 
-    &:hover { color: $color-ink; }
+    &:hover {
+        color: var(--ink);
+    }
 
     @include mobile {
         padding: $sp-3;
@@ -919,7 +1080,10 @@
 
 .tabIcon {
     font-size: 14px;
-    @include mobile { display: none; }
+
+    @include mobile {
+        display: none;
+    }
 }
 
 .tabIndicator {
@@ -954,24 +1118,23 @@
     }
 }
 
-.descMain {
-    // No extra styles needed
-}
 
 .descText {
     @include font-body($text-base, $fw-regular);
-    color: $color-ink2;
+    color: var(--ink2);
     line-height: $lh-relaxed;
     margin: 0;
 }
 
 .descSidebar {
-    @include tablet { order: -1; }
+    @include tablet {
+        order: -1;
+    }
 }
 
 .quickInfoCard {
-    background: $color-bg;
-    border: 1px solid $color-border;
+    background: var(--bg2);
+    border: 1px solid var(--border);
     border-radius: $r-3;
     padding: $sp-5;
     position: relative;
@@ -1000,9 +1163,11 @@
     justify-content: space-between;
     align-items: center;
     padding: $sp-2 0;
-    border-bottom: 1px dashed $color-border;
+    border-bottom: 1px dashed var(--border);
 
-    &:last-child { border-bottom: none; }
+    &:last-child {
+        border-bottom: none;
+    }
 
     span {
         @include font-body($text-xs, $fw-regular);
@@ -1011,7 +1176,7 @@
 
     strong {
         @include font-mono($text-xs, $fw-semibold);
-        color: $color-ink;
+        color: var(--ink);
     }
 }
 
@@ -1025,35 +1190,40 @@
 .specTable {
     width: 100%;
     border-collapse: collapse;
-    border: 1px solid $color-border;
+    border: 1px solid var(--border);
     border-radius: $r-3;
     overflow: hidden;
 }
 
-.specRowEven { background: $color-white; }
-.specRowOdd { background: $color-bg; }
+.specRowEven {
+    background: var(--surface);
+}
+
+.specRowOdd {
+    background: var(--bg);
+}
 
 .specKey {
     @include font-body($text-sm, $fw-semibold);
-    color: $color-ink2;
+    color: var(--ink2);
     padding: $sp-3 $sp-5;
     width: 35%;
-    border-right: 1px solid $color-border;
-    border-bottom: 1px solid $color-border;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     vertical-align: middle;
 }
 
 .specVal {
     @include font-mono($text-sm, $fw-medium);
-    color: $color-ink;
+    color: var(--ink);
     padding: $sp-3 $sp-5;
-    border-bottom: 1px solid $color-border;
+    border-bottom: 1px solid var(--border);
     vertical-align: middle;
 }
 
 .specBasic {
-    background: $color-bg;
-    border: 1px solid $color-border;
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: $r-3;
     padding: $sp-6;
     position: relative;
@@ -1099,7 +1269,7 @@
 
 .specBasicVal {
     @include font-mono($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 // ── REVIEWS TAB ────────────────────────────────────────────
@@ -1114,8 +1284,8 @@
     grid-template-columns: auto 1fr;
     gap: $sp-10;
     align-items: center;
-    background: $color-bg;
-    border: 1px solid $color-border;
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: $r-3;
     padding: $sp-8;
     position: relative;
@@ -1143,12 +1313,12 @@
     align-items: center;
     gap: $sp-2;
     padding-right: $sp-10;
-    border-right: 1px solid $color-border;
+    border-right: 1px solid var(--border);
 
     @include tablet {
         padding-right: 0;
         border-right: none;
-        border-bottom: 1px solid $color-border;
+        border-bottom: 1px solid var(--border);
         padding-bottom: $sp-6;
     }
 }
@@ -1181,7 +1351,9 @@
     border-radius: $r-2;
     transition: background 0.15s ease;
 
-    &:hover { background: rgba(0, 196, 173, 0.04); }
+    &:hover {
+        background: rgba(0, 196, 173, 0.04);
+    }
 }
 
 .breakdownStar {
@@ -1221,8 +1393,16 @@
     padding: $sp-12 $sp-6;
     color: $color-ink3;
 
-    span:first-child { font-size: 40px; opacity: 0.3; }
-    p { @include font-body($text-base, $fw-medium); color: $color-ink3; margin: 0; }
+    span:first-child {
+        font-size: 40px;
+        opacity: 0.3;
+    }
+
+    p {
+        @include font-body($text-base, $fw-medium);
+        color: $color-ink3;
+        margin: 0;
+    }
 }
 
 .emptyHint {
@@ -1236,31 +1416,38 @@
 .accordionGroup {
     display: flex;
     flex-direction: column;
-    border: 1px solid $color-border;
+    border: 1px solid var(--border);
     border-radius: $r-2;
     overflow: hidden;
 }
 
 .accordion {
-    border-bottom: 1px solid $color-border;
-    &:last-child { border-bottom: none; }
+    border-bottom: 1px solid var(--border);
+
+    &:last-child {
+        border-bottom: none;
+    }
 }
 
-.accordionOpen .accordionBtn { color: #00C4AD; }
+.accordionOpen .accordionBtn {
+    color: #00C4AD;
+}
 
 .accordionBtn {
     @include flex-between;
     width: 100%;
     padding: $sp-4 $sp-5;
-    background: $color-white;
+    background: var(--bg);
     border: none;
     cursor: pointer;
     text-align: left;
     @include font-body($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     transition: all 0.15s ease;
 
-    &:hover { background: $color-bg; }
+    &:hover {
+        background: var(--bg2);
+    }
 }
 
 .accordionTitle {
@@ -1283,8 +1470,8 @@
 
 .accordionBody {
     padding: $sp-4 $sp-5 $sp-5;
-    background: $color-bg;
-    border-top: 1px solid $color-border;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
     animation: fade-in 0.2s ease;
 }
 
@@ -1292,8 +1479,8 @@
 // RELATED PRODUCTS
 // ════════════════════════════════════════════════════════════
 .relatedSection {
-    background: $color-bg;
-    border-top: 1px solid $color-border;
+    background: transparent;
+    border-top: 1px solid var(--border);
     position: relative;
     z-index: 2;
 

@@ -49,14 +49,14 @@
     position: sticky;
     top: 0;
     z-index: $z-nav;
-    background: rgba(244, 242, 237, 0.85);
+    background: var(--nav-bg, rgba(244, 242, 237, 0.85));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    transition: $transition-fast;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
     overflow: visible;
 
     &.navScrolled {
-        background: rgba(244, 242, 237, 0.95);
+        background: var(--nav-bg-scroll, rgba(244, 242, 237, 0.95));
         box-shadow:
             0 1px 0 rgba(0, 196, 173, 0.15),
             0 4px 20px rgba(0, 0, 0, 0.06);
@@ -132,7 +132,7 @@
     font-family: $font-display;
     font-size: 20px;
     font-weight: $fw-black;
-    color: $color-ink;
+    color: var(--ink);
     letter-spacing: $ls-tight;
     position: relative;
 
@@ -201,7 +201,7 @@
     font-family: $font-body;
     font-size: 13px;
     font-weight: $fw-semibold;
-    color: $color-ink2;
+    color: var(--ink2);
     text-decoration: none;
     border-radius: $r-1;
     position: relative;
@@ -210,7 +210,7 @@
     letter-spacing: 0.02em;
 
     &:hover {
-        color: $color-ink;
+        color: var(--ink);
         background: rgba(0, 196, 173, 0.06);
     }
 
@@ -294,7 +294,7 @@
     top: calc(100% + 6px);
     left: 0;
     min-width: 200px;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--dropdown-bg, rgba(255, 255, 255, 0.95));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(0, 196, 173, 0.15);
@@ -302,8 +302,7 @@
     padding: $sp-2 0;
     box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.08),
-        0 0 0 1px rgba(0, 196, 173, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        0 0 0 1px rgba(0, 196, 173, 0.1);
     animation: dropdown-in 0.2s ease;
     z-index: $z-dropdown;
     overflow: hidden;
@@ -326,7 +325,7 @@
     font-family: $font-body;
     font-size: 13px;
     font-weight: $fw-medium;
-    color: $color-ink2;
+    color: var(--ink2);
     text-decoration: none;
     transition: all 0.15s ease;
     animation: item-slide 0.25s ease forwards;
@@ -376,7 +375,7 @@
     width: 36px;
     height: 36px;
     border-radius: $r-2;
-    color: $color-ink2;
+    color: var(--ink2);
     text-decoration: none;
     position: relative;
     transition: all 0.2s ease;
@@ -508,7 +507,7 @@
     display: block;
     width: 20px;
     height: 2px;
-    background: $color-ink;
+    background: var(--ink);
     border-radius: 2px;
     transition: all 0.25s ease;
 
@@ -543,7 +542,7 @@
     right: 0;
     width: min(320px, 80vw);
     height: 100%;
-    background: rgba(244, 242, 237, 0.98);
+    background: var(--mobile-menu-bg, rgba(244, 242, 237, 0.98));
     backdrop-filter: blur(20px);
     padding: $sp-6;
     display: flex;
@@ -620,7 +619,7 @@
     font-family: $font-body;
     font-size: 15px;
     font-weight: $fw-medium;
-    color: $color-ink2;
+    color: var(--ink2);
     text-decoration: none;
     border-radius: $r-1;
     transition: all 0.15s ease;

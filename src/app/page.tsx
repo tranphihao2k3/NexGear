@@ -60,14 +60,7 @@ const REVIEWS = [
   },
 ];
 
-const HERO_MINI_PRODUCTS = [
-  { id: 1, name: "Keychron K2", price: "2.290.000₫", badge: "NEW", emoji: "⌨️" },
-  { id: 2, name: "Razer Viper V3", price: "1.890.000₫", badge: "HOT", emoji: "🖱️" },
-  { id: 3, name: "HyperX Cloud III", price: "2.490.000₫", badge: "SALE", emoji: "🎧" },
-  { id: 4, name: "Edifier MX-U6", price: "3.290.000₫", badge: null, emoji: "🎙️" },
-  { id: 5, name: "Sony SRS-XB100", price: "1.290.000₫", badge: "NEW", emoji: "🔊" },
-  { id: 6, name: "AKKO Deskpad XXL", price: "390.000₫", badge: null, emoji: "🖱️" },
-];
+const HERO_CATEGORIES = CATEGORIES.slice(0, 6);
 
 // ── COUNTDOWN TIMER ──────────────────────────────────────────
 function useCountdown(targetHours = 6) {
@@ -107,7 +100,7 @@ export default function Home() {
       fetch('/api/products?featured=true&active=true&limit=4').then(r => r.json()),
       fetch('/api/products?tag=sale&active=true&limit=4&sort=-createdAt').then(r => r.json()),
       fetch('/api/products?active=true&limit=4&sort=-soldCount').then(r => r.json()),
-      fetch('/api/brands?limit=20').then(r => r.json()),
+      fetch('/api/brands?limit=20&hasProducts=true').then(r => r.json()),
     ]).then(([featuredRes, saleRes, bestRes, brandRes]) => {
       if (featuredRes.success) setFeaturedProducts(featuredRes.data);
       if (saleRes.success) setSaleProducts(saleRes.data);
@@ -174,53 +167,46 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: Mini Product Preview Grid */}
+          {/* Right: Category Grid */}
           <div className={styles.heroRight}>
             <div className={styles.heroGrid}>
-              {HERO_MINI_PRODUCTS.map((p) => (
-                <div key={p.id} className={styles.heroMiniCard}>
-                  <div className={styles.heroMiniEmoji}>{p.emoji}</div>
-                  {p.badge && (
-                    <span className={`${styles.heroMiniBadge} ${p.badge === "SALE" ? styles.badgeSale :
-                        p.badge === "HOT" ? styles.badgeHot : styles.badgeNew
-                      }`}>{p.badge}</span>
-                  )}
-                  <div className={styles.heroMiniName}>{p.name}</div>
-                  <div className={styles.heroMiniPrice}>{p.price}</div>
-                </div>
+              {HERO_CATEGORIES.map((cat) => (
+                <Link key={cat.id} href={cat.href} className={styles.heroMiniCard}>
+                  <div className={styles.heroMiniIcon}>
+                    <CategorySvg id={cat.id} />
+                  </div>
+                  <div className={styles.heroMiniName}>{cat.label}</div>
+                  <div className={styles.heroMiniSub}>{cat.tag} sản phẩm</div>
+                </Link>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── CATEGORY SHOWCASE ── */}
-      <section className={styles.categoryShowcase}>
-        <div className={styles.catHeader}>
-          <span className={styles.catLabel}>// DANH MỤC</span>
-          <span className={styles.catLine} />
-          <Link href="/products" className={styles.catViewAll}>Tất cả sản phẩm →</Link>
-        </div>
-        <div className={styles.categoryShowcaseInner}>
-          {CATEGORIES.map((cat, i) => (
-            <Link key={i} href={cat.href} className={styles.categoryCard}>
-              <div className={styles.catCardGlow} />
-              <div className={styles.catCardScanline} />
-              <div className={styles.catIconWrap}>
-                <CategorySvg id={cat.id} />
-                <span className={styles.catIconRing} />
+      {/* ── TẠI SAO CHỌN NEXGEAR ── */}
+      <section className={styles.uspSection}>
+        <div className={styles.uspInner}>
+          <div className={styles.uspHeader}>
+            <span className={styles.uspLabel}>// TẠI SAO CHỌN NEXGEAR</span>
+            <span className={styles.uspLine} />
+          </div>
+          <div className={styles.uspGrid}>
+            {[
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>, title: "100% Chính Hãng", desc: "Cam kết hàng chính hãng, tem bảo hành đầy đủ từ nhà phân phối." },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>, title: "Giao Hàng 2H", desc: "Giao nhanh trong 2 giờ nội thành, ship toàn quốc 24-48h." },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>, title: "Tư Vấn 24/7", desc: "Đội ngũ tư vấn chuyên nghiệp, hỗ trợ online mọi lúc mọi nơi." },
+              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18"/><path d="M17 6h6v6"/></svg>, title: "Giá Tốt Nhất", desc: "Hoàn tiền nếu bạn tìm được giá rẻ hơn ở nơi khác." },
+            ].map((item, i) => (
+              <div key={i} className={styles.uspCard}>
+                <div className={styles.uspIconWrap}>{item.icon}</div>
+                <div className={styles.uspContent}>
+                  <h3 className={styles.uspTitle}>{item.title}</h3>
+                  <p className={styles.uspDesc}>{item.desc}</p>
+                </div>
               </div>
-              <span className={styles.categoryName}>{cat.label}</span>
-              <span className={styles.categorySub}>{cat.sub}</span>
-              <div className={styles.catFooter}>
-                <span className={styles.catTag}>{cat.tag}</span>
-                <span className={styles.categoryArrow}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                </span>
-              </div>
-              <div className={styles.catTopBar} />
-            </Link>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 

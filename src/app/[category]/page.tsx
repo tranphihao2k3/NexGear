@@ -81,16 +81,32 @@ export default function CategoryPage() {
     // Find category ID from slug
     const categoryObj = categories.find(c => c.slug === catSlug);
 
-    // Fetch brands & categories on mount
+    // Fetch categories on mount
     useEffect(() => {
-        Promise.all([
-            fetch('/api/brands?limit=50').then(r => r.json()),
-            fetch('/api/categories?limit=50').then(r => r.json()),
-        ]).then(([brandRes, catRes]) => {
-            if (brandRes.success) setBrands(brandRes.data.map((b: any) => ({ id: b._id, name: b.name })));
-            if (catRes.success) setCategories(catRes.data);
+        fetch('/api/categories?limit=50').then(r => r.json()).then(res => {
+            if (res.success) setCategories(res.data);
         });
     }, []);
+
+    // Fetch brands when category changes
+    useEffect(() => {
+        const fetchBrands = async () => {
+            let url = '/api/brands?limit=50&hasProducts=true';
+            if (categoryObj?._id) {
+                url += `&category=${categoryObj._id}`;
+            }
+            try {
+                const r = await fetch(url);
+                const res = await r.json();
+                if (res.success) {
+                    setBrands(res.data.map((b: any) => ({ id: b._id, name: b.name })));
+                }
+            } catch (err) {
+                console.error('Failed to fetch brands:', err);
+            }
+        };
+        fetchBrands();
+    }, [categoryObj?._id]);
 
     // Fetch products
     const fetchProducts = useCallback(async () => {
@@ -319,7 +335,7 @@ export default function CategoryPage() {
                                             </div>
                                         </div>
                                     ) : (
-                                        <ProductCard key={product._id} product={product as any} onAddToCart={() => {}} />
+                                        <ProductCard key={product._id} product={product as any} onAddToCart={() => { }} />
                                     )
                                 )}
                             </div>

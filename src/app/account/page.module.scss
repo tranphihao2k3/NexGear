@@ -5,8 +5,8 @@
 }
 
 .breadcrumbBar {
-    background: $color-white;
-    border-bottom: 1px solid $color-border;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     padding: $sp-3 0;
 }
 
@@ -37,7 +37,7 @@
 
 .bcCurrent {
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .pageInner {
@@ -79,8 +79,8 @@
 
 // Avatar card
 .avatarCard {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     overflow: hidden;
     padding: $sp-6;
@@ -95,7 +95,7 @@
         display: block;
         height: 3px;
         background: $gradient-top-bar;
-        margin: -$sp-6 -$sp-6 $sp-3;
+        margin: calc($sp-6 * -1) calc($sp-6 * -1) $sp-3;
         width: calc(100% + #{$sp-12});
     }
 }
@@ -151,7 +151,7 @@
 
 .avatarName {
     @include font-body($text-base, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .avatarEmail {
@@ -162,8 +162,8 @@
 
 .tierBadge {
     @include font-display($text-xs, $fw-bold);
-    background: linear-gradient(135deg, $color-gold-light, lighten(#F0A500, 35%));
-    color: darken(#F0A500, 10%);
+    background: linear-gradient(135deg, $color-gold-light, #F8D880);
+    color: #BD8200;
     border: 1px solid rgba(240, 165, 0, 0.3);
     padding: $sp-1 $sp-4;
     border-radius: $r-full;
@@ -182,7 +182,7 @@
     @include flex-between;
     width: 100%;
     padding: $sp-2 $sp-3;
-    background: $color-bg2;
+    background: var(--bg2);
     border-radius: $r-2;
 }
 
@@ -198,8 +198,8 @@
 
 // Side nav
 .sideNav {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     overflow: hidden;
 }
@@ -210,9 +210,9 @@
     gap: $sp-3;
     padding: $sp-3 $sp-5;
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink2;
+    color: var(--ink2);
     text-decoration: none;
-    border-bottom: 1px solid $color-border;
+    border-bottom: 1px solid var(--border);
     transition: $transition-fast;
 
     &:last-child {
@@ -286,8 +286,8 @@
 }
 
 .statCard {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     padding: $sp-5 $sp-4;
     display: flex;
@@ -320,8 +320,8 @@
 
 // Card
 .card {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     padding: $sp-6;
     display: flex;
@@ -331,12 +331,12 @@
 
 .cardTitle {
     @include font-display($text-base, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
     letter-spacing: $ls-wide;
     text-transform: uppercase;
     margin: 0;
     padding-bottom: $sp-4;
-    border-bottom: 1px solid $color-border;
+    border-bottom: 1px solid var(--border);
 }
 
 .cardTitleRow {
@@ -446,12 +446,12 @@
 
 .miniOrderId {
     @include font-mono($text-sm, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .miniOrderDate {
     @include font-body($text-xs, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3);
 }
 
 .miniOrderStatus {
@@ -459,7 +459,12 @@
     align-items: center;
     gap: $sp-2;
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink2;
+    color: var(--ink2);
+
+    &.status_confirmed {
+        color: #00E9CE;
+        text-shadow: 0 0 10px rgba(0, 233, 206, 0.3);
+    }
 }
 
 .statusDot {
@@ -470,6 +475,11 @@
 
 .status_shipped {
     background: $color-cyan;
+}
+
+.status_confirmed {
+    background: $color-cyan;
+    box-shadow: 0 0 8px rgba(0, 196, 173, 0.4);
 }
 
 .status_delivered {
@@ -486,7 +496,7 @@
 
 .miniOrderTotal {
     @include font-mono($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .miniOrderView {
@@ -526,14 +536,27 @@
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 // ── Stat card colors ─────────────────────────────────────────
-.stat_cyan .statValue { color: $color-cyan; }
-.stat_gold .statValue { color: $color-gold; }
-.stat_green .statValue { color: $color-green; }
-.stat_magenta .statValue { color: $color-magenta; }
+.stat_cyan .statValue {
+    color: $color-cyan;
+}
+
+.stat_gold .statValue {
+    color: $color-gold;
+}
+
+.stat_green .statValue {
+    color: $color-green;
+}
+
+.stat_magenta .statValue {
+    color: $color-magenta;
+}
 
 // ── Empty orders ─────────────────────────────────────────────
 .emptyOrders {
@@ -543,8 +566,15 @@
     padding: $sp-10;
     color: $color-ink3;
 
-    span { font-size: 32px; opacity: 0.4; }
-    p { margin: 0; @include font-body($text-sm); }
+    span {
+        font-size: 32px;
+        opacity: 0.4;
+    }
+
+    p {
+        margin: 0;
+        @include font-body($text-sm);
+    }
 }
 
 .shopNowLink {
@@ -553,5 +583,7 @@
     text-decoration: none;
     transition: $transition-fast;
 
-    &:hover { text-decoration: underline; }
+    &:hover {
+        text-decoration: underline;
+    }
 }

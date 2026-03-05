@@ -23,7 +23,5 @@ const BrandSchema = new Schema<IBrand>(
     { timestamps: true }
 );
 
-BrandSchema.index({ slug: 1 });
-
 const Brand = models.Brand || model<IBrand>('Brand', BrandSchema);
 export default Brand;

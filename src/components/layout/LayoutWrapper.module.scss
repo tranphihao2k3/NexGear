@@ -4,7 +4,8 @@
 .clientWrapper {
     position: relative;
     min-height: 100vh;
-    background-color: $color-bg;
+    background-color: var(--bg);
+    transition: background-color 0.3s ease;
 
     // Grid kẻ ô toàn trang
     &::before {

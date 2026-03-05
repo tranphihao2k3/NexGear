@@ -5,8 +5,8 @@
 }
 
 .breadcrumbBar {
-    background: $color-white;
-    border-bottom: 1px solid $color-border;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     padding: $sp-3 0;
 }
 
@@ -22,11 +22,11 @@
 
 .bcLink {
     @include font-body($text-sm, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3);
     text-decoration: none;
 
     &:hover {
-        color: $color-cyan;
+        color: var(--cyan);
     }
 }
 
@@ -37,7 +37,7 @@
 
 .bcCurrent {
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .pageInner {
@@ -55,8 +55,8 @@
 .filterTabs {
     display: flex;
     gap: 0;
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-2;
     overflow: hidden;
     width: fit-content;
@@ -85,8 +85,8 @@
     }
 
     &:hover {
-        background: $color-bg;
-        color: $color-ink;
+        background: var(--bg);
+        color: var(--ink);
     }
 
     @include mobile {
@@ -98,16 +98,16 @@
 }
 
 .filterTabActive {
-    background: $color-cyan-light;
-    color: $color-cyan;
+    background: rgba(0, 196, 173, 0.1);
+    color: var(--cyan);
     font-weight: $fw-semibold;
-    box-shadow: inset 0 -2px 0 $color-cyan;
+    box-shadow: inset 0 -2px 0 var(--cyan);
 }
 
 .filterCount {
     @include font-display($text-xs, $fw-bold);
-    background: $color-bg2;
-    color: $color-ink3;
+    background: var(--bg3);
+    color: var(--ink3);
     min-width: 20px;
     height: 18px;
     border-radius: $r-full;
@@ -118,8 +118,8 @@
     padding: 0 $sp-2;
 
     .filterTabActive & {
-        background: $color-cyan;
-        color: $color-white;
+        background: var(--cyan);
+        color: var(--surface);
     }
 }
 
@@ -150,8 +150,8 @@
 
 // ── Order Card ─────────────────────────────────────────────
 .orderCard {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     overflow: hidden;
     transition: $transition-fast;
@@ -182,8 +182,8 @@
 .orderHeader {
     @include flex-between;
     padding: $sp-4 $sp-6;
-    background: $color-bg;
-    border-bottom: 1px solid $color-border;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
     gap: $sp-3;
 }
@@ -196,12 +196,12 @@
 
 .orderId {
     @include font-mono($text-base, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .orderDate {
     @include font-body($text-sm, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3);
 }
 
 // Status badge
@@ -229,8 +229,8 @@
 }
 
 .badge_cancelled {
-    background: $color-bg3;
-    color: $color-ink3;
+    background: var(--bg3);
+    color: var(--ink3);
 }
 
 // Items preview
@@ -251,7 +251,7 @@
     width: 56px;
     height: 56px;
     border-radius: $r-2;
-    background: $color-bg2;
+    background: var(--bg2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -269,18 +269,18 @@
 
 .itemName {
     @include font-body($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     @include truncate(1);
 }
 
 .itemVariant {
     @include font-body($text-xs, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3);
 }
 
 .itemPrice {
     @include font-mono($text-sm, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
     flex-shrink: 0;
 }
 
@@ -288,8 +288,8 @@
 .orderFooter {
     @include flex-between;
     padding: $sp-4 $sp-6;
-    border-top: 1px solid $color-border;
-    background: $color-bg;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
     flex-wrap: wrap;
     gap: $sp-3;
 }
@@ -299,7 +299,7 @@
     background: none;
     border: none;
     cursor: pointer;
-    color: $color-cyan;
+    color: var(--cyan);
     padding: 0;
     transition: $transition-fast;
 
@@ -310,11 +310,11 @@
 
 .orderTotal {
     @include font-body($text-sm, $fw-regular);
-    color: $color-ink2;
+    color: var(--ink2);
 
     strong {
         @include font-mono($text-base, $fw-bold);
-        color: $color-cyan;
+        color: var(--cyan);
     }
 }
 
@@ -330,28 +330,28 @@
 }
 
 .reviewBtn {
-    border: 1.5px solid $color-gold;
-    color: darken(#F0A500, 10%);
+    border: 1.5px solid var(--gold);
+    color: var(--gold);
 
     &:hover {
-        background: $color-gold-light;
+        background: rgba(240, 165, 0, 0.1);
     }
 }
 
 .trackBtn {
-    border: 1.5px solid $color-cyan;
-    color: $color-cyan;
+    border: 1.5px solid var(--cyan);
+    color: var(--cyan);
 
     &:hover {
-        background: $color-cyan-light;
+        background: rgba(0, 196, 173, 0.1);
     }
 }
 
 // ── Order Detail Expand ───────────────────────────────────
 .orderDetail {
     padding: $sp-5 $sp-6;
-    border-top: 1px solid $color-border;
-    background: $color-bg;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
     display: flex;
     flex-direction: column;
     gap: $sp-4;
@@ -378,7 +378,7 @@
 
 .detailKey {
     @include font-mono($text-xs, $fw-semibold);
-    color: $color-ink3;
+    color: var(--ink3);
     text-transform: uppercase;
     letter-spacing: $ls-wide;
     font-size: 10px;
@@ -387,7 +387,7 @@
 }
 
 .detailVal {
-    color: $color-ink2;
+    color: var(--ink2);
 }
 
 // ── Timeline ──────────────────────────────────────────────
@@ -407,7 +407,7 @@
         top: 8px;
         bottom: 8px;
         width: 1px;
-        background: $color-border2;
+        background: var(--border);
     }
 }
 
@@ -431,14 +431,14 @@
     width: 14px;
     height: 14px;
     border-radius: $r-full;
-    border: 2px solid $color-border2;
-    background: $color-white;
+    border: 2px solid var(--border);
+    background: var(--surface);
     flex-shrink: 0;
 
     .timelineDone & {
-        background: $color-cyan;
-        border-color: $color-cyan;
-        box-shadow: $shadow-glow-cyan;
+        background: var(--cyan);
+        border-color: var(--cyan);
+        box-shadow: 0 0 12px rgba(0, 196, 173, 0.4);
     }
 }
 
@@ -452,12 +452,12 @@
 
 .timelineLabel {
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .timelineTime {
     @include font-mono($text-xs, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3);
     font-size: 10px;
     flex-shrink: 0;
 }

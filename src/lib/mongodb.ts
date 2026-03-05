@@ -12,8 +12,8 @@ if (!MONGODB_URI) {
  * during API Route usage.
  */
 interface MongooseCache {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+    conn: any;
+    promise: Promise<any> | null;
 }
 
 declare global {

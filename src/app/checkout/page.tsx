@@ -136,8 +136,8 @@ function CheckoutPageInner() {
                 customerInfo: { name: form.name, phone: form.phone, email: form.email },
                 items: items.map(i => ({
                     product: i.productId,
-                    variant: i.variantIndex ?? null,
-                    name: i.name,
+                    variant: null, // TODO: store variant ObjectId in CartItem instead of index
+                    name: i.variant ? `${i.name} (${i.variant})` : i.name,
                     sku: i.sku,
                     qty: i.qty,
                     unitPrice: i.salePrice ?? i.basePrice,

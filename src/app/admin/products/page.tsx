@@ -4,6 +4,14 @@ import { useState, useEffect } from 'react';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
 
+function removeVietnameseTones(str: string): string {
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D');
+}
+
 interface Category {
     _id: string;
     name: string;
@@ -113,8 +121,8 @@ export default function AdminProductsPage() {
             // Auto-generate slug and SKU from name if empty and typing name
             ...(name === 'name' && !editingId
                 ? {
-                    slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
-                    sku: 'NGR-' + value.toUpperCase().replace(/[^A-Z0-9]+/g, '').substring(0, 6) + '-' + Math.floor(Math.random() * 1000)
+                    slug: removeVietnameseTones(value).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, ''),
+                    sku: 'NGR-' + removeVietnameseTones(value).toUpperCase().replace(/[^A-Z0-9]+/g, '').substring(0, 6) + '-' + Math.floor(Math.random() * 1000)
                 }
                 : {})
         }));
@@ -168,11 +176,13 @@ export default function AdminProductsPage() {
     // Add image as local preview (no upload yet)
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
-        const file = e.target.files[0];
-        const blobUrl = URL.createObjectURL(file);
+        const newImages = Array.from(e.target.files).map(file => ({
+            url: URL.createObjectURL(file),
+            file
+        }));
         setFormData(prev => ({
             ...prev,
-            images: [...prev.images, { url: blobUrl, file }]
+            images: [...prev.images, ...newImages]
         }));
         e.target.value = '';
     };
@@ -223,11 +233,13 @@ export default function AdminProductsPage() {
     // Add variant image as local preview
     const handleVariantImageSelect = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
-        const file = e.target.files[0];
-        const blobUrl = URL.createObjectURL(file);
+        const newImages = Array.from(e.target.files).map(file => ({
+            url: URL.createObjectURL(file),
+            file
+        }));
         setFormData(prev => ({
             ...prev,
-            variants: prev.variants.map((v, i) => i === index ? { ...v, images: [...v.images, { url: blobUrl, file }] } : v)
+            variants: prev.variants.map((v, i) => i === index ? { ...v, images: [...v.images, ...newImages] } : v)
         }));
         e.target.value = '';
     };
@@ -505,7 +517,7 @@ export default function AdminProductsPage() {
                                     ))}
                                 </div>
                                 <label className={styles.imageUpload}>
-                                    <input type="file" style={{ display: 'none' }} onChange={handleImageSelect} accept="image/*" />
+                                    <input type="file" style={{ display: 'none' }} onChange={handleImageSelect} accept="image/*" multiple />
                                     <span className={styles.uploadIcon}>📷</span>
                                     <span className={styles.uploadText}>Chọn ảnh (sẽ upload khi lưu sản phẩm)</span>
                                 </label>
@@ -633,7 +645,7 @@ export default function AdminProductsPage() {
                                                 ))}
                                             </div>
                                             <label className={styles.variantUploadBtn}>
-                                                <input type="file" style={{ display: 'none' }} onChange={(e) => handleVariantImageSelect(vi, e)} accept="image/*" />
+                                                <input type="file" style={{ display: 'none' }} onChange={(e) => handleVariantImageSelect(vi, e)} accept="image/*" multiple />
                                                 📷 Thêm ảnh
                                             </label>
                                         </div>

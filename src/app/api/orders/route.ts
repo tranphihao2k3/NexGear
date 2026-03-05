@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
+import { pusherServer } from '@/lib/pusher-server';
 
 // GET /api/orders
 export async function GET(req: NextRequest) {
@@ -96,6 +97,18 @@ export async function POST(req: NextRequest) {
             await Product.findByIdAndUpdate(item.product, {
                 $inc: { stock: -item.qty, soldCount: item.qty },
             });
+        }
+
+        // Notify Admin panel in real-time
+        try {
+            await pusherServer.trigger('admin-channel', 'new-order', {
+                orderCode: order.orderCode,
+                total: order.total,
+                customerName: order.customerInfo?.name || 'Khách vãng lai',
+            });
+        } catch (pusherErr) {
+            console.error("Lỗi gửi thông báo Pusher:", pusherErr);
+            // Ignore pusher error, don't break the order creation
         }
 
         return apiSuccess(order, 201);

@@ -18,10 +18,11 @@ const Footer = () => {
                         <div className={styles.col}>
                             <h3>DANH MỤC</h3>
                             <ul>
-                                <li><Link href="/products/keyboards">Bàn Phím</Link></li>
-                                <li><Link href="/products/mice">Chuột & Lót</Link></li>
-                                <li><Link href="/products/audio">Tai Nghe</Link></li>
-                                <li><Link href="/products/audio">Loa & Mic</Link></li>
+                                <li><Link href="/ban-phim">Bàn Phím</Link></li>
+                                <li><Link href="/chuot">Chuột & Lót</Link></li>
+                                <li><Link href="/tai-nghe">Tai Nghe</Link></li>
+                                <li><Link href="/loa">Loa & Mic</Link></li>
+                                <li><Link href="/phu-kien">Phụ Kiện</Link></li>
                             </ul>
                         </div>
                         <div className={styles.col}>

@@ -9,8 +9,8 @@
 
 // Breadcrumb
 .breadcrumbBar {
-    background: $color-white;
-    border-bottom: 1px solid $color-border;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     padding: $sp-3 0;
 }
 
@@ -42,7 +42,7 @@
 
 .bcCurrent {
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 // ── Layout ───────────────────────────────────────────────
@@ -77,10 +77,11 @@
 }
 
 .cartCard {
-    background: $color-white;
-    border: 1px solid $color-border;
-    border-radius: $r-4;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: $r-2; // Shaper corners for Cyberpunk
     overflow: hidden;
+    position: relative;
 }
 
 // Header
@@ -89,14 +90,14 @@
     align-items: center;
     gap: $sp-3;
     padding: $sp-4 $sp-5;
-    background: $color-bg2;
-    border-bottom: 1px solid $color-border;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
     flex-wrap: wrap;
 }
 
 .cartHeaderText {
     @include font-body($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     flex: 1;
 }
 
@@ -200,7 +201,7 @@
     }
 
     &:hover {
-        background: $color-bg;
+        background: var(--bg2);
     }
 
     @include tablet {
@@ -220,7 +221,7 @@
     width: 80px;
     height: 80px;
     border-radius: $r-2;
-    background: $color-bg2;
+    background: var(--bg3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -268,8 +269,7 @@
 }
 
 .itemName {
-    @include font-body($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     text-decoration: none;
     @include truncate(2);
     transition: $transition-fast;
@@ -364,12 +364,13 @@
     min-width: 36px;
     text-align: center;
     color: $color-ink;
-    border-left: 1px solid $color-border;
-    border-right: 1px solid $color-border;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--bg);
 }
 
 .stockWarn {
@@ -381,7 +382,7 @@
 // Total per item
 .itemTotal {
     @include font-mono($text-sm, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
     text-align: center;
 }
 
@@ -431,8 +432,8 @@
 // COUPON
 // ════════════════════════════════════════════════════════════
 .couponCard {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     padding: $sp-5 $sp-6;
     display: flex;
@@ -442,7 +443,7 @@
 
 .couponTitle {
     @include font-display($text-sm, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
     letter-spacing: $ls-wide;
 }
 
@@ -478,7 +479,7 @@
 }
 
 .couponMsgErr {
-    background: lighten(#E53E3E, 44%);
+    background: #FCE8E8;
     color: $color-red;
 }
 
@@ -531,8 +532,8 @@
 }
 
 .summaryCard {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     overflow: hidden;
 
@@ -544,15 +545,26 @@
         background: $gradient-top-bar;
     }
 
-    padding: $sp-6;
+    padding: $sp-8 $sp-6 $sp-6;
 }
 
 .summaryTitle {
-    @include font-display($text-base, $fw-bold);
-    color: $color-ink;
+    @include font-display($text-lg, $fw-black);
+    color: var(--ink);
     letter-spacing: $ls-wide;
-    margin: 0 0 $sp-5;
+    margin: 0 0 $sp-6;
     text-transform: uppercase;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+
+    &::before {
+        content: '>>';
+        color: #00C4AD;
+        font-size: 14px;
+        opacity: 0.6;
+    }
 }
 
 .summaryRows {
@@ -569,7 +581,7 @@
 
     span:last-child {
         @include font-mono($text-sm, $fw-semibold);
-        color: $color-ink;
+        color: var(--ink);
     }
 }
 
@@ -610,7 +622,7 @@
 
 .totalLabel {
     @include font-body($text-base, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 .totalAmount {
@@ -634,9 +646,14 @@
 }
 
 .secureNote {
-    @include font-body($text-xs, $fw-regular);
-    color: $color-ink3;
+    @include font-body($text-xs, $fw-medium);
+    color: var(--ink3);
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-1;
+    opacity: 0.8;
 }
 
 .payBadges {
@@ -644,16 +661,25 @@
     gap: $sp-2;
     flex-wrap: wrap;
     justify-content: center;
-    padding-top: $sp-4;
-    border-top: 1px solid $color-border;
+    padding-top: $sp-6;
+    border-top: 1px dashed var(--border);
+    opacity: 0.7;
 }
 
 .payBadge {
-    @include font-mono($text-xs, $fw-semibold);
-    background: $color-bg2;
-    color: $color-ink3;
-    border: 1px solid $color-border;
+    @include font-mono(9px, $fw-bold);
+    background: var(--bg2);
+    color: var(--ink2);
+    border: 1px solid var(--border);
     border-radius: $r-1;
-    padding: 2px $sp-3;
-    font-size: 10px;
+    padding: 2px $sp-2;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #00C4AD;
+        color: #00C4AD;
+        background: rgba(0, 196, 173, 0.05);
+    }
 }

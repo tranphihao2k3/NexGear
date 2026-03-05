@@ -25,7 +25,7 @@ const CategorySchema = new Schema<ICategory>(
     { timestamps: true }
 );
 
-CategorySchema.index({ slug: 1 });
+// Removed duplicate slug index
 CategorySchema.index({ parent: 1 });
 
 const Category = models.Category || model<ICategory>('Category', CategorySchema);

@@ -69,8 +69,8 @@
     border-color: $color-ink;
 
     &:hover:not(:disabled) {
-        background: lighten(#0C0C0C, 15%);
-        border-color: lighten(#0C0C0C, 15%);
+        background: #333333;
+        border-color: #333333;
         box-shadow: $shadow-md;
     }
 

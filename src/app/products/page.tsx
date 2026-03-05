@@ -21,6 +21,8 @@ interface Product {
     _id: string;
     name: string;
     slug: string;
+    sku: string;
+    brand: { name: string };
     basePrice: number;
     salePrice: number | null;
     images: string[];
@@ -52,7 +54,7 @@ function CatalogContent() {
     useEffect(() => {
         Promise.all([
             fetch('/api/categories?limit=100').then((r) => r.json()),
-            fetch('/api/brands?limit=100').then((r) => r.json()),
+            fetch('/api/brands?limit=100&hasProducts=true').then((r) => r.json()),
         ]).then(([catData, brandData]) => {
             if (catData.success) setCategories(catData.data);
             if (brandData.success) setBrands(brandData.data);
@@ -213,16 +215,7 @@ function CatalogContent() {
                             {products.map((p) => (
                                 <ProductCard
                                     key={p._id}
-                                    product={{
-                                        id: p.slug,
-                                        name: p.name,
-                                        price: p.salePrice || p.basePrice,
-                                        originalPrice: p.salePrice && p.salePrice < p.basePrice ? p.basePrice : undefined,
-                                        image: p.images?.[0] || 'https://placehold.co/600x600/141414/00c4ad?text=No+Image',
-                                        badges: p.tags,
-                                        rating: p.ratings?.avg || 0,
-                                        reviews: p.ratings?.count || 0
-                                    } as any}
+                                    product={p as any}
                                     onAddToCart={() => { }}
                                 />
                             ))}

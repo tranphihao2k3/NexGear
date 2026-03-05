@@ -146,7 +146,7 @@ const OrderSchema = new Schema<IOrder>(
 );
 
 // Indexes
-OrderSchema.index({ orderCode: 1 });
+// Removed duplicate index for orderCode
 OrderSchema.index({ status: 1 });
 OrderSchema.index({ user: 1 });
 OrderSchema.index({ channel: 1 });

@@ -12,8 +12,8 @@
 // PAGE HEADER — Breadcrumb + H1
 // ════════════════════════════════════════════════════════════
 .pageHeader {
-    background: $color-white;
-    border-bottom: 1px solid $color-border;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     padding: $sp-6 0;
 }
 
@@ -47,7 +47,7 @@
 
 .bcCurrent {
     @include font-body($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 // Header row
@@ -64,7 +64,7 @@
 
 .h1 {
     @include font-display($text-xl, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
     text-transform: uppercase;
     margin: 0 0 $sp-1 0;
 }
@@ -172,8 +172,8 @@
     display: flex;
     flex-direction: column;
 
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-4;
     overflow: hidden; // clip kết hợp với flex
 
@@ -239,7 +239,7 @@
 
 .sidebarTitle {
     @include font-display($text-sm, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
     letter-spacing: $ls-wide;
     text-transform: uppercase;
     display: flex;
@@ -289,7 +289,7 @@
 
 .filterGroupLabel {
     @include font-body($text-sm, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     margin-bottom: $sp-3;
 }
 
@@ -298,7 +298,7 @@
     display: flex;
     align-items: center;
     gap: $sp-2;
-    margin-bottom: $sp-4;
+    margin-bottom: $sp-6; // More space for the slider
 }
 
 .priceVal {
@@ -317,51 +317,69 @@
 
 .rangeWrap {
     position: relative;
-    height: 28px;
+    height: 32px;
+    display: flex;
+    align-items: center;
 }
 
 .rangeInput {
     position: absolute;
     width: 100%;
     height: 4px;
-    top: 50%;
-    transform: translateY(-50%);
     appearance: none;
     -webkit-appearance: none;
     background: transparent;
     pointer-events: none;
     outline: none;
+    margin: 0;
 
     &::-webkit-slider-track {
-        background: $color-bg3;
-        height: 4px;
+        background: var(--bg3);
+        height: 6px;
         border-radius: $r-full;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    // Hide track on the second input to allow clicking both
+    &:last-of-type {
+        &::-webkit-slider-track {
+            background: transparent;
+            box-shadow: none;
+        }
     }
 
     &::-webkit-slider-thumb {
         appearance: none;
         -webkit-appearance: none;
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         border-radius: $r-full;
-        background: $color-cyan;
-        border: 2px solid $color-white;
-        box-shadow: $shadow-sm;
+        background: #00C4AD;
+        border: 2px solid var(--surface);
+        box-shadow: 0 0 10px rgba(0, 196, 173, 0.4);
         cursor: pointer;
         pointer-events: all;
-        transition: $transition-fast;
+        transition: $transition-spring;
+        margin-top: -6px; // Center thumb on track
 
         &:hover {
-            transform: scale(1.2);
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(0, 196, 173, 0.6);
+            background: #00E9CE;
+        }
+
+        &:active {
+            transform: scale(0.95);
         }
     }
 
     &::-moz-range-thumb {
-        width: 16px;
-        height: 16px;
+        width: 18px;
+        height: 18px;
         border-radius: $r-full;
-        background: $color-cyan;
-        border: 2px solid $color-white;
+        background: #00C4AD;
+        border: 2px solid var(--surface);
+        box-shadow: 0 0 10px rgba(0, 196, 173, 0.4);
         cursor: pointer;
         pointer-events: all;
     }
@@ -370,11 +388,12 @@
 .rangeLabels {
     display: flex;
     justify-content: space-between;
-    margin-top: $sp-2;
+    margin-top: $sp-1;
+    opacity: 0.6;
 
     span {
-        @include font-mono($text-xs, $fw-regular);
-        color: $color-ink3;
+        @include font-mono($text-xs, $fw-medium);
+        color: var(--ink3);
         font-size: 10px;
     }
 }
@@ -447,8 +466,8 @@
     flex-direction: column;
     gap: $sp-3;
     padding: $sp-5 $sp-6 $sp-6;
-    border-top: 2px solid $color-border;
-    background: $color-white; // che nền khi scroll
+    border-top: 2px solid var(--border);
+    background: var(--surface); // che nền khi scroll
     flex-shrink: 0; // không co vào
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
 }
@@ -457,8 +476,8 @@
 // TOOLBAR
 // ════════════════════════════════════════════════════════════
 .toolbar {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: $r-2;
     padding: $sp-3 $sp-5;
     @include flex-between;
@@ -477,7 +496,7 @@
     color: $color-ink3;
 
     strong {
-        color: $color-ink;
+        color: var(--ink);
         font-weight: $fw-semibold;
     }
 }
@@ -505,8 +524,8 @@
 
 .sortSelect {
     @include font-body($text-sm, $fw-medium);
-    color: $color-ink;
-    background: $color-bg;
+    color: var(--ink);
+    background: var(--bg);
     border: 1.5px solid $color-border2;
     border-radius: $r-2;
     padding: $sp-1 $sp-6 $sp-1 $sp-3;
@@ -529,8 +548,8 @@
 .viewToggle {
     display: flex;
     gap: 2px;
-    background: $color-bg;
-    border: 1px solid $color-border;
+    background: var(--bg);
+    border: 1px solid var(--border);
     border-radius: $r-2;
     padding: 3px;
 }
@@ -555,8 +574,8 @@
 }
 
 .viewBtnActive {
-    background: $color-ink !important;
-    color: $color-white !important;
+    background: var(--ink) !important;
+    color: var(--surface) !important;
 }
 
 // View icons
@@ -771,7 +790,7 @@
 
 .listName {
     @include font-body($text-md, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     margin: 0;
     @include truncate(2);
 }

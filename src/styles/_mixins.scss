@@ -115,8 +115,8 @@
 
 // ── CARD BASE ───────────────────────────────────────────────
 @mixin card-base {
-    background: $color-white;
-    border: 1px solid $color-border;
+    background: var(--card-bg, $color-white);
+    border: 1px solid var(--border, $color-border);
     border-radius: $r-2;
     overflow: hidden;
     position: relative;

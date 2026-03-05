@@ -4,7 +4,8 @@
 .card {
     @include card-base;
     @include card-hover;
-    background-color: $color-white;
+    background-color: var(--card-bg, $color-white);
+    border-color: var(--border);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -32,7 +33,7 @@
     position: relative;
     display: block;
     padding: $sp-4;
-    background-color: $color-bg2;
+    background-color: var(--bg2);
     aspect-ratio: 4 / 3;
     overflow: hidden;
 }
@@ -59,11 +60,11 @@
 .badgesTop {
     position: absolute;
     top: $sp-2;
-    right: $sp-2;
+    left: $sp-2; // Move to left to avoid wishlist/rank overlap if needed
     display: flex;
     flex-direction: column;
     gap: $sp-1;
-    z-index: 2;
+    z-index: 3;
 }
 
 .badge {
@@ -91,23 +92,36 @@
 
 .wishlist {
     position: absolute;
-    top: $sp-4;
-    left: $sp-4;
-    background: none;
-    border: none;
-    color: $color-ink3;
-    font-size: $text-lg;
+    top: $sp-3;
+    right: $sp-3;
+    left: auto; // Ensure it's on the right
+    background: rgba(var(--surface-rgb), 0.6);
+    backdrop-filter: blur(4px);
+    width: 32px;
+    height: 32px;
+    border-radius: $r-full;
+    border: 1px solid var(--border);
+    color: var(--ink3);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    z-index: 2;
-    transition: $transition-fast;
+    z-index: 10;
+    transition: all 0.2s ease;
 
     &:hover {
         color: $color-magenta;
+        border-color: $color-magenta;
+        background: rgba(240, 53, 106, 0.1);
         transform: scale(1.1);
+        box-shadow: 0 0 10px rgba(240, 53, 106, 0.2);
     }
 
     &.wishlist--active {
         color: $color-magenta;
+        border-color: $color-magenta;
+        background: rgba(240, 53, 106, 0.05);
     }
 }
 
@@ -131,12 +145,13 @@
     @include font-body($text-xs, $fw-medium);
     color: $color-ink3;
     text-transform: uppercase;
-    display: block; /* brand now visible */
+    display: block;
+    /* brand now visible */
 }
 
 .name {
     @include font-body($text-base, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     margin: 0;
     line-height: $lh-tight;
     @include truncate(1);

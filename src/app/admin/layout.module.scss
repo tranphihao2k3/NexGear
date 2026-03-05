@@ -10,10 +10,12 @@
 
 .mainContent {
     flex: 1;
+    min-width: 0;
     margin-left: $admin-sidebar;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
 
     @include tablet {
         margin-left: 0;
