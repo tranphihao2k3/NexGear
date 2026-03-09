@@ -35,6 +35,36 @@
     }
 }
 
+// Scanline quét toàn trang
+.scanline {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(0, 196, 173, 0.12), transparent);
+        box-shadow: 0 0 8px rgba(0, 196, 173, 0.15);
+        animation: scanlineMove 5s linear infinite;
+    }
+}
+
+@keyframes scanlineMove {
+    0% {
+        top: -2px;
+    }
+
+    100% {
+        top: 100vh;
+    }
+}
+
 // Content nằm trên nền
 .clientContent {
     position: relative;
@@ -42,14 +72,18 @@
 }
 
 @keyframes bgBlobDrift {
-    0%, 100% {
+
+    0%,
+    100% {
         opacity: 0.7;
         transform: translate(0, 0) scale(1);
     }
+
     33% {
         opacity: 1;
         transform: translate(-30px, 20px) scale(1.05);
     }
+
     66% {
         opacity: 0.8;
         transform: translate(20px, -10px) scale(0.98);

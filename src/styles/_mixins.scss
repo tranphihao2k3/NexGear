@@ -297,8 +297,8 @@
 // ── GRID BG PATTERN ─────────────────────────────────────────
 @mixin grid-bg-pattern {
     background-image:
-        linear-gradient(rgba(0, 196, 173, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 196, 173, 0.04) 1px, transparent 1px);
+        linear-gradient(rgba(0, 196, 173, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 196, 173, 0.07) 1px, transparent 1px);
     background-size: 40px 40px;
 }
 

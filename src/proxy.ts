@@ -39,14 +39,14 @@ export default auth((req: any) => {
         const user = req.auth?.user as any;
 
         if (!user) {
-            const loginUrl = new URL('/login', req.nextUrl);
+            const loginUrl = new URL('/login', req.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
         }
 
         const role = user.role as string | undefined;
         if (role === 'customer') {
-            return NextResponse.redirect(new URL('/', req.nextUrl));
+            return NextResponse.redirect(new URL('/', req.url));
         }
     }
 

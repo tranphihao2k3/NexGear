@@ -14,6 +14,7 @@ const CATEGORY_META: Record<string, { label: string; h1: string; desc: string }>
     "tai-nghe": { label: "Tai Nghe", h1: "Tai Nghe", desc: "Tai nghe gaming, Hi-Fi, TWS, headphone studio" },
     "loa-mic": { label: "Loa & Mic", h1: "Loa & Micro", desc: "Loa studio, loa gaming, micro stream, USB mic" },
     "phu-kien": { label: "Phụ Kiện", h1: "Phụ Kiện", desc: "Keycap, cable, lót chuột, phụ kiện bàn phím" },
+    "laptop": { label: "Laptop", h1: "Laptop Gaming & Văn Phòng", desc: "Laptop chơi game, laptop văn phòng, làm việc đồ họa" },
 };
 
 // ── SPEC FILTER CONFIG PER CATEGORY ─────────────────────────

@@ -1,9 +1,56 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
 import styles from "./page.module.scss";
+
+// ── INTERSECTION OBSERVER HOOK ──────────────────────────────
+function useInView(options?: IntersectionObserverInit) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
+    }, { threshold: 0.15, ...options });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return { ref, inView };
+}
+
+// ── TYPING EFFECT HOOK ──────────────────────────────────────
+function useTyping(texts: string[], speed = 80, pause = 2000) {
+  const [display, setDisplay] = useState("");
+  const [idx, setIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const text = texts[idx];
+    const timeout = deleting ? speed / 2 : speed;
+
+    if (!deleting && charIdx === text.length) {
+      setTimeout(() => setDeleting(true), pause);
+      return;
+    }
+    if (deleting && charIdx === 0) {
+      setDeleting(false);
+      setIdx((i) => (i + 1) % texts.length);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setDisplay(text.substring(0, deleting ? charIdx - 1 : charIdx + 1));
+      setCharIdx((c) => c + (deleting ? -1 : 1));
+    }, timeout);
+    return () => clearTimeout(timer);
+  }, [charIdx, deleting, idx, texts, speed, pause]);
+
+  return display;
+}
 
 // ── STATIC DATA (không cần API) ──────────────────────────────
 const CATEGORIES = [
@@ -87,6 +134,8 @@ function pad(n: number) { return String(n).padStart(2, "0"); }
 export default function HomeClient() {
   const brandsRef = useRef<HTMLDivElement>(null);
   const { h, m, s } = useCountdown(5);
+  const heroRef = useInView();
+  const typingText = useTyping(["NEXT LEVEL", "YOUR SETUP", "THE GAME"], 90, 2500);
 
   // Real API data
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
@@ -117,20 +166,26 @@ export default function HomeClient() {
     <div className={styles.home}>
 
       {/* ── HERO SECTION ── */}
-      <section className={styles.hero}>
+      <section className={styles.hero} ref={heroRef.ref}>
         <div className={styles.heroBg} aria-hidden />
         <div className={styles.heroAccent} aria-hidden />
+        {/* Floating particles */}
+        <div className={styles.heroParticles} aria-hidden>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <span key={i} className={styles.particle} style={{ '--i': i } as React.CSSProperties} />
+          ))}
+        </div>
 
         <div className={styles.heroInner}>
           {/* Left */}
-          <div className={styles.heroLeft}>
+          <div className={`${styles.heroLeft} ${heroRef.inView ? styles.animateIn : ''}`}>
             <div className={styles.heroEyebrow}>
               <span className={styles.eyebrowDot} />
               // SPRING DROPS — THÁNG 3/2026
             </div>
 
             <h1 className={styles.heroTitle}>
-              GEAR UP
+              <span className={styles.heroTitleGlitch} data-text="GEAR UP">GEAR UP</span>
               <span className={styles.heroTitleOutline}><br />NEXT</span>{" "}
               <span className={styles.heroTitleAccent}>LEVEL</span>
             </h1>
@@ -142,6 +197,7 @@ export default function HomeClient() {
 
             <div className={styles.heroActions}>
               <Link href="/products" className={styles.heroBtnPrimary}>
+                <span className={styles.btnGlow} />
                 KHÁM PHÁ NGAY →
               </Link>
               <Link href="/deals" className={styles.heroBtnOutline}>
@@ -170,13 +226,14 @@ export default function HomeClient() {
           {/* Right: Category Grid */}
           <div className={styles.heroRight}>
             <div className={styles.heroGrid}>
-              {HERO_CATEGORIES.map((cat) => (
-                <Link key={cat.id} href={cat.href} className={styles.heroMiniCard}>
+              {HERO_CATEGORIES.map((cat, i) => (
+                <Link key={cat.id} href={cat.href} className={styles.heroMiniCard} style={{ '--delay': `${i * 0.08}s` } as React.CSSProperties}>
                   <div className={styles.heroMiniIcon}>
                     <CategorySvg id={cat.id} />
                   </div>
                   <div className={styles.heroMiniName}>{cat.label}</div>
                   <div className={styles.heroMiniSub}>{cat.tag} sản phẩm</div>
+                  <div className={styles.cardGlow} aria-hidden />
                 </Link>
               ))}
             </div>

@@ -43,6 +43,12 @@ const CATEGORY_SEO: Record<string, {
         h1: 'Phụ Kiện Gaming & Keycap',
         keywords: ['phụ kiện bàn phím Cần Thơ', 'keycap PBT', 'lót chuột gaming', 'switch Cherry'],
     },
+    'laptop': {
+        title: 'Laptop Gaming & Văn Phòng Chính Hãng — NexGear Cần Thơ',
+        description: 'Mua laptop gaming, laptop văn phòng chính hãng tại Cần Thơ. ASUS, Dell, HP, MacBook — giá tốt, trả góp 0%, bảo hành 12T. Xem ngay!',
+        h1: 'Laptop Gaming & Văn Phòng',
+        keywords: ['laptop gaming Cần Thơ', 'laptop văn phòng', 'mua laptop Cần Thơ', 'MacBook Cần Thơ'],
+    },
 }
 
 // ── GENERATE METADATA ───────────────────────────────────────

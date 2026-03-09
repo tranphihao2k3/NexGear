@@ -15,6 +15,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
     const { totalItems } = useCart()
     return (
         <div className={styles.clientWrapper}>
+            <div className={styles.scanline} aria-hidden />
             <div className={styles.clientContent}>
                 <Navbar cartCount={totalItems} />
                 <main style={{ minHeight: '80vh' }}>
