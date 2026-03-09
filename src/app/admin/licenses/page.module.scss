@@ -1,0 +1,420 @@
+// ============================================================
+// NEXGEAR — Admin Licenses Styles
+// ============================================================
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    flex-wrap: wrap;
+
+    h1 {
+        font-family: $font-display;
+        font-size: $text-xl;
+        font-weight: $fw-bold;
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+}
+
+.filterGroup {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.searchInput {
+    font-family: $font-body;
+    font-size: $text-sm;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    min-width: 180px;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+
+    &::placeholder {
+        color: $admin-ink3;
+    }
+}
+
+.filterSelect {
+    font-family: $font-body;
+    font-size: $text-sm;
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    min-width: 140px;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.addBtn {
+    font-family: $font-display;
+    font-size: $text-sm;
+    font-weight: $fw-semibold;
+    padding: $sp-2 $sp-4;
+    background: $color-cyan;
+    color: $color-ink;
+    border: none;
+    border-radius: $r-2;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+.summary {
+    display: flex;
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+}
+
+.summaryItem {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-4 $sp-5;
+    min-width: 140px;
+}
+
+.summaryLabel {
+    font-family: $font-body;
+    font-size: $text-sm;
+    font-weight: $fw-regular;
+    color: $admin-ink3;
+    display: block;
+    margin-bottom: $sp-1;
+}
+
+.summaryValue {
+    font-family: $font-display;
+    font-size: $text-lg;
+    font-weight: $fw-bold;
+    color: $admin-ink;
+
+    &.green { color: $color-green; }
+    &.orange { color: $color-gold; }
+    &.red { color: $color-red; }
+}
+
+.tableWrapper {
+    overflow-x: auto;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+        padding: $sp-3 $sp-4;
+        text-align: left;
+        border-bottom: 1px solid $admin-border;
+    }
+
+    th {
+        font-family: $font-display;
+        font-size: $text-xs;
+        font-weight: $fw-bold;
+        color: $admin-ink3;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    td {
+        font-family: $font-body;
+        font-size: $text-sm;
+        font-weight: $fw-regular;
+        color: $admin-ink;
+    }
+
+    tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+}
+
+.mono {
+    font-family: $font-mono;
+    font-size: $text-xs;
+    color: $admin-ink3;
+    word-break: break-all;
+}
+
+.expired {
+    color: $color-red;
+}
+
+.status {
+    font-family: $font-display;
+    font-size: $text-xs;
+    font-weight: $fw-bold;
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: inline-block;
+
+    &.green {
+        background: rgba($color-green, 0.15);
+        color: $color-green;
+    }
+
+    &.orange {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+
+    &.red {
+        background: rgba($color-red, 0.15);
+        color: $color-red;
+    }
+}
+
+.actions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.actionBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: $sp-1;
+    border-radius: $r-1;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.danger:hover {
+        background: rgba($color-red, 0.2);
+    }
+}
+
+// Modal
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: $sp-4;
+}
+
+.modal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 100%;
+    max-width: 550px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $sp-4 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.modalTitle {
+    font-family: $font-display;
+    font-size: $text-lg;
+    font-weight: $fw-bold;
+    color: $admin-ink;
+}
+
+.modalClose {
+    background: transparent;
+    border: none;
+    color: $admin-ink3;
+    cursor: pointer;
+    font-size: $text-lg;
+    padding: $sp-1;
+
+    &:hover {
+        color: $admin-ink;
+    }
+}
+
+.modalBody {
+    padding: $sp-5;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-4;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.formGroup {
+    margin-bottom: $sp-3;
+}
+
+.formLabel {
+    font-family: $font-body;
+    font-size: $text-sm;
+    font-weight: $fw-medium;
+    color: $admin-ink2;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formInput {
+    font-family: $font-body;
+    font-size: $text-sm;
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.formTextarea {
+    font-family: $font-body;
+    font-size: $text-sm;
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    resize: vertical;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.inputWithButton {
+    display: flex;
+    gap: $sp-2;
+
+    .formInput {
+        flex: 1;
+    }
+}
+
+.generateBtn {
+    font-family: $font-display;
+    font-size: $text-xs;
+    font-weight: $fw-semibold;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+    border-radius: $r-2;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: $admin-ink;
+    }
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    gap: $sp-3;
+}
+
+.cancelBtn {
+    font-family: $font-display;
+    font-size: $text-sm;
+    font-weight: $fw-semibold;
+    padding: $sp-2 $sp-4;
+    background: transparent;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+    border-radius: $r-2;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.saveBtn {
+    font-family: $font-display;
+    font-size: $text-sm;
+    font-weight: $fw-semibold;
+    padding: $sp-2 $sp-4;
+    background: $color-cyan;
+    color: $color-ink;
+    border: none;
+    border-radius: $r-2;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    transition: $transition-fast;
+    flex: 1;
+
+    &:hover:not(:disabled) {
+        background: $color-cyan-dark;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}

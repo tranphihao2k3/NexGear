@@ -127,7 +127,7 @@
     border: 1px solid $admin-border;
     border-radius: $r-2;
     overflow-x: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .table {
@@ -360,7 +360,7 @@
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--adm-overlay);
     z-index: $z-modal;
     @include flex-center;
     backdrop-filter: blur(4px);
@@ -370,11 +370,11 @@
     background: $admin-card-bg;
     border: 1px solid $admin-border;
     border-radius: $r-3;
-    width: 640px;
-    max-width: 90vw;
-    max-height: 80vh;
+    width: 840px;
+    max-width: 95vw;
+    max-height: 90vh;
     overflow-y: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .modalHeader {

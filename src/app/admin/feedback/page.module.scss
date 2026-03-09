@@ -1,0 +1,244 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    padding: $sp-6;
+    min-height: 100vh;
+    background-color: $color-bg;
+
+    @include mobile {
+        padding: $sp-4;
+    }
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-2xl, $fw-bold);
+        color: $color-ink;
+        margin-bottom: $sp-1;
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-regular);
+        color: $color-ink2;
+    }
+
+    @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $sp-4;
+    }
+}
+
+.actionBar {
+    @include card-base;
+    padding: $sp-4;
+    margin-bottom: $sp-6;
+    display: flex;
+    gap: $sp-4;
+    align-items: center;
+
+    select {
+        @include input-base;
+        width: 200px;
+    }
+
+    @include mobile {
+        flex-direction: column;
+
+        select {
+            width: 100%;
+        }
+    }
+}
+
+.tableWrapper {
+    @include card-base;
+    overflow: hidden;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background-color: $color-bg2;
+            padding: $sp-3 $sp-4;
+            text-align: left;
+            @include font-display($text-xs, $fw-bold);
+            color: $color-ink2;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid $color-border;
+        }
+
+        td {
+            padding: $sp-4;
+            border-bottom: 1px solid $color-border;
+            @include font-body($text-sm, $fw-medium);
+            color: $color-ink;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba($color-bg2, 0.5);
+        }
+    }
+}
+
+.sender {
+    .name {
+        @include font-body($text-sm, $fw-bold);
+        color: $color-ink;
+    }
+
+    .email {
+        @include font-body($text-xs, $fw-medium);
+        color: $color-ink3;
+    }
+}
+
+.subject {
+    max-width: 300px;
+    @include truncate(1);
+    @include font-body($text-sm, $fw-medium);
+}
+
+.actions {
+    display: flex;
+    gap: $sp-2;
+    justify-content: flex-end;
+}
+
+// Modal
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    @include flex-center;
+    z-index: $z-modal;
+    padding: $sp-4;
+}
+
+.modal {
+    @include card-base;
+    width: 100%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    @include card-top-bar;
+
+    .modalHeader {
+        padding: $sp-4 $sp-6;
+        border-bottom: 1px solid $color-border;
+        @include flex-between;
+
+        .titleWrap {
+            h2 {
+                @include font-display($text-lg, $fw-bold);
+                color: $color-ink;
+            }
+
+            .id {
+                @include font-mono($text-xs, $fw-medium);
+                color: $color-ink3;
+            }
+        }
+    }
+
+    .modalBody {
+        padding: $sp-6;
+        display: flex;
+        flex-direction: column;
+        gap: $sp-6;
+    }
+
+    .metaSection {
+        @include flex-between;
+        padding-bottom: $sp-4;
+        border-bottom: 1px solid $color-border;
+    }
+
+    .infoGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $sp-4;
+        background-color: $color-bg2;
+        padding: $sp-4;
+        border-radius: $r-2;
+
+        .infoItem {
+            .label {
+                @include font-mono($text-xs, $fw-bold);
+                color: $color-ink3;
+                text-transform: uppercase;
+                margin-bottom: 2px;
+                display: block;
+            }
+
+            .value {
+                @include font-body($text-sm, $fw-bold);
+                color: $color-ink;
+            }
+        }
+    }
+
+    .contentSection {
+        .label {
+            @include font-mono($text-xs, $fw-bold);
+            color: $color-ink3;
+            text-transform: uppercase;
+            margin-bottom: $sp-2;
+            display: block;
+        }
+
+        .subjectText {
+            @include font-display($text-base, $fw-bold);
+            color: $color-ink;
+            margin-bottom: $sp-2;
+        }
+
+        .messageBox {
+            background-color: $color-bg2;
+            padding: $sp-4;
+            border-radius: $r-2;
+            @include font-body($text-sm, $fw-regular);
+            color: $color-ink;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+    }
+
+    .statusUpdate {
+        .label {
+            @include font-mono($text-xs, $fw-bold);
+            color: $color-ink3;
+            text-transform: uppercase;
+            margin-bottom: $sp-3;
+            display: block;
+        }
+
+        .buttonGroup {
+            display: flex;
+            flex-wrap: wrap;
+            gap: $sp-2;
+        }
+    }
+
+    .modalFooter {
+        padding: $sp-4 $sp-6;
+        border-top: 1px solid $color-border;
+        background-color: $color-bg2;
+        @include flex-between;
+    }
+}

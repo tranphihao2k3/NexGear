@@ -52,6 +52,14 @@
 
 .toggleInput {
     display: none;
+
+    &:checked+.toggleBox {
+        background: $color-cyan;
+
+        &::after {
+            transform: translateX(16px);
+        }
+    }
 }
 
 .toggleBox {
@@ -73,14 +81,6 @@
         border-radius: $r-full;
         transition: $transition-fast;
         box-shadow: $shadow-sm;
-    }
-}
-
-.toggleInput:checked+.toggleBox {
-    background: $color-cyan;
-
-    &::after {
-        transform: translateX(16px);
     }
 }
 
@@ -130,6 +130,25 @@
     min-width: 900px; // Ép ngang để kẹp cột
     border-collapse: collapse;
     position: relative;
+
+    th,
+    td {
+        padding: $sp-4 $sp-6;
+        vertical-align: top;
+        text-align: left;
+        border-bottom: 1px solid $color-border;
+        border-right: 1px solid $color-border;
+    }
+
+    th {
+        border-bottom: 2px solid $color-border;
+        background: $color-white;
+        position: relative;
+    }
+
+    td {
+        background: $color-white;
+    }
 }
 
 // Cols sizing
@@ -140,7 +159,7 @@
     left: 0;
     background: $color-white;
     z-index: 10;
-    border-right: 2px solid $color-border;
+    border-right: 2px solid $color-border !important;
 }
 
 .itemCol,
@@ -263,27 +282,32 @@
     color: $color-cyan;
 }
 
+.itemCell {
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink2;
+}
+
 .specLabel {
     @include font-mono($text-xs, $fw-bold);
     color: $color-ink;
     text-transform: uppercase;
     letter-spacing: $ls-wide;
-    background: rgba(236, 234, 227, 0.5); // very light bg2
-    border-right: 2px solid $color-border;
+    background: $color-bg2 !important;
+    border-right: 2px solid $color-border !important;
 }
 
 // Highlight Differences
 .rowDiff {
-    background: rgba(0, 196, 173, 0.03);
-
     td {
+        background: rgba(0, 196, 173, 0.03) !important;
         color: $color-ink;
     }
 
     .specLabel {
-        background: rgba(0, 196, 173, 0.1);
+        background: rgba(0, 196, 173, 0.1) !important;
         color: $color-cyan-dark;
-        border-right-color: $color-cyan;
+        border-right-color: $color-cyan !important;
+        border-bottom-color: $color-cyan !important;
     }
 }
 

@@ -145,15 +145,17 @@ $z-modal: 200;
 $z-toast: 300;
 $z-tooltip: 400;
 
-// ── ADMIN DARK THEME ────────────────────────────────────────
-$admin-bg: #141414;
-$admin-sidebar-bg: #0A0A0A;
-$admin-card-bg: #1C1C1C;
-$admin-card-bg2: #242424;
-$admin-surface: #1A1A1A;
-$admin-ink: #F0F0F0;
-$admin-ink2: #A0A0A0;
-$admin-ink3: #666666;
-$admin-border: rgba(255, 255, 255, 0.08);
-$admin-border2: rgba(255, 255, 255, 0.14);
-$admin-hover: rgba(255, 255, 255, 0.04);
+// ── ADMIN THEME (CSS var aliases for SCSS migration) ────────
+// Use var(--adm-*) in SCSS modules. These SCSS vars are kept
+// for backward compat during migration and will be removed later.
+$admin-bg: var(--adm-bg);
+$admin-sidebar-bg: var(--adm-sidebar-bg);
+$admin-card-bg: var(--adm-card-bg);
+$admin-card-bg2: var(--adm-card-bg2);
+$admin-surface: var(--adm-surface);
+$admin-ink: var(--adm-ink);
+$admin-ink2: var(--adm-ink2);
+$admin-ink3: var(--adm-ink3);
+$admin-border: var(--adm-border);
+$admin-border2: var(--adm-border2);
+$admin-hover: var(--adm-hover);

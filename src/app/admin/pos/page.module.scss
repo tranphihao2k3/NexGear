@@ -6,8 +6,7 @@
 // ── LAYOUT ────────────────────────────────────────────────────
 .posLayout {
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: $sp-3;
+    grid-template-columns: 1fr 6px 400px;
     height: calc(100vh - 100px);
     overflow: hidden;
 
@@ -15,6 +14,33 @@
         grid-template-columns: 1fr;
         height: auto;
         overflow: visible;
+    }
+}
+
+.resizer {
+    cursor: col-resize;
+    background: $admin-border;
+    border-radius: 3px;
+    transition: background 0.15s;
+    position: relative;
+
+    // Larger hit area
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -4px;
+        right: -4px;
+    }
+
+    &:hover,
+    &:active {
+        background: $color-cyan;
+    }
+
+    @include desktop-s {
+        display: none;
     }
 }
 
@@ -93,7 +119,7 @@
     gap: $sp-1;
     overflow-x: auto;
     padding-bottom: $sp-1;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .catChip {
@@ -151,7 +177,7 @@
 .productList {
     flex: 1;
     overflow-y: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+    @include custom-scrollbar(var(--adm-scrollbar));
     background: $admin-card-bg;
     border: 1px solid $admin-border;
     border-radius: $r-2;
@@ -489,6 +515,67 @@
     margin-bottom: $sp-2;
 }
 
+// ─ Quick action buttons row
+.quickActions {
+    display: flex;
+    gap: 6px;
+    padding: 6px $sp-3;
+    flex-wrap: wrap;
+}
+
+.quickBtn {
+    @include font-mono(11px, $fw-medium);
+    padding: 4px 10px;
+    border-radius: $r-1;
+    border: 1px solid $admin-border;
+    background: transparent;
+    color: $admin-ink3;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+
+    &:hover { border-color: $color-cyan; color: $admin-ink; }
+    &.active { border-color: $color-cyan; background: rgba($color-cyan, 0.08); color: $color-cyan; }
+    &.hasValue { color: $color-cyan; }
+}
+
+.expandPanel {
+    padding: 8px $sp-3;
+    border-top: 1px solid $admin-border;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+// ─ Customer compact bar
+.custCompactBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px $sp-3;
+    cursor: pointer;
+    transition: $transition-fast;
+    min-height: 32px;
+    @include font-body($text-sm);
+
+    &:hover { background: rgba($color-cyan, 0.04); }
+}
+
+.custCompactName {
+    color: $admin-ink;
+    font-weight: $fw-medium;
+}
+
+.custCompactSub {
+    color: $admin-ink3;
+    font-size: $text-xs;
+}
+
+.custCompactPlaceholder {
+    color: $admin-ink3;
+    font-style: italic;
+}
+
 .customerSelected {
     display: flex;
     align-items: center;
@@ -577,7 +664,7 @@
     box-shadow: $shadow-lg;
     max-height: 180px;
     overflow-y: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .custOption {
@@ -681,7 +768,7 @@
 .cartItems {
     flex: 1;
     overflow-y: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .cartItem {
@@ -866,7 +953,7 @@
     transition: $transition-fast;
 
     &::placeholder {
-        color: rgba(255, 255, 255, 0.15);
+        color: var(--adm-ink3);
     }
 
     &:focus {
@@ -929,7 +1016,7 @@
     border-top: 2px solid $admin-border;
     padding: $sp-3 $sp-4;
     overflow-y: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.06));
+    @include custom-scrollbar(var(--adm-scrollbar));
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -940,7 +1027,7 @@
     display: flex;
     flex-direction: column;
     gap: $sp-2;
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--adm-hover);
     border: 1px solid $admin-border;
     border-radius: $r-2;
     padding: $sp-3;
@@ -1135,7 +1222,7 @@
 .parkBtn {
     @include font-mono(12px, $fw-bold);
     padding: $sp-2 $sp-3;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--adm-hover);
     border: 1px solid $admin-border2;
     border-radius: $r-2;
     color: $admin-ink2;
@@ -1145,7 +1232,7 @@
     transition: $transition-fast;
 
     &:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--adm-border2);
         color: $admin-ink;
     }
 }
@@ -1374,7 +1461,7 @@
 .parkedPanel {
     flex: 1;
     overflow-y: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.08));
+    @include custom-scrollbar(var(--adm-scrollbar));
     padding: $sp-3;
     display: flex;
     flex-direction: column;
@@ -1466,7 +1553,7 @@
 .receiptOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--adm-overlay);
     backdrop-filter: blur(4px);
     z-index: $z-modal;
     @include flex-center;
@@ -1490,7 +1577,7 @@
     width: 480px;
     max-height: 92vh;
     overflow-y: auto;
-    @include custom-scrollbar(rgba(0, 0, 0, 0.1));
+    @include custom-scrollbar(var(--adm-scrollbar));
     box-shadow: 0 32px 80px rgba(0, 0, 0, 0.35);
     animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;

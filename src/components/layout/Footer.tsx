@@ -10,8 +10,8 @@ const Footer = () => {
                         <Link href="/" className={styles.logo}>
                             NEX<span>GEAR</span>
                         </Link>
-                        <p className={styles.tagline}>NEXT-GEN GEAR STORE — FULL PROJECT BLUEPRINT</p>
-                        <p className={styles.meta}>Team: 2–5 người · Online + Offline · MongoDB + Next.js 15</p>
+                        <p className={styles.tagline}>NEXT-GEN GEAR STORE</p>
+                     
                     </div>
 
                     <div className={styles.grid}>
@@ -45,7 +45,7 @@ const Footer = () => {
                     </div>
                 </div>
 
-                <div className={styles.bottom}>
+                {/* <div className={styles.bottom}>
                     <div className={styles.chips}>
                         <span className={styles.chip}>Next.js 15</span>
                         <span className={styles.chip}>MongoDB Atlas</span>
@@ -57,7 +57,7 @@ const Footer = () => {
                     <p className={styles.copyright}>
                         © {new Date().getFullYear()} NEXGEAR. All rights reserved.
                     </p>
-                </div>
+                </div> */}
             </div>
         </footer>
     )

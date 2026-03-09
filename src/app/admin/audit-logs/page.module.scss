@@ -1,0 +1,19 @@
+// ============================================================
+// NEXGEAR — Admin Audit Logs Styles
+// ============================================================
+
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: $sp-6; flex-wrap: wrap; gap: $sp-4; }
+.headerLeft { display: flex; align-items: center; gap: $sp-4; flex-wrap: wrap; h1 { font-family: $font-display; font-size: $text-xl; font-weight: $fw-bold; color: $admin-ink; letter-spacing: $ls-wide; margin: 0; } }
+.searchInput { font-family: $font-body; font-size: $text-sm; padding: $sp-2 $sp-3; background: $admin-surface; border: 1px solid $admin-border; border-radius: $r-2; color: $admin-ink; outline: none; min-width: 180px; &:focus { border-color: $color-cyan; box-shadow: $shadow-glow-cyan; } &::placeholder { color: $admin-ink3; } }
+.filterSelect { font-family: $font-body; font-size: $text-sm; padding: $sp-2 $sp-3; background: $admin-surface; border: 1px solid $admin-border; border-radius: $r-2; color: $admin-ink; outline: none; min-width: 140px; &:focus { border-color: $color-cyan; box-shadow: $shadow-glow-cyan; } }
+.summary { display: flex; gap: $sp-4; margin-bottom: $sp-6; flex-wrap: wrap; }
+.summaryItem { background: $admin-card-bg; border: 1px solid $admin-border; border-radius: $r-2; padding: $sp-4 $sp-5; min-width: 120px; }
+.summaryLabel { font-family: $font-body; font-size: $text-sm; color: $admin-ink3; display: block; margin-bottom: $sp-1; }
+.summaryValue { font-family: $font-display; font-size: $text-lg; font-weight: $fw-bold; color: $admin-ink; &.green { color: $color-green; } &.blue { color: #3b82f6; } &.red { color: $color-red; } }
+.tableWrapper { overflow-x: auto; background: $admin-card-bg; border: 1px solid $admin-border; border-radius: $r-2; }
+.table { width: 100%; border-collapse: collapse; th, td { padding: $sp-3 $sp-4; text-align: left; border-bottom: 1px solid $admin-border; } th { font-family: $font-display; font-size: $text-xs; font-weight: $fw-bold; color: $admin-ink3; text-transform: uppercase; letter-spacing: $ls-wide; background: rgba(0,0,0,0.2); } td { font-family: $font-body; font-size: $text-sm; color: $admin-ink; } tbody tr:hover { background: rgba(255,255,255,0.02); } }
+.date { font-family: $font-mono; font-size: $text-xs; color: $admin-ink3; white-space: nowrap; }
+.mono { font-family: $font-mono; font-size: $text-xs; color: $admin-ink3; }
+.desc { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.collection { font-family: $font-mono; font-size: $text-xs; padding: 2px $sp-2; background: rgba(255,255,255,0.05); border-radius: $r-1; }
+.badge { font-family: $font-display; font-size: $text-xs; font-weight: $fw-bold; padding: $sp-1 $sp-2; border-radius: $r-1; text-transform: uppercase; letter-spacing: $ls-wide; display: inline-block; &.green { background: rgba($color-green,0.15); color: $color-green; } &.blue { background: rgba(#3b82f6,0.15); color: #3b82f6; } &.red { background: rgba($color-red,0.15); color: $color-red; } &.gray { background: rgba(128,128,128,0.15); color: #888; } }

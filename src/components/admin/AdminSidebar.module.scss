@@ -10,10 +10,11 @@
     width: $admin-sidebar;
     background: $admin-sidebar-bg;
     border-right: 1px solid $admin-border;
+    box-shadow: var(--adm-sidebar-shadow);
     display: flex;
     flex-direction: column;
     z-index: $z-nav;
-    transition: transform $transition-slow;
+    transition: width $transition-slow, transform $transition-slow;
 
     @include tablet {
         transform: translateX(-100%);
@@ -22,28 +23,111 @@
             transform: translateX(0);
         }
     }
+
+    &.collapsed {
+        width: 80px;
+
+        @include tablet {
+            width: 80px;
+        }
+    }
 }
 
 .logo {
     padding: $sp-6 $sp-5;
     border-bottom: 1px solid $admin-border;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 
     a {
         display: flex;
         align-items: center;
         gap: $sp-2;
         text-decoration: none;
+        flex: 1;
+        min-width: 0;
     }
 }
 
+.logoContent {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    position: relative;
+    width: 100%;
+}
+
 .logoText {
+    transition: opacity $transition-fast, transform $transition-fast;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &.logoTextCollapsed {
+        opacity: 0;
+        transform: translateX(-10px);
+        pointer-events: none;
+    }
+}
+
+.logoMain {
     @include font-display($text-md, $fw-bold);
-    color: $color-white;
+    color: var(--adm-logo-color);
     letter-spacing: $ls-wide;
 }
 
 .logoAccent {
     color: $color-cyan;
+}
+
+.logoCollapsed {
+    position: absolute;
+    left: 0;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity $transition-fast, transform $transition-fast;
+    pointer-events: none;
+
+    &.logoCollapsedVisible {
+        opacity: 1;
+        transform: scale(1);
+        pointer-events: auto;
+    }
+}
+
+.logoIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, $color-cyan 0%, $color-cyan-dark 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: $text-lg;
+    box-shadow: 0 4px 12px rgba($color-cyan, 0.3);
+}
+
+.collapseToggle {
+    width: 32px;
+    height: 32px;
+    border-radius: $r-2;
+    background: transparent;
+    border: 1px solid $admin-border;
+    color: $admin-ink3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: $transition-fast;
+    flex-shrink: 0;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+        border-color: $admin-border2;
+    }
 }
 
 .menuLabel {
@@ -52,13 +136,19 @@
     text-transform: uppercase;
     letter-spacing: $ls-wider;
     padding: $sp-5 $sp-5 $sp-2;
+    transition: opacity $transition-fast;
+
+    &.menuLabelCollapsed {
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 .nav {
     flex: 1;
     overflow-y: auto;
     padding: $sp-2 0;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .navItem {
@@ -74,6 +164,7 @@
     transition: $transition-fast;
     cursor: pointer;
     position: relative;
+    justify-content: flex-start;
 
     &:hover {
         background: $admin-hover;
@@ -95,6 +186,12 @@
             border-radius: 0 $r-full $r-full 0;
         }
     }
+
+    &.navItemCollapsed {
+        justify-content: center;
+        padding: $sp-3 $sp-2;
+        margin: $sp-1 $sp-3;
+    }
 }
 
 .navIcon {
@@ -102,10 +199,22 @@
     width: $sp-5;
     text-align: center;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .navText {
     flex: 1;
+    transition: opacity $transition-fast, transform $transition-fast;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &.navTextCollapsed {
+        opacity: 0;
+        transform: translateX(-10px);
+        pointer-events: none;
+    }
 }
 
 .navBadge {
@@ -117,6 +226,16 @@
     min-width: $sp-5;
     text-align: center;
     line-height: 1;
+    flex-shrink: 0;
+}
+
+.navActiveDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $color-cyan;
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
 .divider {
@@ -128,6 +247,46 @@
 .footer {
     padding: $sp-4 $sp-5;
     border-top: 1px solid $admin-border;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.themeToggle {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-2 $sp-3;
+    border-radius: $r-2;
+    background: transparent;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+    @include font-body($text-sm, $fw-medium);
+    cursor: pointer;
+    transition: $transition-fast;
+    width: 100%;
+
+    &:hover {
+        background: $admin-hover;
+        color: $admin-ink;
+        border-color: $admin-border2;
+    }
+}
+
+.themeIcon {
+    font-size: $text-md;
+    flex-shrink: 0;
+}
+
+.themeText {
+    flex: 1;
+    text-align: left;
+    transition: opacity $transition-fast;
+
+    &.themeTextCollapsed {
+        opacity: 0;
+        pointer-events: none;
+    }
 }
 
 .userInfo {
@@ -136,11 +295,11 @@
     gap: $sp-3;
     padding: $sp-2;
     border-radius: $r-2;
-    cursor: pointer;
-    transition: $transition-fast;
+    transition: padding $transition-fast;
 
-    &:hover {
-        background: $admin-hover;
+    &.userInfoCollapsed {
+        padding: $sp-2;
+        justify-content: center;
     }
 }
 
@@ -155,6 +314,17 @@
     flex-shrink: 0;
 }
 
+.userMeta {
+    flex: 1;
+    min-width: 0;
+    transition: opacity $transition-fast;
+
+    &.userMetaCollapsed {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
 .userName {
     @include font-body($text-sm, $fw-semibold);
     color: $admin-ink;
@@ -166,6 +336,37 @@
     color: $admin-ink3;
 }
 
+.logoutBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+    padding: $sp-2 $sp-3;
+    border-radius: $r-2;
+    background: transparent;
+    border: 1px solid $admin-border;
+    color: $admin-ink3;
+    @include font-body($text-sm, $fw-medium);
+    cursor: pointer;
+    transition: $transition-fast;
+    width: 100%;
+
+    &:hover {
+        background: rgba($color-magenta, 0.1);
+        color: $color-magenta;
+        border-color: rgba($color-magenta, 0.3);
+    }
+}
+
+.logoutText {
+    transition: opacity $transition-fast;
+
+    &.logoutTextCollapsed {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
 // Mobile overlay
 .overlay {
     display: none;
@@ -174,7 +375,7 @@
         display: block;
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: var(--adm-overlay);
         z-index: calc(#{$z-nav} - 1);
         backdrop-filter: blur(4px);
     }
@@ -195,16 +396,22 @@
         background: $admin-card-bg;
         border: 1px solid $admin-border;
         border-radius: $r-2;
-        @include flex-center;
         color: $admin-ink;
-        font-size: $text-lg;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
+        transition: $transition-fast;
+        box-shadow: $shadow-sm;
+
+        &:hover {
+            background: $admin-hover;
+            border-color: $admin-border2;
+        }
     }
 }
 
 // ── PRINT: ẩn sidebar khi in ──────────────────────────────
 @media print {
-
     .sidebar,
     .overlay,
     .mobileToggle {

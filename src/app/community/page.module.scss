@@ -1,0 +1,339 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    @include container;
+    padding-top: $sp-10;
+    padding-bottom: $sp-20;
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-8;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.title {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-ink;
+    margin-bottom: $sp-2;
+}
+
+.subtitle {
+    @include font-body($text-md);
+    color: $color-ink2;
+    margin: 0;
+}
+
+.postBtn {
+    @include btn-base;
+    @include font-display($text-sm, $fw-bold);
+    padding: $sp-3 $sp-6;
+    background: $gradient-accent;
+    color: $color-white;
+    border-radius: $r-2;
+    text-decoration: none;
+    letter-spacing: $ls-wide;
+    transition: $transition-base;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: $shadow-md;
+    }
+}
+
+.postBtnSmall {
+    @include btn-base;
+    @include font-body($text-sm, $fw-medium);
+    padding: $sp-2 $sp-5;
+    background: $color-cyan;
+    color: $color-ink;
+    border-radius: $r-2;
+    text-decoration: none;
+    margin-top: $sp-4;
+    transition: $transition-base;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+// ── SMART SEARCH ────────────────────────────────────────
+.searchSection {
+    margin-bottom: $sp-6;
+    position: relative;
+}
+
+.searchForm {
+    display: flex;
+    align-items: center;
+    background: $color-white;
+    border: 2px solid $color-border;
+    border-radius: $r-3;
+    padding: $sp-1;
+    overflow: hidden;
+    transition: $transition-fast;
+
+    &:focus-within {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.searchIcon {
+    padding-left: $sp-4;
+    font-size: $text-md;
+    flex-shrink: 0;
+}
+
+.searchInput {
+    @include font-body($text-base);
+    flex: 1;
+    padding: $sp-2 $sp-3;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: $color-ink;
+    min-width: 0;
+
+    &::placeholder {
+        color: $color-ink3;
+    }
+}
+
+.searchClear {
+    @include flex-center;
+    width: $sp-8;
+    height: $sp-8;
+    background: none;
+    border: none;
+    color: $color-ink3;
+    cursor: pointer;
+    font-size: $text-sm;
+    flex-shrink: 0;
+
+    &:hover {
+        color: $color-ink;
+    }
+}
+
+
+
+.suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-top: none;
+    border-radius: 0 0 $r-3 $r-3;
+    box-shadow: $shadow-md;
+    z-index: $z-dropdown;
+    overflow: hidden;
+}
+
+.suggestionItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    width: 100%;
+    padding: $sp-3 $sp-4;
+    background: none;
+    border: none;
+    @include font-body($text-sm);
+    color: $color-ink2;
+    cursor: pointer;
+    text-align: left;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-bg2;
+        color: $color-cyan;
+    }
+}
+
+.suggestionIcon {
+    font-size: $text-xs;
+    opacity: 0.5;
+}
+
+.quickTags {
+    display: flex;
+    gap: $sp-2;
+    margin-top: $sp-3;
+    flex-wrap: wrap;
+}
+
+.quickTag {
+    @include font-body($text-xs, $fw-medium);
+    padding: $sp-1 $sp-3;
+    background: $color-bg2;
+    border: 1px solid $color-border;
+    border-radius: $r-full;
+    color: $color-ink2;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+        background: $color-cyan-light;
+    }
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: $sp-8;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sidebar {
+    background: $color-white;
+    padding: $sp-5;
+    border-radius: $r-2;
+    border: 1px solid $color-border;
+    height: fit-content;
+    position: sticky;
+    top: $sp-5;
+}
+
+.filterGroup {
+    margin-bottom: $sp-6;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.filterTitle {
+    @include font-body($text-sm, $fw-bold);
+    color: $color-ink;
+    text-transform: uppercase;
+    margin-bottom: $sp-3;
+    letter-spacing: $ls-wide;
+}
+
+.filterList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.filterItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    cursor: pointer;
+    @include font-body($text-sm);
+    color: $color-ink2;
+
+    input[type="checkbox"],
+    input[type="radio"] {
+        accent-color: $color-cyan;
+        width: 16px;
+        height: 16px;
+    }
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+}
+
+.toolbar {
+    @include flex-between;
+    background: $color-white;
+    padding: $sp-3 $sp-4;
+    border-radius: $r-2;
+    border: 1px solid $color-border;
+
+    @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $sp-3;
+    }
+}
+
+.resultCount {
+    @include font-body($text-sm);
+    color: $color-ink2;
+}
+
+.sortSelect {
+    @include font-body($text-sm);
+    padding: $sp-2;
+    border: 1px solid $color-border;
+    border-radius: $r-1;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-5;
+
+    @include desktop-s {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.emptyState {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-4;
+    padding: $sp-12 0;
+    color: $color-ink3;
+    text-align: center;
+    font-size: $text-lg;
+}
+
+.pagination {
+    @include flex-center;
+    gap: $sp-2;
+    margin-top: $sp-8;
+}
+
+.pageBtn {
+    @include flex-center;
+    width: $sp-10;
+    height: $sp-10;
+    border: 1px solid $color-border;
+    background: $color-white;
+    color: $color-ink2;
+    border-radius: $r-1;
+    cursor: pointer;
+    @include font-mono($text-sm, $fw-bold);
+
+    &:hover:not(:disabled) {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+
+    &.active {
+        background: $color-cyan;
+        color: $color-ink;
+        border-color: $color-cyan;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+}

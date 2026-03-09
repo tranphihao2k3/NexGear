@@ -1,92 +1,34 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Button from "@/components/ui/Button";
+import { Button } from "@/components/ui";
 import styles from "./page.module.scss";
 
-// ── Mock compare data ───────────────────────────────────────
-const COMPARE_LIST = [
-    {
-        id: "1",
-        name: "AKKO 3068B Plus Multi-Mode",
-        brand: "AKKO",
-        slug: "akko-3068b",
-        price: 1_240_000,
-        original: 1_890_000,
-        rating: 4.7,
-        img: "⌨",
-        specs: {
-            "Loại Switch": "CS Jelly Pink (Linear)",
-            "Kết Nối": "Wireless 2.4G / Bluetooth / Type-C",
-            "Layout": "65% (68 phím)",
-            "Keycap": "PBT Double-Shot, ASA profile",
-            "LED": "RGB 16.8 triệu màu",
-            "Pin": "1800mAh",
-            "Trọng Lượng": "0.64 kg",
-            "Bảo Hành": "12 tháng"
-        }
-    },
-    {
-        id: "2",
-        name: "Keychron K2 Pro QMK",
-        brand: "Keychron",
-        slug: "keychron-k2",
-        price: 1_032_000,
-        original: 1_290_000,
-        rating: 4.5,
-        img: "⌨",
-        specs: {
-            "Loại Switch": "Keychron K Pro Red (Linear)",
-            "Kết Nối": "Bluetooth / Type-C",
-            "Layout": "75% (84 phím)",
-            "Keycap": "OSA Profile (Double-shot PBT)",
-            "LED": "RGB (South-facing)",
-            "Pin": "4000mAh",
-            "Trọng Lượng": "0.94 kg",
-            "Bảo Hành": "12 tháng"
-        }
-    },
-    {
-        id: "3",
-        name: "Ducky One 3 Mini",
-        brand: "Ducky",
-        slug: "ducky-one3",
-        price: 1_323_000,
-        original: 1_890_000,
-        rating: 4.7,
-        img: "⌨",
-        specs: {
-            "Loại Switch": "Cherry MX Red (Linear)",
-            "Kết Nối": "Type-C (Có dây)",
-            "Layout": "60% (61 phím)",
-            "Keycap": "PBT Double-Shot",
-            "LED": "RGB 16.8 triệu màu",
-            "Pin": "Không có",
-            "Trọng Lượng": "0.59 kg",
-            "Bảo Hành": "24 tháng"
-        }
-    }
-];
+import { useCompareStore, CompareProduct } from "@/store/useCompareStore";
 
 function fmt(n: number) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
 }
 
-// Hàm lấy tất cả các keys (specs)
-const getSpecKeys = () => {
+const getSpecKeys = (list: CompareProduct[]) => {
     const keys = new Set<string>();
-    COMPARE_LIST.forEach(item => {
+    list.forEach(item => {
         Object.keys(item.specs).forEach(k => keys.add(k));
     });
     return Array.from(keys);
 };
 
 export default function ComparePage() {
-    const [items, setItems] = useState(COMPARE_LIST);
+    const { items, removeItem, clearAll } = useCompareStore();
     const [diffOnly, setDiffOnly] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
 
-    const specKeys = getSpecKeys();
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const specKeys = getSpecKeys(items);
 
     // Kiểm tra xem 1 hàng spec có giống nhau hoàn toàn ở tất cả các SP không
     const isDiff = (key: string) => {
@@ -100,13 +42,7 @@ export default function ComparePage() {
         return false;
     };
 
-    const removeBox = (id: string) => {
-        setItems(items.filter(i => i.id !== id));
-    };
-
-    const clearAll = () => {
-        setItems([]);
-    };
+    if (!isMounted) return <div className={styles.page} />;
 
     return (
         <div className={styles.page}>
@@ -149,14 +85,22 @@ export default function ComparePage() {
                                     <th className={styles.fixedCol}>SẢN PHẨM</th>
                                     {items.map(item => (
                                         <th key={item.id} className={styles.itemCol}>
-                                            <button className={styles.removeBtn} onClick={() => removeBox(item.id)}>✕</button>
+                                            <button className={styles.removeBtn} onClick={() => removeItem(item.id)}>✕</button>
                                             <Link href={`/products/${item.slug}`} className={styles.itemCardWrap}>
-                                                <div className={styles.itemImg}>{item.img}</div>
+                                                <div className={styles.itemImg}>
+                                                    {item.img && item.img.startsWith('http') ? (
+                                                        <img src={item.img} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                                    ) : (
+                                                        item.img
+                                                    )}
+                                                </div>
                                                 <div className={styles.itemBrand}>{item.brand}</div>
                                                 <div className={styles.itemName}>{item.name}</div>
                                                 <div className={styles.itemPriceCard}>
                                                     <span className={styles.priceCurrent}>{fmt(item.price)}</span>
-                                                    <span className={styles.priceOld}>{fmt(item.original)}</span>
+                                                    {item.price < item.original && (
+                                                        <span className={styles.priceOld}>{fmt(item.original)}</span>
+                                                    )}
                                                 </div>
                                             </Link>
                                             <Button variant="cyan" size="sm" fullWidth>THÊM VÀO GIỎ</Button>

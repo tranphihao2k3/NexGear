@@ -1,0 +1,165 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.card {
+    @include card-base;
+    @include card-top-bar;
+    @include card-hover;
+    display: flex;
+    flex-direction: column;
+
+    &.cardSold {
+        opacity: 0.7;
+    }
+}
+
+.imageWrap {
+    position: relative;
+    display: block;
+    text-decoration: none;
+}
+
+.image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: $color-bg2;
+    overflow: hidden;
+}
+
+.img {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    .card:hover & {
+        transform: scale(1.04);
+    }
+}
+
+.imageFallback {
+    @include flex-center;
+    width: 100%;
+    height: 100%;
+    font-size: $text-3xl;
+    color: $color-ink3;
+}
+
+.badges {
+    position: absolute;
+    top: $sp-2;
+    left: $sp-2;
+    display: flex;
+    gap: $sp-1;
+    flex-wrap: wrap;
+}
+
+.condBadge {
+    @include font-mono($text-xs, $fw-bold);
+    padding: 3px 8px;
+    border-radius: $r-1;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+
+    &.cond--green {
+        background: $color-green-light;
+        color: $color-green;
+    }
+
+    &.cond--gold {
+        background: $color-gold-light;
+        color: $color-gold;
+    }
+
+    &.cond--cyan {
+        background: $color-cyan-light;
+        color: $color-cyan;
+    }
+
+    &.cond--red {
+        background: $color-red-light;
+        color: $color-red;
+    }
+}
+
+.soldBadge {
+    @include font-mono($text-xs, $fw-bold);
+    padding: 3px 8px;
+    border-radius: $r-1;
+    background: $color-magenta;
+    color: white;
+    letter-spacing: $ls-wide;
+}
+
+.body {
+    padding: $sp-4;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.bodyLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.title {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink;
+    margin: 0 0 $sp-2;
+    @include truncate(2);
+}
+
+.price {
+    @include font-mono($text-md, $fw-bold);
+    color: $color-cyan;
+    margin-bottom: $sp-3;
+}
+
+.meta {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.seller {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.sellerAvatar {
+    width: 20px;
+    height: 20px;
+    border-radius: $r-full;
+    background: $color-bg3;
+    @include flex-center;
+    overflow: hidden;
+    flex-shrink: 0;
+    font-size: 10px;
+    color: $color-ink3;
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: $r-full;
+}
+
+.sellerName {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-ink2;
+    @include truncate;
+}
+
+.metaRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-2;
+}
+
+.metaItem {
+    @include font-mono(11px, $fw-regular);
+    color: $color-ink3;
+}

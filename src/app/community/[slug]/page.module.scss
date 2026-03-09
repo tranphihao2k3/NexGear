@@ -1,0 +1,359 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    @include container;
+    padding-top: $sp-8;
+    padding-bottom: $sp-20;
+}
+
+.loading, .notFound {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-4;
+    padding: $sp-20 0;
+    color: $color-ink3;
+    font-size: $text-lg;
+
+    a {
+        color: $color-cyan;
+        text-decoration: underline;
+    }
+}
+
+.breadcrumb {
+    @include font-body($text-sm);
+    color: $color-ink3;
+    margin-bottom: $sp-6;
+    display: flex;
+    gap: $sp-2;
+
+    a {
+        color: $color-cyan;
+        text-decoration: none;
+        &:hover { text-decoration: underline; }
+    }
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-8;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+// ── Gallery ─────────────────────────────────────────────
+.gallery {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.mainImage {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background: $color-bg2;
+    border-radius: $r-3;
+    overflow: hidden;
+    border: 1px solid $color-border;
+}
+
+.img {
+    object-fit: contain;
+}
+
+.imageFallback {
+    @include flex-center;
+    width: 100%;
+    height: 100%;
+    color: $color-ink3;
+    font-size: $text-lg;
+}
+
+.soldOverlay {
+    position: absolute;
+    inset: 0;
+    @include flex-center;
+    background: rgba(0, 0, 0, 0.6);
+    @include font-display($text-2xl, $fw-black);
+    color: $color-magenta;
+    letter-spacing: $ls-widest;
+}
+
+.thumbs {
+    display: flex;
+    gap: $sp-2;
+}
+
+.thumb {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    border-radius: $r-2;
+    overflow: hidden;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background: $color-bg2;
+    transition: $transition-fast;
+
+    &:hover { border-color: $color-ink3; }
+}
+
+.thumbActive {
+    border-color: $color-cyan !important;
+}
+
+.thumbImg {
+    object-fit: cover;
+}
+
+// ── Info ────────────────────────────────────────────────
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+.tags {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.condBadge {
+    @include font-mono($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.cond--green { background: $color-green-light; color: $color-green; }
+.cond--gold { background: $color-gold-light; color: $color-gold; }
+.cond--cyan { background: rgba(0,196,173,0.1); color: $color-cyan; }
+.cond--red { background: $color-red-light; color: $color-red; }
+
+.catBadge {
+    @include font-mono($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    background: $color-bg2;
+    color: $color-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.title {
+    @include font-display($text-xl, $fw-bold);
+    color: $color-ink;
+    line-height: $lh-snug;
+}
+
+.price {
+    @include font-mono($text-2xl, $fw-bold);
+    color: $color-cyan;
+}
+
+.meta {
+    display: flex;
+    gap: $sp-4;
+    flex-wrap: wrap;
+    @include font-body($text-sm);
+    color: $color-ink3;
+}
+
+.sectionTitle {
+    @include font-body($text-sm, $fw-bold);
+    color: $color-ink;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    margin-bottom: $sp-2;
+}
+
+.desc {
+    @include font-body($text-base);
+    color: $color-ink2;
+    line-height: $lh-relaxed;
+    white-space: pre-wrap;
+    margin: 0;
+}
+
+// ── Seller Card ─────────────────────────────────────────
+.sellerCard {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    padding: $sp-5;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.sellerInfo {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.sellerAvatar {
+    width: 40px;
+    height: 40px;
+    border-radius: $r-full;
+    background: $color-bg2;
+    @include flex-center;
+    overflow: hidden;
+    @include font-display($text-md, $fw-bold);
+    color: $color-cyan;
+    flex-shrink: 0;
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: $r-full;
+}
+
+.sellerName {
+    @include font-body($text-base, $fw-medium);
+    color: $color-ink;
+}
+
+.sellerLabel {
+    @include font-body($text-xs);
+    color: $color-ink3;
+}
+
+.contactBtns {
+    display: flex;
+    gap: $sp-3;
+    flex-wrap: wrap;
+}
+
+.contactBtn {
+    @include btn-base;
+    @include font-body($text-sm, $fw-medium);
+    flex: 1;
+    min-width: 140px;
+    padding: $sp-3;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    background: $color-white;
+    color: $color-ink;
+    text-decoration: none;
+    text-align: center;
+    transition: $transition-base;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+}
+
+.zaloBtn {
+    background: #0068FF;
+    color: $color-white;
+    border-color: #0068FF;
+
+    &:hover {
+        background: darken(#0068FF, 8%);
+        color: $color-white;
+        border-color: darken(#0068FF, 8%);
+    }
+}
+
+// ── Report ──────────────────────────────────────────────
+.reportSection {
+    margin-top: $sp-2;
+}
+
+.reportToggle {
+    @include font-body($text-sm);
+    color: $color-ink3;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover { color: $color-magenta; }
+}
+
+.reportForm {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.reportInput {
+    @include font-body($text-sm);
+    padding: $sp-3;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    resize: vertical;
+    outline: none;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.reportActions {
+    display: flex;
+    gap: $sp-3;
+}
+
+.reportCancel {
+    @include btn-base;
+    @include font-body($text-sm);
+    padding: $sp-2 $sp-4;
+    background: $color-bg2;
+    color: $color-ink2;
+    border-radius: $r-2;
+}
+
+.reportSubmit {
+    @include btn-base;
+    @include font-body($text-sm);
+    padding: $sp-2 $sp-4;
+    background: $color-magenta;
+    color: $color-white;
+    border-radius: $r-2;
+
+    &:hover { background: $color-magenta-dark; }
+    &:disabled { opacity: 0.6; cursor: default; }
+}
+
+.reportedMsg {
+    @include font-body($text-sm);
+    color: $color-green;
+    padding: $sp-2;
+}
+
+// ── Related ─────────────────────────────────────────────
+.related {
+    margin-top: $sp-12;
+}
+
+.relatedTitle {
+    @include font-display($text-lg, $fw-bold);
+    color: $color-ink;
+    margin-bottom: $sp-6;
+}
+
+.relatedGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $sp-5;
+
+    @include desktop-s {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}

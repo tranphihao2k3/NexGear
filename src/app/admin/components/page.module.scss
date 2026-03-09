@@ -1,0 +1,424 @@
+// Redundant @use removed as they are injected via next.config.ts 
+
+.page {
+    padding: $sp-6;
+    background: $color-bg;
+    min-height: 100vh;
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-10;
+    align-items: flex-end;
+
+    h1 {
+        @include font-display($text-3xl, $fw-black);
+        color: $color-ink;
+        margin-bottom: $sp-1;
+    }
+}
+
+.titleArea {
+    flex: 1;
+}
+
+.headerDesc {
+    @include font-body($text-sm, $fw-medium);
+    color: $color-ink3;
+}
+
+.filtersBar {
+    display: flex;
+    align-items: center;
+    gap: $sp-6;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+}
+
+.searchBox {
+    width: 320px;
+}
+
+.filterTabs {
+    display: flex;
+    gap: $sp-2;
+    overflow-x: auto;
+    @include no-scrollbar;
+    padding-bottom: 4px;
+}
+
+.filterBtn {
+    @include font-mono($text-xs, $fw-bold);
+    padding: $sp-2 $sp-4;
+    background: $color-white;
+    color: $color-ink3;
+    border: 1px solid $color-border;
+    border-radius: $r-1;
+    cursor: pointer;
+    transition: all $transition-base;
+    text-transform: uppercase;
+    white-space: nowrap;
+
+    &:hover {
+        background: $color-bg2;
+        color: $color-ink;
+    }
+
+    &.filterBtnActive {
+        background: $color-ink;
+        color: $color-white;
+        border-color: $color-ink;
+    }
+}
+
+.componentsGrid {
+    @include card-base;
+    overflow: hidden;
+}
+
+.gridHeader {
+    display: grid;
+    grid-template-columns: 2fr 120px 140px 100px 140px 120px;
+    gap: $sp-4;
+    padding: $sp-4 $sp-6;
+    background: $color-bg2;
+    border-bottom: 1px solid $color-border;
+
+    div {
+        @include font-mono(10px, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+    }
+}
+
+.componentCard {
+    border-bottom: 1px solid $color-border;
+    transition: background 0.2s;
+
+    &:hover {
+        background: rgba($color-bg3, 0.3);
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.componentContent {
+    display: grid;
+    grid-template-columns: 2fr 120px 140px 100px 140px 120px;
+    gap: $sp-4;
+    padding: $sp-4 $sp-6;
+    align-items: center;
+}
+
+.componentPreview {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+}
+
+.componentImg {
+    width: 48px;
+    height: 48px;
+    background: $color-bg2;
+    border-radius: $r-2;
+    overflow: hidden;
+    @include flex-center;
+    border: 1px solid $color-border;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .placeholderIcon {
+        color: $color-bg3;
+    }
+}
+
+.componentName {
+    @include font-body($text-sm, $fw-bold);
+    color: $color-ink;
+    margin-bottom: 2px;
+}
+
+.componentSpecs {
+    @include font-mono(10px, $fw-medium);
+    color: $color-ink3;
+}
+
+.priceValue {
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-magenta;
+}
+
+.stockOk {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-green;
+}
+
+.stockLow {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-gold;
+}
+
+.componentActions {
+    display: flex;
+    gap: $sp-2;
+    justify-content: flex-end;
+
+    button {
+        width: 32px;
+        height: 32px;
+        @include flex-center;
+        border-radius: $r-1;
+        cursor: pointer;
+        transition: $transition-fast;
+        border: none;
+
+        &.editBtn {
+            background: $color-bg2;
+            color: $color-ink2;
+
+            &:hover {
+                background: $color-cyan;
+                color: $color-white;
+            }
+        }
+
+        &.deleteBtn {
+            background: rgba($color-magenta, 0.05);
+            color: $color-magenta;
+
+            &:hover {
+                background: $color-magenta;
+                color: $color-white;
+            }
+        }
+    }
+}
+
+// Stats & Helpers
+.center {
+    text-align: center;
+}
+
+.right {
+    text-align: right;
+}
+
+.emptyState {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-20;
+    text-align: center;
+    background: $color-white;
+    border-radius: $r-2;
+    border: 1px dashed $color-border2;
+    gap: $sp-4;
+
+    .emptyIcon {
+        color: $color-bg3;
+    }
+
+    h3 {
+        @include font-display($text-lg, $fw-bold);
+    }
+
+    p {
+        color: $color-ink3;
+        font-size: $text-sm;
+        margin-bottom: $sp-2;
+    }
+}
+
+.loadingState {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-20;
+    gap: $sp-4;
+
+    .loadingSpinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid $color-border;
+        border-top-color: $color-cyan;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+}
+
+.footer {
+    margin-top: $sp-8;
+}
+
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-mono(10px, $fw-bold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    text-decoration: none;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+// Modal
+.modalOverlay {
+    @include modal-overlay;
+    @include flex-center;
+    z-index: $z-modal;
+}
+
+.modalContent {
+    @include modal-content;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modalHeader {
+    @include flex-between;
+    padding: $sp-6 $sp-8;
+    border-bottom: 1px solid $color-border;
+
+    h2 {
+        @include font-display($text-xl, $fw-black);
+    }
+
+    .closeBtn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: $color-ink3;
+    }
+}
+
+.form {
+    padding: $sp-8;
+    overflow-y: auto;
+    @include no-scrollbar;
+}
+
+.formSections {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-8;
+}
+
+.formSection {
+    .sectionHeader {
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+        margin-bottom: $sp-4;
+        color: $color-cyan;
+
+        span {
+            @include font-mono(10px, $fw-bold);
+            text-transform: uppercase;
+            letter-spacing: $ls-wide;
+            color: $color-ink;
+        }
+    }
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-4;
+
+    .fullWidth {
+        grid-column: span 2;
+    }
+}
+
+.fieldLabel {
+    display: block;
+    @include font-mono(10px, $fw-bold);
+    text-transform: uppercase;
+    color: $color-ink2;
+    margin-bottom: $sp-2;
+}
+
+.select {
+    @include input-base;
+    width: 100%;
+    cursor: pointer;
+}
+
+.textarea {
+    @include input-base;
+    width: 100%;
+    resize: none;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+
+    input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    label {
+        @include font-body($text-sm, $fw-bold);
+        cursor: pointer;
+    }
+}
+
+.hint {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-ink3;
+    font-style: italic;
+}
+
+.formActions {
+    padding: $sp-6 $sp-8;
+    border-top: 1px solid $color-border;
+    display: flex;
+    justify-content: flex-end;
+    gap: $sp-3;
+    background: $color-bg2;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@include tablet {
+    .gridHeader {
+        display: none;
+    }
+
+    .componentContent {
+        grid-template-columns: 1fr;
+        gap: $sp-3;
+    }
+
+    .componentActions {
+        justify-content: flex-start;
+        margin-top: $sp-2;
+    }
+
+    .formGrid {
+        grid-template-columns: 1fr;
+
+        .fullWidth {
+            grid-column: span 1;
+        }
+    }
+}

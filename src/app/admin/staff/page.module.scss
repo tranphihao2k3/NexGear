@@ -42,8 +42,9 @@
     border-radius: $r-2;
     padding: $sp-5;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     transition: $transition-fast;
+    min-width: 260px;
 
     &:hover {
         border-color: $admin-border2;
@@ -137,15 +138,19 @@
     gap: $sp-2;
     border-top: 1px solid $admin-border;
     padding-top: $sp-3;
+    flex-wrap: wrap;
 }
 
 .staffActionBtn {
     @include btn-base;
     @include btn-size-sm;
     flex: 1;
+    min-width: 70px;
     background: $admin-card-bg2;
     border: 1px solid $admin-border;
     color: $admin-ink2;
+    font-size: 11px;
+    padding: 6px 4px;
 
     &:hover {
         background: $admin-hover;
@@ -165,7 +170,7 @@
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--adm-overlay);
     z-index: $z-modal;
     @include flex-center;
     backdrop-filter: blur(4px);

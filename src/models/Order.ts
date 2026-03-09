@@ -52,6 +52,13 @@ export interface IOrder extends Document {
     notes: string;
     staffNotes: string;
     processedBy: Types.ObjectId | null;
+    // --- Fields from LapLap ---
+    tax: number;
+    depositAmount: number;
+    customerType: 'retail' | 'wholesale';
+    installmentInfo: { months: number; monthlyPayment: number; provider: string } | null;
+    deliveryDate: Date | null;
+    source: 'nexgear' | 'laplap';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -141,6 +148,23 @@ const OrderSchema = new Schema<IOrder>(
         notes: { type: String, default: '' },
         staffNotes: { type: String, default: '' },
         processedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+        // --- Fields from LapLap ---
+        tax: { type: Number, default: 0 },
+        depositAmount: { type: Number, default: 0 },
+        customerType: { type: String, enum: ['retail', 'wholesale'], default: 'retail' },
+        installmentInfo: {
+            type: new Schema(
+                {
+                    months: Number,
+                    monthlyPayment: Number,
+                    provider: String,
+                },
+                { _id: false }
+            ),
+            default: null,
+        },
+        deliveryDate: { type: Date, default: null },
+        source: { type: String, enum: ['nexgear', 'laplap'], default: 'nexgear' },
     },
     { timestamps: true }
 );
@@ -152,6 +176,7 @@ OrderSchema.index({ user: 1 });
 OrderSchema.index({ channel: 1 });
 OrderSchema.index({ createdAt: -1 });
 OrderSchema.index({ 'payment.status': 1 });
+OrderSchema.index({ source: 1 });
 
 const Order = models.Order || model<IOrder>('Order', OrderSchema);
 export default Order;

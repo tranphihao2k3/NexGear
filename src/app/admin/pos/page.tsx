@@ -4,7 +4,7 @@
 // ============================================================
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react'
 import Image from 'next/image'
 import styles from './page.module.scss'
 import { CyberpunkLoader } from '@/components/ui'
@@ -80,6 +80,41 @@ export default function AdminPOSPage() {
     const [category, setCategory] = useState('all')
     const searchRef = useRef<HTMLInputElement>(null)
 
+    // Resizable panels
+    const [rightWidth, setRightWidth] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem('pos-right-width')
+            if (saved) return parseInt(saved, 10)
+        }
+        return 400
+    })
+    const layoutRef = useRef<HTMLDivElement>(null)
+    const dragging = useRef(false)
+
+    const onResizeStart = useCallback((e: React.MouseEvent) => {
+        e.preventDefault()
+        dragging.current = true
+        document.body.style.cursor = 'col-resize'
+        document.body.style.userSelect = 'none'
+
+        const onMove = (ev: MouseEvent) => {
+            if (!dragging.current || !layoutRef.current) return
+            const rect = layoutRef.current.getBoundingClientRect()
+            const newRight = Math.max(320, Math.min(rect.right - ev.clientX, rect.width - 320))
+            setRightWidth(newRight)
+        }
+        const onUp = () => {
+            dragging.current = false
+            document.body.style.cursor = ''
+            document.body.style.userSelect = ''
+            document.removeEventListener('mousemove', onMove)
+            document.removeEventListener('mouseup', onUp)
+            setRightWidth(w => { localStorage.setItem('pos-right-width', String(w)); return w })
+        }
+        document.addEventListener('mousemove', onMove)
+        document.addEventListener('mouseup', onUp)
+    }, [])
+
     // Cart
     const [cart, setCart] = useState<CartItem[]>([])
     const [editItemDiscount, setEditItemDiscount] = useState<string | null>(null)
@@ -102,6 +137,11 @@ export default function AdminPOSPage() {
     const [appliedCoupon, setAppliedCoupon] = useState<CouponResult | null>(null)
     const [couponError, setCouponError] = useState('')
     const [couponLoading, setCouponLoading] = useState(false)
+
+    // Collapsible panels
+    const [showDiscount, setShowDiscount] = useState(false)
+    const [showNote, setShowNote] = useState(false)
+    const [showCustForm, setShowCustForm] = useState(false)
 
     // Order
     const [orderNote, setOrderNote] = useState('')
@@ -456,7 +496,7 @@ export default function AdminPOSPage() {
     // RENDER
     // ═════════════════════════════════════════
     return (
-        <div className={styles.posLayout}>
+        <div className={styles.posLayout} ref={layoutRef} style={{ gridTemplateColumns: `1fr 6px ${rightWidth}px` }}>
 
             {/* ══════ LEFT: PRODUCT BROWSER ══════ */}
             <div className={styles.leftPanel}>
@@ -576,6 +616,9 @@ export default function AdminPOSPage() {
                 )}
             </div>
 
+            {/* ══════ RESIZER ══════ */}
+            <div className={styles.resizer} onMouseDown={onResizeStart} />
+
             {/* ══════ RIGHT: CART + CHECKOUT ══════ */}
             <div className={styles.rightPanel}>
 
@@ -637,19 +680,27 @@ export default function AdminPOSPage() {
                             )}
                         </div>
 
-                        {/* Customer */}
+                        {/* Customer — compact bar */}
                         <div className={styles.customerSection} ref={custRef}>
-                            <div className={styles.sectionLabel}>👤 KHÁCH HÀNG</div>
-                            {selectedCustomer ? (
-                                <div className={styles.customerSelected}>
-                                    <div className={styles.custAvatar}>{selectedCustomer.name.charAt(0).toUpperCase()}</div>
-                                    <div className={styles.custInfo}>
-                                        <div className={styles.custName}>{selectedCustomer.name}</div>
-                                        <div className={styles.custSub}>{selectedCustomer.phone || selectedCustomer.email}</div>
-                                    </div>
-                                    <button className={styles.custDeselect} onClick={() => { setSelectedCustomer(null); setCustSearch('') }}>✕</button>
-                                </div>
-                            ) : (
+                            <div className={styles.custCompactBar} onClick={() => !selectedCustomer && setShowCustForm(v => !v)}>
+                                <span>👤</span>
+                                {selectedCustomer ? (
+                                    <>
+                                        <span className={styles.custCompactName}>{selectedCustomer.name}</span>
+                                        {selectedCustomer.phone && <span className={styles.custCompactSub}>{selectedCustomer.phone}</span>}
+                                        <button className={styles.custDeselect} onClick={(e) => { e.stopPropagation(); setSelectedCustomer(null); setCustSearch(''); setShowCustForm(false) }}>✕</button>
+                                    </>
+                                ) : custName ? (
+                                    <>
+                                        <span className={styles.custCompactName}>{custName}</span>
+                                        {custPhone && <span className={styles.custCompactSub}>{custPhone}</span>}
+                                        <button className={styles.custDeselect} onClick={(e) => { e.stopPropagation(); setCustName(''); setCustPhone('') }}>✕</button>
+                                    </>
+                                ) : (
+                                    <span className={styles.custCompactPlaceholder}>Khách lẻ — nhấn để chọn</span>
+                                )}
+                            </div>
+                            {showCustForm && !selectedCustomer && (
                                 <div className={styles.custSearchWrap}>
                                     <input
                                         className={styles.custInput}
@@ -657,12 +708,13 @@ export default function AdminPOSPage() {
                                         value={custSearch}
                                         onChange={e => { setCustSearch(e.target.value); setCustDropOpen(true) }}
                                         onFocus={() => setCustDropOpen(true)}
+                                        autoFocus
                                     />
                                     {custDropOpen && (custSearch.length >= 2) && (
                                         <div className={styles.custDropdown}>
                                             {custResults.map(c => (
                                                 <button key={c._id} className={styles.custOption}
-                                                    onClick={() => { setSelectedCustomer(c); setCustSearch(''); setCustDropOpen(false) }}
+                                                    onClick={() => { setSelectedCustomer(c); setCustSearch(''); setCustDropOpen(false); setShowCustForm(false) }}
                                                 >
                                                     <span className={styles.custOptAv}>{c.name.charAt(0).toUpperCase()}</span>
                                                     <div>
@@ -780,52 +832,68 @@ export default function AdminPOSPage() {
                         {/* Footer — only when cart has items */}
                         {cart.length > 0 && (
                             <div className={styles.cartFooter}>
-                                {/* Order-level discount */}
-                                <div className={styles.footerSection}>
-                                    <div className={styles.sectionLabel}>🏷 GIẢM GIÁ ĐƠN HÀNG</div>
-                                    <div className={styles.discRow}>
-                                        <div className={styles.discTypeSw}>
-                                            <button className={`${styles.discTypeBtn} ${discountType === 'percent' ? styles.active : ''}`} onClick={() => setDiscountType('percent')}>%</button>
-                                            <button className={`${styles.discTypeBtn} ${discountType === 'fixed' ? styles.active : ''}`} onClick={() => setDiscountType('fixed')}>VNĐ</button>
-                                        </div>
-                                        <input
-                                            type="number" className={styles.discValInput}
-                                            placeholder={discountType === 'percent' ? 'VD: 10 (%)' : 'VD: 50000'}
-                                            value={discountValue} min={0}
-                                            max={discountType === 'percent' ? 100 : subtotal}
-                                            onChange={e => setDiscountValue(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className={styles.couponRow}>
-                                        <input
-                                            className={styles.couponInput}
-                                            placeholder="Mã coupon..."
-                                            value={couponCode}
-                                            onChange={e => { setCouponCode(e.target.value.toUpperCase()); setAppliedCoupon(null); setCouponError('') }}
-                                            onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
-                                        />
-                                        <button className={styles.couponBtn} onClick={handleApplyCoupon} disabled={!couponCode.trim() || couponLoading}>
-                                            {couponLoading ? '...' : 'Áp dụng'}
-                                        </button>
-                                    </div>
-                                    {couponError && <div className={styles.couponErr}>{couponError}</div>}
-                                    {appliedCoupon && (
-                                        <div className={styles.couponOk}>
-                                            ✅ {appliedCoupon.code} — giảm {appliedCoupon.type === 'percent' ? `${appliedCoupon.value}%` : formatVND(appliedCoupon.value)}
-                                            <button onClick={() => { setAppliedCoupon(null); setCouponCode('') }}>✕</button>
-                                        </div>
-                                    )}
+                                {/* Quick action buttons */}
+                                <div className={styles.quickActions}>
+                                    <button
+                                        className={`${styles.quickBtn} ${showDiscount ? styles.active : ''} ${(discountValue || appliedCoupon) ? styles.hasValue : ''}`}
+                                        onClick={() => { setShowDiscount(v => !v); setShowNote(false) }}
+                                    >
+                                        🏷 Giảm giá {discountValue ? (discountType === 'percent' ? `(${discountValue}%)` : `(${formatVND(Number(discountValue))})`) : ''}{appliedCoupon ? ` · ${appliedCoupon.code}` : ''}
+                                    </button>
+                                    <button
+                                        className={`${styles.quickBtn} ${showNote ? styles.active : ''} ${orderNote ? styles.hasValue : ''}`}
+                                        onClick={() => { setShowNote(v => !v); setShowDiscount(false) }}
+                                    >
+                                        📝 Ghi chú {orderNote ? '·' : ''}
+                                    </button>
+                                    <button className={styles.quickBtn} onClick={handleParkOrder}>⏸ Giữ đơn</button>
                                 </div>
 
-                                {/* Note + Park */}
-                                <div className={styles.footerSection}>
-                                    <div className={styles.sectionLabel}>📝 GHI CHÚ & GIỮ ĐƠN</div>
-                                    <textarea className={styles.noteInput} placeholder="Ghi chú đơn hàng..." value={orderNote} onChange={e => setOrderNote(e.target.value)} rows={2} />
-                                    <div className={styles.parkRow}>
-                                        <input className={styles.parkInput} placeholder="Nhãn đơn tạm..." value={parkLabel} onChange={e => setParkLabel(e.target.value)} />
-                                        <button className={styles.parkBtn} onClick={handleParkOrder}>⏸ Giữ đơn</button>
+                                {/* Expandable discount panel */}
+                                {showDiscount && (
+                                    <div className={styles.expandPanel}>
+                                        <div className={styles.discRow}>
+                                            <div className={styles.discTypeSw}>
+                                                <button className={`${styles.discTypeBtn} ${discountType === 'percent' ? styles.active : ''}`} onClick={() => setDiscountType('percent')}>%</button>
+                                                <button className={`${styles.discTypeBtn} ${discountType === 'fixed' ? styles.active : ''}`} onClick={() => setDiscountType('fixed')}>VNĐ</button>
+                                            </div>
+                                            <input
+                                                type="number" className={styles.discValInput}
+                                                placeholder={discountType === 'percent' ? 'VD: 10 (%)' : 'VD: 50000'}
+                                                value={discountValue} min={0}
+                                                max={discountType === 'percent' ? 100 : subtotal}
+                                                onChange={e => setDiscountValue(e.target.value)}
+                                                autoFocus
+                                            />
+                                        </div>
+                                        <div className={styles.couponRow}>
+                                            <input
+                                                className={styles.couponInput}
+                                                placeholder="Mã coupon..."
+                                                value={couponCode}
+                                                onChange={e => { setCouponCode(e.target.value.toUpperCase()); setAppliedCoupon(null); setCouponError('') }}
+                                                onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+                                            />
+                                            <button className={styles.couponBtn} onClick={handleApplyCoupon} disabled={!couponCode.trim() || couponLoading}>
+                                                {couponLoading ? '...' : 'Áp dụng'}
+                                            </button>
+                                        </div>
+                                        {couponError && <div className={styles.couponErr}>{couponError}</div>}
+                                        {appliedCoupon && (
+                                            <div className={styles.couponOk}>
+                                                ✅ {appliedCoupon.code} — giảm {appliedCoupon.type === 'percent' ? `${appliedCoupon.value}%` : formatVND(appliedCoupon.value)}
+                                                <button onClick={() => { setAppliedCoupon(null); setCouponCode('') }}>✕</button>
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
+                                )}
+
+                                {/* Expandable note panel */}
+                                {showNote && (
+                                    <div className={styles.expandPanel}>
+                                        <textarea className={styles.noteInput} placeholder="Ghi chú đơn hàng..." value={orderNote} onChange={e => setOrderNote(e.target.value)} rows={2} autoFocus />
+                                    </div>
+                                )}
 
                                 {/* Price summary */}
                                 <div className={styles.priceSummary}>

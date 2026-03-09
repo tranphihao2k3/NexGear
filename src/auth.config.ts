@@ -5,6 +5,9 @@ export const authConfig = {
         signIn: "/login",
     },
     callbacks: {
+        authorized({ auth, request: { nextUrl } }) {
+            return true
+        },
         async jwt({ token, user }) {
             if (user) {
                 token.id = (user as any).id;

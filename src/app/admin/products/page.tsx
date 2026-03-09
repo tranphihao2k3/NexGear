@@ -1,8 +1,99 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
+import { getSpecKeysForCategory, type SpecKeyDef } from '@/lib/spec-keys';
+
+/** Searchable combobox cho spec key */
+function SpecKeyCombobox({ value, options, customKeys, onChange, className }: {
+    value: string;
+    options: SpecKeyDef[];
+    customKeys: string[];
+    onChange: (key: string) => void;
+    className?: string;
+}) {
+    const [open, setOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const ref = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    // Close on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+
+    const allItems = [
+        ...options.map(o => ({ key: o.key, label: o.key, custom: false })),
+        ...customKeys.map(k => ({ key: k, label: `${k} (tùy chỉnh)`, custom: true })),
+    ];
+
+    const filtered = search
+        ? allItems.filter(item => normalize(item.key).includes(normalize(search)) || item.key.toLowerCase().includes(search.toLowerCase()))
+        : allItems;
+
+    const showCustomAdd = search && !allItems.some(item => normalize(item.key) === normalize(search));
+
+    return (
+        <div ref={ref} style={{ flex: 1, position: 'relative' }}>
+            <input
+                ref={inputRef}
+                type="text"
+                className={className}
+                value={open ? search : value}
+                placeholder={value || '-- Chọn thông số --'}
+                onFocus={() => { setOpen(true); setSearch(''); }}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%' }}
+                autoComplete="off"
+            />
+            {open && (
+                <div style={{
+                    position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999,
+                    background: '#1a1a2e', border: '1px solid rgba(0,240,255,0.3)', borderRadius: '6px',
+                    maxHeight: '200px', overflowY: 'auto', marginTop: '2px',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                }}>
+                    {filtered.map(item => (
+                        <div
+                            key={item.key}
+                            onClick={() => { onChange(item.key); setOpen(false); setSearch(''); }}
+                            style={{
+                                padding: '8px 12px', cursor: 'pointer',
+                                color: item.custom ? '#aaa' : '#e0e0e0',
+                                fontStyle: item.custom ? 'italic' : 'normal',
+                                background: item.key === value ? 'rgba(0,240,255,0.1)' : 'transparent',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0,240,255,0.15)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = item.key === value ? 'rgba(0,240,255,0.1)' : 'transparent')}
+                        >
+                            {item.label}
+                        </div>
+                    ))}
+                    {showCustomAdd && (
+                        <div
+                            onClick={() => { onChange(search); setOpen(false); setSearch(''); }}
+                            style={{ padding: '8px 12px', cursor: 'pointer', color: '#00f0ff', borderTop: '1px solid rgba(255,255,255,0.1)' }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(0,240,255,0.15)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                        >
+                            + Thêm &quot;{search}&quot; (tùy chỉnh)
+                        </div>
+                    )}
+                    {filtered.length === 0 && !showCustomAdd && (
+                        <div style={{ padding: '8px 12px', color: '#666' }}>Không tìm thấy</div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
 
 function removeVietnameseTones(str: string): string {
     return str
@@ -28,12 +119,18 @@ interface ImageItem {
     public_id?: string; // cloudinary public_id (for deletion)
 }
 
+interface VariantAttribute {
+    key: string;
+    value: string;
+}
+
 interface Variant {
     name: string;
     sku: string;
     price: string;
     stock: string;
     images: ImageItem[];
+    attributes: VariantAttribute[];
 }
 
 interface Product {
@@ -44,10 +141,24 @@ interface Product {
     category: Category;
     brand: Brand;
     basePrice: number;
+    salePrice?: number;
+    costPrice?: number;
     stock: number;
     isActive: boolean;
+    isFeatured?: boolean;
     images: string[];
+    description?: string;
+    tags?: string[];
+    specs?: Record<string, any>;
     variants?: Variant[];
+    // LapLap fields
+    isUsed?: boolean;
+    condition?: 'new' | 'like_new' | 'used' | 'refurbished';
+    usedGrade?: 'A' | 'B' | 'C' | null;
+    conditionNote?: string;
+    warranty?: { duration: number; items: string[] };
+    warrantyMonths?: number;
+    gift?: string;
 }
 
 export default function AdminProductsPage() {
@@ -71,14 +182,129 @@ export default function AdminProductsPage() {
         brand: '',
         basePrice: '',
         salePrice: '',
+        costPrice: '',
         stock: '',
         description: '',
         images: [] as ImageItem[],
         tags: '' as string,
         isFeatured: false,
+        specs: [] as { key: string, value: string }[],
         variants: [] as Variant[],
+        // LapLap fields
+        warrantyMonths: '12',
+        warrantyItems: ['Bảo hành 12 tháng chính hãng', 'Hỗ trợ kỹ thuật trọn đời', 'Đổi mới trong 7 ngày đầu'],
+        gift: '',
+        isUsed: false,
+        condition: 'new',
+        usedGrade: '',
+        conditionNote: '',
     });
     const [saving, setSaving] = useState(false);
+    const [aiText, setAiText] = useState('');
+    const [aiParsing, setAiParsing] = useState(false);
+    const [hasDraft, setHasDraft] = useState(false);
+
+    const DRAFT_KEY = 'nexgear_product_draft';
+
+    // Auto-save draft to localStorage (exclude images — can't serialize File objects)
+    useEffect(() => {
+        if (!showModal || editingId) return; // only save drafts for new products
+        const timer = setTimeout(() => {
+            const draft = {
+                ...formData,
+                images: formData.images.filter(img => !img.file).map(img => ({ url: img.url, public_id: img.public_id })),
+                variants: formData.variants.map(v => ({
+                    ...v,
+                    images: v.images.filter(img => !img.file).map(img => ({ url: img.url, public_id: img.public_id })),
+                })),
+                _savedAt: Date.now(),
+            };
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        }, 500); // debounce 500ms
+        return () => clearTimeout(timer);
+    }, [formData, showModal, editingId]);
+
+    // Check if draft exists on mount
+    useEffect(() => {
+        try {
+            const raw = localStorage.getItem(DRAFT_KEY);
+            if (raw) {
+                const draft = JSON.parse(raw);
+                // Only show if draft is less than 24h old and has a name
+                if (draft._savedAt && Date.now() - draft._savedAt < 86400000 && draft.name) {
+                    setHasDraft(true);
+                } else {
+                    localStorage.removeItem(DRAFT_KEY);
+                }
+            }
+        } catch { /* ignore */ }
+    }, []);
+
+    const loadDraft = () => {
+        try {
+            const raw = localStorage.getItem(DRAFT_KEY);
+            if (!raw) return;
+            const draft = JSON.parse(raw);
+            const { _savedAt, ...data } = draft;
+            setFormData({
+                ...data,
+                images: (data.images || []).map((img: any) => ({ url: img.url, public_id: img.public_id })),
+                variants: (data.variants || []).map((v: any) => ({
+                    ...v,
+                    images: (v.images || []).map((img: any) => ({ url: img.url, public_id: img.public_id })),
+                })),
+            });
+            setHasDraft(false);
+            info('Đã khôi phục bản nháp!');
+        } catch { /* ignore */ }
+    };
+
+    const clearDraft = () => {
+        localStorage.removeItem(DRAFT_KEY);
+        setHasDraft(false);
+    };
+
+    const handleAiQuickFill = async () => {
+        if (!aiText.trim()) { error('Nhập mô tả sản phẩm để AI phân tích'); return; }
+        setAiParsing(true);
+        try {
+            const res = await fetch('/api/ai-parse-product', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: aiText }),
+            });
+            const json = await res.json();
+            if (!json.success) { error(json.message || 'AI lỗi'); return; }
+            const d = json.data;
+            setFormData(prev => ({
+                ...prev,
+                name: d.name || prev.name,
+                slug: d.name ? removeVietnameseTones(d.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : prev.slug,
+                sku: d.name ? 'NGR-' + removeVietnameseTones(d.name).toUpperCase().replace(/[^A-Z0-9]+/g, '').substring(0, 6) + '-' + Math.floor(Math.random() * 1000) : prev.sku,
+                category: d.categoryId || prev.category,
+                brand: d.brandId || prev.brand,
+                basePrice: (d.basePrice || d.price)?.toString() || prev.basePrice,
+                salePrice: (d.basePrice && d.salePrice) ? d.salePrice.toString() : (d.price && d.salePrice) ? d.salePrice.toString() : prev.salePrice,
+                description: d.description || prev.description,
+                tags: d.tags?.join(', ') || prev.tags,
+                specs: d.specs ? Object.entries(d.specs).map(([key, value]) => ({ key, value: String(value) })) : prev.specs,
+                variants: d.variants?.length ? d.variants.map((v: any) => ({
+                    name: v.name || '',
+                    sku: v.sku || '',
+                    price: v.price?.toString() || '',
+                    stock: v.stock?.toString() || '0',
+                    images: [] as ImageItem[],
+                    attributes: (v.attributes || []).map((a: any) => ({ key: a.key || '', value: a.value || '' })),
+                })) : prev.variants,
+            }));
+            success('AI đã điền thông tin sản phẩm!');
+            setAiText('');
+        } catch (e: any) {
+            error('Lỗi kết nối AI: ' + e.message);
+        } finally {
+            setAiParsing(false);
+        }
+    };
 
     const fetchProducts = async () => {
         try {
@@ -113,6 +339,83 @@ export default function AdminProductsPage() {
         fetchDependencies();
     }, []);
 
+    const parseVNPrice = (raw: string): string => {
+        if (!raw) return '';
+        let s = raw.trim().toLowerCase();
+
+        // Already a pure number (possibly with dots/commas as thousand sep)
+        // e.g. "1.290.000" or "1,290,000" or "1290000"
+        const pureNum = s.replace(/[.,đd₫\s]/g, '');
+        if (/^\d+$/.test(pureNum) && pureNum.length >= 6) return pureNum;
+
+        // "X" at end → default to 9 (e.g. "9triuX" → "9triu9")
+        s = s.replace(/x$/i, '9');
+
+        // "11.900k" or "11900k" or "890k"
+        const kMatch = s.match(/^([\d.,]+)\s*k$/);
+        if (kMatch) {
+            const num = parseFloat(kMatch[1].replace(/,/g, '.')) * 1000;
+            return Math.round(num).toString();
+        }
+
+        // "9triu8" "9trieu8" "9triệu8" "9tr8" "9triu800" "9tr800"
+        const trMatch = s.match(/^(\d+)\s*(?:tri[eệu]*u?|tr)\s*(\d*)$/);
+        if (trMatch) {
+            const millions = parseInt(trMatch[1]);
+            const rest = trMatch[2] || '0';
+            // "9tr8" → 9.8tr, "9tr800" → 9.800tr, "9tr" → 9tr
+            let remainder = 0;
+            if (rest.length <= 1) {
+                remainder = parseInt(rest) * 100000; // "8" → 800000
+            } else if (rest.length === 2) {
+                remainder = parseInt(rest) * 10000; // "80" → 800000
+            } else {
+                remainder = parseInt(rest) * 1000; // "800" → 800000, "490" → 490000
+            }
+            return (millions * 1000000 + remainder).toString();
+        }
+
+        // "17.5tr" or "17,5tr"
+        const decTrMatch = s.match(/^([\d.,]+)\s*(?:tri[eệu]*u?|tr)$/);
+        if (decTrMatch) {
+            const num = parseFloat(decTrMatch[1].replace(/,/g, '.')) * 1000000;
+            return Math.round(num).toString();
+        }
+
+        // "3m"
+        const mMatch = s.match(/^([\d.,]+)\s*m$/);
+        if (mMatch) {
+            const num = parseFloat(mMatch[1].replace(/,/g, '.')) * 1000000;
+            return Math.round(num).toString();
+        }
+
+        // Fallback: strip non-digits
+        const digits = s.replace(/\D/g, '');
+        return digits || raw;
+    };
+
+    const formatVND = (value: string) => {
+        const num = Number(value);
+        if (!value || isNaN(num) || num === 0) return '';
+        return new Intl.NumberFormat('vi-VN').format(num) + ' ₫';
+    };
+
+    const handlePriceBlur = (fieldName: 'basePrice' | 'salePrice' | 'costPrice') => {
+        setFormData(prev => ({
+            ...prev,
+            [fieldName]: parseVNPrice(prev[fieldName] as string),
+        }));
+    };
+
+    const handleVariantPriceBlur = (vi: number) => {
+        setFormData(prev => ({
+            ...prev,
+            variants: prev.variants.map((v, i) =>
+                i === vi ? { ...v, price: parseVNPrice(v.price) } : v
+            ),
+        }));
+    };
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -131,7 +434,16 @@ export default function AdminProductsPage() {
     const openAddModal = () => {
         setEditingId(null);
         setFormData({
-            name: '', slug: '', sku: '', category: categories[0]?._id || '', brand: brands[0]?._id || '', basePrice: '', salePrice: '', stock: '0', description: '', images: [], tags: '', isFeatured: false, variants: [],
+            name: '', slug: '', sku: '', category: categories[0]?._id || '', brand: brands[0]?._id || '',
+            basePrice: '', salePrice: '', costPrice: '', stock: '0', description: '', images: [], tags: '',
+            isFeatured: false, specs: [], variants: [],
+            warrantyMonths: '12',
+            warrantyItems: ['Bảo hành 12 tháng chính hãng', 'Hỗ trợ kỹ thuật trọn đời', 'Đổi mới trong 7 ngày đầu'],
+            gift: '',
+            isUsed: false,
+            condition: 'new',
+            usedGrade: '',
+            conditionNote: '',
         });
         setShowModal(true);
     };
@@ -149,26 +461,39 @@ export default function AdminProductsPage() {
 
     const openEditModal = (product: Product) => {
         setEditingId(product._id);
+        const lWarranty = product.warranty || { duration: 12, items: [] };
+
         setFormData({
             name: product.name,
             slug: product.slug,
             sku: product.sku,
-            category: product.category._id,
-            brand: product.brand._id,
+            category: (typeof product.category === 'object' ? product.category?._id : (product as any).categoryId) || '',
+            brand: (typeof product.brand === 'object' ? product.brand?._id : (product as any).brandId) || '',
             basePrice: product.basePrice.toString(),
-            salePrice: (product as any).salePrice?.toString() || '',
+            salePrice: product.salePrice?.toString() || '',
+            costPrice: product.costPrice?.toString() || '',
             stock: product.stock.toString(),
-            description: (product as any).description || '',
+            description: product.description || '',
             images: (product.images || []).map(urlToImageItem),
-            tags: ((product as any).tags || []).join(', '),
-            isFeatured: (product as any).isFeatured || false,
-            variants: ((product as any).variants || []).map((v: any) => ({
+            tags: (product.tags || []).join(', '),
+            isFeatured: product.isFeatured || false,
+            specs: Object.entries(product.specs || {}).map(([key, value]) => ({ key, value: String(value) })),
+            variants: (product.variants || []).map((v: any) => ({
                 name: v.name || '',
                 sku: v.sku || '',
                 price: v.price?.toString() || '',
                 stock: v.stock?.toString() || '0',
                 images: (v.images || []).map(urlToImageItem),
+                attributes: (v.attributes || []).map((a: any) => ({ key: a.key || '', value: a.value || '' })),
             })),
+            // LapLap fields
+            warrantyMonths: (product.warrantyMonths || lWarranty.duration || 12).toString(),
+            warrantyItems: lWarranty.items.length > 0 ? lWarranty.items : ['Bảo hành 12 tháng chính hãng', 'Hỗ trợ kỹ thuật trọn đời', 'Đổi mới trong 7 ngày đầu'],
+            gift: product.gift || '',
+            isUsed: product.isUsed || false,
+            condition: product.condition || 'new',
+            usedGrade: (product.usedGrade as string) || '',
+            conditionNote: product.conditionNote || '',
         });
         setShowModal(true);
     };
@@ -212,7 +537,7 @@ export default function AdminProductsPage() {
     const addVariant = () => {
         setFormData(prev => ({
             ...prev,
-            variants: [...prev.variants, { name: '', sku: '', price: '', stock: '0', images: [] }]
+            variants: [...prev.variants, { name: '', sku: '', price: '', stock: '0', images: [], attributes: [] }]
         }));
     };
 
@@ -299,21 +624,30 @@ export default function AdminProductsPage() {
 
         setSaving(true);
         try {
-            // Upload all pending product images
-            const imageUrls = await uploadPendingImages(formData.images);
+            // Separate already-uploaded images from pending ones
+            const existingImageUrls = formData.images.filter(img => !img.file).map(img => img.url);
+            const pendingProductImages = formData.images.filter(img => img.file);
 
-            // Upload all pending variant images
-            const variantsData = [];
-            for (const v of formData.variants) {
-                const vImageUrls = await uploadPendingImages(v.images);
-                variantsData.push({
-                    name: v.name,
-                    sku: v.sku,
-                    price: v.price ? Number(v.price) : null,
-                    stock: Number(v.stock) || 0,
-                    images: vImageUrls,
-                });
-            }
+            // Build variants data with existing images only (pending will be uploaded in background)
+            const variantsData = formData.variants.map(v => ({
+                name: v.name,
+                sku: v.sku,
+                price: v.price ? Number(v.price) : null,
+                stock: Number(v.stock) || 0,
+                images: v.images.filter(img => !img.file).map(img => img.url),
+                attributes: v.attributes.filter(a => a.key.trim() && a.value.trim()),
+            }));
+            const pendingVariantImages = formData.variants.map(v => ({
+                images: v.images.filter(img => img.file),
+                existingUrls: v.images.filter(img => !img.file).map(img => img.url),
+            }));
+
+            const specsObj = formData.specs.reduce((acc, curr) => {
+                if (curr.key.trim() && curr.value.trim()) {
+                    acc[curr.key.trim()] = curr.value.trim();
+                }
+                return acc;
+            }, {} as Record<string, string>);
 
             const url = editingId ? `/api/products/${editingId}` : '/api/products';
             const method = editingId ? 'PUT' : 'POST';
@@ -325,23 +659,80 @@ export default function AdminProductsPage() {
                     ...formData,
                     basePrice: Number(formData.basePrice),
                     salePrice: formData.salePrice ? Number(formData.salePrice) : null,
+                    costPrice: formData.costPrice ? Number(formData.costPrice) : 0,
                     stock: Number(formData.stock),
                     tags: formData.tags ? formData.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
-                    images: imageUrls,
+                    images: existingImageUrls,
+                    specs: specsObj,
                     variants: variantsData,
+                    // LapLap fields
+                    isUsed: formData.isUsed,
+                    condition: formData.condition,
+                    usedGrade: formData.usedGrade || null,
+                    conditionNote: formData.conditionNote,
+                    warrantyMonths: Number(formData.warrantyMonths),
+                    warranty: {
+                        duration: Number(formData.warrantyMonths),
+                        items: formData.warrantyItems.filter(i => i.trim() !== '')
+                    },
+                    gift: formData.gift,
+                    source: 'nexgear'
                 })
             });
 
             const data = await res.json();
             if (!data.success) throw new Error(data.error || 'Server error');
 
-            // Cleanup blob URLs
-            formData.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); });
-            formData.variants.forEach(v => v.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); }));
+            const savedProductId = editingId || data.data._id;
+            const hasPendingUploads = pendingProductImages.length > 0 || pendingVariantImages.some(v => v.images.length > 0);
 
-            success(editingId ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm');
+            // Close modal immediately so user can continue working
+            clearDraft();
             setShowModal(false);
             fetchProducts();
+            success(editingId ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm' + (hasPendingUploads ? ' — đang upload ảnh...' : ''));
+
+            // Upload pending images in background
+            if (hasPendingUploads) {
+                (async () => {
+                    try {
+                        // Upload product images
+                        const uploadedProductUrls = await uploadPendingImages(pendingProductImages);
+                        const allProductImages = [...existingImageUrls, ...uploadedProductUrls];
+
+                        // Upload variant images
+                        const updatedVariants = await Promise.all(variantsData.map(async (v, i) => {
+                            const pending = pendingVariantImages[i];
+                            if (pending.images.length === 0) return v;
+                            const uploadedUrls = await uploadPendingImages(pending.images);
+                            return { ...v, images: [...pending.existingUrls, ...uploadedUrls] };
+                        }));
+
+                        // Update product with uploaded image URLs
+                        await fetch(`/api/products/${savedProductId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                images: allProductImages,
+                                variants: updatedVariants,
+                            }),
+                        });
+
+                        // Cleanup blob URLs
+                        pendingProductImages.forEach(img => URL.revokeObjectURL(img.url));
+                        pendingVariantImages.forEach(v => v.images.forEach(img => URL.revokeObjectURL(img.url)));
+
+                        success(`Ảnh sản phẩm "${formData.name}" đã upload xong`);
+                        fetchProducts();
+                    } catch (e: any) {
+                        error(`Upload ảnh cho "${formData.name}" thất bại: ${e.message}`);
+                    }
+                })();
+            } else {
+                // No pending uploads, just cleanup
+                formData.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); });
+                formData.variants.forEach(v => v.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); }));
+            }
         } catch (e: any) {
             error(e.message);
         } finally {
@@ -493,7 +884,7 @@ export default function AdminProductsPage() {
 
             {/* Add/Edit Product Modal */}
             {showModal && (
-                <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+                <div className={styles.modalOverlay}>
                     <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                         <div className={styles.modalHeader}>
                             <span className={styles.modalTitle}>{editingId ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</span>
@@ -501,41 +892,70 @@ export default function AdminProductsPage() {
                         </div>
                         <div className={styles.modalBody}>
 
-                            {/* Image Upload */}
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Hình ảnh sản phẩm</label>
-                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                                    {formData.images.map((img, i) => (
-                                        <div key={i} style={{ position: 'relative', width: '80px', height: '80px', border: img.file ? '2px solid #F0B100' : '1px solid #333', borderRadius: '4px', overflow: 'hidden' }}>
-                                            <img src={img.url} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            {img.file && <span style={{ position: 'absolute', bottom: '2px', left: '2px', background: '#F0B100', color: '#000', fontSize: '8px', padding: '1px 4px', borderRadius: '2px', fontWeight: 700 }}>MỚI</span>}
-                                            <button
-                                                onClick={() => removeImage(i)}
-                                                style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}
-                                            >✕</button>
-                                        </div>
-                                    ))}
+                            {/* Draft Restore */}
+                            {!editingId && hasDraft && (
+                                <div style={{ background: 'rgba(240,165,0,0.08)', border: '1px dashed rgba(240,165,0,0.4)', borderRadius: '8px', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}>
+                                    <span style={{ fontSize: '13px', color: 'var(--ink2)' }}>📝 Có bản nháp chưa lưu từ lần trước</span>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                        <button type="button" onClick={loadDraft} style={{ padding: '5px 12px', background: '#F0A500', color: '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '11px', fontWeight: 700 }}>KHÔI PHỤC</button>
+                                        <button type="button" onClick={clearDraft} style={{ padding: '5px 12px', background: 'transparent', color: 'var(--ink3)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' }}>Bỏ qua</button>
+                                    </div>
                                 </div>
-                                <label className={styles.imageUpload}>
-                                    <input type="file" style={{ display: 'none' }} onChange={handleImageSelect} accept="image/*" multiple />
-                                    <span className={styles.uploadIcon}>📷</span>
-                                    <span className={styles.uploadText}>Chọn ảnh (sẽ upload khi lưu sản phẩm)</span>
+                            )}
+
+                            {/* AI Quick Fill */}
+                            <div className={styles.formGroup} style={{ background: 'rgba(0,196,173,0.05)', border: '1px dashed rgba(0,196,173,0.3)', borderRadius: '8px', padding: '12px' }}>
+                                <label className={styles.formLabel} style={{ color: '#00C4AD', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    🤖 AI Quick Fill — Dán mô tả sản phẩm để tự động điền form
                                 </label>
+                                <textarea
+                                    className={styles.formTextarea}
+                                    value={aiText}
+                                    onChange={(e) => setAiText(e.target.value)}
+                                    placeholder={"Dán mô tả sản phẩm vào đây...\nVD: Laptop Dell Latitude 5420 i5-1145G7 RAM 16GB SSD 512GB 14inch FHD giá 8tr5\nHoặc: Chuột Logitech G Pro X Superlight 2 wireless 60g sensor Hero 2 giá 2tr290"}
+                                    rows={3}
+                                    style={{ fontSize: '12px' }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleAiQuickFill}
+                                    disabled={aiParsing || !aiText.trim()}
+                                    style={{
+                                        marginTop: '8px', padding: '8px 16px',
+                                        background: aiParsing ? '#666' : 'linear-gradient(135deg, #00C4AD, #00A896)',
+                                        color: '#fff', border: 'none', borderRadius: '4px',
+                                        cursor: aiParsing ? 'wait' : 'pointer',
+                                        fontFamily: 'var(--font-display, monospace)',
+                                        fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em',
+                                    }}
+                                >
+                                    {aiParsing ? '⏳ Đang phân tích...' : '✨ PHÂN TÍCH & ĐIỀN FORM'}
+                                </button>
                             </div>
 
-                            {/* Name & Slug */}
+                            {/* Section 1: Thông tin cơ bản */}
                             <div className={styles.formRow}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Tên sản phẩm *</label>
                                     <input type="text" name="name" className={styles.formInput} value={formData.name} onChange={handleInputChange} placeholder="VD: Akko 3068B Plus" />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Slug *</label>
-                                    <input type="text" name="slug" className={styles.formInput} value={formData.slug} onChange={handleInputChange} placeholder="vd: akko-3068b-plus" />
+                                    <label className={styles.formLabel}>Mã SKU *</label>
+                                    <input type="text" name="sku" className={styles.formInput} value={formData.sku} onChange={handleInputChange} placeholder="VD: NGR-AKK-100" />
                                 </div>
                             </div>
 
-                            {/* Category & Brand */}
+                            <div className={styles.formRow}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Slug *</label>
+                                    <input type="text" name="slug" className={styles.formInput} value={formData.slug} onChange={handleInputChange} placeholder="vd: akko-3068b-plus" />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Tags (cách bởi dấu phẩy)</label>
+                                    <input type="text" name="tags" className={styles.formInput} value={formData.tags} onChange={handleInputChange} placeholder="sale, hot, new" />
+                                </div>
+                            </div>
+
                             <div className={styles.formRow}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Danh mục *</label>
@@ -553,48 +973,212 @@ export default function AdminProductsPage() {
                                 </div>
                             </div>
 
-                            {/* SKU & Price */}
-                            <div className={styles.formRow}>
+                            {/* Section 2: Giá & Kho */}
+                            <div className={styles.formRow} style={{ borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '16px' }}>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Mã SKU *</label>
-                                    <input type="text" name="sku" className={styles.formInput} value={formData.sku} onChange={handleInputChange} placeholder="VD: NGR-AKK-100" />
+                                    <label className={styles.formLabel}>Giá vốn (Cost Price — chỉ Admin)</label>
+                                    <input type="text" name="costPrice" className={styles.formInput} value={formData.costPrice} onChange={handleInputChange} onBlur={() => handlePriceBlur('costPrice')} placeholder="VD: 7tr5, 10000000" />
+                                    {formData.costPrice && <span style={{ fontSize: '11px', color: 'var(--ink3)', marginTop: '4px', display: 'block' }}>{formatVND(formData.costPrice)}</span>}
                                 </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Số lượng tồn kho</label>
+                                    <input type="number" name="stock" className={styles.formInput} value={formData.stock} onChange={handleInputChange} placeholder="0" />
+                                </div>
+                            </div>
+
+                            <div className={styles.formRow}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Giá bán chung (Base Price VNĐ) *</label>
-                                    <input type="number" name="basePrice" className={styles.formInput} value={formData.basePrice} onChange={handleInputChange} placeholder="VD: 1290000" />
+                                    <input type="text" name="basePrice" className={styles.formInput} value={formData.basePrice} onChange={handleInputChange} onBlur={() => handlePriceBlur('basePrice')} placeholder="VD: 1290000, 9tr8..." />
+                                    {formData.basePrice && <span style={{ fontSize: '12px', color: 'var(--accent, #00e5ff)', marginTop: '4px', display: 'block' }}>{formatVND(formData.basePrice)}</span>}
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Giá khuyến mãi (VNĐ)</label>
+                                    <input type="text" name="salePrice" className={styles.formInput} value={formData.salePrice} onChange={handleInputChange} onBlur={() => handlePriceBlur('salePrice')} placeholder="VD: 990k, 1tr5..." />
+                                    {formData.salePrice && <span style={{ fontSize: '12px', color: '#ff5252', marginTop: '4px', display: 'block' }}>{formatVND(formData.salePrice)}</span>}
                                 </div>
                             </div>
 
-                            {/* Sale Price & Tags */}
+                            {/* Section 3: Thuộc tính & Trạng thái */}
                             <div className={styles.formRow}>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Giá khuyến mãi (VNĐ) — để trống nếu không sale</label>
-                                    <input type="number" name="salePrice" className={styles.formInput} value={formData.salePrice} onChange={handleInputChange} placeholder="VD: 990000 (trống = không sale)" />
+                                    <label className={styles.formLabel} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked={formData.isFeatured} onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))} />
+                                        Sản phẩm nổi bật (Trang chủ)
+                                    </label>
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Tags (cách bởi dấu phẩy)</label>
-                                    <input type="text" name="tags" className={styles.formInput} value={formData.tags} onChange={handleInputChange} placeholder="sale, hot, new" />
+                                    <label className={styles.formLabel} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked={formData.isUsed} onChange={(e) => setFormData(prev => ({ ...prev, isUsed: e.target.checked }))} />
+                                        Hàng đã qua sử dụng
+                                    </label>
                                 </div>
                             </div>
 
-                            {/* Featured */}
-                            <div className={styles.formGroup}>
-                                <label className={styles.formLabel} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                                    <input type="checkbox" checked={formData.isFeatured} onChange={(e) => setFormData(prev => ({ ...prev, isFeatured: e.target.checked }))} />
-                                    Sản phẩm nổi bật (hiện trên trang chủ)
+                            {/* Condition fields for used products */}
+                            {formData.isUsed && (
+                                <div style={{ background: 'rgba(240,165,0,0.05)', border: '1px solid rgba(240,165,0,0.2)', borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
+                                    <div className={styles.formRow}>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.formLabel}>Tình trạng</label>
+                                            <select name="condition" className={styles.formInput} value={formData.condition} onChange={handleInputChange}>
+                                                <option value="like_new">Như mới (Like new)</option>
+                                                <option value="used">Đã sử dụng</option>
+                                                <option value="refurbished">Tân trang (Refurbished)</option>
+                                            </select>
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.formLabel}>Phân loại ngoại hình</label>
+                                            <select name="usedGrade" className={styles.formInput} value={formData.usedGrade} onChange={handleInputChange}>
+                                                <option value="">-- Không phân loại --</option>
+                                                <option value="A">Loại A (Đẹp 99%)</option>
+                                                <option value="B">Loại B (Trầy xước nhẹ)</option>
+                                                <option value="C">Loại C (Móp/Trầy nhiều)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.formLabel}>Ghi chú chi tiết tình trạng</label>
+                                        <textarea name="conditionNote" className={styles.formTextarea} value={formData.conditionNote} onChange={handleInputChange} placeholder="VD: Màn hình không xước, pin còn 90%..." rows={2} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Section 4: Bảo hành & Quà tặng */}
+                            <div className={styles.formRow} style={{ borderTop: '1px solid rgba(12,12,12,0.1)', paddingTop: '16px' }}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Số tháng bảo hành</label>
+                                    <select name="warrantyMonths" className={styles.formInput} value={formData.warrantyMonths} onChange={handleInputChange}>
+                                        {[0, 1, 3, 6, 12, 24, 36].map(m => (
+                                            <option key={m} value={m}>{m === 0 ? 'Không bảo hành' : `${m} tháng`}</option>
+                                        ))}
+                                    </select>
+
+                                    <div style={{ marginTop: '12px' }}>
+                                        <label className={styles.formLabel} style={{ fontSize: '11px' }}>Chi tiết bảo hành</label>
+                                        {formData.warrantyItems.map((item, i) => (
+                                            <div key={i} style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+                                                <input
+                                                    type="text"
+                                                    className={styles.formInput}
+                                                    style={{ fontSize: '12px', padding: '4px 8px' }}
+                                                    value={item}
+                                                    onChange={(e) => {
+                                                        const newItems = [...formData.warrantyItems];
+                                                        newItems[i] = e.target.value;
+                                                        setFormData(prev => ({ ...prev, warrantyItems: newItems }));
+                                                    }}
+                                                />
+                                                <button type="button" onClick={() => setFormData(prev => ({ ...prev, warrantyItems: prev.warrantyItems.filter((_, idx) => idx !== i) }))} style={{ background: 'none', border: 'none', color: '#ff5252', cursor: 'pointer' }}>✕</button>
+                                            </div>
+                                        ))}
+                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, warrantyItems: [...prev.warrantyItems, ''] }))} style={{ background: 'none', border: 'none', color: '#00f0ff', fontSize: '11px', cursor: 'pointer' }}>+ Thêm dòng</button>
+                                    </div>
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Quà tặng kèm</label>
+                                    <textarea name="gift" className={styles.formTextarea} value={formData.gift} onChange={handleInputChange} placeholder="VD: Túi chống sốc, Chuột..." rows={4} />
+                                </div>
+                            </div>
+
+                            {/* Section 5: Hình ảnh & Mô tả */}
+                            <div className={styles.formGroup} style={{ borderTop: '1px solid rgba(12,12,12,0.1)', paddingTop: '16px' }}>
+                                <label className={styles.formLabel}>Hình ảnh sản phẩm</label>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                                    {formData.images.map((img, i) => (
+                                        <div key={i} style={{ position: 'relative', width: '80px', height: '80px', border: img.file ? '2px solid #F0B100' : '1px solid #333', borderRadius: '4px', overflow: 'hidden' }}>
+                                            <img src={img.url} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            {img.file && <span style={{ position: 'absolute', bottom: '2px', left: '2px', background: '#F0B100', color: '#000', fontSize: '8px', padding: '1px 4px', borderRadius: '2px', fontWeight: 700 }}>MỚI</span>}
+                                            <button
+                                                onClick={() => removeImage(i)}
+                                                style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}
+                                            >✕</button>
+                                        </div>
+                                    ))}
+                                </div>
+                                <label className={styles.imageUpload}>
+                                    <input type="file" style={{ display: 'none' }} onChange={handleImageSelect} accept="image/*" multiple />
+                                    <span className={styles.uploadIcon}>📷</span>
+                                    <span className={styles.uploadText}>Chọn ảnh (Tải lên nhiều ảnh)</span>
                                 </label>
                             </div>
 
-                            {/* Description */}
                             <div className={styles.formGroup}>
-                                <label className={styles.formLabel}>Mô tả sản phẩm</label>
-                                <textarea
-                                    name="description"
-                                    className={styles.formTextarea}
-                                    placeholder="Mô tả chi tiết sản phẩm..."
-                                    value={formData.description}
-                                    onChange={handleInputChange}
-                                />
+                                <label className={styles.formLabel}>Mô tả chi tiết</label>
+                                <textarea name="description" className={styles.formTextarea} value={formData.description} onChange={handleInputChange} placeholder="Mô tả chi tiết sản phẩm..." rows={5} />
+                            </div>
+
+                            {/* Specs */}
+                            <div className={styles.formGroup}>
+                                <div className={styles.variantsHeader}>
+                                    <label className={styles.formLabel}>Thông số kỹ thuật (Dùng cho tính năng So Sánh)</label>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        {(() => {
+                                            const selectedCat = categories.find(c => c._id === formData.category);
+                                            const presetKeys = selectedCat ? getSpecKeysForCategory(selectedCat.name) : [];
+                                            if (presetKeys.length > 0) {
+                                                const existingKeys = new Set(formData.specs.map(s => s.key));
+                                                const missing = presetKeys.filter(p => !existingKeys.has(p.key));
+                                                if (missing.length > 0) {
+                                                    return (
+                                                        <button type="button" className={styles.addVariantBtn} onClick={() => {
+                                                            setFormData(p => ({
+                                                                ...p,
+                                                                specs: [...p.specs, ...missing.map(m => ({ key: m.key, value: '' }))]
+                                                            }));
+                                                        }}>+ Thêm tất cả thông số chuẩn ({missing.length})</button>
+                                                    );
+                                                }
+                                            }
+                                            return null;
+                                        })()}
+                                        <button type="button" className={styles.addVariantBtn} onClick={() => setFormData(p => ({ ...p, specs: [...p.specs, { key: '', value: '' }] }))}>+ Thêm thông số tùy chỉnh</button>
+                                    </div>
+                                </div>
+                                {formData.specs.length === 0 && (
+                                    <p className={styles.variantsEmpty}>Chưa có thông số kỹ thuật. {categories.find(c => c._id === formData.category) && getSpecKeysForCategory(categories.find(c => c._id === formData.category)!.name).length > 0 ? 'Nhấn "Thêm tất cả thông số chuẩn" để thêm nhanh.' : ''}</p>
+                                )}
+                                {formData.specs.map((spec, si) => {
+                                    const selectedCat = categories.find(c => c._id === formData.category);
+                                    const presetKeys = selectedCat ? getSpecKeysForCategory(selectedCat.name) : [];
+                                    const presetDef = presetKeys.find(p => p.key === spec.key);
+                                    const usedKeys = new Set(formData.specs.map((s, i) => i !== si ? s.key : ''));
+                                    const availablePresets = presetKeys.filter(p => !usedKeys.has(p.key));
+
+                                    return (
+                                        <div key={si} style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                                            {availablePresets.length > 0 ? (
+                                                <SpecKeyCombobox
+                                                    value={spec.key}
+                                                    options={availablePresets}
+                                                    customKeys={spec.key && !presetKeys.find(p => p.key === spec.key) ? [spec.key] : []}
+                                                    onChange={(key) => {
+                                                        const newSpecs = [...formData.specs];
+                                                        newSpecs[si].key = key;
+                                                        setFormData({ ...formData, specs: newSpecs });
+                                                    }}
+                                                    className={styles.formInput}
+                                                />
+                                            ) : (
+                                                <input type="text" className={styles.formInput} value={spec.key} onChange={(e) => {
+                                                    const newSpecs = [...formData.specs];
+                                                    newSpecs[si].key = e.target.value;
+                                                    setFormData({ ...formData, specs: newSpecs });
+                                                }} placeholder="Tên thông số" style={{ flex: 1 }} />
+                                            )}
+                                            <input type="text" className={styles.formInput} value={spec.value} onChange={(e) => {
+                                                const newSpecs = [...formData.specs];
+                                                newSpecs[si].value = e.target.value;
+                                                setFormData({ ...formData, specs: newSpecs });
+                                            }} placeholder={presetDef?.placeholder || "Giá trị"} style={{ flex: 2 }} />
+                                            <button type="button" onClick={() => {
+                                                const newSpecs = [...formData.specs];
+                                                newSpecs.splice(si, 1);
+                                                setFormData({ ...formData, specs: newSpecs });
+                                            }} style={{ background: 'rgba(240, 53, 106, 0.1)', color: '#F0356A', border: '1px solid currentColor', width: '40px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+                                        </div>
+                                    );
+                                })}
                             </div>
 
                             {/* Variants */}
@@ -625,13 +1209,58 @@ export default function AdminProductsPage() {
                                         <div className={styles.formRow}>
                                             <div className={styles.formGroup}>
                                                 <label className={styles.formLabel}>Giá riêng (VNĐ) — trống = dùng giá chung</label>
-                                                <input type="number" className={styles.formInput} value={variant.price} onChange={(e) => updateVariant(vi, 'price', e.target.value)} placeholder="Trống = giá chung" />
+                                                <input type="text" className={styles.formInput} value={variant.price} onChange={(e) => updateVariant(vi, 'price', e.target.value)} onBlur={() => handleVariantPriceBlur(vi)} placeholder="VD: 9tr8, 890k (trống = giá chung)" />
+                                                {variant.price && <span style={{ fontSize: '12px', color: 'var(--accent, #00e5ff)', marginTop: '4px', display: 'block' }}>{formatVND(variant.price)}</span>}
                                             </div>
                                             <div className={styles.formGroup}>
                                                 <label className={styles.formLabel}>Tồn kho biến thể</label>
                                                 <input type="number" className={styles.formInput} value={variant.stock} onChange={(e) => updateVariant(vi, 'stock', e.target.value)} placeholder="0" />
                                             </div>
                                         </div>
+                                        {/* Variant attributes */}
+                                        <div className={styles.formGroup}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                                                <label className={styles.formLabel} style={{ margin: 0 }}>Thuộc tính (RAM, SSD, CPU, Màu...)</label>
+                                                <button type="button" className={styles.addVariantBtn} style={{ fontSize: '11px', padding: '2px 8px' }} onClick={() => {
+                                                    setFormData(prev => ({
+                                                        ...prev,
+                                                        variants: prev.variants.map((v, i) => i === vi ? { ...v, attributes: [...v.attributes, { key: '', value: '' }] } : v)
+                                                    }));
+                                                }}>+ Thuộc tính</button>
+                                            </div>
+                                            {variant.attributes.map((attr, ai) => (
+                                                <div key={ai} style={{ display: 'flex', gap: '6px', marginBottom: '4px' }}>
+                                                    <input type="text" className={styles.formInput} value={attr.key} onChange={(e) => {
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            variants: prev.variants.map((v, i) => i === vi ? {
+                                                                ...v,
+                                                                attributes: v.attributes.map((a, j) => j === ai ? { ...a, key: e.target.value } : a)
+                                                            } : v)
+                                                        }));
+                                                    }} placeholder="VD: RAM" style={{ flex: 1 }} />
+                                                    <input type="text" className={styles.formInput} value={attr.value} onChange={(e) => {
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            variants: prev.variants.map((v, i) => i === vi ? {
+                                                                ...v,
+                                                                attributes: v.attributes.map((a, j) => j === ai ? { ...a, value: e.target.value } : a)
+                                                            } : v)
+                                                        }));
+                                                    }} placeholder="VD: 16GB DDR5" style={{ flex: 2 }} />
+                                                    <button type="button" onClick={() => {
+                                                        setFormData(prev => ({
+                                                            ...prev,
+                                                            variants: prev.variants.map((v, i) => i === vi ? {
+                                                                ...v,
+                                                                attributes: v.attributes.filter((_, j) => j !== ai)
+                                                            } : v)
+                                                        }));
+                                                    }} style={{ background: 'rgba(240, 53, 106, 0.1)', color: '#F0356A', border: '1px solid currentColor', width: '32px', minWidth: '32px', borderRadius: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✕</button>
+                                                </div>
+                                            ))}
+                                        </div>
+
                                         {/* Variant images */}
                                         <div className={styles.formGroup}>
                                             <label className={styles.formLabel}>Ảnh biến thể</label>
@@ -651,14 +1280,6 @@ export default function AdminProductsPage() {
                                         </div>
                                     </div>
                                 ))}
-                            </div>
-
-                            {/* Stock */}
-                            <div className={styles.formRow}>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.formLabel}>Số lượng tồn kho ban đầu {formData.variants.length > 0 ? '(tổng chung — nếu dùng biến thể thì tồn kho tính theo từng biến thể)' : ''}</label>
-                                    <input type="number" name="stock" className={styles.formInput} value={formData.stock} onChange={handleInputChange} placeholder="0" />
-                                </div>
                             </div>
 
                         </div>

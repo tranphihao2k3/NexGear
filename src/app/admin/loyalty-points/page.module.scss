@@ -1,0 +1,210 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    padding: $sp-6;
+    min-height: 100vh;
+    background-color: $color-bg;
+
+    @include mobile {
+        padding: $sp-4;
+    }
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-2xl, $fw-bold);
+        color: $color-ink;
+        margin-bottom: $sp-1;
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-regular);
+        color: $color-ink2;
+    }
+
+    @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $sp-4;
+    }
+}
+
+.actionBar {
+    @include card-base;
+    padding: $sp-4;
+    margin-bottom: $sp-6;
+    display: flex;
+    gap: $sp-4;
+    align-items: center;
+
+    select {
+        @include input-base;
+        width: 200px;
+    }
+
+    @include mobile {
+        select {
+            width: 100%;
+        }
+    }
+}
+
+.tableWrapper {
+    @include card-base;
+    overflow: hidden;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background-color: $color-bg2;
+            padding: $sp-3 $sp-4;
+            text-align: left;
+            @include font-display($text-xs, $fw-bold);
+            color: $color-ink2;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid $color-border;
+        }
+
+        td {
+            padding: $sp-4;
+            border-bottom: 1px solid $color-border;
+            @include font-body($text-sm, $fw-medium);
+            color: $color-ink;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba($color-bg2, 0.5);
+        }
+    }
+}
+
+.customerInfo {
+    .name {
+        @include font-body($text-sm, $fw-bold);
+        color: $color-ink;
+    }
+
+    .phone {
+        @include font-mono($text-xs, $fw-medium);
+        color: $color-ink3;
+    }
+}
+
+.points {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-mono($text-sm, $fw-bold);
+
+    &.up {
+        color: $color-green;
+    }
+
+    &.down {
+        color: $color-magenta;
+    }
+}
+
+.actions {
+    display: flex;
+    gap: $sp-2;
+    justify-content: flex-end;
+}
+
+.pagination {
+    padding: $sp-4 $sp-6;
+    border-top: 1px solid $color-border;
+    @include flex-between;
+    background-color: $color-bg2;
+
+    .info {
+        @include font-body($text-xs, $fw-medium);
+        color: $color-ink3;
+    }
+
+    .btns {
+        display: flex;
+        gap: $sp-2;
+    }
+}
+
+// Modal
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    @include flex-center;
+    z-index: $z-modal;
+    padding: $sp-4;
+}
+
+.modal {
+    @include card-base;
+    width: 100%;
+    max-width: 450px;
+    @include card-top-bar;
+
+    .modalHeader {
+        padding: $sp-4 $sp-6;
+        border-bottom: 1px solid $color-border;
+        @include flex-between;
+
+        h2 {
+            @include font-display($text-lg, $fw-bold);
+            color: $color-ink;
+        }
+    }
+
+    form {
+        padding: $sp-6;
+        display: flex;
+        flex-direction: column;
+        gap: $sp-4;
+    }
+
+    .fieldLabel {
+        @include font-mono($text-xs, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        margin-bottom: $sp-1;
+        display: block;
+    }
+
+    select {
+        @include input-base;
+        width: 100%;
+    }
+
+    textarea {
+        @include input-base;
+        min-height: 80px;
+        resize: none;
+    }
+
+    .modalFooter {
+        padding: $sp-4 $sp-6;
+        border-top: 1px solid $color-border;
+        display: flex;
+        gap: $sp-3;
+
+        button {
+            flex: 1;
+        }
+    }
+}

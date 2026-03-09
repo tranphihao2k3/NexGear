@@ -9,25 +9,28 @@ import Link from 'next/link'
 import Button from '@/components/ui/Button'
 import { StockBadge } from '@/components/ui/Badge'
 import { useCart } from '@/contexts/CartContext'
+import { useCompareStore } from '@/store/useCompareStore'
 import styles from './ProductCard.module.scss'
 
 interface Product {
-  _id:         string
-  name:        string
-  slug:        string
-  sku:         string
-  brand:       { name: string }
-  images:      string[]
-  basePrice:   number
-  salePrice?:  number | null
-  stock:       number
-  ratings:     { avg: number; count: number }
-  tags?:       string[]
+  _id: string
+  name: string
+  slug: string
+  sku: string
+  brand: { name: string }
+  images: string[]
+  basePrice: number
+  salePrice?: number | null
+  stock: number
+  ratings: { avg: number; count: number }
+  tags?: string[]
   isFeatured?: boolean
+  specs?: Record<string, string>
+  category?: { _id: string; name: string } | string
 }
 
 interface ProductCardProps {
-  product:    Product
+  product: Product
   onAddToCart?: (product: Product) => void
   className?: string
 }
@@ -58,15 +61,48 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
     const ids: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]')
     return ids.includes(product._id)
   })
-  const [added,      setAdded]      = useState(false)
+  const [added, setAdded] = useState(false)
+
+  // Compare state
+  const { items: compareItems, addItem: addCompare, removeItem: removeCompare } = useCompareStore()
+  const isCompared = compareItems.some(i => i.id === product._id)
+
+  const toggleCompare = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (isCompared) {
+      removeCompare(product._id)
+    } else {
+      if (compareItems.length >= 3) {
+        alert("Bạn chỉ có thể so sánh tối đa 3 sản phẩm cùng lúc. Vui lòng xoá bớt sản phẩm trong trang So Sánh.")
+        return
+      }
+
+      const catId = typeof product.category === 'object' && product.category !== null
+        ? product.category._id
+        : String(product.category || 'unknown')
+
+      addCompare({
+        id: product._id,
+        slug: product.slug,
+        name: product.name,
+        categoryId: catId,
+        brand: typeof product.brand === 'string' ? product.brand : product.brand?.name || 'NexGear',
+        price: product.salePrice ?? product.basePrice,
+        original: product.basePrice,
+        rating: product.ratings?.avg || 5,
+        img: product.images?.[0] || '⌨',
+        specs: product.specs || {}
+      })
+    }
+  }
 
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice
   const discountPct = hasDiscount
     ? Math.round((1 - product.salePrice! / product.basePrice) * 100)
     : 0
 
-  const isNew  = product.tags?.includes('new')
-  const isHot  = product.tags?.includes('hot')
+  const isNew = product.tags?.includes('new')
+  const isHot = product.tags?.includes('hot')
   const outOfStock = product.stock === 0
 
   function handleAddToCart() {
@@ -108,10 +144,10 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
 
         {/* Badges */}
         <div className={styles.badgesTop}>
-          {hasDiscount  && <span className={`${styles.badge} ${styles['badge--sale']}`}>-{discountPct}%</span>}
-          {isNew        && <span className={`${styles.badge} ${styles['badge--new']}`}>NEW</span>}
-          {isHot        && <span className={`${styles.badge} ${styles['badge--hot']}`}>🔥 HOT</span>}
-          {outOfStock   && <span className={`${styles.badge} ${styles['badge--oos']}`}>HẾT HÀNG</span>}
+          {hasDiscount && <span className={`${styles.badge} ${styles['badge--sale']}`}>-{discountPct}%</span>}
+          {isNew && <span className={`${styles.badge} ${styles['badge--new']}`}>NEW</span>}
+          {isHot && <span className={`${styles.badge} ${styles['badge--hot']}`}>🔥 HOT</span>}
+          {outOfStock && <span className={`${styles.badge} ${styles['badge--oos']}`}>HẾT HÀNG</span>}
         </div>
       </Link>
 
@@ -129,12 +165,22 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
         {wishlisted ? '♥' : '♡'}
       </button>
 
+      {/* Compare Button */}
+      <button
+        className={`${styles.compareBtn} ${isCompared ? styles['compare--active'] : ''}`}
+        onClick={toggleCompare}
+        aria-label={isCompared ? 'Xóa khỏi so sánh' : 'Thêm vào so sánh'}
+        title="So sánh"
+      >
+        ⚖️
+      </button>
+
       {/* ── BODY ── */}
       <div className={styles.body}>
         <Link href={`/products/${product.slug}`} className={styles.bodyLink}>
           <div className={styles.brand}>{typeof product.brand === 'string' ? product.brand : product.brand?.name || ''}</div>
           <h3 className={styles.name}>{product.name}</h3>
-   
+
         </Link>
 
         {/* Price */}
@@ -149,7 +195,7 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
               </span>
             )}
           </div>
-       
+
         </div>
 
         {/* Add to Cart */}

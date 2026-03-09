@@ -1,0 +1,271 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    @include container;
+    padding: $sp-6;
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $color-ink;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        color: $color-ink3;
+        margin-top: $sp-1;
+    }
+}
+
+.actionBar {
+    @include card-base;
+    padding: $sp-3;
+    margin-bottom: $sp-6;
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+
+    .search {
+        flex: 1;
+    }
+
+    .filters {
+        display: flex;
+        gap: $sp-2;
+
+        select {
+            @include input-base;
+            padding: $sp-2 $sp-3;
+            @include font-body($text-sm, $fw-bold);
+            min-width: 160px;
+        }
+    }
+
+    @include tablet {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-8;
+
+    @include desktop-s {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.statCard {
+    @include card-base;
+    padding: $sp-5;
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+
+    .icon {
+        @include flex-center;
+        width: 48px;
+        height: 48px;
+        border-radius: $r-2;
+        background: $color-bg2;
+        color: $color-ink3;
+
+        &.primary {
+            background: $color-cyan-light;
+            color: $color-cyan;
+        }
+
+        &.success {
+            background: $color-green-light;
+            color: $color-green;
+        }
+
+        &.warning {
+            background: $color-gold-light;
+            color: $color-gold;
+        }
+    }
+
+    .info {
+        label {
+            display: block;
+            @include font-mono(10px, $fw-bold);
+            color: $color-ink3;
+            text-transform: uppercase;
+        }
+
+        .value {
+            @include font-display($text-lg, $fw-bold);
+            color: $color-ink;
+        }
+    }
+}
+
+.tableContainer {
+    @include card-base;
+    overflow: hidden;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background: $color-bg2;
+            padding: $sp-4;
+            text-align: left;
+            @include font-mono(10px, $fw-bold);
+            color: $color-ink3;
+            text-transform: uppercase;
+            border-bottom: 1px solid $color-border;
+        }
+
+        td {
+            padding: $sp-4;
+            border-bottom: 1px solid $color-border;
+
+            .mainText {
+                display: block;
+                @include font-display($text-xs, $fw-bold);
+                color: $color-ink;
+            }
+
+            .subText {
+                display: block;
+                @include font-mono(10px, $fw-medium);
+                color: $color-ink3;
+            }
+        }
+
+        tr:hover td {
+            background: rgba($color-cyan, 0.02);
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: $sp-1;
+}
+
+// Modal
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: $z-modal;
+    @include flex-center;
+    padding: $sp-4;
+}
+
+.modal {
+    @include card-base;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    animation: modal-up 0.3s ease-out;
+
+    .modalHeader {
+        @include flex-between;
+        padding: $sp-6;
+        border-bottom: 1px solid $color-border;
+
+        h2 {
+            @include font-display($text-base, $fw-bold);
+            margin: 0;
+        }
+
+        button {
+            background: none;
+            border: none;
+            color: $color-ink3;
+            cursor: pointer;
+        }
+    }
+
+    .modalBody {
+        padding: $sp-6;
+        overflow-y: auto;
+    }
+
+    .modalFooter {
+        padding: $sp-4 $sp-6;
+        border-top: 1px solid $color-border;
+        display: flex;
+        justify-content: flex-end;
+        gap: $sp-3;
+        background: $color-bg2;
+    }
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+    margin-bottom: $sp-4;
+}
+
+.fieldGroup {
+    margin-bottom: $sp-4;
+
+    label {
+        @include font-mono(10px, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+        display: block;
+    }
+}
+
+.detailView {
+    .detailItem {
+        margin-bottom: $sp-5;
+
+        label {
+            @include font-mono(9px, $fw-bold);
+            color: $color-ink3;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        span {
+            @include font-display($text-sm, $fw-bold);
+            color: $color-ink;
+        }
+
+        code {
+            background: $color-bg2;
+            padding: 2px 6px;
+            border-radius: $r-1;
+            font-family: $font-mono;
+        }
+    }
+}
+
+@keyframes modal-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

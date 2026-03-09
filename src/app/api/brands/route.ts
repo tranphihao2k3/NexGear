@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Brand from '@/models/Brand';
 import Product from '@/models/Product';
+import Category from '@/models/Category';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 
 export async function GET(req: NextRequest) {
@@ -16,7 +17,18 @@ export async function GET(req: NextRequest) {
         if (searchParams.get('hasProducts') === 'true') {
             const productFilter: Record<string, unknown> = { isActive: true };
             const categoryId = searchParams.get('category');
-            if (categoryId) productFilter.category = categoryId;
+            const categorySlug = searchParams.get('categorySlug');
+
+            if (categoryId) {
+                productFilter.category = categoryId;
+            } else if (categorySlug) {
+                const cat = await Category.findOne({ slug: categorySlug }).lean();
+                if (cat) {
+                    productFilter.category = cat._id;
+                } else {
+                    return apiPaginated([], 0, page, limit);
+                }
+            }
 
             const brandIds = await Product.distinct('brand', productFilter);
             filter._id = { $in: brandIds };

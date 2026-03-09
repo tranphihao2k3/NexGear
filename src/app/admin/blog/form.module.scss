@@ -1,0 +1,118 @@
+// ============================================================
+// NEXGEAR — Blog Form Styles
+// File: blog/form.module.scss
+// ============================================================
+
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.container {
+    padding: $sp-6;
+    background: $color-bg;
+    min-height: 100vh;
+}
+
+.header {
+    margin-bottom: $sp-8;
+
+    .backLink {
+        display: inline-flex;
+        align-items: center;
+        gap: $sp-2;
+        @include font-mono(12px, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+        margin-bottom: $sp-4;
+        transition: color $transition-fast;
+
+        &:hover {
+            color: $color-cyan;
+        }
+    }
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $color-ink;
+        margin: 0;
+    }
+}
+
+.form {
+    @include card-base;
+    padding: $sp-8;
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+
+    @include tablet {
+        padding: $sp-4;
+    }
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+
+    h2 {
+        @include font-display($text-base, $fw-bold);
+        color: $color-magenta;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+        border-bottom: 2px solid $color-bg2;
+        padding-bottom: $sp-2;
+        margin: $sp-4 0 $sp-2 0;
+    }
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+
+    label {
+        @include font-mono(11px, $fw-bold);
+        color: $color-ink2;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+
+        span {
+            color: $color-magenta;
+        }
+    }
+
+    input,
+    textarea {
+        @include input-base;
+        width: 100%;
+
+        &.mono {
+            font-family: $font-mono;
+        }
+    }
+
+    .hint {
+        @include font-body(11px, $fw-medium);
+        color: $color-ink3;
+        font-style: italic;
+    }
+}
+
+.actions {
+    display: flex;
+    gap: $sp-4;
+    margin-top: $sp-4;
+    padding-top: $sp-6;
+    border-top: 1px solid $color-border;
+
+    button {
+        flex: 1;
+    }
+
+    @include mobile {
+        flex-direction: column;
+    }
+}

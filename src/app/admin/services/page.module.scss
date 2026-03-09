@@ -1,0 +1,296 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    @include container;
+    padding: $sp-6;
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $color-ink;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        color: $color-ink3;
+        margin-top: $sp-1;
+    }
+
+    .actions {
+        display: flex;
+        gap: $sp-2;
+    }
+}
+
+.actionBar {
+    @include card-base;
+    padding: $sp-3;
+    margin-bottom: $sp-6;
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+
+    .search {
+        flex: 1;
+    }
+
+    .filters {
+        select {
+            @include input-base;
+            padding: $sp-2 $sp-3;
+            @include font-body($text-sm, $fw-bold);
+            min-width: 180px;
+        }
+    }
+
+    @include tablet {
+        flex-direction: column;
+        align-items: stretch;
+
+        .filters select {
+            width: 100%;
+        }
+    }
+}
+
+.tableContainer {
+    @include card-base;
+    overflow: hidden;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background: $color-bg2;
+            padding: $sp-4;
+            text-align: left;
+            @include font-mono(10px, $fw-bold);
+            color: $color-ink3;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 1px solid $color-border;
+        }
+
+        td {
+            padding: $sp-4;
+            border-bottom: 1px solid $color-border;
+            vertical-align: middle;
+
+            .mainText {
+                display: block;
+                @include font-display($text-sm, $fw-bold);
+                color: $color-ink;
+            }
+
+            .subText {
+                display: block;
+                @include font-mono(10px, $fw-medium);
+                color: $color-ink3;
+                margin-top: 2px;
+            }
+        }
+
+        tr:hover td {
+            background: rgba($color-cyan, 0.02);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    gap: $sp-1;
+}
+
+.loading {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-16;
+    gap: $sp-4;
+    color: $color-ink3;
+
+    .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid $color-bg3;
+        border-top-color: $color-cyan;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Modal
+.modalOverlay {
+    @include modal-overlay;
+}
+
+.modal {
+    @include modal-content;
+    max-width: 700px;
+
+    .modalHeader {
+        @include flex-between;
+        padding: $sp-6;
+        border-bottom: 1px solid $color-border;
+
+        h2 {
+            @include font-display($text-lg, $fw-bold);
+            margin: 0;
+        }
+
+        button {
+            background: none;
+            border: none;
+            color: $color-ink3;
+            cursor: pointer;
+
+            &:hover {
+                color: $color-ink;
+            }
+        }
+    }
+
+    .modalBody {
+        padding: $sp-6;
+        overflow-y: auto;
+    }
+
+    .modalFooter {
+        padding: $sp-4 $sp-6;
+        border-top: 1px solid $color-border;
+        display: flex;
+        justify-content: flex-end;
+        gap: $sp-4;
+        background: $color-bg2;
+    }
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+    margin-bottom: $sp-4;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fieldGroup {
+    margin-bottom: $sp-4;
+
+    label {
+        display: block;
+        @include font-mono(10px, $fw-bold);
+        color: $color-ink2;
+        text-transform: uppercase;
+        margin-bottom: $sp-2;
+    }
+
+    select,
+    textarea {
+        @include input-base;
+        width: 100%;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+}
+
+// Detail Specifics
+.detailSection {
+    margin-bottom: $sp-8;
+
+    h3 {
+        @include font-display($text-xs, $fw-bold);
+        color: $color-ink2;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: $sp-4;
+        padding-bottom: $sp-2;
+        border-bottom: 1px solid $color-border;
+    }
+}
+
+.detailGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+}
+
+.detailItem {
+    label {
+        display: block;
+        @include font-mono(9px, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+
+    span {
+        @include font-body($text-sm, $fw-bold);
+        color: $color-ink;
+    }
+}
+
+.imageGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: $sp-2;
+    margin-top: $sp-2;
+
+    img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: $r-1;
+        border: 1px solid $color-border;
+    }
+}
+
+.quoteCard {
+    @include card-base;
+    background: $color-bg;
+    padding: $sp-4;
+    border-left: 4px solid $color-cyan;
+
+    .quoteInput {
+        display: flex;
+        gap: $sp-3;
+        margin-top: $sp-3;
+
+        input {
+            @include input-base;
+            flex: 1;
+        }
+    }
+}
+
+@keyframes modal-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

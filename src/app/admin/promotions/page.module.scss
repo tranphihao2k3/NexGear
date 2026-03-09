@@ -1,0 +1,346 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    padding: $sp-6;
+    min-height: 100vh;
+    background-color: $color-bg;
+
+    @include mobile {
+        padding: $sp-4;
+    }
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-2xl, $fw-bold);
+        color: $color-ink;
+        margin-bottom: $sp-1;
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-regular);
+        color: $color-ink2;
+    }
+
+    @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $sp-4;
+    }
+}
+
+.actionBar {
+    @include card-base;
+    padding: $sp-4;
+    margin-bottom: $sp-6;
+    display: flex;
+    gap: $sp-4;
+    align-items: center;
+
+    .search {
+        flex: 1;
+        position: relative;
+
+        input {
+            @include input-base;
+            padding-left: $sp-10;
+        }
+
+        svg {
+            position: absolute;
+            left: $sp-3;
+            top: 50%;
+            transform: translateY(-50%);
+            color: $color-ink3;
+        }
+    }
+
+    select {
+        @include input-base;
+        width: 200px;
+    }
+
+    @include tablet {
+        flex-direction: column;
+        align-items: stretch;
+
+        select {
+            width: 100%;
+        }
+    }
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-8;
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.statCard {
+    @include card-base;
+    padding: $sp-5;
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+
+    .icon {
+        width: 48px;
+        height: 48px;
+        @include flex-center;
+        border-radius: $r-2;
+
+        &.blue {
+            background-color: rgba($color-purple, 0.1);
+            color: $color-purple;
+        }
+
+        &.green {
+            background-color: rgba($color-green, 0.1);
+            color: $color-green;
+        }
+
+        &.yellow {
+            background-color: rgba($color-gold, 0.1);
+            color: $color-gold;
+        }
+
+        &.purple {
+            background-color: rgba($color-cyan, 0.1);
+            color: $color-cyan;
+        }
+    }
+
+    .info {
+        .label {
+            @include font-body($text-xs, $fw-medium);
+            color: $color-ink3;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .value {
+            @include font-mono($text-xl, $fw-bold);
+            color: $color-ink;
+        }
+    }
+}
+
+.tableWrapper {
+    @include card-base;
+    overflow: hidden;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background-color: $color-bg2;
+            padding: $sp-3 $sp-4;
+            text-align: left;
+            @include font-display($text-xs, $fw-bold);
+            color: $color-ink2;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid $color-border;
+        }
+
+        td {
+            padding: $sp-4;
+            border-bottom: 1px solid $color-border;
+            @include font-body($text-sm, $fw-medium);
+            color: $color-ink;
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background-color: rgba($color-bg2, 0.5);
+        }
+    }
+}
+
+.promoName {
+    .name {
+        font-weight: $fw-bold;
+        color: $color-ink;
+    }
+
+    .code {
+        @include font-mono($text-xs, $fw-semibold);
+        color: $color-cyan;
+        margin-top: 2px;
+    }
+}
+
+.discountBadge {
+    display: inline-flex;
+    padding: 4px 10px;
+    border-radius: $r-full;
+    @include font-mono($text-xs, $fw-bold);
+
+    &.percentage {
+        background-color: rgba($color-purple, 0.1);
+        color: $color-purple;
+    }
+
+    &.fixed {
+        background-color: rgba($color-green, 0.1);
+        color: $color-green;
+    }
+}
+
+.usage {
+    .usageText {
+        @include font-mono($text-sm, $fw-bold);
+        margin-bottom: 4px;
+        text-align: center;
+    }
+
+    .progressBar {
+        width: 80px;
+        height: 4px;
+        background-color: $color-bg3;
+        border-radius: $r-full;
+        margin: 0 auto;
+        overflow: hidden;
+
+        .fill {
+            height: 100%;
+            background-color: $color-cyan;
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    gap: $sp-2;
+    justify-content: center;
+}
+
+// Modal styles
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    @include flex-center;
+    z-index: $z-modal;
+    padding: $sp-4;
+}
+
+.modal {
+    @include card-base;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    @include card-top-bar;
+
+    .modalHeader {
+        padding: $sp-4 $sp-6;
+        border-bottom: 1px solid $color-border;
+        @include flex-between;
+
+        h2 {
+            @include font-display($text-lg, $fw-bold);
+            color: $color-ink;
+        }
+    }
+
+    form {
+        padding: $sp-6;
+        display: flex;
+        flex-direction: column;
+        gap: $sp-4;
+    }
+
+    .formGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $sp-4;
+
+        @include mobile {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .modalFooter {
+        padding: $sp-4 $sp-6;
+        border-top: 1px solid $color-border;
+        display: flex;
+        justify-content: flex-end;
+        gap: $sp-3;
+    }
+}
+
+.detailModal {
+    @extend .modal;
+    max-width: 450px;
+
+    .detailContent {
+        padding: $sp-6;
+        display: flex;
+        flex-direction: column;
+        gap: $sp-4;
+    }
+
+    .detailRow {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-bottom: $sp-2;
+        border-bottom: 1px solid $color-border;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            @include font-body($text-xs, $fw-medium);
+            color: $color-ink3;
+            text-transform: uppercase;
+        }
+
+        .value {
+            @include font-body($text-sm, $fw-bold);
+            color: $color-ink;
+        }
+    }
+
+    .promoBanner {
+        padding: $sp-4;
+        background: linear-gradient(135deg, $color-bg2 0%, $color-bg3 100%);
+        border-radius: $r-2;
+        @include flex-between;
+        margin-bottom: $sp-2;
+
+        .code {
+            @include font-mono($text-sm, $fw-bold);
+            color: $color-cyan;
+        }
+
+        .name {
+            @include font-display($text-base, $fw-bold);
+            color: $color-ink;
+        }
+    }
+}

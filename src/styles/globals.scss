@@ -11,6 +11,9 @@
 // 2. Base Reset & Utilities
 @use 'base';
 
+// 3. Admin Theme (CSS custom properties for light/dark)
+@use 'admin-theme';
+
 // 3. Components (uncomment khi tạo xong)
 // @use 'components/button';
 // @use 'components/input';

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
+import Category from '@/models/Category';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 
 // GET /api/products — List with filters
@@ -15,7 +16,22 @@ export async function GET(req: NextRequest) {
         // Filters
         if (searchParams.get('active') === 'true') filter.isActive = true;
         if (searchParams.get('featured') === 'true') filter.isFeatured = true;
-        if (searchParams.get('category')) filter.category = searchParams.get('category');
+
+        const categoryId = searchParams.get('category');
+        const categorySlug = searchParams.get('categorySlug');
+
+        if (categoryId) {
+            filter.category = categoryId;
+        } else if (categorySlug) {
+            const cat = await Category.findOne({ slug: categorySlug }).lean();
+            if (cat) {
+                filter.category = cat._id;
+            } else {
+                // Category not found, return empty early
+                return apiPaginated([], 0, page, limit);
+            }
+        }
+
         if (searchParams.get('brand')) {
             const brands = searchParams.get('brand')?.split(',') || [];
             if (brands.length > 0) filter.brand = { $in: brands };
@@ -26,6 +42,24 @@ export async function GET(req: NextRequest) {
 
         const search = searchParams.get('search') || searchParams.get('q');
         if (search) filter.$text = { $search: search };
+
+        // Specs filter: specs=Switch:Cherry MX Red,Layout:65%|75%
+        const specsParam = searchParams.get('specs');
+        if (specsParam) {
+            const specEntries = specsParam.split(',');
+            for (const entry of specEntries) {
+                const colonIdx = entry.indexOf(':');
+                if (colonIdx === -1) continue;
+                const key = entry.substring(0, colonIdx);
+                const valPart = entry.substring(colonIdx + 1);
+                const values = valPart.split('|');
+                if (values.length === 1) {
+                    filter[`specs.${key}`] = values[0];
+                } else {
+                    filter[`specs.${key}`] = { $in: values };
+                }
+            }
+        }
 
         // Price range
         const minPrice = searchParams.get('minPrice');

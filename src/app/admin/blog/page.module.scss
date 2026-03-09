@@ -1,0 +1,312 @@
+// ============================================================
+// NEXGEAR — Admin Blog Page Styles
+// File: blog/page.module.scss
+// ============================================================
+
+// Redundant @use removed as they are injected via next.config.ts
+
+.page {
+    padding: $sp-6;
+    background: $color-bg;
+    min-height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $sp-8;
+    flex-wrap: wrap;
+    gap: $sp-4;
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $color-ink;
+        margin: 0;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        color: $color-ink3;
+        margin: $sp-1 0 0 0;
+    }
+}
+
+.filtersBar {
+    display: flex;
+    align-items: center;
+    gap: $sp-6;
+    margin-bottom: $sp-6;
+    background: $color-white;
+    padding: $sp-4;
+    border-radius: $r-2;
+    border: 1px solid $color-border;
+    overflow-x: auto;
+    @include no-scrollbar;
+}
+
+.filterLabel {
+    @include font-mono(10px, $fw-bold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    white-space: nowrap;
+}
+
+.filterTabs {
+    display: flex;
+    gap: $sp-2;
+}
+
+.tab {
+    @include font-body($text-xs, $fw-bold);
+    padding: $sp-2 $sp-4;
+    border-radius: $r-1;
+    border: none;
+    cursor: pointer;
+    transition: all $transition-fast;
+    background: $color-bg2;
+    color: $color-ink2;
+    white-space: nowrap;
+
+    &:hover {
+        background: $color-bg3;
+    }
+
+    &.active {
+        background: $color-ink;
+        color: $color-white;
+    }
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.desktopHeader {
+    display: grid;
+    grid-template-columns: 1fr 180px 140px 120px 160px;
+    gap: $sp-4;
+    padding: $sp-3 $sp-6;
+    background: $color-bg2;
+    border-radius: $r-2;
+    margin-bottom: $sp-2;
+
+    span {
+        @include font-mono(10px, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+    }
+
+    @include tablet {
+        display: none;
+    }
+}
+
+.card {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    display: grid;
+    grid-template-columns: 1fr 180px 140px 120px 160px;
+    gap: $sp-4;
+    padding: $sp-4 $sp-6;
+    align-items: center;
+    transition: all $transition-base;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-md;
+        border-color: $color-cyan;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+        gap: $sp-3;
+        padding: $sp-4;
+    }
+}
+
+.postInfo {
+    display: flex;
+    gap: $sp-4;
+    min-width: 0;
+
+    .iconWrap {
+        @include flex-center;
+        width: 48px;
+        height: 48px;
+        background: $color-bg2;
+        border-radius: $r-2;
+        color: $color-cyan;
+        flex-shrink: 0;
+    }
+
+    .details {
+        min-width: 0;
+
+        h3 {
+            @include font-body($text-base, $fw-bold);
+            color: $color-ink;
+            margin: 0;
+            @include truncate(1);
+        }
+
+        .meta {
+            display: flex;
+            align-items: center;
+            gap: $sp-3;
+            margin-top: $sp-1;
+
+            .date {
+                @include font-mono(10px, $fw-medium);
+                color: $color-ink3;
+            }
+        }
+    }
+}
+
+.tags {
+    display: flex;
+    gap: $sp-1;
+    flex-wrap: wrap;
+}
+
+.author {
+    @include font-body($text-sm, $fw-bold);
+    color: $color-ink2;
+
+    @include tablet {
+        display: flex;
+        justify-content: space-between;
+
+        &::before {
+            content: "TÁC GIẢ";
+            @include font-mono(10px, $fw-bold);
+            color: $color-ink3;
+        }
+    }
+}
+
+.statusWrap {
+    text-align: center;
+
+    @include tablet {
+        display: flex;
+        justify-content: space-between;
+
+        &::before {
+            content: "TRẠNG THÁI";
+            @include font-mono(10px, $fw-bold);
+            color: $color-ink3;
+        }
+    }
+}
+
+.stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-1;
+    @include font-mono($text-sm, $fw-bold);
+    color: $color-ink2;
+
+    @include tablet {
+        justify-content: space-between;
+
+        &::before {
+            content: "LƯỢT XEM";
+            @include font-mono(10px, $fw-bold);
+            color: $color-ink3;
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $sp-2;
+
+    @include tablet {
+        padding-top: $sp-3;
+        border-top: 1px solid $color-border;
+        justify-content: stretch;
+
+        a,
+        button {
+            flex: 1;
+        }
+    }
+}
+
+.loading {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-20;
+    background: $color-white;
+    border-radius: $r-2;
+    border: 1px solid $color-border;
+
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid $color-bg2;
+        border-top-color: $color-cyan;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: $sp-4;
+    }
+}
+
+.empty {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-20;
+    text-align: center;
+    background: $color-white;
+    border-radius: $r-2;
+    border: 1px dashed $color-border;
+
+    h3 {
+        @include font-display($text-lg, $fw-bold);
+        color: $color-ink2;
+        margin-top: $sp-6;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        color: $color-ink3;
+        margin: $sp-2 0 $sp-8 0;
+        max-width: 400px;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.footer {
+    margin-top: $sp-12;
+    padding-top: $sp-6;
+    border-top: 1px solid $color-border;
+}
+
+.backBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: $sp-2;
+    @include font-mono(12px, $fw-bold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    transition: color $transition-fast;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}

@@ -1,0 +1,345 @@
+// ============================================================
+// NEXGEAR — Admin Salary Styles
+// ============================================================
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    flex-wrap: wrap;
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+}
+
+.filterGroup {
+    display: flex;
+    gap: $sp-2;
+}
+
+.filterSelect {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    min-width: 120px;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.addBtn {
+    @include btn-base;
+    @include btn-size-lg;
+    background: $color-cyan;
+    color: $color-ink;
+
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+.summary {
+    display: flex;
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+}
+
+.summaryItem {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    padding: $sp-4 $sp-5;
+    min-width: 180px;
+}
+
+.summaryLabel {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+    display: block;
+    margin-bottom: $sp-1;
+}
+
+.summaryValue {
+    @include font-display($text-lg, $fw-bold);
+    color: $admin-ink;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th, td {
+        padding: $sp-3 $sp-4;
+        text-align: left;
+        border-bottom: 1px solid $admin-border;
+    }
+
+    th {
+        @include font-display($text-xs, $fw-bold);
+        color: $admin-ink3;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    td {
+        @include font-body($text-sm, $fw-regular);
+        color: $admin-ink;
+    }
+
+    tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+}
+
+.employeeName {
+    @include font-body($text-sm, $fw-semibold);
+    color: $admin-ink;
+}
+
+.mono {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
+}
+
+.money {
+    @include font-mono($text-sm, $fw-medium);
+    text-align: right;
+
+    &.net {
+        color: $color-cyan;
+    }
+}
+
+.status {
+    @include font-display($text-xs, $fw-bold);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+
+    &.gray {
+        background: rgba(128, 128, 128, 0.15);
+        color: #888;
+    }
+
+    &.orange {
+        background: rgba($color-gold, 0.15);
+        color: $color-gold;
+    }
+
+    &.green {
+        background: rgba($color-green, 0.15);
+        color: $color-green;
+    }
+
+    &.red {
+        background: rgba($color-red, 0.15);
+        color: $color-red;
+    }
+}
+
+.actions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.actionBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: $sp-1;
+    border-radius: $r-1;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    &.danger:hover {
+        background: rgba($color-red, 0.2);
+    }
+}
+
+// Modal
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    @include flex-center;
+    z-index: 1000;
+    padding: $sp-4;
+}
+
+.modal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modalHeader {
+    @include flex-between;
+    padding: $sp-4 $sp-5;
+    border-bottom: 1px solid $admin-border;
+}
+
+.modalTitle {
+    @include font-display($text-lg, $fw-bold);
+    color: $admin-ink;
+}
+
+.modalClose {
+    background: transparent;
+    border: none;
+    color: $admin-ink3;
+    cursor: pointer;
+    font-size: $text-lg;
+    padding: $sp-1;
+
+    &:hover {
+        color: $admin-ink;
+    }
+}
+
+.modalBody {
+    padding: $sp-5;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-4;
+
+    @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.formGroup {
+    margin-bottom: $sp-3;
+}
+
+.formLabel {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink2;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.formInput {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.salarySummary {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: $r-2;
+    padding: $sp-4;
+    margin-top: $sp-4;
+}
+
+.summaryRow {
+    @include flex-between;
+    margin-bottom: $sp-2;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    span:first-child {
+        @include font-body($text-sm, $fw-regular);
+        color: $admin-ink3;
+    }
+}
+
+.summaryAmount {
+    @include font-display($text-md, $fw-bold);
+    color: $admin-ink;
+
+    &.net {
+        color: $color-cyan;
+    }
+}
+
+.modalFooter {
+    @include flex-between;
+    padding: $sp-4 $sp-5;
+    border-top: 1px solid $admin-border;
+    gap: $sp-3;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: transparent;
+    border: 1px solid $admin-border;
+    color: $admin-ink2;
+
+    &:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+    flex: 1;
+
+    &:hover:not(:disabled) {
+        background: $color-cyan-dark;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}

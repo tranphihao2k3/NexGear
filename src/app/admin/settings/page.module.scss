@@ -26,7 +26,7 @@
     border-bottom: 1px solid $admin-border;
     margin-bottom: $sp-6;
     overflow-x: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .tab {

@@ -719,6 +719,42 @@
 }
 
 // ════════════════════════════════════════════════════════════
+// VARIANT ATTRIBUTES
+// ════════════════════════════════════════════════════════════
+.variantAttributes {
+    margin-bottom: $sp-2;
+}
+
+.attrGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-top: $sp-2;
+}
+
+.attrItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    background: rgba(0, 196, 173, 0.04);
+    border: 1px solid rgba(0, 196, 173, 0.15);
+    border-radius: $r-2;
+}
+
+.attrKey {
+    @include font-mono(10px, $fw-medium);
+    color: $color-cyan;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.attrValue {
+    @include font-mono(13px, $fw-bold);
+    color: $color-ink;
+}
+
+// ════════════════════════════════════════════════════════════
 // QUANTITY
 // ════════════════════════════════════════════════════════════
 .qtyRow {

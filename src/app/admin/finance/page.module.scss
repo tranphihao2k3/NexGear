@@ -308,7 +308,7 @@
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--adm-overlay);
     z-index: $z-modal;
     @include flex-center;
     backdrop-filter: blur(4px);

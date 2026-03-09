@@ -31,34 +31,49 @@ const jetbrainsMono = JetBrains_Mono({
 
 // ── METADATA ────────────────────────────────────────────────
 export const metadata: Metadata = {
+  metadataBase: new URL('https://nexgear.vn'),
   title: {
-    default: 'NEXGEAR — Next-Gen Gear Store',
-    template: '%s | NEXGEAR',
+    default: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
+    template: '%s | NexGear',
   },
   description:
-    'Bàn phím cơ, chuột gaming, tai nghe, loa, mic và phụ kiện máy tính cao cấp. Giao hàng toàn quốc.',
-  keywords: ['bàn phím cơ', 'chuột gaming', 'tai nghe', 'gear máy tính', 'nexgear'],
-  authors: [{ name: 'NEXGEAR' }],
-  creator: 'NEXGEAR',
+    'NexGear — shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.',
+  keywords: [
+    'gear máy tính Cần Thơ',
+    'bàn phím cơ Cần Thơ',
+    'chuột gaming Cần Thơ',
+    'tai nghe gaming Cần Thơ',
+    'phụ kiện PC Cần Thơ',
+    'nexgear',
+    'shop gear Cần Thơ',
+  ],
+  authors: [{ name: 'NexGear' }],
+  creator: 'NexGear',
   openGraph: {
     type: 'website',
     locale: 'vi_VN',
     url: 'https://nexgear.vn',
-    siteName: 'NEXGEAR',
-    title: 'NEXGEAR — Next-Gen Gear Store',
-    description: 'Bàn phím cơ, chuột gaming, tai nghe và phụ kiện cao cấp.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'NEXGEAR' }],
+    siteName: 'NexGear',
+    title: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
+    description: 'Shop gear máy tính chính hãng #1 Cần Thơ. Giao nhanh 2H, bảo hành 12T.',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'NexGear Cần Thơ' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'NEXGEAR — Next-Gen Gear Store',
-    description: 'Gear máy tính cao cấp',
+    title: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
+    description: 'Shop gear máy tính chính hãng #1 Cần Thơ',
     images: ['/og-image.jpg'],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 

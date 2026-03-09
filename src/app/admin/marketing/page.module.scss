@@ -1,0 +1,545 @@
+// ============================================================
+// NEXGEAR — Marketing Assistant Page Styles
+// File: marketing/page.module.scss
+// ============================================================
+
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    padding: $sp-6;
+    background: $color-bg;
+    min-height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $color-ink;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
+
+        svg {
+            color: $color-cyan;
+        }
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        color: $color-ink3;
+        margin: $sp-1 0 0 0;
+    }
+
+    .version {
+        @include flex-center;
+        gap: $sp-2;
+        background: $color-white;
+        padding: $sp-2 $sp-4;
+        border-radius: $r-full;
+        border: 1px solid $color-border;
+        @include font-mono(10px, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+
+        svg {
+            color: $color-cyan;
+        }
+    }
+}
+
+.tabs {
+    display: flex;
+    gap: $sp-2;
+    background: $color-bg2;
+    padding: 6px;
+    border-radius: $r-2;
+    width: fit-content;
+    margin-bottom: $sp-8;
+
+    button {
+        padding: $sp-3 $sp-8;
+        border-radius: $r-2;
+        @include font-mono(10px, $fw-bold);
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+        transition: all $transition-base;
+        cursor: pointer;
+        border: none;
+
+        &.active {
+            background: $color-white;
+            color: $color-cyan;
+            box-shadow: $shadow-sm;
+        }
+
+        &:not(.active) {
+            background: transparent;
+            color: $color-ink3;
+
+            &:hover {
+                color: $color-ink2;
+            }
+        }
+    }
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: $sp-8;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+.sidebar {
+    @include card-base;
+    padding: $sp-6;
+    height: fit-content;
+    position: sticky;
+    top: $sp-6;
+
+    h2 {
+        @include section-label;
+        margin-bottom: $sp-6;
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
+
+        span {
+            @include flex-center;
+            width: 24px;
+            height: 24px;
+            background: $color-cyan;
+            color: $color-white;
+            border-radius: 50%;
+            font-size: 10px;
+        }
+    }
+}
+
+.searchBox {
+    margin-bottom: $sp-6;
+}
+
+.productList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 4px;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $color-bg3;
+        border-radius: 10px;
+    }
+}
+
+.productCard {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    padding: $sp-3;
+    border-radius: $r-2;
+    border: 1px solid $color-border;
+    background: $color-white;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover {
+        border-color: $color-cyan;
+        transform: translateY(-2px);
+        box-shadow: $shadow-sm;
+    }
+
+    &.selected {
+        border-color: $color-cyan;
+        background: $color-cyan-light;
+    }
+
+    .imgWrap {
+        width: 50px;
+        height: 50px;
+        background: $color-bg2;
+        border-radius: $r-1;
+        overflow: hidden;
+        @include flex-center;
+        padding: 4px;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    }
+
+    .pInfo {
+        flex: 1;
+        min-width: 0;
+
+        .pName {
+            @include font-body($text-sm, $fw-bold);
+            color: $color-ink;
+            @include truncate(1);
+            text-transform: uppercase;
+        }
+
+        .pPrice {
+            @include font-mono(11px, $fw-bold);
+            color: $color-magenta;
+            margin-top: 2px;
+        }
+    }
+}
+
+.mainContent {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-8;
+}
+
+.section {
+    @include card-base;
+    padding: $sp-6;
+
+    .sectionHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: $sp-6;
+
+        h2 {
+            @include section-label;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: $sp-3;
+
+            span {
+                @include flex-center;
+                width: 24px;
+                height: 24px;
+                background: $color-cyan;
+                color: $color-white;
+                border-radius: 50%;
+                font-size: 10px;
+            }
+        }
+    }
+}
+
+.genOptions {
+    display: flex;
+    gap: $sp-2;
+    background: $color-bg2;
+    padding: 4px;
+    border-radius: $r-2;
+
+    button {
+        padding: 6px 16px;
+        border-radius: $r-2;
+        @include font-mono(9px, $fw-bold);
+        text-transform: uppercase;
+        letter-spacing: $ls-wide;
+        border: none;
+        cursor: pointer;
+        transition: all $transition-base;
+
+        &.active {
+            background: $color-white;
+            color: $color-cyan;
+            box-shadow: $shadow-sm;
+        }
+
+        &:not(.active) {
+            color: $color-ink3;
+            background: transparent;
+        }
+    }
+}
+
+.templates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-2;
+    margin-bottom: $sp-4;
+}
+
+.templateBtn {
+    padding: 8px $sp-4;
+    border-radius: $r-1;
+    border: 1px solid $color-border;
+    background: $color-bg2;
+    @include font-mono(10px, $fw-bold);
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    color: $color-ink2;
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    transition: all $transition-base;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: $color-white;
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &.ai {
+        background: $color-purple-light;
+        border-color: transparent;
+        color: $color-purple;
+
+        &:hover {
+            background: $color-white;
+            border-color: $color-purple;
+        }
+    }
+}
+
+.editorWrap {
+    position: relative;
+
+    textarea {
+        @include input-base;
+        width: 100%;
+        min-height: 400px;
+        padding: $sp-6;
+        font-family: $font-body;
+        font-size: 14px;
+        line-height: 1.6;
+        resize: vertical;
+        background: $color-bg2;
+    }
+
+    .editorActions {
+        position: absolute;
+        top: $sp-4;
+        right: $sp-4;
+        display: flex;
+        gap: $sp-2;
+    }
+}
+
+.groupManager {
+    .addGroup {
+        display: flex;
+        gap: $sp-3;
+        margin-bottom: $sp-6;
+    }
+}
+
+.groupList {
+    background: $color-bg2;
+    padding: $sp-4;
+    border-radius: $r-2;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid $color-border;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+
+    .groupItem {
+        @include flex-between;
+        background: $color-white;
+        padding: $sp-4;
+        border-radius: $r-2;
+        border: 1px solid $color-border;
+        transition: all $transition-base;
+
+        &.current {
+            border-color: $color-cyan;
+            border-width: 2px;
+            box-shadow: $shadow-md;
+            transform: scale(1.01);
+        }
+
+        .gInfo {
+            display: flex;
+            align-items: center;
+            gap: $sp-4;
+            min-width: 0;
+
+            .gBadge {
+                @include flex-center;
+                width: 32px;
+                height: 32px;
+                background: $color-bg2;
+                color: $color-cyan;
+                border-radius: 50%;
+                @include font-mono($text-sm, $fw-bold);
+                flex-shrink: 0;
+            }
+
+            &.next .gBadge {
+                background: $color-cyan;
+                color: $color-white;
+            }
+
+            .gText {
+                min-width: 0;
+
+                .gName {
+                    @include font-body($text-sm, $fw-bold);
+                    color: $color-ink;
+                    @include truncate(1);
+                }
+
+                .gUrl {
+                    @include font-mono(10px, $fw-medium);
+                    color: $color-ink3;
+                    @include truncate(1);
+                }
+            }
+        }
+
+        .gActions {
+            display: flex;
+            gap: $sp-2;
+            align-items: center;
+        }
+    }
+}
+
+.queuePanel {
+    margin-top: $sp-6;
+    background: linear-gradient(135deg, $color-ink 0%, #3d3c38 100%);
+    padding: $sp-6;
+    border-radius: $r-3;
+    color: $color-white;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: $color-cyan;
+        opacity: 0.1;
+        border-radius: 50%;
+        filter: blur(40px);
+    }
+
+    h3 {
+        @include font-display($text-lg, $fw-bold);
+        margin-bottom: $sp-1;
+        display: flex;
+        align-items: center;
+        gap: $sp-3;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        opacity: 0.7;
+        margin: 0;
+    }
+
+    .queueActions {
+        display: flex;
+        gap: $sp-3;
+        margin-top: $sp-6;
+
+        @include mobile {
+            flex-direction: column;
+        }
+    }
+}
+
+.bannerSection {
+    @include card-base;
+    padding: $sp-8;
+
+    .bannerForm {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $sp-8;
+
+        @include tablet {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .bannerPreview {
+        background: $color-bg2;
+        border-radius: $r-2;
+        padding: $sp-6;
+        @include flex-center;
+        flex-direction: column;
+        gap: $sp-4;
+        border: 1px dashed $color-border;
+
+        img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: $r-1;
+            box-shadow: $shadow-md;
+        }
+
+        .empty {
+            color: $color-ink3;
+            text-align: center;
+
+            svg {
+                margin-bottom: $sp-2;
+            }
+        }
+    }
+}
+
+.fieldLabel {
+    @include section-label;
+    margin-bottom: $sp-6;
+}
+
+.formColumn {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.toggleRow {
+    @include flex-between;
+    margin-top: $sp-2;
+}
+
+.toggleLabel {
+    @include font-mono(11px, $fw-bold);
+    color: $color-ink2;
+    text-transform: uppercase;
+}
+
+.checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: $color-cyan;
+    cursor: pointer;
+}
+
+.uploadWrap {
+    margin-top: $sp-6;
+    width: 100%;
+}

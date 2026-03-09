@@ -1,0 +1,213 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    @include container;
+    max-width: 720px;
+    padding-top: $sp-10;
+    padding-bottom: $sp-20;
+}
+
+.loading, .authGuard {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-4;
+    padding: $sp-20 0;
+    color: $color-ink3;
+    font-size: $text-lg;
+
+    a {
+        @include btn-base;
+        padding: $sp-3 $sp-6;
+        background: $color-cyan;
+        color: $color-ink;
+        border-radius: $r-2;
+        text-decoration: none;
+    }
+}
+
+.header {
+    margin-bottom: $sp-8;
+}
+
+.title {
+    @include font-display($text-2xl, $fw-bold);
+    color: $color-ink;
+    margin-bottom: $sp-2;
+}
+
+.subtitle {
+    @include font-body($text-md);
+    color: $color-ink2;
+    margin: 0;
+}
+
+.form {
+    background: $color-white;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    padding: $sp-6;
+}
+
+.error {
+    @include font-body($text-sm);
+    color: $color-red;
+    background: $color-red-light;
+    padding: $sp-3 $sp-4;
+    border-radius: $r-2;
+    margin-bottom: $sp-5;
+}
+
+.formGroup {
+    margin-bottom: $sp-5;
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+    margin-bottom: $sp-5;
+
+    .formGroup {
+        margin-bottom: 0;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.label {
+    @include font-mono($text-xs, $fw-semibold);
+    color: $color-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: block;
+    margin-bottom: $sp-2;
+}
+
+.input {
+    @include font-body($text-sm);
+    width: 100%;
+    padding: $sp-3;
+    border: 1px solid $color-border;
+    border-radius: $r-2;
+    background: $color-bg;
+    color: $color-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &::placeholder { color: $color-ink3; }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+}
+
+.textarea {
+    @extend .input;
+    resize: vertical;
+    min-height: 120px;
+}
+
+// ── Image Upload ────────────────────────────────────────
+.imageGrid {
+    display: flex;
+    gap: $sp-3;
+    flex-wrap: wrap;
+}
+
+.imagePreview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: $r-2;
+    overflow: hidden;
+    border: 1px solid $color-border;
+    background: $color-bg2;
+}
+
+.previewImg {
+    object-fit: cover;
+}
+
+.removeImg {
+    position: absolute;
+    top: $sp-1;
+    right: $sp-1;
+    width: 20px;
+    height: 20px;
+    @include flex-center;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: $r-full;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.uploadBtn {
+    width: 100px;
+    height: 100px;
+    border: 2px dashed $color-border;
+    border-radius: $r-2;
+    background: transparent;
+    color: $color-ink3;
+    @include font-body($text-sm);
+    cursor: pointer;
+    transition: $transition-fast;
+    @include flex-center;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+}
+
+// ── Actions ─────────────────────────────────────────────
+.formActions {
+    display: flex;
+    gap: $sp-4;
+    justify-content: flex-end;
+    margin-top: $sp-6;
+    padding-top: $sp-5;
+    border-top: 1px solid $color-border;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include font-body($text-sm, $fw-medium);
+    padding: $sp-3 $sp-6;
+    background: $color-bg2;
+    color: $color-ink2;
+    border-radius: $r-2;
+    text-decoration: none;
+}
+
+.submitBtn {
+    @include btn-base;
+    @include font-display($text-sm, $fw-bold);
+    padding: $sp-3 $sp-8;
+    background: $gradient-accent;
+    color: $color-white;
+    border-radius: $r-2;
+    letter-spacing: $ls-wide;
+    transition: $transition-base;
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: $shadow-md;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+        transform: none;
+    }
+}

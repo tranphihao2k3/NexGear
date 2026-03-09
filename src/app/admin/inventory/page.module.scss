@@ -61,7 +61,7 @@
     border: 1px solid $admin-border;
     border-radius: $r-2;
     overflow-x: auto;
-    @include custom-scrollbar(rgba(255, 255, 255, 0.1));
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .table {
@@ -237,7 +237,7 @@
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--adm-overlay);
     z-index: $z-modal;
     @include flex-center;
     backdrop-filter: blur(4px);

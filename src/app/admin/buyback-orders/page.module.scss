@@ -1,0 +1,307 @@
+// ============================================================
+// NEXGEAR — Buyback Orders Admin Page Styles
+// File: buyback-orders/page.module.scss
+// ============================================================
+
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    padding: $sp-6;
+    background: $color-bg;
+    min-height: 100vh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $color-ink;
+        margin: 0;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        color: $color-ink3;
+        margin: $sp-1 0 0 0;
+    }
+}
+
+.actionBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+    background: $color-white;
+    padding: $sp-4;
+    border-radius: $r-2;
+    border: 1px solid $color-border;
+    align-items: center;
+
+    .search {
+        flex: 1;
+        min-width: 280px;
+    }
+
+    .filters {
+        display: flex;
+        gap: $sp-2;
+        overflow-x: auto;
+        padding-bottom: 4px;
+
+        button {
+            white-space: nowrap;
+            padding: $sp-2 $sp-4;
+            border-radius: $r-1;
+            @include font-mono(10px, $fw-bold);
+            text-transform: uppercase;
+            letter-spacing: $ls-wide;
+            border: 1px solid transparent;
+            transition: all $transition-base;
+            cursor: pointer;
+
+            &.active {
+                background: $color-ink;
+                color: $color-white;
+            }
+
+            &:not(.active) {
+                background: $color-bg2;
+                color: $color-ink3;
+
+                &:hover {
+                    background: $color-bg3;
+                    color: $color-ink2;
+                }
+            }
+        }
+    }
+}
+
+.tableContainer {
+    @include card-base;
+    overflow: hidden;
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+
+        th {
+            background: $color-bg2;
+            padding: $sp-3 $sp-4;
+            text-align: left;
+            @include font-mono(10px, $fw-bold);
+            color: $color-ink3;
+            text-transform: uppercase;
+            letter-spacing: $ls-wide;
+            border-bottom: 1px solid $color-border;
+        }
+
+        td {
+            padding: $sp-4;
+            border-bottom: 1px solid $color-border;
+            @include font-body($text-sm, $fw-medium);
+            color: $color-ink2;
+
+            .mainText {
+                @include font-body($text-sm, $fw-bold);
+                color: $color-ink;
+                display: block;
+            }
+
+            .subText {
+                @include font-mono(10px, $fw-medium);
+                color: $color-ink3;
+                display: block;
+                margin-top: 2px;
+            }
+
+            &.price {
+                @include font-mono($text-sm, $fw-bold);
+                color: $color-cyan;
+                text-align: right;
+            }
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(0, 196, 173, 0.02);
+        }
+    }
+}
+
+.modalOverlay {
+    @include modal-overlay;
+}
+
+.modal {
+    @include modal-content;
+    max-width: 800px;
+    @include card-top-bar;
+
+    .modalHeader {
+        padding: $sp-4 $sp-6;
+        border-bottom: 1px solid $color-border;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        h2 {
+            @include font-display($text-base, $fw-bold);
+            margin: 0;
+        }
+    }
+
+    .modalBody {
+        padding: $sp-6;
+    }
+
+    .modalFooter {
+        padding: $sp-4 $sp-6;
+        border-top: 1px solid $color-border;
+        display: flex;
+        justify-content: flex-end;
+        gap: $sp-3;
+    }
+}
+
+.section {
+    margin-bottom: $sp-8;
+
+    h3 {
+        @include font-mono(11px, $fw-bold);
+        color: $color-cyan;
+        text-transform: uppercase;
+        margin-bottom: $sp-4;
+        border-bottom: 2px solid $color-cyan-light;
+        padding-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+    }
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-4;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fieldGroup {
+    margin-bottom: $sp-4;
+
+    label {
+        @include font-mono(10px, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: $sp-2;
+    }
+
+    select,
+    textarea {
+        @include input-base;
+        width: 100%;
+    }
+}
+
+.detailGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-6;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+.detailItem {
+    label {
+        @include font-mono(10px, $fw-bold);
+        color: $color-ink3;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    span {
+        @include font-body($text-base, $fw-bold);
+        color: $color-ink;
+    }
+}
+
+.imageGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: $sp-2;
+    margin-top: $sp-2;
+
+    img {
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: $r-1;
+        border: 1px solid $color-border;
+    }
+}
+
+.quoteCard {
+    background: $color-bg2;
+    padding: $sp-6;
+    border-radius: $r-2;
+    border-left: 4px solid $color-magenta;
+
+    .quoteInput {
+        display: flex;
+        gap: $sp-3;
+        margin-top: $sp-4;
+
+        input {
+            @include input-base;
+            flex: 1;
+        }
+
+        @include mobile {
+            flex-direction: column;
+        }
+    }
+}
+
+.loading {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-16;
+    gap: $sp-4;
+    color: $color-ink3;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid $color-bg3;
+    border-top-color: $color-cyan;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.actions {
+    display: flex;
+    gap: $sp-2;
+    justify-content: center;
+}

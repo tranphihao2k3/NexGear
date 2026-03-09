@@ -5,9 +5,12 @@ export interface ICategory extends Document {
     slug: string;
     parent: Types.ObjectId | null;
     icon: string;
+    image: string;
     description: string;
     order: number;
     isActive: boolean;
+    metaTitle: string;
+    metaDescription: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -18,9 +21,12 @@ const CategorySchema = new Schema<ICategory>(
         slug: { type: String, required: true, unique: true },
         parent: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
         icon: { type: String, default: '' },
+        image: { type: String, default: '' },
         description: { type: String, default: '' },
         order: { type: Number, default: 0 },
         isActive: { type: Boolean, default: true },
+        metaTitle: { type: String, default: '' },
+        metaDescription: { type: String, default: '' },
     },
     { timestamps: true }
 );

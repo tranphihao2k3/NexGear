@@ -1,0 +1,60 @@
+// ============================================================
+// NEXGEAR — Admin Theme CSS Custom Properties
+// Uses [data-admin-theme] attribute selector (not class name)
+// so it works regardless of CSS Module hashing.
+// ============================================================
+
+// Dark theme (default) — set on :root so vars are always available
+:root {
+    --adm-bg: #141414;
+    --adm-sidebar-bg: #0A0A0A;
+    --adm-card-bg: #1C1C1C;
+    --adm-card-bg2: #242424;
+    --adm-surface: #1A1A1A;
+    --adm-ink: #F0F0F0;
+    --adm-ink2: #A0A0A0;
+    --adm-ink3: #666666;
+    --adm-border: rgba(255, 255, 255, 0.08);
+    --adm-border2: rgba(255, 255, 255, 0.14);
+    --adm-hover: rgba(255, 255, 255, 0.04);
+    --adm-scrollbar: rgba(255, 255, 255, 0.1);
+    --adm-overlay: rgba(0, 0, 0, 0.6);
+    --adm-logo-color: #FFFFFF;
+    --adm-card-shadow: none;
+    --adm-sidebar-shadow: none;
+}
+
+// Light theme
+:root[data-admin-theme="light"],
+[data-admin-theme="light"] {
+    --adm-bg: #F0F2F5;
+    --adm-sidebar-bg: #FFFFFF;
+    --adm-card-bg: #FFFFFF;
+    --adm-card-bg2: #F5F5F7;
+    --adm-surface: #FAFAFA;
+    --adm-ink: #1A1A1A;
+    --adm-ink2: #4A4A4A;
+    --adm-ink3: #888888;
+    --adm-border: rgba(0, 0, 0, 0.10);
+    --adm-border2: rgba(0, 0, 0, 0.18);
+    --adm-hover: rgba(0, 0, 0, 0.05);
+    --adm-scrollbar: rgba(0, 0, 0, 0.15);
+    --adm-overlay: rgba(0, 0, 0, 0.3);
+    --adm-logo-color: #1A1A1A;
+    --adm-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --adm-sidebar-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
+
+    // Light mode: add subtle shadow + stronger borders to admin cards/tables
+    // This targets any element inside admin layout using card-bg
+    input,
+    select,
+    textarea {
+        background: var(--adm-card-bg) !important;
+        border-color: var(--adm-border2) !important;
+        color: var(--adm-ink) !important;
+
+        &::placeholder {
+            color: var(--adm-ink3) !important;
+        }
+    }
+}

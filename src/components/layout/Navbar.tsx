@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Navbar Component (Cyberpunk Light)
+// NEXGEAR — Navbar Component (Clean + Mega Menu)
 // ============================================================
 'use client'
 import { useState, useEffect, useRef } from 'react'
@@ -7,55 +7,107 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useCompareStore } from '@/store/useCompareStore'
 import styles from './Navbar.module.scss'
 
-const NAV_LINKS = [
+interface SubLink {
+    href: string
+    label: string
+    desc?: string
+}
+
+interface MegaBanner {
+    title: string
+    desc: string
+    cta: string
+    ctaHref: string
+}
+
+interface NavLink {
+    href: string
+    label: string
+    sub?: SubLink[]
+    megaBanner?: MegaBanner
+}
+
+const CATEGORIES: NavLink[] = [
     {
-        href: '/ban-phim', label: 'Ban phim', vn: 'Bàn phím', icon: '⌨',
+        href: '/laptop', label: 'Laptop',
         sub: [
-            { href: '/ban-phim?type=co', label: 'Bàn phím cơ' },
-            { href: '/ban-phim?type=khong-day', label: 'Không dây' },
-            { href: '/ban-phim?layout=tkl', label: 'TKL / 75%' },
-            { href: '/ban-phim?layout=60', label: '60% / 65%' },
+            { href: '/laptop?type=gaming', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
+            { href: '/laptop?type=ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
+            { href: '/laptop?type=workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
+            { href: '/laptop?type=student', label: 'Sinh viên', desc: 'Giá tốt, phù hợp học tập' },
+        ],
+        megaBanner: {
+            title: 'Laptop Gaming RTX 50 Series',
+            desc: 'Sẵn sàng với GPU thế hệ mới nhất',
+            cta: 'KHÁM PHÁ NGAY',
+            ctaHref: '/laptop?type=gaming&tag=rtx50',
+        },
+    },
+    {
+        href: '/chuot', label: 'Chuột',
+        sub: [
+            { href: '/chuot?type=gaming', label: 'Gaming Mouse', desc: 'Chuột chơi game chuyên nghiệp' },
+            { href: '/chuot?type=wireless', label: 'Wireless', desc: 'Không dây, tự do di chuyển' },
+            { href: '/chuot?type=ergonomic', label: 'Ergonomic', desc: 'Thiết kế công thái học' },
+            { href: '/chuot?type=lightweight', label: 'Siêu nhẹ', desc: 'Dưới 60g, linh hoạt tối đa' },
+        ],
+        megaBanner: {
+            title: 'Chuột gaming siêu nhẹ',
+            desc: 'Dòng chuột dưới 50g, sensor 26K DPI',
+            cta: 'XEM NGAY',
+            ctaHref: '/chuot?type=lightweight',
+        },
+    },
+    {
+        href: '/ban-phim', label: 'Bàn phím',
+        sub: [
+            { href: '/ban-phim?type=co', label: 'Bàn phím cơ', desc: 'Mechanical keyboard cao cấp' },
+            { href: '/ban-phim?type=khong-day', label: 'Không dây', desc: 'Wireless & Bluetooth' },
+            { href: '/ban-phim?layout=tkl', label: 'TKL / 75%', desc: 'Compact, tiết kiệm không gian' },
+            { href: '/ban-phim?layout=60', label: '60% / 65%', desc: 'Ultra compact, tối giản' },
+            { href: '/ban-phim?type=custom', label: 'Custom Kit', desc: 'Barebone & DIY kit' },
+        ],
+        megaBanner: {
+            title: 'Custom keyboard mới',
+            desc: 'Kit barebone gasket mount từ các hãng lớn',
+            cta: 'KHÁM PHÁ',
+            ctaHref: '/ban-phim?type=custom',
+        },
+    },
+    {
+        href: '/tai-nghe', label: 'Tai nghe',
+        sub: [
+            { href: '/tai-nghe?type=over-ear', label: 'Over-ear', desc: 'Trùm tai, bass sâu' },
+            { href: '/tai-nghe?type=in-ear', label: 'In-ear / TWS', desc: 'True wireless stereo' },
+            { href: '/tai-nghe?type=gaming', label: 'Gaming Headset', desc: 'Âm thanh vòm 7.1' },
         ],
     },
     {
-        href: '/chuot', label: 'Chuot', vn: 'Chuột', icon: '🖱',
+        href: '/loa', label: 'Loa',
         sub: [
-            { href: '/chuot?type=gaming', label: 'Gaming Mouse' },
-            { href: '/chuot?type=wireless', label: 'Wireless' },
-            { href: '/chuot?type=ergonomic', label: 'Ergonomic' },
+            { href: '/loa?type=soundbar', label: 'Soundbar', desc: 'Loa thanh cho bàn setup' },
+            { href: '/loa?type=bluetooth', label: 'Bluetooth', desc: 'Di động, pin lâu' },
+            { href: '/loa?type=desktop', label: 'Desktop Speaker', desc: '2.0 / 2.1 cho PC' },
         ],
     },
     {
-        href: '/tai-nghe', label: 'Tai nghe', vn: 'Tai nghe', icon: '🎧',
+        href: '/phu-kien', label: 'Phụ kiện',
         sub: [
-            { href: '/tai-nghe?type=over-ear', label: 'Over-ear' },
-            { href: '/tai-nghe?type=in-ear', label: 'In-ear / TWS' },
-            { href: '/tai-nghe?type=gaming', label: 'Gaming Headset' },
+            { href: '/phu-kien?type=keycap', label: 'Keycap Sets', desc: 'PBT, Cherry profile...' },
+            { href: '/phu-kien?type=switch', label: 'Switches', desc: 'Gateron, Cherry MX...' },
+            { href: '/phu-kien?type=pad', label: 'Mouse Pad', desc: 'Desk mat & gaming pad' },
+            { href: '/phu-kien?type=cable', label: 'Cable & Hub', desc: 'USB-C, Dock, Hub' },
+            { href: '/phu-kien?type=wrist-rest', label: 'Wrist Rest', desc: 'Kê tay gỗ, silicone' },
         ],
     },
-    {
-        href: '/loa', label: 'Loa', vn: 'Loa', icon: '🔊',
-        sub: [
-            { href: '/loa?type=soundbar', label: 'Soundbar' },
-            { href: '/loa?type=bluetooth', label: 'Bluetooth' },
-            { href: '/loa?type=desktop', label: 'Desktop Speaker' },
-        ],
-    },
-    {
-        href: '/phu-kien', label: 'Phu kien', vn: 'Phụ kiện', icon: '🔧',
-        sub: [
-            { href: '/phu-kien?type=keycap', label: 'Keycap Sets' },
-            { href: '/phu-kien?type=switch', label: 'Switches' },
-            { href: '/phu-kien?type=pad', label: 'Mouse Pad' },
-            { href: '/phu-kien?type=cable', label: 'Cable & Hub' },
-            { href: '/phu-kien?type=wrist-rest', label: 'Wrist Rest' },
-        ],
-    },
-    {
-        href: '/deals', label: 'Deals', vn: 'Flash Deal', icon: '⚡', highlight: true,
-    },
+]
+
+const MORE_LINKS: { href: string; label: string; icon: string; highlight?: boolean }[] = [
+    { href: '/deals', label: 'Flash Deal', icon: '⚡', highlight: true },
+    { href: '/community', label: 'Thanh lý', icon: '🔄' },
 ]
 
 interface NavbarProps {
@@ -72,7 +124,11 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     const [mobileExpanded, setMobileExpanded] = useState<string | null>(null)
     const dropdownTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+    const compareCount = useCompareStore(state => state.items.length)
+    const [isMounted, setIsMounted] = useState(false)
+
     useEffect(() => {
+        setIsMounted(true)
         const handler = () => setScrolled(window.scrollY > 8)
         window.addEventListener('scroll', handler, { passive: true })
         return () => window.removeEventListener('scroll', handler)
@@ -86,133 +142,158 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     }
 
     function handleMouseLeave() {
-        dropdownTimeout.current = setTimeout(() => setActiveDropdown(null), 150)
+        dropdownTimeout.current = setTimeout(() => setActiveDropdown(null), 200)
     }
 
     return (
         <>
             <header className={`${styles.nav} ${scrolled ? styles.navScrolled : ''}`}>
-                {/* Scan line overlay */}
                 <div className={styles.scanLines} aria-hidden="true" />
 
-                <div className={styles.inner}>
-                    {/* Logo */}
-                    <Link href="/" className={styles.logo}>
-                        <span className={styles.logoGlitch} data-text="NEX">NEX</span>
-                        <span className={styles.logoAccent}>GEAR</span>
-                        <span className={styles.logoPulse} />
-                    </Link>
+                {/* ── TOP BAR ── */}
+                <div className={styles.topBar}>
+                    <div className={styles.topBarInner}>
+                        <Link href="/" className={styles.logo}>
+                            <span className={styles.logoGlitch} data-text="NEX">NEX</span>
+                            <span className={styles.logoAccent}>GEAR</span>
+                            <span className={styles.logoPulse} />
+                        </Link>
 
-                    {/* Desktop nav links */}
-                    <nav className={styles.links} aria-label="Main navigation">
-                        {NAV_LINKS.map(link => (
-                            <div
-                                key={link.href}
-                                className={styles.linkWrap}
-                                onMouseEnter={() => link.sub && handleMouseEnter(link.href)}
-                                onMouseLeave={handleMouseLeave}
-                            >
-                                <Link
-                                    href={link.href}
-                                    className={[
-                                        styles.link,
-                                        pathname.startsWith(link.href) ? styles.linkActive : '',
-                                        link.highlight ? styles.linkHighlight : '',
-                                    ].join(' ')}
-                                >
-                                    <span className={styles.linkLabel}>{link.vn}</span>
-                                    {link.sub && <span className={styles.linkChevron}>▾</span>}
-                                    <span className={styles.linkGlow} />
-                                </Link>
+                        <Link href="/search" className={styles.searchBar}>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                            <span>Tìm kiếm sản phẩm...</span>
+                        </Link>
 
-                                {/* Dropdown */}
-                                {link.sub && activeDropdown === link.href && (
-                                    <div className={styles.dropdown}>
-                                        <div className={styles.dropdownBar} />
-                                        {link.sub.map((s, i) => (
-                                            <Link
-                                                key={s.href}
-                                                href={s.href}
-                                                className={styles.dropdownItem}
-                                                style={{ animationDelay: `${i * 40}ms` }}
-                                            >
-                                                <span className={styles.dropdownDash}>&#x2F;&#x2F;</span>
-                                                {s.label}
-                                            </Link>
-                                        ))}
-                                    </div>
+                        <div className={styles.actions}>
+                            <button className={styles.actionBtn} onClick={toggleTheme} aria-label="Toggle theme">
+                                {theme === 'light' ? (
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
+                                ) : (
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>
                                 )}
-                            </div>
-                        ))}
-                    </nav>
+                            </button>
 
-                    {/* Actions */}
-                    <div className={styles.actions}>
-                        <button
-                            className={styles.actionBtn}
-                            onClick={toggleTheme}
-                            aria-label={theme === 'light' ? 'Chuyển sang chế độ tối' : 'Chuyển sang chế độ sáng'}
-                        >
-                            {theme === 'light' ? (
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                            <Link href="/compare" className={styles.actionBtn} aria-label="So sánh">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9" /><path d="M16.5 15.5L21 20l-4.5 4.5" /><path d="M12 4H3" /><path d="M7.5 8.5L3 4l4.5-4.5" /></svg>
+                                {isMounted && compareCount > 0 && <span className={styles.badge}>{compareCount}</span>}
+                            </Link>
+
+                            <Link href="/wishlist" className={styles.actionBtn} aria-label="Yêu thích">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+                            </Link>
+
+                            <Link href="/cart" className={styles.actionBtn} aria-label="Giỏ hàng">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
+                                {isMounted && cartCount > 0 && <span className={styles.badge}>{cartCount > 99 ? '99+' : cartCount}</span>}
+                            </Link>
+
+                            {session ? (
+                                <Link href="/account" className={styles.accountBtn}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg></Link>
                             ) : (
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                                <Link href="/login" className={styles.accountBtn}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></svg></Link>
                             )}
-                        </button>
 
-                        <Link href="/search" className={styles.actionBtn} aria-label="Tìm kiếm">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-                        </Link>
-
-                        <Link href="/wishlist" className={styles.actionBtn} aria-label="Yêu thích">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                        </Link>
-
-                        <Link href="/cart" className={styles.actionBtn} aria-label={`Giỏ hàng (${cartCount})`}>
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                            {cartCount > 0 && (
-                                <span className={styles.cartBadge}>
-                                    {cartCount > 99 ? '99+' : cartCount}
-                                </span>
-                            )}
-                        </Link>
-
-                        {session ? (
-                            <Link href="/account" className={styles.ctaBtn}>
-                                <span className={styles.ctaGlitch} data-text="TÀI KHOẢN">TÀI KHOẢN</span>
-                            </Link>
-                        ) : (
-                            <Link href="/login" className={styles.ctaBtn}>
-                                <span className={styles.ctaGlitch} data-text="ĐĂNG NHẬP">ĐĂNG NHẬP</span>
-                            </Link>
-                        )}
-
-                        {/* Mobile hamburger */}
-                        <button
-                            className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ''}`}
-                            onClick={() => setMenuOpen(v => !v)}
-                            aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'}
-                            aria-expanded={menuOpen}
-                        >
-                            <span className={styles.hamLine} />
-                            <span className={styles.hamLine} />
-                            <span className={styles.hamLine} />
-                        </button>
+                            <button
+                                className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ''}`}
+                                onClick={() => setMenuOpen(v => !v)}
+                                aria-label={menuOpen ? 'Đóng menu' : 'Mở menu'}
+                                aria-expanded={menuOpen}
+                            >
+                                <span className={styles.hamLine} />
+                                <span className={styles.hamLine} />
+                                <span className={styles.hamLine} />
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Bottom neon line */}
+                {/* ── CATEGORY BAR ── */}
+                <div className={styles.catBar}>
+                    <div className={styles.catBarInner}>
+                        <nav className={styles.catNav} aria-label="Danh mục">
+                            {CATEGORIES.map(cat => (
+                                <div
+                                    key={cat.href}
+                                    className={styles.catWrap}
+                                    onMouseEnter={() => cat.sub && handleMouseEnter(cat.href)}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <Link
+                                        href={cat.href}
+                                        className={`${styles.catLink} ${pathname.startsWith(cat.href) ? styles.catLinkActive : ''}`}
+                                    >
+                                        {cat.label}
+                                        {cat.sub && <span className={styles.catChevron}>▾</span>}
+                                    </Link>
+
+                                    {/* Mega Dropdown */}
+                                    {cat.sub && activeDropdown === cat.href && (
+                                        <div
+                                            className={`${styles.megaDropdown} ${cat.megaBanner ? styles.megaDropdownWide : ''}`}
+                                            onMouseEnter={() => handleMouseEnter(cat.href)}
+                                            onMouseLeave={handleMouseLeave}
+                                        >
+                                            <div className={styles.megaBar} />
+                                            <div className={styles.megaContent}>
+                                                {/* Left: category list */}
+                                                <div className={styles.megaList}>
+                                                    <div className={styles.megaListTitle}>{cat.label.toUpperCase()}</div>
+                                                    {cat.sub.map((s, i) => (
+                                                        <Link
+                                                            key={s.href}
+                                                            href={s.href}
+                                                            className={styles.megaItem}
+                                                            style={{ animationDelay: `${i * 35}ms` }}
+                                                        >
+                                                            <span className={styles.megaItemLabel}>{s.label}</span>
+                                                            {s.desc && <span className={styles.megaItemDesc}>{s.desc}</span>}
+                                                        </Link>
+                                                    ))}
+                                                    <Link href={cat.href} className={styles.megaViewAll}>
+                                                        Xem tất cả {cat.label} →
+                                                    </Link>
+                                                </div>
+
+                                                {/* Right: promo banner */}
+                                                {cat.megaBanner && (
+                                                    <div className={styles.megaBanner}>
+                                                        <div className={styles.megaBannerGlow} />
+                                                        <span className={styles.megaBannerTitle}>{cat.megaBanner.title}</span>
+                                                        <span className={styles.megaBannerDesc}>{cat.megaBanner.desc}</span>
+                                                        <Link href={cat.megaBanner.ctaHref} className={styles.megaBannerCta}>
+                                                            {cat.megaBanner.cta}
+                                                        </Link>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+
+                            <span className={styles.catSep} />
+
+                            {MORE_LINKS.map(link => (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    className={`${styles.catLink} ${link.highlight ? styles.catLinkDeal : ''} ${pathname.startsWith(link.href) ? styles.catLinkActive : ''}`}
+                                >
+                                    <span className={styles.catLinkEmoji}>{link.icon}</span>
+                                    {link.label}
+                                </Link>
+                            ))}
+                        </nav>
+                    </div>
+                </div>
+
                 <div className={styles.neonBorder} />
             </header>
 
-            {/* Mobile Menu Overlay */}
+            {/* Mobile Menu */}
             {menuOpen && (
                 <div className={styles.mobileOverlay} onClick={() => setMenuOpen(false)}>
-                    <nav
-                        className={styles.mobileMenu}
-                        onClick={e => e.stopPropagation()}
-                        aria-label="Mobile navigation"
-                    >
+                    <nav className={styles.mobileMenu} onClick={e => e.stopPropagation()} aria-label="Mobile navigation">
                         <div className={styles.mobileHeader}>
                             <span className={styles.mobileLogo}>
                                 <span className={styles.logoGlitch} data-text="NEX">NEX</span>
@@ -220,35 +301,24 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                             </span>
                             <button className={styles.mobileClose} onClick={() => setMenuOpen(false)}>✕</button>
                         </div>
-
                         <div className={styles.mobileDivider} />
 
-                        {NAV_LINKS.map(link => (
-                            <div key={link.href} className={styles.mobileLinkGroup}>
+                        {CATEGORIES.map(cat => (
+                            <div key={cat.href} className={styles.mobileLinkGroup}>
                                 <div className={styles.mobileLinkRow}>
-                                    <Link
-                                        href={link.href}
-                                        className={[
-                                            styles.mobileLink,
-                                            pathname.startsWith(link.href) ? styles.mobileLinkActive : '',
-                                            link.highlight ? styles.mobileLinkHighlight : '',
-                                        ].join(' ')}
-                                    >
-                                        <span className={styles.mobileLinkIcon}>{link.icon}</span>
-                                        {link.vn}
+                                    <Link href={cat.href} className={`${styles.mobileLink} ${pathname.startsWith(cat.href) ? styles.mobileLinkActive : ''}`}>
+                                        {cat.label}
                                     </Link>
-                                    {link.sub && (
+                                    {cat.sub && (
                                         <button
-                                            className={`${styles.mobileExpand} ${mobileExpanded === link.href ? styles.mobileExpandOpen : ''}`}
-                                            onClick={() => setMobileExpanded(prev => prev === link.href ? null : link.href)}
-                                        >
-                                            ▾
-                                        </button>
+                                            className={`${styles.mobileExpand} ${mobileExpanded === cat.href ? styles.mobileExpandOpen : ''}`}
+                                            onClick={() => setMobileExpanded(prev => prev === cat.href ? null : cat.href)}
+                                        >▾</button>
                                     )}
                                 </div>
-                                {link.sub && mobileExpanded === link.href && (
+                                {cat.sub && mobileExpanded === cat.href && (
                                     <div className={styles.mobileSub}>
-                                        {link.sub.map(s => (
+                                        {cat.sub.map(s => (
                                             <Link key={s.href} href={s.href} className={styles.mobileSubLink}>
                                                 <span className={styles.mobileSubDash}>//</span> {s.label}
                                             </Link>
@@ -259,33 +329,23 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                         ))}
 
                         <div className={styles.mobileDivider} />
+                        {MORE_LINKS.map(link => (
+                            <Link key={link.href} href={link.href} className={`${styles.mobileLink} ${link.highlight ? styles.mobileLinkHighlight : ''}`}>
+                                <span className={styles.mobileLinkIcon}>{link.icon}</span> {link.label}
+                            </Link>
+                        ))}
+                        <div className={styles.mobileDivider} />
 
                         {session ? (
                             <>
-                                <Link href="/account" className={styles.mobileLink}>
-                                    <span className={styles.mobileLinkIcon}>👤</span>
-                                    {session.user?.name || 'Tài khoản'}
-                                </Link>
-                                <button
-                                    onClick={() => signOut()}
-                                    className={`${styles.mobileLink} ${styles.mobileLinkBtn}`}
-                                >
-                                    <span className={styles.mobileLinkIcon}>⏻</span>
-                                    Đăng xuất
-                                </button>
+                                <Link href="/account" className={styles.mobileLink}>👤 {session.user?.name || 'Tài khoản'}</Link>
+                                <button onClick={() => signOut()} className={`${styles.mobileLink} ${styles.mobileLinkBtn}`}>⏻ Đăng xuất</button>
                             </>
                         ) : (
-                            <Link href="/login" className={styles.mobileLink}>
-                                <span className={styles.mobileLinkIcon}>⏻</span>
-                                Đăng nhập
-                            </Link>
+                            <Link href="/login" className={styles.mobileLink}>⏻ Đăng nhập</Link>
                         )}
-                        <Link href="/cart" className={styles.mobileLink}>
-                            <span className={styles.mobileLinkIcon}>🛒</span>
-                            Giỏ hàng {cartCount > 0 && `(${cartCount})`}
-                        </Link>
-
-                        {/* Bottom neon accent */}
+                        <Link href="/compare" className={styles.mobileLink}>⚖️ So sánh {isMounted && compareCount > 0 && `(${compareCount})`}</Link>
+                        <Link href="/cart" className={styles.mobileLink}>🛒 Giỏ hàng {isMounted && cartCount > 0 && `(${cartCount})`}</Link>
                         <div className={styles.mobileNeon} />
                     </nav>
                 </div>

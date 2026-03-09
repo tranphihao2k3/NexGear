@@ -549,7 +549,7 @@
 }
 
 .summaryTitle {
-    @include font-display($text-lg, $fw-black);
+    
     color: var(--ink);
     letter-spacing: $ls-wide;
     margin: 0 0 $sp-6;
@@ -558,9 +558,10 @@
     display: flex;
     align-items: center;
     gap: $sp-2;
+    margin-top: 10px;
 
     &::before {
-        content: '>>';
+       
         color: #00C4AD;
         font-size: 14px;
         opacity: 0.6;

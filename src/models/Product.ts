@@ -1,5 +1,14 @@
 import { Schema, model, models, type Document, Types } from 'mongoose';
 
+// Variant attribute sub-schema (e.g. { key: "RAM", value: "16GB" })
+const VariantAttributeSchema = new Schema(
+    {
+        key: { type: String, required: true },
+        value: { type: String, required: true },
+    },
+    { _id: false }
+);
+
 // Variant sub-schema
 const VariantSchema = new Schema(
     {
@@ -8,6 +17,7 @@ const VariantSchema = new Schema(
         price: { type: Number },
         stock: { type: Number, default: 0 },
         images: [{ type: String }],
+        attributes: [VariantAttributeSchema],
     },
     { _id: true }
 );
@@ -26,6 +36,7 @@ export interface IProduct extends Document {
         price: number;
         stock: number;
         images: string[];
+        attributes: { key: string; value: string }[];
     }[];
     basePrice: number;
     salePrice: number | null;
@@ -42,6 +53,16 @@ export interface IProduct extends Document {
     isFeatured: boolean;
     seoTitle: string;
     seoDesc: string;
+    // --- Fields from LapLap ---
+    isUsed: boolean;
+    condition: 'new' | 'like_new' | 'used' | 'refurbished';
+    usedGrade: 'A' | 'B' | 'C' | null;
+    conditionNote: string;
+    warranty: { duration: number; items: string[] };
+    warrantyMonths: number;
+    viewCount: number;
+    gift: string;
+    source: 'nexgear' | 'laplap';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -73,6 +94,23 @@ const ProductSchema = new Schema<IProduct>(
         isFeatured: { type: Boolean, default: false },
         seoTitle: { type: String, default: '' },
         seoDesc: { type: String, default: '' },
+        // --- Fields from LapLap ---
+        isUsed: { type: Boolean, default: false },
+        condition: {
+            type: String,
+            enum: ['new', 'like_new', 'used', 'refurbished'],
+            default: 'new',
+        },
+        usedGrade: { type: String, enum: ['A', 'B', 'C'], default: null },
+        conditionNote: { type: String, default: '' },
+        warranty: {
+            duration: { type: Number, default: 0 },
+            items: [{ type: String }],
+        },
+        warrantyMonths: { type: Number, default: 12 },
+        viewCount: { type: Number, default: 0 },
+        gift: { type: String, default: '' },
+        source: { type: String, enum: ['nexgear', 'laplap'], default: 'nexgear' },
     },
     { timestamps: true }
 );
@@ -85,6 +123,8 @@ ProductSchema.index({ tags: 1 });
 ProductSchema.index({ basePrice: 1 });
 ProductSchema.index({ soldCount: -1 });
 ProductSchema.index({ name: 'text', tags: 'text' });
+ProductSchema.index({ isUsed: 1, condition: 1 });
+ProductSchema.index({ source: 1 });
 
 const Product = models.Product || model<IProduct>('Product', ProductSchema);
 export default Product;

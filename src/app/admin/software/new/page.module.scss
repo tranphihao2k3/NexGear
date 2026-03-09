@@ -1,0 +1,140 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.page {
+    padding: $sp-6;
+    min-height: 100vh;
+    background-color: $color-bg;
+
+    @include mobile {
+        padding: $sp-4;
+    }
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-2xl, $fw-bold);
+        color: $color-ink;
+    }
+}
+
+.formGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $sp-8;
+
+    @include tablet {
+        grid-template-columns: 1fr;
+    }
+}
+
+.mainColumn {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+}
+
+.sideColumn {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-6;
+}
+
+.card {
+    @include card-base;
+    padding: $sp-6;
+
+    .cardTitle {
+        @include font-display($text-base, $fw-bold);
+        color: $color-ink;
+        margin-bottom: $sp-6;
+        padding-bottom: $sp-3;
+        border-bottom: 2px solid $color-bg2;
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+    }
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.editorWrapper {
+    min-height: 450px;
+    background-color: $color-white;
+    border-radius: $r-2;
+
+    :global(.ql-toolbar) {
+        border-top-left-radius: $r-2;
+        border-top-right-radius: $r-2;
+        background-color: $color-bg2;
+        border-color: $color-border;
+    }
+
+    :global(.ql-container) {
+        border-bottom-left-radius: $r-2;
+        border-bottom-right-radius: $r-2;
+        border-color: $color-border;
+        min-height: 350px;
+        font-family: inherit;
+    }
+}
+
+.publishCard {
+    @include card-base;
+    @include card-top-bar;
+    padding: $sp-6;
+
+    .statusBox {
+        background-color: $color-bg2;
+        padding: $sp-4;
+        border-radius: $r-2;
+        margin-bottom: $sp-4;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        span {
+            @include font-body($text-sm, $fw-bold);
+            color: $color-ink2;
+        }
+
+        select {
+            @include input-base;
+            width: auto;
+            padding-top: $sp-1;
+            padding-bottom: $sp-1;
+        }
+    }
+}
+
+.techGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+}
+
+.labelWrapper {
+    margin-bottom: $sp-4;
+
+    .label {
+        @include font-mono($text-xs, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: $sp-1;
+    }
+
+    select {
+        @include input-base;
+        width: 100%;
+    }
+}

@@ -1,12 +1,10 @@
 // ============================================================
 // NEXGEAR — Admin Layout
 // File: app/admin/layout.tsx
-// Dark theme admin dashboard with sidebar
+// Dark/light theme admin dashboard with sidebar
 // ============================================================
 import type { Metadata } from 'next'
-import AdminSidebar from '@/components/admin/AdminSidebar'
-import AdminPusherListener from '@/components/admin/AdminPusherListener'
-import styles from './layout.module.scss'
+import AdminLayoutClient from './AdminLayoutClient'
 
 export const metadata: Metadata = {
     title: 'Admin Dashboard',
@@ -19,15 +17,5 @@ export default function AdminLayout({
 }: {
     children: React.ReactNode
 }) {
-    return (
-        <div className={styles.adminLayout}>
-            <AdminSidebar />
-            <div className={styles.mainContent}>
-                <AdminPusherListener />
-                <div className={styles.pageContent}>
-                    {children}
-                </div>
-            </div>
-        </div>
-    )
+    return <AdminLayoutClient>{children}</AdminLayoutClient>
 }

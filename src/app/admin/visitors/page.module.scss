@@ -1,0 +1,311 @@
+// Redundant @use removed
+
+.page {
+    padding: $sp-6;
+    min-height: calc(100vh - 64px);
+    background: $color-bg;
+}
+
+.header {
+    @include flex-between;
+    margin-bottom: $sp-8;
+
+    h1 {
+        @include font-display($text-3xl, $fw-black);
+        color: $color-ink;
+        margin-bottom: $sp-1;
+    }
+
+    p {
+        @include font-body($text-sm, $fw-medium);
+        color: $color-ink3;
+    }
+}
+
+.statsBar {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-4;
+    margin-bottom: $sp-6;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.statCard {
+    @include card-base;
+    padding: $sp-5;
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+
+    .statIcon {
+        width: 48px;
+        height: 48px;
+        @include flex-center;
+        background: $color-cyan-light;
+        color: $color-cyan;
+        border-radius: $r-2;
+    }
+
+    .statLabel {
+        @include font-mono($text-xs, $fw-bold);
+        color: $color-ink3;
+        text-transform: uppercase;
+    }
+
+    .statValue {
+        @include font-display($text-2xl, $fw-bold);
+        color: $color-ink;
+    }
+}
+
+.filtersBar {
+    margin-bottom: $sp-6;
+}
+
+.searchBox {
+    max-width: 400px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+
+    @include desktop-s {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.visitorCard {
+    @include card-base;
+    @include card-hover;
+    padding: $sp-4;
+    position: relative;
+
+    .cardHeader {
+        @include flex-between;
+        margin-bottom: $sp-4;
+    }
+
+    .countBadge {
+        display: flex;
+        align-items: center;
+        gap: $sp-1;
+        background: $color-bg2;
+        padding: 2px $sp-2;
+        border-radius: $r-full;
+        @include font-mono($text-xs, $fw-bold);
+        color: $color-cyan;
+    }
+
+    .cardBody {
+        .metaItem {
+            display: flex;
+            align-items: center;
+            gap: $sp-2;
+            margin-bottom: $sp-2;
+            color: $color-ink2;
+
+            svg {
+                color: $color-ink3;
+            }
+
+            span {
+                @include font-mono($text-xs, $fw-medium);
+            }
+        }
+    }
+
+    .cardActions {
+        display: flex;
+        gap: $sp-2;
+        margin-top: $sp-4;
+        padding-top: $sp-3;
+        border-top: 1px solid $color-border;
+        justify-content: flex-end;
+
+        button {
+            width: 32px;
+            height: 32px;
+            @include flex-center;
+            border-radius: $r-1;
+            transition: $transition-base;
+            cursor: pointer;
+            border: none;
+
+            &.editBtn {
+                background: $color-bg2;
+                color: $color-ink2;
+
+                &:hover {
+                    background: $color-cyan;
+                    color: $color-white;
+                }
+            }
+
+            &.deleteBtn {
+                background: rgba($color-magenta, 0.05);
+                color: $color-magenta;
+
+                &:hover {
+                    background: $color-magenta;
+                    color: $color-white;
+                }
+            }
+        }
+    }
+}
+
+.loading {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-16;
+    gap: $sp-4;
+    color: $color-ink3;
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid $color-border;
+        border-top-color: $color-cyan;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+}
+
+.empty {
+    @include flex-center;
+    flex-direction: column;
+    padding: $sp-20;
+    text-align: center;
+    background: $color-white;
+    border-radius: $r-2;
+    border: 1px dashed $color-border2;
+
+    .emptyIcon {
+        color: $color-bg3;
+        margin-bottom: $sp-4;
+    }
+
+    h3 {
+        @include font-display($text-lg, $fw-bold);
+        margin-bottom: $sp-2;
+    }
+
+    p {
+        color: $color-ink3;
+        font-size: $text-sm;
+    }
+}
+
+.pagination {
+    @include flex-center;
+    gap: $sp-6;
+    margin-top: $sp-10;
+
+    button {
+        @include font-display($text-xs, $fw-bold);
+        padding: $sp-2 $sp-4;
+        background: $color-white;
+        border: 1px solid $color-border;
+        border-radius: $r-1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+        transition: $transition-base;
+
+        &:hover:not(:disabled) {
+            border-color: $color-cyan;
+            color: $color-cyan;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+    }
+
+    .pageInfo {
+        @include font-mono($text-sm, $fw-bold);
+        color: $color-ink2;
+    }
+}
+
+// Modal
+.modalOverlay {
+    @include modal-overlay;
+    @include flex-center;
+    z-index: $z-modal;
+}
+
+.modalContent {
+    @include modal-content;
+    width: 100%;
+    max-width: 480px;
+    padding: $sp-8;
+}
+
+.modalHeader {
+    @include flex-between;
+    margin-bottom: $sp-6;
+
+    h2 {
+        @include font-display($text-xl, $fw-black);
+    }
+
+    .closeBtn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: $color-ink3;
+    }
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: $sp-2;
+
+        label {
+            @include font-mono($text-xs, $fw-bold);
+            text-transform: uppercase;
+            color: $color-ink2;
+        }
+
+        textarea {
+            @include input-base;
+            resize: none;
+            padding: $sp-3;
+        }
+    }
+
+    .formActions {
+        display: flex;
+        flex-direction: column;
+        gap: $sp-3;
+        margin-top: $sp-4;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

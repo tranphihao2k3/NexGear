@@ -178,9 +178,9 @@ html[data-theme='dark'] {
 
     // Stat cards / info boxes
     [class*="stat"],
-    [class*="Stat"],
+    [class*="Stat"]
     // [class*="info"],
-    [class*="Info"] {
+     {
         &:not([class*="admin"]):not([class*="Admin"]) {
             background-color: var(--card-bg);
             border-color: var(--border);
