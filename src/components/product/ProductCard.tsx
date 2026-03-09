@@ -149,31 +149,32 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
           {isHot && <span className={`${styles.badge} ${styles['badge--hot']}`}>🔥 HOT</span>}
           {outOfStock && <span className={`${styles.badge} ${styles['badge--oos']}`}>HẾT HÀNG</span>}
         </div>
+        {/* Quick actions overlay — inside imageWrap */}
       </Link>
 
-      {/* Wishlist */}
-      <button
-        className={`${styles.wishlist} ${wishlisted ? styles['wishlist--active'] : ''}`}
-        onClick={() => {
-          const ids: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]')
-          const next = wishlisted ? ids.filter(id => id !== product._id) : [...ids, product._id]
-          localStorage.setItem('nexgear_wishlist', JSON.stringify(next))
-          setWishlisted(v => !v)
-        }}
-        aria-label={wishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
-      >
-        {wishlisted ? '♥' : '♡'}
-      </button>
-
-      {/* Compare Button */}
-      <button
-        className={`${styles.compareBtn} ${isCompared ? styles['compare--active'] : ''}`}
-        onClick={toggleCompare}
-        aria-label={isCompared ? 'Xóa khỏi so sánh' : 'Thêm vào so sánh'}
-        title="So sánh"
-      >
-        ⚖️
-      </button>
+      {/* Wishlist + Compare: grouped in top-right corner of image */}
+      <div className={styles.cardActions}>
+        <button
+          className={`${styles.wishlist} ${wishlisted ? styles['wishlist--active'] : ''}`}
+          onClick={() => {
+            const ids: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]')
+            const next = wishlisted ? ids.filter(id => id !== product._id) : [...ids, product._id]
+            localStorage.setItem('nexgear_wishlist', JSON.stringify(next))
+            setWishlisted(v => !v)
+          }}
+          aria-label={wishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+        >
+          {wishlisted ? '♥' : '♡'}
+        </button>
+        <button
+          className={`${styles.compareBtn} ${isCompared ? styles['compare--active'] : ''}`}
+          onClick={toggleCompare}
+          aria-label={isCompared ? 'Xóa khỏi so sánh' : 'Thêm vào so sánh'}
+          title="So sánh"
+        >
+          ⚖️
+        </button>
+      </div>
 
       {/* ── BODY ── */}
       <div className={styles.body}>

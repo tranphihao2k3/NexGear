@@ -33,14 +33,23 @@ const nextConfig: NextConfig = {
       : false,
   },
 
-  // CORS Headers
+  // CORS Headers — hỗ trợ multi-origin (localhost + production)
   async headers() {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://laplapcantho.store',
+      'https://www.laplapcantho.store',
+      ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []),
+    ]
+
     return [
       {
         source: '/api/:path*',
         headers: [
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Origin', value: 'http://localhost:3000' },
+          // Dùng wildcard '*' cho GET public endpoints (không credentials)
+          // Credentials=true được handle qua middleware riêng nếu cần
+          { key: 'Access-Control-Allow-Origin', value: '*' },
           { key: 'Access-Control-Allow-Methods', value: 'GET,DELETE,PATCH,POST,PUT,OPTIONS' },
           { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, x-api-key' },
         ],

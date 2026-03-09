@@ -11,6 +11,7 @@ export { default as Coupon } from './Coupon';
 export { default as Supplier } from './Supplier';
 export { default as Setting } from './Setting';
 export { default as CommunityListing } from './CommunityListing';
+export { default as FacebookGroup } from './FacebookGroup';
 
 // === New models from LapLap sync ===
 // Customer & HR

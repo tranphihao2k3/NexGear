@@ -11,40 +11,38 @@
 .mainContent {
     flex: 1;
     min-width: 0;
-    margin-left: $admin-sidebar;
+    margin-left: 0;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    transition: margin-left $transition-slow;
-
-    &.mainContentCollapsed {
-        margin-left: 80px;
-    }
-
-    @include tablet {
-        margin-left: 0;
-
-        &.mainContentCollapsed {
-            margin-left: 0;
-        }
-    }
 }
 
 // ── TOP HEADER ──────────────────────────────────────────────
 .topBar {
     @include flex-between;
-    padding: $sp-4 $sp-6;
+    padding: $sp-3 $sp-6;
     border-bottom: 1px solid $admin-border;
     background: $admin-sidebar-bg;
     position: sticky;
     top: 0;
     z-index: $z-sticky;
+    height: 56px;
 
     @include tablet {
-        padding: $sp-4;
-        padding-left: $sp-16; // space for hamburger
+        padding: $sp-3 $sp-4;
     }
+}
+
+.logoText {
+    @include font-display($text-md, $fw-black);
+    color: $admin-ink;
+    letter-spacing: $ls-wider;
+    user-select: none;
+}
+
+.logoAccent {
+    color: $color-cyan;
 }
 
 .topBarLeft {

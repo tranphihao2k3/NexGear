@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
+import SearchableSelect from '@/components/admin/SearchableSelect';
 import { getSpecKeysForCategory, type SpecKeyDef } from '@/lib/spec-keys';
 
 /** Searchable combobox cho spec key */
@@ -170,6 +171,9 @@ export default function AdminProductsPage() {
 
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [filterCategory, setFilterCategory] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -276,27 +280,46 @@ export default function AdminProductsPage() {
             const json = await res.json();
             if (!json.success) { error(json.message || 'AI lỗi'); return; }
             const d = json.data;
-            setFormData(prev => ({
-                ...prev,
-                name: d.name || prev.name,
-                slug: d.name ? removeVietnameseTones(d.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : prev.slug,
-                sku: d.name ? 'NGR-' + removeVietnameseTones(d.name).toUpperCase().replace(/[^A-Z0-9]+/g, '').substring(0, 6) + '-' + Math.floor(Math.random() * 1000) : prev.sku,
-                category: d.categoryId || prev.category,
-                brand: d.brandId || prev.brand,
-                basePrice: (d.basePrice || d.price)?.toString() || prev.basePrice,
-                salePrice: (d.basePrice && d.salePrice) ? d.salePrice.toString() : (d.price && d.salePrice) ? d.salePrice.toString() : prev.salePrice,
-                description: d.description || prev.description,
-                tags: d.tags?.join(', ') || prev.tags,
-                specs: d.specs ? Object.entries(d.specs).map(([key, value]) => ({ key, value: String(value) })) : prev.specs,
-                variants: d.variants?.length ? d.variants.map((v: any) => ({
-                    name: v.name || '',
-                    sku: v.sku || '',
-                    price: v.price?.toString() || '',
-                    stock: v.stock?.toString() || '0',
-                    images: [] as ImageItem[],
-                    attributes: (v.attributes || []).map((a: any) => ({ key: a.key || '', value: a.value || '' })),
-                })) : prev.variants,
-            }));
+            console.log('[AI Quick Fill] response:', JSON.stringify(d, null, 2));
+            setFormData(prev => {
+                const parsedBasePrice = (d.basePrice != null && d.basePrice !== 0) ? d.basePrice.toString()
+                    : (d.price != null && d.price !== 0) ? d.price.toString()
+                        : prev.basePrice;
+                // Keep {{IMAGE_N}} placeholders intact — they'll be replaced with real Cloudinary URLs
+                // after images upload completes inside handleSaveItem background task
+                const rawDesc = d.description || prev.description || '';
+                const resolvedUsedGrade = d.isUsed
+                    ? ((d.usedGrade === 'A' || d.usedGrade === 'B') ? d.usedGrade : 'B')
+                    : '';
+                return {
+                    ...prev,
+                    name: d.name || prev.name,
+                    slug: d.name ? removeVietnameseTones(d.name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : prev.slug,
+                    sku: d.name ? 'NGR-' + removeVietnameseTones(d.name).toUpperCase().replace(/[^A-Z0-9]+/g, '').substring(0, 6) + '-' + Math.floor(Math.random() * 1000) : prev.sku,
+                    category: d.categoryId || prev.category,
+                    brand: d.brandId || prev.brand,
+                    basePrice: parsedBasePrice,
+                    // salePrice & costPrice: NOT auto-filled — user fills manually
+                    stock: '1',
+                    isUsed: typeof d.isUsed === 'boolean' ? d.isUsed : prev.isUsed,
+                    condition: d.condition || prev.condition,
+                    usedGrade: resolvedUsedGrade || prev.usedGrade,
+                    conditionNote: d.conditionNote || prev.conditionNote,
+                    warrantyMonths: (d.warrantyMonths != null) ? d.warrantyMonths.toString() : '3',
+                    gift: d.gift || prev.gift,
+                    description: rawDesc, // {{IMAGE_N}} placeholders kept, real URLs injected after upload
+                    tags: d.tags?.join(', ') || prev.tags,
+                    specs: d.specs ? Object.entries(d.specs).map(([key, value]) => ({ key, value: String(value) })) : prev.specs,
+                    variants: d.variants?.length ? d.variants.map((v: any) => ({
+                        name: v.name || '',
+                        sku: v.sku || '',
+                        price: v.price?.toString() || '',
+                        stock: v.stock?.toString() || '0',
+                        images: [] as ImageItem[],
+                        attributes: (v.attributes || []).map((a: any) => ({ key: a.key || '', value: a.value || '' })),
+                    })) : prev.variants,
+                };
+            });
             success('AI đã điền thông tin sản phẩm!');
             setAiText('');
         } catch (e: any) {
@@ -591,9 +614,10 @@ export default function AdminProductsPage() {
     };
 
     // Upload a single file to Cloudinary, return URL string
-    const uploadFileToCloud = async (file: File): Promise<string> => {
+    const uploadFileToCloud = async (file: File, publicId?: string): Promise<string> => {
         const fd = new FormData();
         fd.append('file', file);
+        if (publicId) fd.append('public_id', publicId);
         const res = await fetch('/api/upload', { method: 'POST', body: fd });
         const text = await res.text();
         if (!text) throw new Error('Cloudinary trả về rỗng');
@@ -603,11 +627,14 @@ export default function AdminProductsPage() {
     };
 
     // Upload all pending images in an ImageItem array, return string[] of URLs
-    const uploadPendingImages = async (items: ImageItem[]): Promise<string[]> => {
+    const uploadPendingImages = async (items: ImageItem[], namePrefix?: string, startIndex: number = 0): Promise<string[]> => {
         const urls: string[] = [];
+        let num = startIndex;
         for (const item of items) {
             if (item.file) {
-                const url = await uploadFileToCloud(item.file);
+                num++;
+                const publicId = namePrefix ? `${namePrefix}-${num}` : undefined;
+                const url = await uploadFileToCloud(item.file, publicId);
                 urls.push(url);
             } else {
                 urls.push(item.url);
@@ -696,25 +723,34 @@ export default function AdminProductsPage() {
             if (hasPendingUploads) {
                 (async () => {
                     try {
+                        const slugPrefix = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
                         // Upload product images
-                        const uploadedProductUrls = await uploadPendingImages(pendingProductImages);
+                        const uploadedProductUrls = await uploadPendingImages(pendingProductImages, slugPrefix, existingImageUrls.length);
                         const allProductImages = [...existingImageUrls, ...uploadedProductUrls];
 
                         // Upload variant images
                         const updatedVariants = await Promise.all(variantsData.map(async (v, i) => {
                             const pending = pendingVariantImages[i];
                             if (pending.images.length === 0) return v;
-                            const uploadedUrls = await uploadPendingImages(pending.images);
+                            const variantPrefix = `${slugPrefix}-var${i + 1}`;
+                            const uploadedUrls = await uploadPendingImages(pending.images, variantPrefix, pending.existingUrls.length);
                             return { ...v, images: [...pending.existingUrls, ...uploadedUrls] };
                         }));
 
-                        // Update product with uploaded image URLs
+                        // Replace {{IMAGE_N}} placeholders in description with real uploaded URLs
+                        const descWithImages = formData.description.replace(/\{\{IMAGE_(\d+)\}\}/g, (_: string, idx: string) => {
+                            return allProductImages[parseInt(idx)] || '';
+                        });
+
+                        // Update product with uploaded image URLs + resolved description
                         await fetch(`/api/products/${savedProductId}`, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
                                 images: allProductImages,
                                 variants: updatedVariants,
+                                ...(descWithImages !== formData.description ? { description: descWithImages } : {}),
                             }),
                         });
 
@@ -773,10 +809,12 @@ export default function AdminProductsPage() {
         }
     };
 
-    const filtered = products.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.sku.toLowerCase().includes(search.toLowerCase())
-    );
+    const filtered = products.filter((p) => {
+        const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase());
+        const matchCategory = filterCategory ? (typeof p.category === 'object' ? p.category?._id : (p as any).categoryId) === filterCategory : true;
+        const matchStatus = filterStatus ? (filterStatus === 'active' ? p.isActive : !p.isActive) : true;
+        return matchSearch && matchCategory && matchStatus;
+    });
 
     return (
         <>
@@ -803,84 +841,158 @@ export default function AdminProductsPage() {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <button className={styles.filterBtn}>📁 Danh mục</button>
-                <button className={styles.filterBtn}>📊 Trạng thái</button>
+
+                <select
+                    className={styles.filterBtn}
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                >
+                    <option value="">📁 Tất cả danh mục</option>
+                    {categories.map((c) => (
+                        <option key={c._id} value={c._id}>{c.name}</option>
+                    ))}
+                </select>
+
+                <select
+                    className={styles.filterBtn}
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                >
+                    <option value="">📊 Tất cả trạng thái</option>
+                    <option value="active">Đang bán</option>
+                    <option value="inactive">Đã ẩn</option>
+                </select>
+
                 <div className={styles.viewToggle}>
-                    <button className={`${styles.viewBtn} ${styles.active}`}>☰</button>
-                    <button className={styles.viewBtn}>▦</button>
+                    <button
+                        className={`${styles.viewBtn} ${viewMode === 'list' ? styles.active : ''}`}
+                        onClick={() => setViewMode('list')}
+                    >
+                        ☰
+                    </button>
+                    <button
+                        className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.active : ''}`}
+                        onClick={() => setViewMode('grid')}
+                    >
+                        ▦
+                    </button>
                 </div>
             </div>
 
-            {/* Products Table */}
-            <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th>Danh mục</th>
-                            <th>Giá</th>
-                            <th>Tồn kho</th>
-                            <th>Trạng thái</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
-                        ) : filtered.length === 0 ? (
-                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Không tìm thấy sản phẩm nào</td></tr>
-                        ) : (
-                            filtered.map((product) => (
-                                <tr key={product._id}>
-                                    <td>
-                                        <div className={styles.productCell}>
-                                            <div className={styles.productImage}>
-                                                {product.images?.[0] ? <img src={product.images[0]} alt="" /> : '📦'}
+            {/* Products Layout */}
+            {viewMode === 'list' ? (
+                <div className={styles.tableWrapper}>
+                    <table className={styles.table}>
+                        <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Danh mục</th>
+                                <th>Giá</th>
+                                <th>Tồn kho</th>
+                                <th>Trạng thái</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
+                            ) : filtered.length === 0 ? (
+                                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Không tìm thấy sản phẩm nào</td></tr>
+                            ) : (
+                                filtered.map((product) => (
+                                    <tr key={product._id}>
+                                        <td>
+                                            <div className={styles.productCell}>
+                                                <div className={styles.productImage}>
+                                                    {product.images?.[0] ? <img src={product.images[0]} alt="" /> : '📦'}
+                                                </div>
+                                                <div className={styles.productInfo}>
+                                                    <div className={styles.productName}>{product.name}</div>
+                                                    <div className={styles.productSku}>
+                                                        {product.brand?.name ? `${product.brand.name} — ` : ''}{product.sku}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className={styles.productInfo}>
-                                                <div className={styles.productName}>{product.name}</div>
-                                                <div className={styles.productSku}>{product.sku}</div>
+                                        </td>
+                                        <td>
+                                            <span className={styles.productCategory}>{product.category?.name || '---'}</span>
+                                        </td>
+                                        <td>
+                                            <span className={styles.price}>
+                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice)}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className={`${styles.stock} ${product.stock === 0 ? styles.outOfStock : product.stock <= 5 ? styles.low : styles.inStock}`}>
+                                                {product.stock === 0 ? 'Hết hàng' : product.stock}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className={styles.statusToggle}>
+                                                <div
+                                                    className={`${styles.toggleSwitch} ${product.isActive ? styles.on : ''}`}
+                                                    onClick={() => toggleActive(product)}
+                                                >
+                                                    <div className={styles.toggleKnob} />
+                                                </div>
+                                                <span className={`${styles.statusText} ${product.isActive ? styles.active : ''}`}>
+                                                    {product.isActive ? 'Active' : 'Off'}
+                                                </span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span className={styles.productCategory}>{product.category?.name || '---'}</span>
-                                    </td>
-                                    <td>
-                                        <span className={styles.price}>
-                                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice)}
-                                        </span>
-                                    </td>
-                                    <td>
+                                        </td>
+                                        <td>
+                                            <div className={styles.rowActions}>
+                                                <button className={styles.rowActionBtn} title="Chỉnh sửa" onClick={() => openEditModal(product)}>✏️</button>
+                                                <button className={`${styles.rowActionBtn} ${styles.danger}`} title="Xóa" onClick={() => handleDelete(product._id)}>🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className={styles.gridWrapper}>
+                    {loading ? (
+                        <div style={{ textAlign: 'center', padding: '20px', gridColumn: '1 / -1' }}>Đang tải dữ liệu...</div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '20px', gridColumn: '1 / -1' }}>Không tìm thấy sản phẩm nào</div>
+                    ) : (
+                        filtered.map((product) => (
+                            <div key={product._id} className={styles.gridCard}>
+                                <div className={styles.gridImage}>
+                                    {product.images?.[0] ? <img src={product.images[0]} alt="" /> : '📦'}
+                                </div>
+                                <div className={styles.gridInfo}>
+                                    <div className={styles.productName}>{product.name}</div>
+                                    <div className={styles.productSku}>
+                                        {product.brand?.name ? `${product.brand.name} — ` : ''}{product.sku}
+                                    </div>
+                                    <div className={styles.price}>
+                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice)}
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
                                         <span className={`${styles.stock} ${product.stock === 0 ? styles.outOfStock : product.stock <= 5 ? styles.low : styles.inStock}`}>
-                                            {product.stock === 0 ? 'Hết hàng' : product.stock}
+                                            {product.stock === 0 ? 'Hết hàng' : `Kho: ${product.stock}`}
                                         </span>
-                                    </td>
-                                    <td>
-                                        <div className={styles.statusToggle}>
+                                        <div className={styles.rowActions}>
                                             <div
                                                 className={`${styles.toggleSwitch} ${product.isActive ? styles.on : ''}`}
                                                 onClick={() => toggleActive(product)}
                                             >
                                                 <div className={styles.toggleKnob} />
                                             </div>
-                                            <span className={`${styles.statusText} ${product.isActive ? styles.active : ''}`}>
-                                                {product.isActive ? 'Active' : 'Off'}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div className={styles.rowActions}>
                                             <button className={styles.rowActionBtn} title="Chỉnh sửa" onClick={() => openEditModal(product)}>✏️</button>
                                             <button className={`${styles.rowActionBtn} ${styles.danger}`} title="Xóa" onClick={() => handleDelete(product._id)}>🗑️</button>
                                         </div>
-                                    </td>
-                                </tr>
-                            ))
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            )}
 
             {/* Add/Edit Product Modal */}
             {showModal && (
@@ -959,17 +1071,21 @@ export default function AdminProductsPage() {
                             <div className={styles.formRow}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Danh mục *</label>
-                                    <select name="category" className={styles.formInput} value={formData.category} onChange={handleInputChange}>
-                                        <option value="">-- Chọn danh mục --</option>
-                                        {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
-                                    </select>
+                                    <SearchableSelect
+                                        options={[{ label: '-- Chọn danh mục --', value: '' }, ...categories.map(c => ({ label: c.name, value: c._id }))]}
+                                        value={formData.category}
+                                        onChange={(val) => setFormData(p => ({ ...p, category: val }))}
+                                        placeholder="-- Chọn danh mục --"
+                                    />
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Thương hiệu *</label>
-                                    <select name="brand" className={styles.formInput} value={formData.brand} onChange={handleInputChange}>
-                                        <option value="">-- Chọn thương hiệu --</option>
-                                        {brands.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
-                                    </select>
+                                    <SearchableSelect
+                                        options={[{ label: '-- Chọn thương hiệu --', value: '' }, ...brands.map(b => ({ label: b.name, value: b._id }))]}
+                                        value={formData.brand}
+                                        onChange={(val) => setFormData(p => ({ ...p, brand: val }))}
+                                        placeholder="-- Chọn thương hiệu --"
+                                    />
                                 </div>
                             </div>
 

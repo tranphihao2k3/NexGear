@@ -157,7 +157,7 @@ export default function AdminBlogPage() {
                                         </span>
                                         <div className={s.tags}>
                                             {blog.tags.slice(0, 2).map(tag => (
-                                                <Badge key={tag} variant="cyan" size="sm">
+                                                <Badge key={tag} variant="cyan">
                                                     {tag}
                                                 </Badge>
                                             ))}

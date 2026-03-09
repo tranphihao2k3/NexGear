@@ -368,7 +368,7 @@ export default function ServicesPage() {
                     <td style={{ textAlign: 'center' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
                         <Badge variant={statusObj.variant}>{statusObj.label}</Badge>
-                        <Badge variant={priorityObj.variant} size="sm">{priorityObj.label}</Badge>
+                        <Badge variant={priorityObj.variant}>{priorityObj.label}</Badge>
                       </div>
                     </td>
                     <td>

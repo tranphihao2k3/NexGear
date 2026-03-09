@@ -1157,9 +1157,125 @@
 
 .descText {
     @include font-body($text-base, $fw-regular);
-    color: var(--ink2);
+    color: $color-ink2;
     line-height: $lh-relaxed;
     margin: 0;
+
+    // ── Images ────────────────────────────────────────────
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: $r-4;
+        margin-bottom: $sp-6;
+        display: block;
+        box-shadow: $shadow-md;
+    }
+
+    // ── H2: Tiêu đề chính ─────────────────────────────────
+    h2 {
+        @include font-display($text-xl, $fw-bold);
+        color: $color-ink;
+        margin: $sp-8 0 $sp-4;
+        padding-left: $sp-4;
+        border-left: 3px solid $color-cyan;
+        line-height: $lh-tight;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    // ── H3: Tiêu đề phụ ───────────────────────────────────
+    h3 {
+        @include font-display($text-base, $fw-bold);
+        color: $color-ink;
+        margin: $sp-6 0 $sp-3;
+        padding-bottom: $sp-2;
+        border-bottom: 1px solid $color-border;
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+
+        &::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 14px;
+            background: $color-magenta;
+            border-radius: $r-1;
+            flex-shrink: 0;
+        }
+    }
+
+    // ── Paragraphs ─────────────────────────────────────────
+    p {
+        @include font-body($text-base, $fw-regular);
+        color: $color-ink2;
+        line-height: $lh-relaxed;
+        margin: 0 0 $sp-4;
+    }
+
+    // ── Lists ─────────────────────────────────────────────
+    ul,
+    ol {
+        padding-left: $sp-6;
+        margin: 0 0 $sp-4;
+        display: flex;
+        flex-direction: column;
+        gap: $sp-2;
+    }
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+
+        li {
+            @include font-body($text-sm, $fw-regular);
+            color: $color-ink2;
+            padding-left: $sp-6;
+            position: relative;
+
+            &::before {
+                content: '▸';
+                position: absolute;
+                left: 0;
+                color: $color-cyan;
+                font-size: 12px;
+                top: 3px;
+            }
+        }
+    }
+
+    ol li {
+        @include font-body($text-sm, $fw-regular);
+        color: $color-ink2;
+    }
+
+    // ── Strong / Bold ─────────────────────────────────────
+    strong,
+    b {
+        @include font-body($text-sm, $fw-semibold);
+        color: $color-ink;
+        background: rgba($color-cyan, 0.06);
+        padding: 1px 4px;
+        border-radius: $r-1;
+    }
+
+    // ── Em / Italic ───────────────────────────────────────
+    em {
+        color: $color-cyan;
+        font-style: italic;
+    }
+
+    // ── Highlight dòng giá/chính sách ─────────────────────
+    p:last-child {
+        padding: $sp-3 $sp-4;
+        background: rgba($color-cyan, 0.04);
+        border: 1px dashed rgba($color-cyan, 0.2);
+        border-radius: $r-2;
+        color: $color-ink2;
+        margin-bottom: 0;
+    }
 }
 
 .descSidebar {

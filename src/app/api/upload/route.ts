@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     try {
         const formData = await req.formData();
         const file = formData.get('file') as File;
+        const public_id = formData.get('public_id') as string | null;
 
         if (!file) {
             return apiError('No file uploaded', 400);
@@ -32,9 +33,14 @@ export async function POST(req: NextRequest) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
+        const uploadOptions: any = { folder: 'nexgear/products' };
+        if (public_id) {
+            uploadOptions.public_id = public_id;
+        }
+
         return new Promise<Response>((resolve) => {
             const uploadStream = cloudinary.uploader.upload_stream(
-                { folder: 'nexgear/products' },
+                uploadOptions,
                 (error, result) => {
                     if (error) {
                         resolve(apiError(error.message, 500));

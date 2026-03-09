@@ -4,10 +4,11 @@ import ProductHistory from '@/models/ProductHistory';
 import { apiSuccess, apiError } from '@/lib/api-helpers';
 
 // GET /api/product-history/[id]
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const id = (await params).id;
         await dbConnect();
-        const history = await ProductHistory.findById(params.id)
+        const history = await ProductHistory.findById(id)
             .populate({
                 path: 'productUnit',
                 select: 'sku serialNumber condition batteryCycleCount',
@@ -27,8 +28,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PUT /api/product-history/[id]
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const id = (await params).id;
         await dbConnect();
         const body = await req.json();
 
@@ -37,7 +39,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         }
 
         const history = await ProductHistory.findByIdAndUpdate(
-            params.id,
+            id,
             {
                 productUnit: body.productUnit,
                 eventType: body.eventType,
@@ -60,10 +62,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 // DELETE /api/product-history/[id]
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const id = (await params).id;
         await dbConnect();
-        const history = await ProductHistory.findByIdAndDelete(params.id).lean();
+        const history = await ProductHistory.findByIdAndDelete(id).lean();
 
         if (!history) {
             return apiError('Không tìm thấy bản ghi', 404);

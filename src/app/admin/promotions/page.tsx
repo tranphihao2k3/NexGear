@@ -269,7 +269,7 @@ export default function PromotionsPage() {
             type="text"
             placeholder="Tìm kiếm theo tên hoặc mã giảm giá..."
             value={searchTerm}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 

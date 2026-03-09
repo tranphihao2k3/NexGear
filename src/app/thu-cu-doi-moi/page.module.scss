@@ -259,7 +259,7 @@
         }
 
         .desc {
-            @include font-body($text-tiny, $fw-regular);
+            @include font-body($text-xs, $fw-regular);
             color: $color-ink3;
             margin-top: 2px;
         }

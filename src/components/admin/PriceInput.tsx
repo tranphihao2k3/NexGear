@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect } from 'react';
+import { Input } from '@/components/ui';
 
 interface PriceInputProps {
     value: number; // Value in VND (full price)
@@ -13,8 +14,8 @@ interface PriceInputProps {
 export default function PriceInput({
     value,
     onChange,
-    label = 'GiÃ¡ bÃ¡n (VNÄ)',
-    placeholder = 'Nháº­p giÃ¡ (nghÃ¬n Ä‘á»“ng)...',
+    label = 'Giá bán (VNĐ)',
+    placeholder = 'Nhập giá (nghìn đồng)...',
     required = false,
 }: PriceInputProps) {
     // Convert VND to thousands (e.g. 70000 -> 70) for display
@@ -23,7 +24,6 @@ export default function PriceInput({
 
     useEffect(() => {
         // If external value changes (and is not in sync with current display * 1000), update display
-        // Use a small epsilon or just direct comparison if integers
         const currentRef = displayValue === '' ? 0 : parseInt(displayValue.replace(/[^0-9]/g, '')) * 1000;
 
         if (value !== currentRef) {
@@ -48,7 +48,7 @@ export default function PriceInput({
 
     // Format preview in VND
     const formatPreview = () => {
-        if (!displayValue) return '0Ä‘';
+        if (!displayValue) return '0đ';
         const priceInVND = parseInt(displayValue) * 1000;
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
@@ -58,27 +58,27 @@ export default function PriceInput({
 
     return (
         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-                {label} {required && '*'}
-            </label>
-            <div className="relative">
-                <input
-                    type="text"
-                    value={displayValue}
-                    onChange={handleChange}
-                    placeholder={placeholder}
-                    required={required}
-                    className="w-full pl-4 pr-24 py-3 border border-gray-200 rounded-lg outline-none focus:border-blue-500 transition-colors"
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded">
-                    x 1.000Ä‘
-                </div>
-            </div>
-            {displayValue && (
-                <p className="text-sm text-gray-600 mt-1 flex justify-between">
-                    <span>Thá»±c táº¿:</span> <span className="font-bold text-blue-600">{formatPreview()}</span>
-                </p>
-            )}
+            <Input
+                label={label}
+                required={required}
+                value={displayValue}
+                onChange={handleChange}
+                placeholder={placeholder}
+                rightIcon={
+                    <span style={{
+                        fontFamily: 'JetBrains Mono, monospace',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        color: 'var(--ink3, #7A7870)',
+                        backgroundColor: 'var(--bg2, #ECEAE3)',
+                        padding: '2px 6px',
+                        borderRadius: '4px'
+                    }}>
+                        x 1.000đ
+                    </span>
+                }
+                hint={displayValue ? `Thực tế: ${formatPreview()}` : undefined}
+            />
         </div>
     );
 }

@@ -410,11 +410,325 @@
     }
 }
 
+// ── MENU TOGGLE BUTTON (Mở Modal) ───────────────────────────
+.menuToggle {
+    position: fixed;
+    top: $sp-4;
+    left: $sp-4;
+    z-index: $z-nav;
+    width: 44px;
+    height: 44px;
+    background: #0C0C0C;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: $r-2;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: $transition-base;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+
+    &:hover {
+        background: var(--adm-hover);
+        border-color: $color-cyan;
+        transform: scale(1.05);
+    }
+}
+
+// ── FULL SCREEN MENU MODAL ───────────────────────────────────
+.menuOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: calc(#{$z-nav} + 10);
+}
+
+.menuModal {
+    position: fixed;
+    inset: 0;
+    z-index: calc(#{$z-nav} + 20);
+    display: flex;
+    flex-direction: column;
+    color: var(--adm-ink, white);
+    background:
+        linear-gradient(rgba(0, 196, 173, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 196, 173, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--adm-bg, #0a0a0a), var(--adm-bg, #141414));
+    background-size: 40px 40px, 40px 40px, 100% 100%;
+}
+
+// Header
+.menuModalHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $sp-6 $sp-8;
+    border-bottom: 1px solid var(--adm-border, rgba(255, 255, 255, 0.08));
+    background: var(--adm-card-bg, rgba(0, 0, 0, 0.3));
+}
+
+.menuLogo {
+    @include font-display(28px, $fw-bold);
+    color: $color-ink;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+
+    .menuLogoAccent {
+        color: $color-cyan;
+    }
+}
+
+.menuHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $sp-4 $sp-8;
+    border-bottom: 1px solid $admin-border;
+    background: #FFFFFF;
+    gap: $sp-4;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2.5px;
+        background: linear-gradient(90deg, $color-cyan, $color-magenta);
+    }
+
+    @media (max-width: 768px) {
+        flex-direction: column;
+        gap: $sp-3;
+        padding: $sp-4;
+    }
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.searchWrapper {
+    flex: 1;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.searchInputGroup {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    padding: $sp-3 $sp-6;
+    background: $color-bg2;
+    border: 1px solid $admin-border;
+    border-radius: $r-full;
+    width: 100%;
+    transition: $transition-base;
+
+    &:focus-within {
+        background: var(--adm-card-bg, rgba(255, 255, 255, 0.1));
+        border-color: $color-cyan;
+        box-shadow: 0 0 0 3px rgba($color-cyan, 0.2);
+    }
+
+    input {
+        flex: 1;
+        background: transparent !important;
+        border: none;
+        outline: none;
+        color: $color-ink;
+        @include font-body($text-md, $fw-medium);
+
+        &::placeholder {
+            color: $color-ink3;
+        }
+    }
+
+    svg {
+        color: var(--adm-ink3, #888);
+    }
+}
+
+.searchHints {
+    display: flex;
+    gap: $sp-6;
+    color: var(--adm-ink3, #888);
+    @include font-mono($text-xs, $fw-medium);
+
+    span {
+        display: flex;
+        align-items: center;
+        gap: $sp-2;
+    }
+
+    kbd {
+        background: $color-bg3;
+        padding: 2px 6px;
+        border: 1px solid $admin-border;
+        border-radius: $r-1;
+        color: $color-ink2;
+        font-family: $font-mono;
+        font-size: 10px;
+    }
+}
+
+.menuClose {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    padding: $sp-2 $sp-5;
+    background: $color-bg2;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $color-ink2;
+    cursor: pointer;
+    transition: $transition-base;
+
+    &:hover {
+        background: rgba($color-red, 0.1);
+        color: $color-red;
+        border-color: rgba($color-red, 0.3);
+    }
+}
+
+// Content Layout
+.menuContent {
+    flex: 1;
+    overflow-y: auto;
+    padding: $sp-4 $sp-10 $sp-10;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    @include custom-scrollbar(var(--adm-scrollbar, rgba(255, 255, 255, 0.1)));
+
+    @include tablet {
+        padding: $sp-4 $sp-4 $sp-10;
+    }
+}
+
+.menuGroup {
+    margin-bottom: $sp-6;
+}
+
+.menuGroupTitle {
+    @include font-mono(10px, $fw-bold);
+    color: var(--adm-ink3, rgba(255, 255, 255, 0.3));
+    text-transform: uppercase;
+    letter-spacing: $ls-widest;
+    margin-bottom: $sp-2;
+    padding-left: $sp-2;
+}
+
+.menuGroupItems {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: $sp-1;
+
+    @include desktop {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    @include desktop-s {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-2 $sp-3;
+    background: transparent;
+    border-radius: $r-2;
+    text-decoration: none;
+    color: var(--adm-ink2, rgba(255, 255, 255, 0.7));
+    transition: $transition-base;
+    border: 1px solid transparent;
+
+    &:hover {
+        background: var(--adm-hover, rgba(255, 255, 255, 0.05));
+        color: $color-cyan;
+        transform: translateY(-1px);
+    }
+
+    &.menuItemActive {
+        background: $color-cyan;
+        color: $color-ink;
+        box-shadow: 0 4px 20px rgba($color-cyan, 0.4);
+
+        .menuItemIcon {
+            background: rgba($color-ink, 0.1);
+            color: inherit;
+        }
+
+        .menuItemLabel {
+            font-weight: $fw-bold;
+        }
+    }
+}
+
+.menuItemIcon {
+    width: 32px;
+    height: 32px;
+    background: var(--adm-hover, rgba(255, 255, 255, 0.06));
+    border-radius: $r-1;
+    @include flex-center;
+    flex-shrink: 0;
+    transition: $transition-base;
+
+    svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+.menuItemLabel {
+    flex: 1;
+    @include font-body(13px, $fw-medium);
+}
+
+.menuBadge {
+    background: $color-magenta;
+    color: var(--adm-ink, white);
+    @include font-mono(10px, $fw-bold);
+    padding: 2px 8px;
+    border-radius: $r-full;
+    min-width: 20px;
+    text-align: center;
+}
+
+
 // ── PRINT: ẩn sidebar khi in ──────────────────────────────
 @media print {
+
     .sidebar,
     .overlay,
-    .mobileToggle {
+    .mobileToggle,
+    .menuToggle,
+    .menuOverlay,
+    .menuModal {
         display: none !important;
     }
 }

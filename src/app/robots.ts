@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
             {
                 userAgent: '*',
                 allow: '/',
-                disallow: ['/admin/', '/api/', '/checkout/', '/payment/', '/account/'],
+                disallow: ['/admin/', '/api/', '/checkout/', '/payment/', '/account/', '/login', '/register', '/cart', '/wishlist', '/community/new', '/community/my-listings'],
             },
             {
                 userAgent: 'Googlebot-Image',

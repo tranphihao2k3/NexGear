@@ -549,9 +549,14 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         {activeTab === "desc" && (
                             <div className={styles.descTab}>
                                 <div className={styles.descMain}>
-                                    <p className={styles.descText} style={{ whiteSpace: "pre-wrap" }}>
-                                        {product.description || "Đang cập nhật mô tả chi tiết cho sản phẩm này."}
-                                    </p>
+                                    {product.description ? (
+                                        <div
+                                            className={styles.descText}
+                                            dangerouslySetInnerHTML={{ __html: product.description }}
+                                        />
+                                    ) : (
+                                        <p className={styles.descText}>Đang cập nhật mô tả chi tiết cho sản phẩm này.</p>
+                                    )}
                                 </div>
 
                                 {/* Quick info sidebar */}
@@ -624,7 +629,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                         </div>
                                         <div className={styles.specBasicItem}>
                                             <span className={styles.specBasicLabel}>Bảo hành</span>
-                                            <span className={styles.specBasicVal}>{product.warranty || "12 tháng"}</span>
+                                            <span className={styles.specBasicVal}>
+                                                {typeof product.warranty === 'object' && product.warranty !== null
+                                                    ? `${product.warranty.duration || product.warrantyMonths || 3} tháng`
+                                                    : product.warranty || `${product.warrantyMonths || 3} tháng`}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -684,15 +693,20 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                 <ProductCard
                                     key={prod._id}
                                     product={{
-                                        id: prod.slug,
+                                        _id: prod._id,
                                         name: prod.name,
-                                        price: prod.salePrice || prod.basePrice,
-                                        originalPrice: prod.basePrice > (prod.salePrice || prod.basePrice) ? prod.basePrice : undefined,
-                                        image: prod.images?.[0] || '',
-                                        badges: ["new"],
-                                        rating: prod.ratings?.avg || 0,
-                                        reviews: prod.ratings?.count || 0,
-                                    } as any}
+                                        slug: prod.slug,
+                                        sku: prod.sku || '',
+                                        brand: prod.brand || { name: '' },
+                                        images: prod.images || [],
+                                        basePrice: Number(prod.basePrice) || 0,
+                                        salePrice: prod.salePrice ? Number(prod.salePrice) : null,
+                                        stock: prod.stock ?? 0,
+                                        ratings: prod.ratings || { avg: 0, count: 0 },
+                                        tags: prod.tags || [],
+                                        category: prod.category,
+                                        specs: prod.specs || {},
+                                    }}
                                     onAddToCart={() => { }}
                                 />
                             ))}

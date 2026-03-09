@@ -4,7 +4,7 @@
 .page {
     padding: $sp-6;
     min-height: 100vh;
-    background-color: $color-bg;
+    
 
     @include mobile {
         padding: $sp-4;

@@ -33,10 +33,23 @@ export async function generateMetadata({
         const price = product.salePrice || product.basePrice
         const priceFormatted = new Intl.NumberFormat('vi-VN').format(price) + '₫'
         const brandName = product.brand?.name || ''
+        const specs = (product.specs || {}) as Record<string, string>
+
+        // Build spec snippet for description (e.g. "CPU i5-12450H, RAM 16GB, RTX 4060")
+        const specParts: string[] = []
+        const specKeyPriority = ['CPU', 'RAM', 'GPU', 'Màn hình', 'Ổ cứng', 'Switch', 'Layout', 'Sensor', 'DPI', 'Driver', 'Kết nối', 'Công suất']
+        for (const k of specKeyPriority) {
+            if (specs[k]) specParts.push(`${k} ${specs[k]}`)
+            if (specParts.length >= 3) break
+        }
+        const specSnippet = specParts.length > 0 ? ` ${specParts.join(', ')}.` : ''
 
         // Fallback sang tự sinh nếu seoTitle / seoDesc rỗng
         const title = product.seoTitle || `${product.name} Chính Hãng — Giá Tốt | NexGear`
-        const description = product.seoDesc || `Mua ${product.name}${brandName ? ` ${brandName}` : ''} chính hãng tại NexGear Cần Thơ. Giá ${priceFormatted}, bảo hành 12T, đổi trả 7 ngày, giao nhanh 2H. Đặt ngay!`
+        const description = product.seoDesc || `Mua ${product.name}${brandName ? ` ${brandName}` : ''} chính hãng tại NexGear Cần Thơ.${specSnippet} Giá ${priceFormatted}, bảo hành 12T, giao nhanh 2H.`
+
+        // Build spec-based keywords
+        const specKeywords = Object.entries(specs).slice(0, 5).map(([k, v]) => `${k} ${v}`)
 
         return {
             title: title.length > 60 ? `${product.name} — NexGear Cần Thơ` : title,
@@ -48,6 +61,7 @@ export async function generateMetadata({
                 `${product.name} chính hãng`,
                 brandName,
                 `${brandName} Cần Thơ`,
+                ...specKeywords,
             ].filter(Boolean),
             openGraph: {
                 title,

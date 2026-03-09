@@ -48,7 +48,7 @@ $gradient-dark: linear-gradient(135deg, $color-ink, $color-ink2);
 $gradient-top-bar: linear-gradient(90deg, $color-cyan, $color-magenta);
 
 // ── TYPOGRAPHY ──────────────────────────────────────────────
-$font-display: 'Orbitron', sans-serif; // Logo, H1, H2, Button, Badge
+$font-display: 'Orbitron', 'DM Sans', sans-serif; // Logo, H1, H2, Button, Badge
 $font-body: 'DM Sans', sans-serif; // Body text, Labels, Nav
 $font-mono: 'JetBrains Mono', monospace; // Price, SKU, Code, Meta
 

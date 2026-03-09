@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { X, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
+import s from './ImageUploader.module.scss';
+import { useToast } from '@/components/ui';
 
 interface ImageUploaderProps {
     value?: string[];
@@ -26,10 +28,10 @@ export default function ImageUploader({
     files = [],
     onFilesChange
 }: ImageUploaderProps) {
+    const { error: showError } = useToast();
     const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
     const [dragActive, setDragActive] = useState(false);
 
-    // Keep track of latest value for race-condition mitigation
     const latestValueRef = useRef(value);
     const latestFilesRef = useRef(files);
 
@@ -50,7 +52,7 @@ export default function ImageUploader({
         const remainingSlots = maxImages - totalCount;
 
         if (remainingSlots <= 0) {
-            alert(`Chá»‰ Ä‘Æ°á»£c upload tá»‘i Ä‘a ${maxImages} áº£nh`);
+            showError(`Chỉ được upload tối đa ${maxImages} ảnh`);
             return;
         }
 
@@ -62,10 +64,9 @@ export default function ImageUploader({
             return;
         }
 
-        // LEGACY MODE: Parallel upload
-        // Create pending items
+        // AUTO UPLOAD MODE:
         const newPendingItems: PendingImage[] = filesToUpload.map(file => ({
-            id: Math.random().toString(36).substr(2, 9),
+            id: Math.random().toString(36).substring(2, 11),
             file,
             preview: URL.createObjectURL(file), // create local preview immediately
             progress: 0,
@@ -100,7 +101,7 @@ export default function ImageUploader({
                     setPendingImages(prev => prev.map(p =>
                         p.id === item.id ? { ...p, status: 'error' } : p
                     ));
-                    alert(error instanceof Error ? error.message : `Lá»—i upload ${item.file.name}`);
+                    showError(error instanceof Error ? error.message : `Lỗi upload ${item.file.name}`);
                     return null;
                 }
             });
@@ -109,13 +110,10 @@ export default function ImageUploader({
             const successfulUrls = results.filter((url): url is string => url !== null);
 
             if (successfulUrls.length > 0) {
-                // Update parent with new URLs properly merged
                 onChange([...latestValueRef.current, ...successfulUrls]);
             }
 
-            // Cleanup successful/failed pending items after a short delay
-            // (or immediately if we just want to replace them with the real URL in value)
-            // Here we remove them immediately because onChange updates 'value' which renders the real items
+            // Cleanup successful pending items
             setPendingImages(prev => prev.filter(p => !newPendingItems.find(newItem => newItem.id === p.id)));
 
             // Revoke object URLs
@@ -156,67 +154,52 @@ export default function ImageUploader({
         }
     };
 
-    // Combine current value/files with pending images for display?
-    // Actually, distinct display is better so we see what is "real" and what is "uploading"
-    // Pending images shown at the end? Or start? 
-    // Usually end makes sense for new uploads.
+    const isLimitReached = (onFilesChange ? files.length : value.length) + pendingImages.length >= maxImages;
 
     return (
-        <div className="space-y-4">
-            {/* Upload Area */}
+        <div className={s.wrapper}>
             <div
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
                 onDrop={handleDrop}
-                className={`
-                    relative border-2 border-dashed rounded-lg p-8 text-center
-                    transition-colors cursor-pointer
-                    ${dragActive
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }
-                `}
+                className={`${s.uploadArea} ${dragActive ? s.dragActive : ''}`}
             >
                 <input
                     type="file"
                     multiple
                     accept="image/jpeg,image/jpg,image/png,image/webp"
                     onChange={(e) => handleFileUpload(e.target.files)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    disabled={(onFilesChange ? files.length : value.length) + pendingImages.length >= maxImages}
+                    className={s.fileInput}
+                    disabled={isLimitReached}
                 />
 
-                <div className="flex flex-col items-center gap-2">
+                <div className={s.uploadContent}>
                     {pendingImages.length > 0 ? (
-                        <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                        <Loader2 className={`${s.icon} ${s.spinner}`} size={48} />
                     ) : (
-                        <Upload className="w-12 h-12 text-gray-400" />
+                        <Upload className={s.icon} size={48} />
                     )}
-
                     <div>
-                        <p className="text-sm font-medium text-gray-700">
-                            KÃ©o tháº£ áº£nh vÃ o Ä‘Ã¢y hoáº·c click Ä‘á»ƒ chá»n
+                        <p className={s.uploadTitle}>
+                            Kéo thả ảnh vào đây hoặc click để chọn
                         </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                            PNG, JPG, WebP (tá»‘i Ä‘a 5MB) - {(onFilesChange ? files.length : value.length) + pendingImages.length}/{maxImages} áº£nh
+                        <p className={s.uploadHint}>
+                            PNG, JPG, WebP (tối đa 5MB) - {(onFilesChange ? files.length : value.length) + pendingImages.length}/{maxImages} ảnh
                         </p>
                     </div>
                 </div>
             </div>
 
-            {/* Image Preview Grid */}
             {(value.length > 0 || (files && files.length > 0) || pendingImages.length > 0) && (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {/* Render Real/Existing Images */}
+                <div className={s.previewGrid}>
                     {(onFilesChange ? files : value).map((item, index) => {
                         const url = typeof item === 'string' ? item : URL.createObjectURL(item);
                         return (
-                            <div key={`existing-${index}`} className="relative group aspect-square">
+                            <div key={`existing-${index}`} className={s.previewItem}>
                                 <img
                                     src={url}
-                                    alt={`Product ${index + 1}`}
-                                    className="w-full h-full object-cover rounded-lg border border-gray-200"
+                                    alt={`Preview ${index + 1}`}
                                     onLoad={() => {
                                         if (typeof item !== 'string') URL.revokeObjectURL(url);
                                     }}
@@ -224,35 +207,23 @@ export default function ImageUploader({
                                 <button
                                     type="button"
                                     onClick={() => removeImage(index)}
-                                    className="
-                                        absolute top-2 right-2 
-                                        bg-red-500 text-white rounded-full p-1
-                                        opacity-0 group-hover:opacity-100
-                                        transition-opacity
-                                        hover:bg-red-600
-                                    "
+                                    className={s.removeBtn}
+                                    aria-label="Thu nhỏ ảnh"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <X size={14} strokeWidth={3} />
                                 </button>
                                 {index === 0 && (
-                                    <div className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                                        áº¢nh chÃ­nh
-                                    </div>
+                                    <div className={s.primaryBadge}>Ảnh chính</div>
                                 )}
                             </div>
                         );
                     })}
 
-                    {/* Render Pending/Uploading Images */}
                     {pendingImages.map((item) => (
-                        <div key={item.id} className="relative aspect-square">
-                            <img
-                                src={item.preview}
-                                alt="Uploading..."
-                                className="w-full h-full object-cover rounded-lg border border-blue-200 opacity-70"
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center bg-black/20 rounded-lg">
-                                <Loader2 className="w-8 h-8 text-white animate-spin" />
+                        <div key={item.id} className={s.previewItem}>
+                            <img src={item.preview} alt="Đang upload..." style={{ opacity: 0.5 }} />
+                            <div className={s.pendingOverlay}>
+                                <Loader2 className={s.spinner} size={24} />
                             </div>
                         </div>
                     ))}
@@ -260,9 +231,9 @@ export default function ImageUploader({
             )}
 
             {value.length === 0 && (!files || files.length === 0) && pendingImages.length === 0 && (
-                <div className="text-center py-8 text-gray-400">
-                    <ImageIcon className="w-16 h-16 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">ChÆ°a cÃ³ áº£nh nÃ o</p>
+                <div className={s.emptyState}>
+                    <ImageIcon className={s.icon} size={64} />
+                    <p>Chưa có ảnh nào được thêm</p>
                 </div>
             )}
         </div>

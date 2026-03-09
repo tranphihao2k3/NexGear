@@ -7,7 +7,7 @@ import { Save, ArrowLeft, Box, Info, Settings, Image as ImageIcon, Send, FileTex
 import { useToast } from '@/components/ui/Toast';
 import { Button, Input } from '@/components/ui';
 import ImageUploader from '@/components/admin/ImageUploader';
-import s from '../new/page.module.scss';
+import s from '../../new/page.module.scss';
 
 export default function EditSoftwarePage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = use(params);

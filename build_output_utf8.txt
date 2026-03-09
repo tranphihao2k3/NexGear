@@ -1,0 +1,354 @@
+﻿
+> nexgear@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+node.exe : Turbopack build encountered 10 warnings:
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Turbopack build encountered 10 warnings::String) [], Rem 
+   oteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+./src/app/account/orders/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 231, column 11 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/account/orders/page.module.scss:231:11:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use color.adjust instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+231 |     color: darken(#F0A500, 10%);
+
+
+src\app\account\orders\page.module.scss 232:12  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/account/orders/page.module.scss [Client Component Browser]
+    ./src/app/account/orders/page.tsx [Client Component Browser]
+    ./src/app/account/orders/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/account/orders/page.module.scss [Client Component SSR]
+    ./src/app/account/orders/page.tsx [Client Component SSR]
+    ./src/app/account/orders/page.tsx [Server Component]
+
+
+./src/app/account/orders/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 231, column 11 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/account/orders/page.module.scss:231:11:
+darken() is deprecated. Suggestions:
+
+color.scale($color, $lightness: -21.25%)
+color.adjust($color, $lightness: -10%)
+
+More info: https://sass-lang.com/d/color-functions
+
+231 |     color: darken(#F0A500, 10%);
+
+
+src\app\account\orders\page.module.scss 232:12  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/account/orders/page.module.scss [Client Component Browser]
+    ./src/app/account/orders/page.tsx [Client Component Browser]
+    ./src/app/account/orders/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/account/orders/page.module.scss [Client Component SSR]
+    ./src/app/account/orders/page.tsx [Client Component SSR]
+    ./src/app/account/orders/page.tsx [Server Component]
+
+
+./src/app/checkout/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 443, column 11 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/checkout/page.module.scss:443:11:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use color.adjust instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+443 |     color: darken(#F0A500, 15%);
+
+
+src\app\checkout\page.module.scss 444:12  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/checkout/page.module.scss [Client Component Browser]
+    ./src/app/checkout/CheckoutClient.tsx [Client Component Browser]
+    ./src/app/checkout/CheckoutClient.tsx [Server Component]
+    ./src/app/checkout/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/checkout/page.module.scss [Client Component SSR]
+    ./src/app/checkout/CheckoutClient.tsx [Client Component SSR]
+    ./src/app/checkout/CheckoutClient.tsx [Server Component]
+    ./src/app/checkout/page.tsx [Server Component]
+
+
+./src/app/checkout/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 443, column 11 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/checkout/page.module.scss:443:11:
+darken() is deprecated. Suggestions:
+
+color.scale($color, $lightness: -31.875%)
+color.adjust($color, $lightness: -15%)
+
+More info: https://sass-lang.com/d/color-functions
+
+443 |     color: darken(#F0A500, 15%);
+
+
+src\app\checkout\page.module.scss 444:12  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/checkout/page.module.scss [Client Component Browser]
+    ./src/app/checkout/CheckoutClient.tsx [Client Component Browser]
+    ./src/app/checkout/CheckoutClient.tsx [Server Component]
+    ./src/app/checkout/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/checkout/page.module.scss [Client Component SSR]
+    ./src/app/checkout/CheckoutClient.tsx [Client Component SSR]
+    ./src/app/checkout/CheckoutClient.tsx [Server Component]
+    ./src/app/checkout/page.tsx [Server Component]
+
+
+./src/app/community/[slug]/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 265, column 20 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/community/%5Bslug%5D/page.module.scss:265:20:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use color.adjust instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+265 |         background: darken(#0068FF, 8%);
+
+
+src\app\community\[slug]\page.module.scss 266:21  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/community/[slug]/page.module.scss [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/community/[slug]/page.module.scss [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+
+./src/app/community/[slug]/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 265, column 20 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/community/%5Bslug%5D/page.module.scss:265:20:
+darken() is deprecated. Suggestions:
+
+color.scale($color, $lightness: -16%)
+color.adjust($color, $lightness: -8%)
+
+More info: https://sass-lang.com/d/color-functions
+
+265 |         background: darken(#0068FF, 8%);
+
+
+src\app\community\[slug]\page.module.scss 266:21  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/community/[slug]/page.module.scss [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/community/[slug]/page.module.scss [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+
+./src/app/community/[slug]/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 267, column 22 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/community/%5Bslug%5D/page.module.scss:267:22:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use color.adjust instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+267 |         border-color: darken(#0068FF, 8%);
+
+
+src\app\community\[slug]\page.module.scss 268:23  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/community/[slug]/page.module.scss [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/community/[slug]/page.module.scss [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+
+./src/app/community/[slug]/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 267, column 22 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/community/%5Bslug%5D/page.module.scss:267:22:
+darken() is deprecated. Suggestions:
+
+color.scale($color, $lightness: -16%)
+color.adjust($color, $lightness: -8%)
+
+More info: https://sass-lang.com/d/color-functions
+
+267 |         border-color: darken(#0068FF, 8%);
+
+
+src\app\community\[slug]\page.module.scss 268:23  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/community/[slug]/page.module.scss [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component Browser]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/community/[slug]/page.module.scss [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Client Component SSR]
+    ./src/app/community/[slug]/DetailClient.tsx [Server Component]
+    ./src/app/community/[slug]/page.tsx [Server Component]
+
+
+./src/app/deals/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 595, column 11 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/deals/page.module.scss:595:11:
+Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use color.adjust instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+595 |     color: darken(#F0A500, 10%);
+
+
+src\app\deals\page.module.scss 596:12  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/deals/page.module.scss [Client Component Browser]
+    ./src/app/deals/DealsClient.tsx [Client Component Browser]
+    ./src/app/deals/DealsClient.tsx [Server Component]
+    ./src/app/deals/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/deals/page.module.scss [Client Component SSR]
+    ./src/app/deals/DealsClient.tsx [Client Component SSR]
+    ./src/app/deals/DealsClient.tsx [Server Component]
+    ./src/app/deals/page.tsx [Server Component]
+
+
+./src/app/deals/page.module.scss
+Issue while running loader
+SassWarning: Deprecation Warning on line 595, column 11 of 
+file:///C:/Users/HAO/Documents/nexgear/nexgear/src/app/deals/page.module.scss:595:11:
+darken() is deprecated. Suggestions:
+
+color.scale($color, $lightness: -21.25%)
+color.adjust($color, $lightness: -10%)
+
+More info: https://sass-lang.com/d/color-functions
+
+595 |     color: darken(#F0A500, 10%);
+
+
+src\app\deals\page.module.scss 596:12  root stylesheet
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/deals/page.module.scss [Client Component Browser]
+    ./src/app/deals/DealsClient.tsx [Client Component Browser]
+    ./src/app/deals/DealsClient.tsx [Server Component]
+    ./src/app/deals/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/deals/page.module.scss [Client Component SSR]
+    ./src/app/deals/DealsClient.tsx [Client Component SSR]
+    ./src/app/deals/DealsClient.tsx [Server Component]
+    ./src/app/deals/page.tsx [Server Component]
+
+
+
+> Build error occurred
+Error: Turbopack build failed with 1 errors:
+./src/app/admin/software/edit/[id]/page.tsx:10:1
+Module not found: Can't resolve '../new/page.module.scss'
+[0m [90m  8 |[39m [36mimport[39m { [33mButton[39m[33m,[39m [33mInput[39m } [36mfrom[39m 
+[32m'@/components/ui'[39m[33m;[39m
+ [90m  9 |[39m [36mimport[39m [33mImageUploader[39m [36mfrom[39m 
+[32m'@/components/admin/ImageUploader'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 10 |[39m [36mimport[39m s [36mfrom[39m 
+[32m'../new/page.module.scss'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m
+[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[
+1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m
+^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^
+[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[2
+2m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m
+[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[
+39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39
+m
+ [90m 11 |[39m
+ [90m 12 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mEditSoftwarePage[39m({ 
+params }[33m:[39m { params[33m:[39m [33mPromise[39m[33m<[39m{ id[33m:[39m string 
+}[33m>[39m }) {
+ [90m 13 |[39m     [36mconst[39m { id } [33m=[39m use(params)[33m;[39m[0m
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/admin/software/edit/[id]/page.tsx [Client Component Browser]
+    ./src/app/admin/software/edit/[id]/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/admin/software/edit/[id]/page.tsx [Client Component SSR]
+    ./src/app/admin/software/edit/[id]/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+    at <unknown> (./src/app/admin/software/edit/[id]/page.tsx:10:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)

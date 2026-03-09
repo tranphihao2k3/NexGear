@@ -1,26 +1,85 @@
-.inputWrapper {
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.fieldGroup {
     display: flex;
     flex-direction: column;
-    gap: $sp-1;
+    gap: $sp-2;
     width: 100%;
 }
 
+.label {
+    @include font-mono($text-xs, $fw-bold);
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    color: $color-ink2;
+
+    .required {
+        color: $color-magenta;
+        margin-left: 2px;
+    }
+}
+
+.inputWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .input {
+    @include input-base;
     width: 100%;
-    padding: $sp-2;
-    font-family: $font-body;
-    font-size: $text-base;
-    border: 1px solid $color-border;
-    border-radius: $r-2;
-    outline: none;
-    transition: border-color 0.2s;
 
-    &:focus {
-        border-color: $color-cyan;
+    &--error {
+        border-color: $color-magenta;
+
+        &:focus {
+            box-shadow: $shadow-glow-mag;
+        }
     }
 
-    &:disabled {
-        background-color: $color-bg2;
-        cursor: not-allowed;
+    &--success {
+        border-color: $color-green;
     }
+
+    &--has-left {
+        padding-left: $sp-10;
+    }
+
+    &--has-right {
+        padding-right: $sp-10;
+    }
+}
+
+.icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $color-ink3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--left {
+        left: $sp-3;
+    }
+
+    &--right {
+        right: $sp-3;
+    }
+}
+
+.hint {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-ink3;
+}
+
+.errorMsg {
+    @include font-body($text-xs, $fw-bold);
+    color: $color-magenta;
+}
+
+.successMsg {
+    @include font-body($text-xs, $fw-bold);
+    color: $color-green;
 }
