@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
+import Brand from '@/models/Brand';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 
 // GET /api/products — List with filters

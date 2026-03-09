@@ -1,6 +1,8 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
+import Category from '@/models/Category';
+import Brand from '@/models/Brand';
 import { apiSuccess, apiError } from '@/lib/api-helpers';
 
 interface Params { params: Promise<{ id: string }> }
