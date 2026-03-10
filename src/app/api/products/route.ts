@@ -26,9 +26,14 @@ export async function GET(req: NextRequest) {
         } else if (categorySlug) {
             const cat = await Category.findOne({ slug: categorySlug }).lean();
             if (cat) {
-                filter.category = cat._id;
+                // Include products from child sub-categories too
+                const children = await Category.find({ parent: (cat as any)._id }).lean();
+                if (children.length > 0) {
+                    filter.category = { $in: [(cat as any)._id, ...children.map((c: any) => c._id)] };
+                } else {
+                    filter.category = (cat as any)._id;
+                }
             } else {
-                // Category not found, return empty early
                 return apiPaginated([], 0, page, limit);
             }
         }

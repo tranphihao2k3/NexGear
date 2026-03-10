@@ -3,7 +3,8 @@
 // ============================================================
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styles from './page.module.scss'
 import { CyberpunkLoader } from '@/components/ui'
 
@@ -39,72 +40,60 @@ function formatDate(dateStr: string) {
 }
 
 export default function AdminInventoryPage() {
-    const [products, setProducts] = useState<Product[]>([])
-    const [logs, setLogs] = useState<InventoryLog[]>([])
-    const [loading, setLoading] = useState(true)
+    const qc = useQueryClient()
     const [filter, setFilter] = useState('all')
     const [showImport, setShowImport] = useState(false)
-
-    // Import form state
     const [importProduct, setImportProduct] = useState('')
     const [importQty, setImportQty] = useState('')
     const [importNote, setImportNote] = useState('')
-    const [saving, setSaving] = useState(false)
 
-    const fetchData = useCallback(async () => {
-        setLoading(true)
-        try {
-            const [prodRes, logRes] = await Promise.all([
-                fetch('/api/products?limit=100&admin=true'),
-                fetch('/api/inventory?limit=20'),
-            ])
-            const prodJson = await prodRes.json()
-            const logJson = await logRes.json()
+    // ── React Query ──
+    const { data: products = [], isPending: loading } = useQuery<Product[]>({
+        queryKey: ['inventory'],
+        queryFn: () => fetch('/api/products?limit=100&admin=true')
+            .then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60 * 2,
+    })
+    const { data: logs = [] } = useQuery<InventoryLog[]>({
+        queryKey: ['inventory', 'logs'],
+        queryFn: () => fetch('/api/inventory?limit=20')
+            .then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60,
+    })
 
-            if (prodJson.success) setProducts(prodJson.data)
-            if (logJson.success) setLogs(logJson.data)
-        } catch (err) {
-            console.error('Failed to fetch inventory data:', err)
-        } finally {
-            setLoading(false)
-        }
-    }, [])
-
-    useEffect(() => { fetchData() }, [fetchData])
-
-    const handleImport = async () => {
-        if (!importProduct || !importQty || parseInt(importQty) <= 0) {
-            alert('Vui lòng chọn sản phẩm và nhập số lượng hợp lệ')
-            return
-        }
-        setSaving(true)
-        try {
-            const res = await fetch('/api/inventory', {
+    const importMutation = useMutation({
+        mutationFn: (data: { product: string; quantity: number; note: string }) =>
+            fetch('/api/inventory', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    product: importProduct,
-                    type: 'import',
-                    quantity: parseInt(importQty),
-                    note: importNote || 'Nhập hàng',
-                    createdBy: '000000000000000000000000', // placeholder admin ID
-                }),
-            })
-            const json = await res.json()
+                body: JSON.stringify({ ...data, type: 'import', createdBy: '000000000000000000000000' }),
+            }).then(r => r.json()),
+        onSuccess: (json) => {
             if (json.success) {
                 setShowImport(false)
                 setImportProduct('')
                 setImportQty('')
                 setImportNote('')
-                fetchData()
+                qc.invalidateQueries({ queryKey: ['inventory'] })
+                qc.invalidateQueries({ queryKey: ['inventory', 'logs'] })
             } else {
                 alert(json.error || 'Nhập hàng thất bại')
             }
-        } catch {
-            alert('Lỗi kết nối')
-        } finally {
-            setSaving(false)
+        },
+        onError: () => alert('Lỗi kết nối'),
+    })
+    const saving = importMutation.isPending
+
+    const handleImport = () => {
+        if (!importProduct || !importQty || parseInt(importQty) <= 0) {
+            alert('Vui lòng chọn sản phẩm và nhập số lượng hợp lệ')
+            return
         }
+        importMutation.mutate({
+            product: importProduct,
+            quantity: parseInt(importQty),
+            note: importNote || 'Nhập hàng',
+        })
     }
 
     const filtered = products.filter((item) => {

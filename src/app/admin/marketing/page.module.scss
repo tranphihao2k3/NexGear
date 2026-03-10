@@ -10,6 +10,11 @@
     padding: $sp-6;
     background: $color-bg;
     min-height: 100vh;
+    overflow-x: hidden;
+
+    @include mobile {
+        padding: $sp-3;
+    }
 }
 
 .header {
@@ -53,6 +58,17 @@
             color: $color-cyan;
         }
     }
+
+    @include mobile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: $sp-3;
+        margin-bottom: $sp-6;
+
+        h1 {
+            font-size: $text-lg;
+        }
+    }
 }
 
 .tabs {
@@ -63,6 +79,9 @@
     border-radius: $r-2;
     width: fit-content;
     margin-bottom: $sp-8;
+    overflow-x: auto;
+    max-width: 100%;
+    @include no-scrollbar;
 
     button {
         padding: $sp-3 $sp-8;
@@ -73,6 +92,7 @@
         transition: all $transition-base;
         cursor: pointer;
         border: none;
+        white-space: nowrap;
 
         &.active {
             background: $color-white;
@@ -98,6 +118,12 @@
 
     @include tablet {
         grid-template-columns: 1fr;
+        gap: $sp-6;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+        gap: $sp-4;
     }
 }
 
@@ -124,6 +150,17 @@
             border-radius: 50%;
             font-size: 10px;
         }
+    }
+
+    @include mobile {
+        padding: $sp-4;
+        position: static;
+    }
+}
+
+.productList {
+    @include mobile {
+        max-height: 300px;
     }
 }
 
@@ -210,11 +247,20 @@
     display: flex;
     flex-direction: column;
     gap: $sp-8;
+    min-width: 0;
+    overflow: hidden;
 }
 
 .section {
     @include card-base;
     padding: $sp-6;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+
+    @include mobile {
+        padding: $sp-4;
+    }
 
     .sectionHeader {
         display: flex;
@@ -330,6 +376,11 @@
         line-height: 1.6;
         resize: vertical;
         background: $color-bg2;
+
+        @include mobile {
+            min-height: 250px;
+            padding: $sp-4;
+        }
     }
 
     .editorActions {
@@ -355,6 +406,7 @@
     border-radius: $r-2;
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     border: 1px solid $color-border;
     display: flex;
     flex-direction: column;
@@ -380,6 +432,8 @@
             align-items: center;
             gap: $sp-4;
             min-width: 0;
+            overflow: hidden;
+            flex: 1;
 
             .gBadge {
                 @include flex-center;
@@ -399,6 +453,7 @@
 
             .gText {
                 min-width: 0;
+                overflow: hidden;
 
                 .gName {
                     @include font-body($text-sm, $fw-bold);
@@ -410,6 +465,7 @@
                     @include font-mono(10px, $fw-medium);
                     color: $color-ink3;
                     @include truncate(1);
+                    word-break: break-all;
                 }
             }
         }

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import styles from '../categories/page.module.scss';
 import { CyberpunkLoader, useToast } from '@/components/ui';
 
@@ -14,28 +15,17 @@ interface Brand {
 
 export default function AdminBrandsPage() {
     const { success, error } = useToast();
-    const [brands, setBrands] = useState<Brand[]>([]);
-    const [loading, setLoading] = useState(true);
-
+    const qc = useQueryClient();
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({ name: '', slug: '', country: '' });
 
-    const fetchBrands = async () => {
-        try {
-            const res = await fetch('/api/brands?limit=50');
-            const json = await res.json();
-            if (json.success) setBrands(json.data);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchBrands();
-    }, []);
+    // ── React Query ──
+    const { data: brands = [], isPending: loading } = useQuery<Brand[]>({
+        queryKey: ['brands'],
+        queryFn: () => fetch('/api/brands?limit=50').then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60 * 5,
+    })
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -60,45 +50,44 @@ export default function AdminBrandsPage() {
         setShowModal(true);
     };
 
-    const saveItem = async () => {
-        if (!formData.name || !formData.slug) return error('Tên và Slug là bắt buộc!');
-        try {
-            const url = editingId ? `/api/brands/${editingId}` : `/api/brands`;
-            const res = await fetch(url, {
-                method: editingId ? 'PUT' : 'POST',
+    const saveBrandMutation = useMutation({
+        mutationFn: ({ id, data }: { id?: string; data: any }) => {
+            const url = id ? `/api/brands/${id}` : `/api/brands`;
+            return fetch(url, {
+                method: id ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-            success(editingId ? 'Đã cập nhật thương hiệu' : 'Đã thêm thương hiệu');
+                body: JSON.stringify(data)
+            }).then(r => r.json());
+        },
+        onSuccess: (data, vars) => {
+            if (!data.success) { error(data.error); return; }
+            success(vars.id ? 'Đã cập nhật thương hiệu' : 'Đã thêm thương hiệu');
             setShowModal(false);
-            fetchBrands();
-        } catch (e: any) { error(e.message); }
-    };
+            qc.invalidateQueries({ queryKey: ['brands'] });
+        },
+    });
 
-    const toggleActive = async (brand: Brand) => {
-        try {
-            const res = await fetch(`/api/brands/${brand._id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isActive: !brand.isActive })
-            });
-            const data = await res.json();
-            if (data.success) {
-                setBrands(prev => prev.map(b => b._id === brand._id ? { ...b, isActive: !b.isActive } : b));
-            }
-        } catch (e) { error('Lỗi cập nhật'); }
-    };
-
-    const deleteItem = async (id: string) => {
-        if (!confirm('Xóa thương hiệu này?')) return;
-        try {
-            const res = await fetch(`/api/brands/${id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) { success('Đã xóa'); fetchBrands(); }
+    const deleteBrandMutation = useMutation({
+        mutationFn: (id: string) => fetch(`/api/brands/${id}`, { method: 'DELETE' }).then(r => r.json()),
+        onSuccess: (data) => {
+            if (data.success) { success('Đã xóa'); qc.invalidateQueries({ queryKey: ['brands'] }); }
             else error(data.error);
-        } catch (e) { error('Lỗi xóa'); }
+        },
+        onError: () => error('Lỗi xóa'),
+    });
+
+    const saveItem = () => {
+        if (!formData.name || !formData.slug) return error('Tên và Slug là bắt buộc!');
+        saveBrandMutation.mutate({ id: editingId ?? undefined, data: formData });
+    };
+
+    const toggleActive = (brand: Brand) => {
+        saveBrandMutation.mutate({ id: brand._id, data: { isActive: !brand.isActive } });
+    };
+
+    const deleteItem = (id: string) => {
+        if (!confirm('Xóa thương hiệu này?')) return;
+        deleteBrandMutation.mutate(id);
     };
 
     return (

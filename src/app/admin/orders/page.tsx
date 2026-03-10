@@ -5,7 +5,8 @@
 // ============================================================
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styles from './page.module.scss'
 import { CyberpunkLoader } from '@/components/ui'
 import { downloadCsv, toCsv } from '@/lib/csv'
@@ -82,11 +83,7 @@ function formatDate(dateStr: string) {
 
 // ── PAGE ────────────────────────────────────────────────────
 export default function AdminOrdersPage() {
-    const [orders, setOrders] = useState<Order[]>([])
-    const [pagination, setPagination] = useState<Pagination>({ total: 0, page: 1, limit: 20, totalPages: 1 })
-    const [statusCounts, setStatusCounts] = useState<Record<string, number>>({})
-    const [loading, setLoading] = useState(true)
-
+    const qc = useQueryClient()
     const [activeTab, setActiveTab] = useState('all')
     const [selectedOrders, setSelectedOrders] = useState<string[]>([])
     const [search, setSearch] = useState('')
@@ -94,7 +91,6 @@ export default function AdminOrdersPage() {
     const [page, setPage] = useState(1)
     const [drawerOrder, setDrawerOrder] = useState<Order | null>(null)
     const [drawerStatus, setDrawerStatus] = useState<OrderStatus>('pending')
-    const [saving, setSaving] = useState(false)
 
     // Debounce search
     useEffect(() => {
@@ -105,100 +101,88 @@ export default function AdminOrdersPage() {
     // Reset page on filter change
     useEffect(() => { setPage(1) }, [activeTab, searchDebounce])
 
-    // Fetch orders
-    const fetchOrders = useCallback(async () => {
-        setLoading(true)
-        try {
-            const params = new URLSearchParams({ page: String(page), limit: '20' })
-            if (activeTab !== 'all') params.set('status', activeTab)
-            if (searchDebounce) params.set('q', searchDebounce)
+    // ── React Query: Orders list ──
+    const ordersParams = new URLSearchParams({ page: String(page), limit: '20' })
+    if (activeTab !== 'all') ordersParams.set('status', activeTab)
+    if (searchDebounce) ordersParams.set('q', searchDebounce)
 
-            const res = await fetch(`/api/orders?${params}`)
-            const json = await res.json()
-            if (json.success) {
-                setOrders(json.data)
-                setPagination(json.pagination)
-            }
-        } catch (err) {
-            console.error('Failed to fetch orders:', err)
-        } finally {
-            setLoading(false)
-        }
-    }, [page, activeTab, searchDebounce])
+    const { data: ordersResult, isPending: loading } = useQuery({
+        queryKey: ['orders', 'list', { page, status: activeTab, q: searchDebounce }],
+        queryFn: () => fetch(`/api/orders?${ordersParams}`)
+            .then(r => r.json())
+            .then(d => ({
+                orders: (d.data ?? []) as Order[],
+                pagination: d.pagination ?? { total: 0, page: 1, limit: 20, totalPages: 1 } as Pagination,
+            })),
+        placeholderData: (prev) => prev,
+        staleTime: 1000 * 30, // 30 giây
+    })
+    const orders = ordersResult?.orders ?? []
+    const pagination = ordersResult?.pagination ?? { total: 0, page: 1, limit: 20, totalPages: 1 }
 
-    useEffect(() => { fetchOrders() }, [fetchOrders])
+    // ── React Query: Status counts (cache 1 phút) ──
+    const { data: statusCounts = {} } = useQuery<Record<string, number>>({
+        queryKey: ['orders', 'counts'],
+        queryFn: async () => {
+            const statuses = ['pending', 'confirmed', 'packing', 'shipped', 'delivered', 'cancelled', 'refunded']
+            const [allRes, ...statusRes] = await Promise.all([
+                fetch('/api/orders?limit=1').then(r => r.json()),
+                ...statuses.map(s => fetch(`/api/orders?status=${s}&limit=1`).then(r => r.json())),
+            ])
+            const counts: Record<string, number> = { all: allRes.pagination?.total || 0 }
+            statuses.forEach((s, i) => { counts[s] = statusRes[i].pagination?.total || 0 })
+            return counts
+        },
+        staleTime: 1000 * 60, // 1 phút
+    })
 
-    // Fetch status counts for tabs
-    useEffect(() => {
-        async function fetchCounts() {
-            try {
-                const res = await fetch('/api/orders?limit=1')
-                const json = await res.json()
-                const allTotal = json.pagination?.total || 0
-
-                const statuses = ['pending', 'confirmed', 'packing', 'shipped', 'delivered', 'cancelled', 'refunded']
-                const counts: Record<string, number> = { all: allTotal }
-
-                await Promise.all(
-                    statuses.map(async (status) => {
-                        const r = await fetch(`/api/orders?status=${status}&limit=1`)
-                        const j = await r.json()
-                        counts[status] = j.pagination?.total || 0
-                    })
-                )
-                setStatusCounts(counts)
-            } catch (err) {
-                console.error('Failed to fetch counts:', err)
-            }
-        }
-        fetchCounts()
-    }, [orders])
-
-    // Update order status
-    const handleUpdateStatus = async () => {
-        if (!drawerOrder) return
-        setSaving(true)
-        try {
-            const res = await fetch(`/api/orders/${drawerOrder._id}`, {
+    // ── Mutation: Update order status ──
+    const updateStatusMutation = useMutation({
+        mutationFn: ({ id, status }: { id: string; status: string }) =>
+            fetch(`/api/orders/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: drawerStatus }),
-            })
-            const json = await res.json()
+                body: JSON.stringify({ status }),
+            }).then(r => r.json()),
+        onSuccess: (json) => {
             if (json.success) {
                 setDrawerOrder(null)
-                fetchOrders()
+                qc.invalidateQueries({ queryKey: ['orders'] })
             } else {
                 alert(json.error || 'Cập nhật thất bại')
             }
-        } catch {
-            alert('Lỗi kết nối')
-        } finally {
-            setSaving(false)
-        }
+        },
+        onError: () => alert('Lỗi kết nối'),
+    })
+
+    // ── Mutation: Bulk confirm ──
+    const bulkConfirmMutation = useMutation({
+        mutationFn: (ids: string[]) =>
+            Promise.all(ids.map(id =>
+                fetch(`/api/orders/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'confirmed' }),
+                })
+            )),
+        onSuccess: () => {
+            setSelectedOrders([])
+            qc.invalidateQueries({ queryKey: ['orders'] })
+        },
+        onError: () => alert('Lỗi kết nối'),
+    })
+
+    const saving = updateStatusMutation.isPending || bulkConfirmMutation.isPending
+
+    // Event handlers
+    const handleUpdateStatus = () => {
+        if (!drawerOrder) return
+        updateStatusMutation.mutate({ id: drawerOrder._id, status: drawerStatus })
     }
 
-    // Bulk confirm
-    const handleBulkConfirm = async () => {
+    const handleBulkConfirm = () => {
         if (selectedOrders.length === 0) return
-        setSaving(true)
-        try {
-            await Promise.all(
-                selectedOrders.map((id) =>
-                    fetch(`/api/orders/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'confirmed' }),
-                    })
-                )
-            )
-            setSelectedOrders([])
-            fetchOrders()
-        } catch {
-            alert('Lỗi kết nối')
-        } finally {
-            setSaving(false)
-        }
+        bulkConfirmMutation.mutate(selectedOrders)
     }
 
     const toggleSelect = (id: string) => {

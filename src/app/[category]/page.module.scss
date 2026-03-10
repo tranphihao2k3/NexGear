@@ -101,6 +101,45 @@
 }
 
 // ════════════════════════════════════════════════════════════
+// SUB-CATEGORY TABS
+// ════════════════════════════════════════════════════════════
+.subCatTabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-2;
+    margin-top: $sp-4;
+}
+
+.subCatTab {
+    @include font-body($text-sm, $fw-medium);
+    padding: $sp-1 $sp-3;
+    border-radius: 999px;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    color: var(--ink3, $color-ink3);
+    background: transparent;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+        color: $color-cyan;
+        border-color: $color-cyan;
+        background: rgba($color-cyan, 0.06);
+    }
+}
+
+.subCatTabActive {
+    color: #fff;
+    background: $color-cyan;
+    border-color: $color-cyan;
+
+    &:hover {
+        background: $color-cyan;
+        color: #fff;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
 // MAIN BODY — Sidebar + Content
 // ════════════════════════════════════════════════════════════
 .body {
@@ -680,7 +719,8 @@
         }
 
         @include mobile {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
+            gap: $sp-3;
         }
     }
 
@@ -694,7 +734,8 @@
         }
 
         @include mobile {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(2, 1fr);
+            gap: $sp-3;
         }
     }
 

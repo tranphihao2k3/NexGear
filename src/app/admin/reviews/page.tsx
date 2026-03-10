@@ -4,7 +4,8 @@
 // ============================================================
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styles from './page.module.scss'
 import { CyberpunkLoader, useToast } from '@/components/ui'
 
@@ -46,76 +47,64 @@ function renderStars(rating: number) {
 
 export default function AdminReviewsPage() {
     const { success, error } = useToast()
-    const [reviews, setReviews] = useState<Review[]>([])
-    const [total, setTotal] = useState(0)
-    const [loading, setLoading] = useState(true)
-    const [filter, setFilter] = useState('all') // all | pending | approved | rejected
+    const qc = useQueryClient()
+    const [filter, setFilter] = useState('all')
     const [selectedReview, setSelectedReview] = useState<Review | null>(null)
 
-    const fetchReviews = useCallback(async () => {
-        setLoading(true)
-        try {
-            const params = new URLSearchParams({ limit: '50' })
-            if (filter === 'pending') params.set('approved', 'false')
-            if (filter === 'approved') params.set('approved', 'true')
+    // ── React Query ──
+    const reviewParams = new URLSearchParams({ limit: '50' })
+    if (filter === 'pending') reviewParams.set('approved', 'false')
+    if (filter === 'approved') reviewParams.set('approved', 'true')
 
-            const res = await fetch(`/api/reviews?${params}`)
-            const json = await res.json()
-            if (json.success) {
-                setReviews(json.data)
-                setTotal(json.pagination?.total || json.data.length)
-            }
-        } catch (err) {
-            console.error('Failed to fetch reviews:', err)
-        } finally {
-            setLoading(false)
-        }
-    }, [filter])
+    const { data: result, isPending: loading } = useQuery({
+        queryKey: ['reviews', 'list', { filter }],
+        queryFn: () => fetch(`/api/reviews?${reviewParams}`)
+            .then(r => r.json())
+            .then(d => ({ reviews: d.data ?? [] as Review[], total: d.pagination?.total ?? d.data?.length ?? 0 })),
+        staleTime: 1000 * 30,
+        placeholderData: (prev) => prev,
+    })
+    const reviews = result?.reviews ?? []
+    const total = result?.total ?? 0
 
-    useEffect(() => {
-        fetchReviews()
-    }, [fetchReviews])
-
-    const handleApprove = async (id: string, approve: boolean) => {
-        try {
-            const res = await fetch(`/api/reviews/${id}`, {
+    const approveMutation = useMutation({
+        mutationFn: ({ id, approve }: { id: string; approve: boolean }) =>
+            fetch(`/api/reviews/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isApproved: approve }),
-            })
-            const data = await res.json()
+            }).then(r => r.json()),
+        onSuccess: (data, vars) => {
             if (data.success) {
-                success(approve ? 'Đã duyệt đánh giá' : 'Đã ẩn đánh giá')
-                setReviews((prev) =>
-                    prev.map((r) => (r._id === id ? { ...r, isApproved: approve } : r))
-                )
-                if (selectedReview?._id === id) {
-                    setSelectedReview({ ...selectedReview, isApproved: approve })
+                success(vars.approve ? 'Đã duyệt đánh giá' : 'Đã ẩn đánh giá')
+                qc.invalidateQueries({ queryKey: ['reviews'] })
+                if (selectedReview?._id === vars.id) {
+                    setSelectedReview((prev: any) => prev ? { ...prev, isApproved: vars.approve } : null)
                 }
             }
-        } catch {
-            error('Lỗi cập nhật')
-        }
-    }
+        },
+        onError: () => error('Lỗi cập nhật'),
+    })
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Xóa đánh giá này vĩnh viễn?')) return
-        try {
-            const res = await fetch(`/api/reviews/${id}`, { method: 'DELETE' })
-            const data = await res.json()
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => fetch(`/api/reviews/${id}`, { method: 'DELETE' }).then(r => r.json()),
+        onSuccess: (data, id) => {
             if (data.success) {
                 success('Đã xóa đánh giá')
                 if (selectedReview?._id === id) setSelectedReview(null)
-                fetchReviews()
-            } else {
-                error(data.error)
-            }
-        } catch {
-            error('Lỗi xóa')
-        }
+                qc.invalidateQueries({ queryKey: ['reviews'] })
+            } else { error(data.error) }
+        },
+        onError: () => error('Lỗi xóa'),
+    })
+
+    const handleApprove = (id: string, approve: boolean) => approveMutation.mutate({ id, approve })
+    const handleDelete = (id: string) => {
+        if (!confirm('Xóa đánh giá này vĩnh viễn?')) return
+        deleteMutation.mutate(id)
     }
 
-    const pendingCount = reviews.filter((r) => !r.isApproved).length
+    const pendingCount = reviews.filter((r: Review) => !r.isApproved).length
 
     return (
         <div>
@@ -156,7 +145,7 @@ export default function AdminReviewsPage() {
                     ) : reviews.length === 0 ? (
                         <div className={styles.emptyState}>Không có đánh giá nào</div>
                     ) : (
-                        reviews.map((review) => {
+                        reviews.map((review: Review) => {
                             const product = typeof review.product === 'object' ? review.product : null
                             const user = typeof review.user === 'object' ? review.user : null
                             return (

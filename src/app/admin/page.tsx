@@ -6,7 +6,7 @@
 // ============================================================
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import styles from './page.module.scss'
 import { CyberpunkLoader } from '@/components/ui'
@@ -78,31 +78,21 @@ function buildConicGradient(data: { value: number; color: string }[]) {
 
 // ── PAGE ────────────────────────────────────────────────────
 export default function AdminDashboardPage() {
-    const [data, setData] = useState<DashboardData | null>(null)
-    const [loading, setLoading] = useState(true)
+    const { data, isPending, isError } = useQuery<DashboardData>({
+        queryKey: ['dashboard'],
+        queryFn: () => fetch('/api/dashboard').then(r => r.json()).then(d => {
+            if (!d.success) throw new Error(d.error || 'Lỗi tải dashboard')
+            return d.data
+        }),
+        staleTime: 1000 * 60 * 5,           // 5 phút
+        refetchInterval: 1000 * 60 * 5,     // auto-refresh mỗi 5 phút
+    })
 
-    useEffect(() => {
-        async function fetchDashboard() {
-            try {
-                const res = await fetch('/api/dashboard')
-                const json = await res.json()
-                if (json.success) {
-                    setData(json.data)
-                }
-            } catch (err) {
-                console.error('Failed to fetch dashboard:', err)
-            } finally {
-                setLoading(false)
-            }
-        }
-        fetchDashboard()
-    }, [])
-
-    if (loading) {
+    if (isPending) {
         return <CyberpunkLoader message="Đang tải dashboard..." />
     }
 
-    if (!data) {
+    if (isError || !data) {
         return (
             <div style={{ textAlign: 'center', padding: '60px', color: 'rgba(255,255,255,0.5)' }}>
                 Không thể tải dữ liệu dashboard

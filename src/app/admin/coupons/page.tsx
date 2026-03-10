@@ -4,7 +4,8 @@
 // ============================================================
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styles from './page.module.scss'
 import { CyberpunkLoader, useToast } from '@/components/ui'
 
@@ -53,38 +54,61 @@ function getCouponStatus(coupon: Coupon): { label: string; cls: string } {
 
 export default function AdminCouponsPage() {
     const { success, error } = useToast()
-    const [coupons, setCoupons] = useState<Coupon[]>([])
-    const [loading, setLoading] = useState(true)
-
+    const qc = useQueryClient()
     const [showModal, setShowModal] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
-    const [saving, setSaving] = useState(false)
     const [formData, setFormData] = useState({
-        code: '',
-        type: 'percent' as 'percent' | 'fixed' | 'shipping',
-        value: '',
-        minOrderValue: '',
-        maxDiscount: '',
-        maxUses: '',
-        startAt: new Date().toISOString().split('T')[0],
-        expireAt: '',
+        code: '', type: 'percent' as 'percent' | 'fixed' | 'shipping',
+        value: '', minOrderValue: '', maxDiscount: '', maxUses: '',
+        startAt: new Date().toISOString().split('T')[0], expireAt: '',
     })
 
-    const fetchCoupons = async () => {
-        try {
-            const res = await fetch('/api/coupons?limit=50')
-            const json = await res.json()
-            if (json.success) setCoupons(json.data)
-        } catch (e) {
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
+    // ── React Query ──
+    const { data: coupons = [], isPending: loading } = useQuery<Coupon[]>({
+        queryKey: ['coupons'],
+        queryFn: () => fetch('/api/coupons?limit=50').then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60 * 2,
+    })
 
-    useEffect(() => {
-        fetchCoupons()
-    }, [])
+    const saveMutation = useMutation({
+        mutationFn: ({ id, data }: { id?: string; data: any }) => {
+            const url = id ? `/api/coupons/${id}` : '/api/coupons'
+            return fetch(url, {
+                method: id ? 'PUT' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            }).then(r => r.json())
+        },
+        onSuccess: (data, vars) => {
+            if (!data.success) { error(data.error); return }
+            success(vars.id ? 'Đã cập nhật mã giảm giá' : 'Đã thêm mã giảm giá')
+            setShowModal(false)
+            qc.invalidateQueries({ queryKey: ['coupons'] })
+        },
+        onError: (e: any) => error(e.message),
+    })
+
+    const toggleMutation = useMutation({
+        mutationFn: (c: Coupon) =>
+            fetch(`/api/coupons/${c._id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ isActive: !c.isActive }),
+            }).then(r => r.json()),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['coupons'] }),
+        onError: () => error('Lỗi cập nhật'),
+    })
+
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => fetch(`/api/coupons/${id}`, { method: 'DELETE' }).then(r => r.json()),
+        onSuccess: (data) => {
+            if (data.success) { success('Đã xóa'); qc.invalidateQueries({ queryKey: ['coupons'] }) }
+            else error(data.error)
+        },
+        onError: () => error('Lỗi xóa'),
+    })
+
+    const saving = saveMutation.isPending
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target
@@ -116,71 +140,30 @@ export default function AdminCouponsPage() {
         setShowModal(true)
     }
 
-    const saveItem = async () => {
+    const saveItem = () => {
         if (!formData.code || !formData.value || !formData.startAt || !formData.expireAt) {
             return error('Vui lòng điền đủ: mã, giá trị, ngày bắt đầu và kết thúc')
         }
-        setSaving(true)
-        try {
-            const url = editingId ? `/api/coupons/${editingId}` : '/api/coupons'
-            const res = await fetch(url, {
-                method: editingId ? 'PUT' : 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    code: formData.code.toUpperCase(),
-                    type: formData.type,
-                    value: Number(formData.value),
-                    minOrderValue: formData.minOrderValue ? Number(formData.minOrderValue) : 0,
-                    maxDiscount: formData.maxDiscount ? Number(formData.maxDiscount) : null,
-                    maxUses: formData.maxUses ? Number(formData.maxUses) : 0,
-                    startAt: new Date(formData.startAt).toISOString(),
-                    expireAt: new Date(formData.expireAt).toISOString(),
-                }),
-            })
-            const data = await res.json()
-            if (!data.success) throw new Error(data.error)
-            success(editingId ? 'Đã cập nhật mã giảm giá' : 'Đã thêm mã giảm giá')
-            setShowModal(false)
-            fetchCoupons()
-        } catch (e: any) {
-            error(e.message)
-        } finally {
-            setSaving(false)
-        }
+        saveMutation.mutate({
+            id: editingId ?? undefined,
+            data: {
+                code: formData.code.toUpperCase(),
+                type: formData.type,
+                value: Number(formData.value),
+                minOrderValue: formData.minOrderValue ? Number(formData.minOrderValue) : 0,
+                maxDiscount: formData.maxDiscount ? Number(formData.maxDiscount) : null,
+                maxUses: formData.maxUses ? Number(formData.maxUses) : 0,
+                startAt: new Date(formData.startAt).toISOString(),
+                expireAt: new Date(formData.expireAt).toISOString(),
+            },
+        })
     }
 
-    const toggleActive = async (c: Coupon) => {
-        try {
-            const res = await fetch(`/api/coupons/${c._id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isActive: !c.isActive }),
-            })
-            const data = await res.json()
-            if (data.success) {
-                setCoupons((prev) =>
-                    prev.map((x) => (x._id === c._id ? { ...x, isActive: !x.isActive } : x))
-                )
-            }
-        } catch {
-            error('Lỗi cập nhật')
-        }
-    }
+    const toggleActive = (c: Coupon) => toggleMutation.mutate(c)
 
-    const deleteItem = async (id: string) => {
+    const deleteItem = (id: string) => {
         if (!confirm('Xóa mã giảm giá này?')) return
-        try {
-            const res = await fetch(`/api/coupons/${id}`, { method: 'DELETE' })
-            const data = await res.json()
-            if (data.success) {
-                success('Đã xóa')
-                fetchCoupons()
-            } else {
-                error(data.error)
-            }
-        } catch {
-            error('Lỗi xóa')
-        }
+        deleteMutation.mutate(id)
     }
 
     return (

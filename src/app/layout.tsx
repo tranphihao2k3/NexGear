@@ -86,6 +86,7 @@ export const viewport: Viewport = {
 // ── LAYOUT ──────────────────────────────────────────────────
 import LayoutWrapper from '@/components/layout/LayoutWrapper'
 import { AuthProvider } from '@/components/layout/AuthProvider'
+import { QueryProvider } from '@/components/layout/QueryProvider'
 import dbConnect from '@/lib/mongodb'
 import Setting from '@/models/Setting'
 
@@ -112,11 +113,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body>
         <AuthProvider>
-          <ToastProvider>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-          </ToastProvider>
+          <QueryProvider>
+            <ToastProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </ToastProvider>
+          </QueryProvider>
         </AuthProvider>
       </body>
     </html>

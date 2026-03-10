@@ -3,12 +3,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/ui/Button";
 import styles from "./page.module.scss";
 
 export default function LoginPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get("callbackUrl") || "/";
+
     const [form, setForm] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(false);
@@ -54,7 +57,7 @@ export default function LoginPage() {
                 } else {
                     localStorage.removeItem("nexgear_remember_email");
                 }
-                router.push("/");
+                router.push(callbackUrl);
                 router.refresh();
             }
         } catch (e) {
@@ -65,7 +68,7 @@ export default function LoginPage() {
     }
 
     function handleGoogleLogin() {
-        signIn("google", { callbackUrl: "/" });
+        signIn("google", { callbackUrl });
     }
 
     return (

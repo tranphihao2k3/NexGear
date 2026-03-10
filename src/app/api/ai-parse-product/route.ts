@@ -5,7 +5,7 @@ import dbConnect from '@/lib/mongodb';
 import Category from '@/models/Category';
 import Brand from '@/models/Brand';
 
-function buildPrompt(text: string, categoryList: { id: string; name: string }[], brandList: { id: string; name: string }[]) {
+function buildPrompt(text: string, categoryList: { id: string; name: string; parentName?: string }[], brandList: { id: string; name: string }[]) {
     return `
 Bạn là CHUYÊN GIA sản phẩm công nghệ kình nghiệm (laptop, chuột, bàn phím, tai nghe, loa, phụ kiện...)
 và đồng thời là CHUYÊN GIA SEO viết content bán hàng tại Việt Nam.
@@ -15,7 +15,9 @@ INPUT TEXT (mô tả sản phẩm từ người bán):
 ${text}
 """
 
-DANH MỤC CÓ SẴN: ${categoryList.map(c => c.name).join(', ')}
+DANH MỤC CÓ SẴN (ưu tiên chọn danh mục CON cụ thể nhất, KHÔNG chọn danh mục CHA nếu có con phù hợp):
+${categoryList.map(c => `- ${c.name}${c.parentName ? ` (thuộc ${c.parentName})` : ' (danh mục chính)'}`).join('\n')}
+
 THƯƠNG HIỆU CÓ SẴN: ${brandList.map(b => b.name).join(', ')}
 
 NHIỆM VỤ QUAN TRỌNG:
@@ -27,7 +29,7 @@ Trả về JSON theo schema sau (CHỈ JSON, không text khác):
 {
   "name": "Tên sản phẩm sạch (không chứa mô tả quảng cáo, tình trạng máy)",
   "brand": "Tên thương hiệu khớp chính xác từ danh sách hoặc null",
-  "categoryName": "Tên danh mục khớp nhất từ danh sách hoặc null",
+  "categoryName": "Tên danh mục CON cụ thể nhất từ danh sách (VD: 'Gaming Laptop' thay vì 'Laptop', 'Chuột Gaming' thay vì 'Chuột'). Chỉ chọn danh mục CHA khi không có con nào phù hợp.",
   "basePrice": số nguyên là giá bán chính thức (BẮT BUỘC — khi chỉ có 1 giá duy nhất trong text, đây chính là basePrice),
   "salePrice": null — LUÔN ĐỂ NULL,
   "stock": 1,
@@ -185,11 +187,15 @@ export async function POST(request: Request) {
 
         await dbConnect();
         const [categories, brands] = await Promise.all([
-            Category.find({ isActive: true }, 'name _id'),
+            Category.find({ isActive: true }, 'name _id parent').populate('parent', 'name'),
             Brand.find({}, 'name _id'),
         ]);
 
-        const categoryList = categories.map(c => ({ id: c._id.toString(), name: c.name }));
+        const categoryList = categories.map(c => ({
+            id: c._id.toString(),
+            name: c.name,
+            parentName: (c.parent as any)?.name || undefined,
+        }));
         const brandList = brands.map(b => ({ id: b._id.toString(), name: b.name }));
         const prompt = buildPrompt(text, categoryList, brandList);
 
@@ -233,12 +239,16 @@ export async function POST(request: Request) {
             );
         }
 
-        // Map category/brand name → ID
+        // Map category/brand name → ID (prefer exact match, then sub-category over parent)
         if (parsedData.categoryName) {
-            const match = categoryList.find(c =>
-                c.name.toLowerCase() === parsedData.categoryName?.toLowerCase() ||
-                c.name.toLowerCase().includes(parsedData.categoryName?.toLowerCase())
-            );
+            const catName = parsedData.categoryName.toLowerCase();
+            // 1. Exact match
+            let match = categoryList.find(c => c.name.toLowerCase() === catName);
+            // 2. Partial match — prefer sub-categories (those with parentName)
+            if (!match) {
+                const partials = categoryList.filter(c => c.name.toLowerCase().includes(catName) || catName.includes(c.name.toLowerCase()));
+                match = partials.find(c => c.parentName) || partials[0];
+            }
             if (match) parsedData.categoryId = match.id;
         }
         if (parsedData.brand) {

@@ -16,6 +16,11 @@ export interface ISoftware extends Document {
     tags: string[];
     status: 'draft' | 'published';
     views: number;
+    autoSetup: boolean;
+    fileName: string;
+    silentArgs: string;
+    isAsync: boolean;
+    password: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -37,6 +42,11 @@ const SoftwareSchema = new Schema<ISoftware>(
         tags: { type: [String], default: [] },
         status: { type: String, enum: ['draft', 'published'], default: 'draft' },
         views: { type: Number, default: 0 },
+        autoSetup: { type: Boolean, default: false },
+        fileName: { type: String, default: '' },
+        silentArgs: { type: String, default: '' },
+        isAsync: { type: Boolean, default: true },
+        password: { type: String, default: '' },
     },
     { timestamps: true }
 );

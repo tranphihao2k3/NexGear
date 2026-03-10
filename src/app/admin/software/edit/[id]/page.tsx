@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Save, ArrowLeft, Box, Info, Settings, Image as ImageIcon, Send, FileText, RefreshCw } from 'lucide-react';
+import { Save, ArrowLeft, Box, Info, Settings, Image as ImageIcon, Send, FileText, RefreshCw, Zap } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { Button, Input } from '@/components/ui';
 import ImageUploader from '@/components/admin/ImageUploader';
@@ -31,6 +31,11 @@ export default function EditSoftwarePage({ params }: { params: Promise<{ id: str
         type: 'Free',
         tags: '',
         status: 'draft',
+        autoSetup: false,
+        fileName: '',
+        silentArgs: '',
+        isAsync: true,
+        password: '',
     });
 
     useEffect(() => {
@@ -206,6 +211,10 @@ export default function EditSoftwarePage({ params }: { params: Promise<{ id: str
                                     <option value="Đồ họa">Thiết kế & Đồ họa</option>
                                     <option value="Hệ thống">Công cụ hệ thống</option>
                                     <option value="Tiện ích">Tiện ích khác</option>
+                                    <option value="general">General</option>
+                                    <option value="utility">Utility</option>
+                                    <option value="game">Game</option>
+                                    <option value="student">Student</option>
                                 </select>
                             </div>
                             <div className={s.techGrid}>
@@ -229,6 +238,54 @@ export default function EditSoftwarePage({ params }: { params: Promise<{ id: str
                                 </div>
                             </div>
                             <Input label="Tags" name="tags" value={formData.tags} onChange={handleChange} />
+                        </div>
+                    </div>
+
+                    {/* Auto-Setup Config */}
+                    <div className={s.card}>
+                        <h2 className={s.cardTitle}><Zap size={18} color="#F59E0B" /> AUTO-SETUP CONFIG</h2>
+                        <div className={s.fieldGroup}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={formData.autoSetup}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, autoSetup: e.target.checked }))}
+                                />
+                                <span style={{ fontSize: '13px', fontWeight: 600 }}>Dùng cho Auto-Setup Tool</span>
+                            </label>
+                            {formData.autoSetup && (
+                                <>
+                                    <Input
+                                        label="File Name (tên file cài đặt)"
+                                        name="fileName"
+                                        value={formData.fileName}
+                                        onChange={handleChange}
+                                        placeholder="ChromeSetup.exe"
+                                    />
+                                    <Input
+                                        label="Silent Args (tham số cài im lặng)"
+                                        name="silentArgs"
+                                        value={formData.silentArgs}
+                                        onChange={handleChange}
+                                        placeholder="/silent /install"
+                                    />
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.isAsync}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, isAsync: e.target.checked }))}
+                                        />
+                                        <span style={{ fontSize: '13px' }}>IsAsync (chạy song song)</span>
+                                    </label>
+                                    <Input
+                                        label="Password (nếu file nén có mật khẩu)"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        placeholder=""
+                                    />
+                                </>
+                            )}
                         </div>
                     </div>
 

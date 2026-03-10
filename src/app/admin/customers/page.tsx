@@ -3,7 +3,8 @@
 // ============================================================
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import styles from './page.module.scss'
 import { CyberpunkLoader } from '@/components/ui'
 import { downloadCsv, toCsv } from '@/lib/csv'
@@ -36,38 +37,30 @@ function getColor(index: number) {
 }
 
 export default function AdminCustomersPage() {
-    const [customers, setCustomers] = useState<Customer[]>([])
-    const [total, setTotal] = useState(0)
-    const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [searchDebounce, setSearchDebounce] = useState('')
     const [selected, setSelected] = useState<Customer | null>(null)
 
+    // Debounce search
     useEffect(() => {
         const timer = setTimeout(() => setSearchDebounce(search), 400)
         return () => clearTimeout(timer)
     }, [search])
 
-    const fetchCustomers = useCallback(async () => {
-        setLoading(true)
-        try {
-            const params = new URLSearchParams({ role: 'customer', limit: '50' })
-            if (searchDebounce) params.set('q', searchDebounce)
-
-            const res = await fetch(`/api/users?${params}`)
-            const json = await res.json()
-            if (json.success) {
-                setCustomers(json.data)
-                setTotal(json.pagination?.total || json.data.length)
-            }
-        } catch (err) {
-            console.error('Failed to fetch customers:', err)
-        } finally {
-            setLoading(false)
-        }
-    }, [searchDebounce])
-
-    useEffect(() => { fetchCustomers() }, [fetchCustomers])
+    // ── React Query — auto-cache per search term ──
+    const sp = new URLSearchParams({ role: 'customer', limit: '50' })
+    if (searchDebounce) sp.set('q', searchDebounce)
+    const { data: result, isPending: loading } = useQuery({
+        queryKey: ['users', 'list', { role: 'customer', q: searchDebounce }],
+        queryFn: () => fetch(`/api/users?${sp}`).then(r => r.json()).then(d => ({
+            customers: d.data ?? [],
+            total: d.pagination?.total ?? d.data?.length ?? 0,
+        })),
+        staleTime: 1000 * 60 * 2,
+        placeholderData: (prev) => prev,
+    })
+    const customers = result?.customers ?? []
+    const total = result?.total ?? 0
 
     const handleExportCustomers = () => {
         if (customers.length === 0) {
@@ -76,7 +69,7 @@ export default function AdminCustomersPage() {
         }
 
         const csv = toCsv(
-            customers.map((customer) => ({
+            customers.map((customer: any) => ({
                 ten_khach_hang: customer.name,
                 email: customer.email,
                 dien_thoai: customer.addresses?.[0]?.phone || '',
@@ -132,7 +125,7 @@ export default function AdminCustomersPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {customers.map((customer, idx) => (
+                                {customers.map((customer: Customer, idx: number) => (
                                     <tr
                                         key={customer._id}
                                         className={selected?._id === customer._id ? styles.selected : ''}

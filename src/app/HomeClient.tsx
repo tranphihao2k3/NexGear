@@ -1,7 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, FreeMode } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/free-mode";
 import ProductCard from "@/components/product/ProductCard";
 import styles from "./page.module.scss";
 
@@ -59,7 +65,7 @@ const CATEGORIES = [
   { id: "headphone", label: "Tai Nghe", sub: "Over-ear · TWS · Gaming", href: "/tai-nghe", tag: "200+" },
   { id: "speaker", label: "Loa", sub: "Bluetooth · Soundbar · Studio", href: "/loa", tag: "150+" },
   { id: "mic", label: "Micro", sub: "Stream · Podcast · USB", href: "/micro", tag: "80+" },
-  { id: "mousepad", label: "Lót Chuột", sub: "Speed · Control · XXL", href: "/phu-kien?type=pad", tag: "120+" },
+  { id: "laptop", label: "Laptop", sub: "Gaming · Ultrabook · Workstation", href: "/laptop", tag: "100+" },
   { id: "keycap", label: "Keycap", sub: "PBT · Cherry · SA", href: "/phu-kien?type=keycap", tag: "250+" },
   { id: "accessory", label: "Phụ Kiện", sub: "Switch · Cable · Hub", href: "/phu-kien", tag: "400+" },
 ];
@@ -73,7 +79,7 @@ function CategorySvg({ id }: { id: string }) {
     case "headphone": return <svg {...s}><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z" /><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></svg>;
     case "speaker": return <svg {...s}><rect x="4" y="2" width="16" height="20" rx="2" /><circle cx="12" cy="14" r="4" /><line x1="12" y1="6" x2="12.01" y2="6" /></svg>;
     case "mic": return <svg {...s}><rect x="9" y="2" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="17" x2="12" y2="22" /><line x1="8" y1="22" x2="16" y2="22" /></svg>;
-    case "mousepad": return <svg {...s}><rect x="2" y="6" width="20" height="14" rx="2" /><path d="M6 10h12" /><circle cx="12" cy="15" r="2" /></svg>;
+    case "laptop": return <svg {...s}><rect x="3" y="4" width="18" height="12" rx="2" /><line x1="2" y1="20" x2="22" y2="20" /><line x1="7" y1="16" x2="7" y2="20" /><line x1="17" y1="16" x2="17" y2="20" /></svg>;
     case "keycap": return <svg {...s}><path d="M6 4h12l2 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8l2-4z" /><rect x="8" y="10" width="8" height="6" rx="1" /></svg>;
     case "accessory": return <svg {...s}><circle cx="12" cy="12" r="3" /><path d="M12 2v4" /><path d="M12 18v4" /><path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" /><path d="M2 12h4" /><path d="M18 12h4" /><path d="M4.93 19.07l2.83-2.83" /><path d="M16.24 7.76l2.83-2.83" /></svg>;
     default: return null;
@@ -137,29 +143,31 @@ export default function HomeClient() {
   const heroRef = useInView();
   const typingText = useTyping(["NEXT LEVEL", "YOUR SETUP", "THE GAME"], 90, 2500);
 
-  // Real API data
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
-  const [saleProducts, setSaleProducts] = useState<any[]>([]);
-  const [bestsellerProducts, setBestsellerProducts] = useState<any[]>([]);
-  const [brands, setBrands] = useState<string[]>([]);
-
-  useEffect(() => {
-    // Fetch featured, sale, bestseller products + brands in parallel
-    Promise.all([
-      fetch('/api/products?featured=true&active=true&limit=4').then(r => r.json()),
-      fetch('/api/products?tag=sale&active=true&limit=4&sort=-createdAt').then(r => r.json()),
-      fetch('/api/products?active=true&limit=4&sort=-soldCount').then(r => r.json()),
-      fetch('/api/brands?limit=20&hasProducts=true').then(r => r.json()),
-    ]).then(([featuredRes, saleRes, bestRes, brandRes]) => {
-      if (featuredRes.success) setFeaturedProducts(featuredRes.data);
-      if (saleRes.success) setSaleProducts(saleRes.data);
-      if (bestRes.success) setBestsellerProducts(bestRes.data);
-      if (brandRes.success) setBrands(brandRes.data.map((b: any) => b.name));
-    }).catch(console.error);
-  }, []);
+  // ── REACT QUERY — parallel data fetching (cached, no re-fetch on nav) ──
+  const { data: featuredProducts = [] } = useQuery({
+    queryKey: ['products', 'list', { featured: true, active: true, limit: 4 }],
+    queryFn: () => fetch('/api/products?featured=true&active=true&limit=4').then(r => r.json()).then(d => d.success ? d.data : []),
+    staleTime: 1000 * 60 * 10,
+  });
+  const { data: saleProducts = [] } = useQuery({
+    queryKey: ['products', 'list', { tag: 'sale', active: true, limit: 4, sort: '-createdAt' }],
+    queryFn: () => fetch('/api/products?tag=sale&active=true&limit=4&sort=-createdAt').then(r => r.json()).then(d => d.success ? d.data : []),
+    staleTime: 1000 * 60 * 10,
+  });
+  const { data: bestsellerProducts = [] } = useQuery({
+    queryKey: ['products', 'list', { active: true, limit: 4, sort: '-soldCount' }],
+    queryFn: () => fetch('/api/products?active=true&limit=4&sort=-soldCount').then(r => r.json()).then(d => d.success ? d.data : []),
+    staleTime: 1000 * 60 * 10,
+  });
+  const { data: brandsData = [] } = useQuery({
+    queryKey: ['brands', 'list', { hasProducts: true, limit: 20 }],
+    queryFn: () => fetch('/api/brands?limit=20&hasProducts=true').then(r => r.json()).then(d => d.success ? d.data.map((b: any) => b.name) : []),
+    staleTime: 1000 * 60 * 30,
+  });
 
   // Ensure enough brands for marquee (min 6), pad with defaults if needed
   const defaultBrands = ["AKKO", "Logitech", "Sony", "HyperX", "Edifier", "Razer", "Keychron", "Corsair", "SteelSeries", "Bose", "Sennheiser", "Audio-Technica"];
+  const brands: string[] = brandsData as string[];
   const displayBrands = brands.length >= 6 ? brands : (brands.length > 0 ? [...brands, ...defaultBrands.filter(b => !brands.includes(b))].slice(0, 12) : defaultBrands);
 
   return (
@@ -280,14 +288,25 @@ export default function HomeClient() {
             </Link>
           </div>
 
-          <div className={styles.productGrid}>
-            {featuredProducts.length > 0
-              ? featuredProducts.map((product) => (
-                <ProductCard key={product._id} product={product as any} onAddToCart={() => { }} />
-              ))
-              : <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có sản phẩm nổi bật</div>
-            }
-          </div>
+          {featuredProducts.length > 0 ? (
+            <Swiper
+              modules={[Navigation, FreeMode]}
+              spaceBetween={16}
+              slidesPerView={2}
+              navigation
+              freeMode
+              breakpoints={{ 640: { slidesPerView: 3 }, 1024: { slidesPerView: 4 } }}
+              className={styles.productSwiper}
+            >
+              {featuredProducts.map((product: any) => (
+                <SwiperSlide key={product._id}>
+                  <ProductCard product={product as any} onAddToCart={() => { }} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có sản phẩm nổi bật</div>
+          )}
         </div>
       </section>
 
@@ -320,14 +339,25 @@ export default function HomeClient() {
             </div>
           </div>
 
-          <div className={styles.flashGrid}>
-            {saleProducts.length > 0
-              ? saleProducts.map((product) => (
-                <ProductCard key={product._id} product={product as any} onAddToCart={() => { }} />
-              ))
-              : <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có deal hôm nay</div>
-            }
-          </div>
+          {saleProducts.length > 0 ? (
+            <Swiper
+              modules={[Navigation, FreeMode]}
+              spaceBetween={16}
+              slidesPerView={2}
+              navigation
+              freeMode
+              breakpoints={{ 640: { slidesPerView: 3 }, 1024: { slidesPerView: 4 } }}
+              className={styles.productSwiper}
+            >
+              {saleProducts.map((product: any) => (
+                <SwiperSlide key={product._id}>
+                  <ProductCard product={product as any} onAddToCart={() => { }} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có deal hôm nay</div>
+          )}
         </div>
       </section>
 
@@ -344,17 +374,28 @@ export default function HomeClient() {
             </Link>
           </div>
 
-          <div className={styles.productGrid}>
-            {bestsellerProducts.length > 0
-              ? bestsellerProducts.map((product, i) => (
-                <div key={product._id} className={styles.bestsellerWrap}>
-                  <span className={styles.bestsellerRank}>#{i + 1}</span>
-                  <ProductCard product={product as any} onAddToCart={() => { }} />
-                </div>
-              ))
-              : <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có sản phẩm bán chạy</div>
-            }
-          </div>
+          {bestsellerProducts.length > 0 ? (
+            <Swiper
+              modules={[Navigation, FreeMode]}
+              spaceBetween={16}
+              slidesPerView={2}
+              navigation
+              freeMode
+              breakpoints={{ 640: { slidesPerView: 3 }, 1024: { slidesPerView: 4 } }}
+              className={styles.productSwiper}
+            >
+              {bestsellerProducts.map((product: any, i: number) => (
+                <SwiperSlide key={product._id}>
+                  <div className={styles.bestsellerWrap}>
+                    <span className={styles.bestsellerRank}>#{i + 1}</span>
+                    <ProductCard product={product as any} onAddToCart={() => { }} />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có sản phẩm bán chạy</div>
+          )}
         </div>
       </section>
 
@@ -384,23 +425,33 @@ export default function HomeClient() {
             </div>
           </div>
 
-          <div className={styles.reviewGrid}>
+          <Swiper
+            modules={[Navigation, FreeMode]}
+            spaceBetween={16}
+            slidesPerView={1.15}
+            navigation
+            freeMode
+            breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }}
+            className={styles.productSwiper}
+          >
             {REVIEWS.map((rev) => (
-              <div key={rev.id} className={styles.reviewCard}>
-                <div className={styles.reviewTop}>
-                  <div className={styles.reviewAvatar}>{rev.avatar}</div>
-                  <div>
-                    <div className={styles.reviewName}>{rev.name}</div>
-                    <div className={styles.reviewProduct}>đã mua {rev.product}</div>
+              <SwiperSlide key={rev.id}>
+                <div className={styles.reviewCard}>
+                  <div className={styles.reviewTop}>
+                    <div className={styles.reviewAvatar}>{rev.avatar}</div>
+                    <div>
+                      <div className={styles.reviewName}>{rev.name}</div>
+                      <div className={styles.reviewProduct}>đã mua {rev.product}</div>
+                    </div>
                   </div>
+                  <div className={styles.reviewStars}>
+                    {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
+                  </div>
+                  <p className={styles.reviewText}>"{rev.text}"</p>
                 </div>
-                <div className={styles.reviewStars}>
-                  {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
-                </div>
-                <p className={styles.reviewText}>"{rev.text}"</p>
-              </div>
+              </SwiperSlide>
             ))}
-          </div>
+          </Swiper>
         </div>
       </section>
 

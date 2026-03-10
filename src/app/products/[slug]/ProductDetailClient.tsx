@@ -4,6 +4,9 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Lightbox from "yet-another-react-lightbox";
+import Zoom from "yet-another-react-lightbox/plugins/zoom";
+import "yet-another-react-lightbox/styles.css";
 import ProductCard from "@/components/product/ProductCard";
 import Button from "@/components/ui/Button";
 import styles from "./page.module.scss";
@@ -67,8 +70,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const [related, setRelated] = useState<any[]>([]);
 
     const [activeImg, setActiveImg] = useState(0);
-    const [zoomed, setZoomed] = useState(false);
-    const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+    const [lightboxOpen, setLightboxOpen] = useState(false);
     const [qty, setQty] = useState(1);
     const [addedToCart, setAddedToCart] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
@@ -151,13 +153,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const specs = product.specs || {};
     const specEntries = Object.entries(specs).filter(([, v]) => v !== null && v !== undefined && v !== "");
 
-    function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-        if (!imgRef.current) return;
-        const rect = imgRef.current.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        setZoomPos({ x, y });
-    }
+    // handleMouseMove removed — using lightbox instead
 
     function doAddToCart() {
         addItem({
@@ -258,28 +254,35 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                 )}
                             </div>
 
-                            {/* Main image */}
+                            {/* Main image — click to open lightbox */}
                             <div
-                                ref={imgRef}
-                                className={`${styles.mainImg} ${zoomed ? styles.mainImgZoomed : ""}`}
-                                onMouseEnter={() => setZoomed(true)}
-                                onMouseLeave={() => setZoomed(false)}
-                                onMouseMove={handleMouseMove}
+                                className={styles.mainImg}
+                                onClick={() => setLightboxOpen(true)}
                                 style={{
                                     backgroundImage: `url(${images[activeImg]})`,
-                                    backgroundPosition: zoomed ? `${zoomPos.x}% ${zoomPos.y}%` : 'center',
-                                    backgroundSize: zoomed ? '200%' : 'contain',
-                                    backgroundRepeat: 'no-repeat'
+                                    backgroundPosition: 'center',
+                                    backgroundSize: 'contain',
+                                    backgroundRepeat: 'no-repeat',
+                                    cursor: 'zoom-in',
                                 }}
                             >
                                 <div className={styles.imgCorners}>
                                     <span /><span /><span /><span />
                                 </div>
-                                {zoomed && <span className={styles.zoomHint}>ZOOM [x2]</span>}
+                                <span className={styles.zoomHint}>🔍 XEM ẢNH</span>
                                 <span className={styles.imgCounter}>
                                     {activeImg + 1} / {images.length}
                                 </span>
                             </div>
+
+                            <Lightbox
+                                open={lightboxOpen}
+                                close={() => setLightboxOpen(false)}
+                                index={activeImg}
+                                slides={images.map((src: string) => ({ src }))}
+                                plugins={[Zoom]}
+                                on={{ view: ({ index }) => setActiveImg(index) }}
+                            />
 
                             {/* Thumbnails */}
                             <div className={styles.thumbRow}>

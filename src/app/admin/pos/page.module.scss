@@ -2062,3 +2062,78 @@
         print-color-adjust: exact !important;
     }
 }
+
+// ══════════════════════════════════════════════════════════════
+// MOBILE POS UI
+// ══════════════════════════════════════════════════════════════
+.mobileTabBar {
+    display: none;
+
+    @include mobile {
+        display: flex;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: $admin-bg;
+        border-bottom: 1px solid $admin-border;
+        padding: $sp-2;
+        gap: $sp-2;
+    }
+}
+
+.mobileTab {
+    flex: 1;
+    padding: $sp-3;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    background: $admin-card-bg;
+    color: $admin-ink3;
+    @include font-mono($text-xs, $fw-bold);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: $transition-fast;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+
+    &.mobileTabActive {
+        background: $color-cyan;
+        color: $admin-bg;
+        border-color: $color-cyan;
+    }
+}
+
+.mobileCartBadge {
+    @include flex-center;
+    min-width: 20px;
+    height: 20px;
+    background: $color-magenta;
+    color: $color-white;
+    border-radius: $r-full;
+    font-size: 10px;
+    padding: 0 4px;
+}
+
+.mobileHidden {
+    @include mobile {
+        display: none !important;
+    }
+}
+
+@include mobile {
+    .posLayout {
+        grid-template-columns: 1fr !important;
+        height: auto;
+        overflow: visible;
+    }
+
+    .resizer {
+        display: none;
+    }
+
+    .rightPanel {
+        height: auto;
+        max-height: none;
+    }
+}

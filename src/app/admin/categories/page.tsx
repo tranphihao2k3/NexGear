@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import styles from './page.module.scss';
 import { CyberpunkLoader, useToast } from '@/components/ui';
 
@@ -15,28 +16,17 @@ interface Category {
 
 export default function AdminCategoriesPage() {
     const { success, error } = useToast();
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(true);
-
+    const qc = useQueryClient();
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({ name: '', slug: '', icon: '', order: '0' });
 
-    const fetchCategories = async () => {
-        try {
-            const res = await fetch('/api/categories?limit=50');
-            const json = await res.json();
-            if (json.success) setCategories(json.data);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchCategories();
-    }, []);
+    // ── React Query ──
+    const { data: categories = [], isPending: loading } = useQuery<Category[]>({
+        queryKey: ['categories'],
+        queryFn: () => fetch('/api/categories?limit=50').then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60 * 5,
+    });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -62,45 +52,48 @@ export default function AdminCategoriesPage() {
         setShowModal(true);
     };
 
-    const saveItem = async () => {
-        if (!formData.name || !formData.slug) return error('Tên và Slug là bắt buộc!');
-        try {
-            const url = editingId ? `/api/categories/${editingId}` : `/api/categories`;
-            const res = await fetch(url, {
-                method: editingId ? 'PUT' : 'POST',
+    const saveCategoryMutation = useMutation({
+        mutationFn: ({ id, data }: { id?: string; data: any }) => {
+            const url = id ? `/api/categories/${id}` : '/api/categories';
+            return fetch(url, {
+                method: id ? 'PUT' : 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, order: Number(formData.order) })
-            });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
-            success(editingId ? 'Đã cập nhật danh mục' : 'Đã thêm danh mục');
+                body: JSON.stringify(data),
+            }).then(r => r.json());
+        },
+        onSuccess: (data, vars) => {
+            if (!data.success) { error(data.error); return; }
+            success(vars.id ? 'Đã cập nhật danh mục' : 'Đã thêm danh mục');
             setShowModal(false);
-            fetchCategories();
-        } catch (e: any) { error(e.message); }
-    };
+            qc.invalidateQueries({ queryKey: ['categories'] });
+        },
+    });
 
-    const toggleActive = async (cat: Category) => {
-        try {
-            const res = await fetch(`/api/categories/${cat._id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isActive: !cat.isActive })
-            });
-            const data = await res.json();
-            if (data.success) {
-                setCategories(prev => prev.map(c => c._id === cat._id ? { ...c, isActive: !c.isActive } : c));
-            }
-        } catch (e) { error('Lỗi cập nhật'); }
-    };
-
-    const deleteItem = async (id: string) => {
-        if (!confirm('Xóa danh mục này?')) return;
-        try {
-            const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
-            const data = await res.json();
-            if (data.success) { success('Đã xóa'); fetchCategories(); }
+    const deleteCategoryMutation = useMutation({
+        mutationFn: (id: string) =>
+            fetch(`/api/categories/${id}`, { method: 'DELETE' }).then(r => r.json()),
+        onSuccess: (data) => {
+            if (data.success) { success('Đã xóa'); qc.invalidateQueries({ queryKey: ['categories'] }); }
             else error(data.error);
-        } catch (e) { error('Lỗi xóa'); }
+        },
+        onError: () => error('Lỗi xóa'),
+    });
+
+    const saveItem = () => {
+        if (!formData.name || !formData.slug) return error('Tên và Slug là bắt buộc!');
+        saveCategoryMutation.mutate({
+            id: editingId ?? undefined,
+            data: { ...formData, order: Number(formData.order) },
+        });
+    };
+
+    const toggleActive = (cat: Category) => {
+        saveCategoryMutation.mutate({ id: cat._id, data: { isActive: !cat.isActive } });
+    };
+
+    const deleteItem = (id: string) => {
+        if (!confirm('Xóa danh mục này?')) return;
+        deleteCategoryMutation.mutate(id);
     };
 
     return (

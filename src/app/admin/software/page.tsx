@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { Plus, Edit, Trash2, Eye, FileText, Download, Box, RefreshCw, Layers } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, FileText, Download, Box, RefreshCw, Layers, Zap } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { Button, Badge } from '@/components/ui';
 import s from './page.module.scss';
@@ -17,6 +17,7 @@ interface Software {
     type: string;
     status: string;
     views: number;
+    autoSetup?: boolean;
     createdAt: string;
 }
 
@@ -29,9 +30,11 @@ export default function AdminSoftwarePage() {
     const fetchSoftware = useCallback(async () => {
         try {
             setLoading(true);
-            const url = filterStatus
-                ? `/api/software?status=${filterStatus}`
-                : '/api/software';
+            const url = filterStatus === 'autoSetup'
+                ? '/api/software?autoSetup=true'
+                : filterStatus
+                    ? `/api/software?status=${filterStatus}`
+                    : '/api/software';
             const res = await fetch(url);
             const result = await res.json();
             if (result.success) {
@@ -104,6 +107,14 @@ export default function AdminSoftwarePage() {
                     >
                         BẢN NHÁP
                     </Button>
+                    <Button
+                        variant={filterStatus === 'autoSetup' ? 'cyan' : 'ghost'}
+                        size="sm"
+                        onClick={() => setFilterStatus('autoSetup')}
+                        leftIcon={<Zap size={14} />}
+                    >
+                        AUTO-SETUP
+                    </Button>
                 </div>
                 <div style={{ marginLeft: 'auto' }}>
                     <Button variant="ghost" size="sm" onClick={fetchSoftware}>
@@ -134,7 +145,10 @@ export default function AdminSoftwarePage() {
                             <div className={s.infoSection}>
                                 <div className={s.iconBox}><Layers size={24} /></div>
                                 <div className={s.text}>
-                                    <div className={s.title}>{sw.title}</div>
+                                    <div className={s.title}>
+                                        {sw.title}
+                                        {sw.autoSetup && <Zap size={14} color="#F59E0B" style={{ display: 'inline', marginLeft: '6px', verticalAlign: 'middle' }} />}
+                                    </div>
                                     <div className={s.type}>{sw.type}</div>
                                 </div>
                             </div>

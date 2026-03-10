@@ -90,7 +90,11 @@ export default function MarketingPage() {
             const res = await fetch('/api/products');
             const data = await res.json();
             if (data.success) {
-                setProducts(data.data);
+                setProducts(data.data.map((p: any) => ({
+                    ...p,
+                    price: p.salePrice || p.basePrice || 0,
+                    image: p.images?.[0] || '',
+                })));
             }
         } catch (error) {
             showError('Lỗi tải danh sách sản phẩm');
@@ -133,7 +137,9 @@ export default function MarketingPage() {
     }, [activeTab, fetchBanner]);
 
     const generateContent = useCallback((product: Product, templateType = 'default', shouldReturn = false) => {
-        const link = `https://nexgear.vn/products/${product.slug || product._id}`;
+        const linkNexGear = `https://nex-gear.vercel.app/products/${product.slug || product._id}`;
+        const linkLapLap = `https://laplapcantho.store/laptops/${product.slug || product._id}`;
+        const link = `${linkNexGear}\n${linkLapLap}`;
         const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
         const originalPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price * 1.15);
         const nameUpper = product.name.toUpperCase();
@@ -159,104 +165,243 @@ export default function MarketingPage() {
             else finalTemplateType = 'office';
         }
 
-        if (finalTemplateType === 'gaming') {
-            content = `🔥 SIÊU PHẨM GAMING ĐÃ CẬP BẾN - CHIẾN GAME ĐỈNH CAO 🎮
-🚀 Gear chất: ${nameUpper}
-💰 Giá hời chỉ: ${price} (Tiết kiệm hàng triệu đồng so với giá cũ ${originalPrice}!)
+        // Random variation helpers
+        const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+        const gpuSpec = product.specs?.gpu || '';
+        const gpuLine = gpuSpec ? `\n✅ GPU: ${gpuSpec}` : '';
 
--------------------------------------------
-💥 Tính năng bứt phá, cân mọi trận đấu:
-✅ Hiệu năng: ${cpuSpec}
-✅ RAM/Bộ nhớ: ${ramSpec} (Leo rank cực mượt)
-✅ SSD: ${ssdSpec} (Load cực nhanh)
-✅ Màn hình/Hiển thị: ${screenSpec} (Bắt trọn khoảnh khắc)
+        const gamingVariants = [
+            () => `🎮 ${nameUpper} — CON QUÁI VẬT GAMING VỪA VỀ KHO!
 
-🎁 QUÀ TẶNG NGẬP TRÀN KHI MUA TẠI NEXGEAR:
-🎒 Balo, Chuột xịn, Lót chuột cao cấp.
-⚙️ Hỗ trợ cài đặt & vệ sinh máy FREE 100%.
-🚚 Giao hàng hỏa tốc - Trả góp 0% duyệt nhanh!
+Anh em ơi hàng nóng mới về, cấu hình chiến mọi tựa game AAA không cần nghĩ:
 
-🎯 GẶP LÀ CHỐT - CLICK XEM ẢNH THỰC TẾ:
-👉 Chi tiết tại: ${link}
-
--------------------------------------------
-🏘️ Địa chỉ: Ninh Kiều, Cần Thơ.
-☎️ Hotline: 0978.648.720 (Hào)
-#NexGear #GamingGear #LaptopCanTho`;
-        } else if (finalTemplateType === 'office') {
-            content = `✨ [XẢ KHO GIÁ SỐC] - GEAR VĂN PHÒNG / SINH VIÊN SIÊU LƯỚT ✨
-💼 Thuận tiện mang đi học, đi làm - Thiết kế mỏng nhẹ sang trọng!
-🏷️ Mã máy: ${nameUpper}
-💥 Giá sinh viên: ${price} (Thị trường đang bán ${originalPrice})
-
--------------------------------------------
-🚀 Máy chạy mượt mà, cấu hình vượt tầm giá:
+⚙️ CẤU HÌNH CHI TIẾT:
 ✅ CPU: ${cpuSpec}
-✅ RAM: ${ramSpec} (Mở 20 tab Chrome vô tư)
-✅ SSD: ${ssdSpec} (Lưu trữ bét nhè tài liệu)
-✅ Màn hình: ${screenSpec} (Bảo vệ mắt cực tốt)
-
-🎁 ĐẶC QUYỀN SINH VIÊN CHỈ CÓ TẠI NEXGEAR:
-🎉 Tặng Full Combo: Balo, Chuột, Lót chuột, Túi chống sốc
-⚙️ Cài đặt Win, Office Miễn Phí Trọn Đời.
-🚚 Ship tận nơi - Trả góp duyệt nhanh 10p.
-
-⚡ CHỈ CÒN ĐÚNG VÀI MÁY - NHANH TAY NHÉ:
-👉 Xem chi tiết & chốt ngay: ${link}
-
--------------------------------------------
-🏘️ Địa chỉ: Ninh Kiều, Cần Thơ.
-☎️ Gọi ngay kẻo lỡ: 0978.648.720 (Hào)
-#NexGear #LaptopSinhVien #LaptopCanTho`;
-        } else if (finalTemplateType === 'premium') {
-            content = `💎 ĐẲNG CẤP PREMIUM - TRẢI NGHIỆM ĐỈNH CAO 💎
-🔥 Siêu phẩm: ${nameUpper} 
-💸 Giá ưu đãi cực tốt: ${price} (Tiết kiệm đáng kể so với máy mới ${originalPrice})
-
--------------------------------------------
-💪 Cấu hình làm Đồ họa / Kỹ thuật chuyên sâu:
-✅ CPU: ${cpuSpec} (Hiệu suất đa nhân cực khỏe)
-✅ RAM: ${ramSpec} (Preview mượt mà không delay)
-✅ SSD: ${ssdSpec} (Lưu xuất file nặng phút mốt)
-✅ Màn hình: ${screenSpec} (Chuẩn màu, không sai lệch thiết kế)
-
-🎁 ĐÃ MUA LÀ PHẢI CÓ QUÀ TẠI NEXGEAR:
-🎒 Balo xịn, Chuột phím, Lót chuột
-⚙️ Cài đặt phần mềm chuyên ngành FREE vĩnh viễn!
-🚚 Giao hàng hỏa tốc - Quẹt thẻ / Trả góp tẹt ga.
-
-⚡ THÊM NGAY CON QUÁI VẬT NÀY VÀO GÓC LÀM VIỆC:
-👉 Link ngắm nghía: ${link}
-
--------------------------------------------
-🏘️ Địa chỉ: Ninh Kiều, Cần Thơ.
-☎️ Alo tư vấn: 0978.648.720 (Hào)
-#NexGear #PremiumLaptop #CanTho`;
-        } else {
-            content = `🌟 [XẢ KHO GIÁ SỐC] - ${nameUpper} 🌟
-💥 Giá hôm nay: ${price} (Tiết kiệm hàng triệu đồng!)
-📉 Giá thị trường: ${originalPrice}
-
--------------------------------------------
-💪 Cấu hình mạnh mẽ trong tầm giá:
-✅ CPU: ${cpuSpec}
-✅ RAM: ${ramSpec}
+✅ RAM: ${ramSpec}${gpuLine}
 ✅ SSD: ${ssdSpec}
 ✅ Màn hình: ${screenSpec}
 
-🎁 ƯU ĐÃI ĐỘC QUYỀN CHỈ CÓ TẠI NEXGEAR:
-🎉 Combo quà: Balo, Chuột, Lót chuột, Túi chống sốc...
-⚙️ Hỗ trợ cài đặt phần mềm & vệ sinh máy TRỌN ĐỜI.
-🚚 Ship COD toàn quốc - Kiểm tra hàng mới thanh toán.
-💳 Trả góp 0% - Duyệt hồ sơ chỉ trong 10 phút.
+💰 Giá: ${price}
+📉 Giá thị trường: ${originalPrice}
 
-🚨 SỐ LƯỢNG CÓ HẠN - CHỐT ĐƠN NGAY TẠI:
-👉 Click xem ảnh & đặt hàng: ${link}
+Máy được test kỹ từng con ốc, chạy mượt Valo, CSGO, GTA V... thoải mái. Ai cần máy chiến game mà ngân sách có hạn thì đây là lựa chọn đáng tiền nhất!
 
--------------------------------------------
-🏘️ Địa chỉ: Ninh Kiều, Cần Thơ.
-☎️ Hotline/Zalo: 0978.648.720 (Hào)
-#NexGear #LapLapCanTho #${product.name.replace(/\s+/g, '')}`;
+🎁 Mua tại NexGear được tặng: Balo + Chuột + Lót chuột cao cấp
+⚙️ Cài đặt game, driver FREE trọn đời
+🚚 Giao hàng nhanh — Trả góp 0% duyệt 10 phút
+
+👉 Xem ảnh thực tế & chốt: ${link}
+
+📍 NexGear — Ninh Kiều, Cần Thơ
+📞 0978.648.720 (Hào)
+#NexGear #GamingGear #LaptopGaming #CanTho`,
+
+            () => `🔥🔥 FLASH DEAL — ${nameUpper} 🔥🔥
+
+Giá sốc chỉ ${price} (thị trường ${originalPrice})
+Số lượng có hạn, ai nhanh tay người đó được!
+
+📋 THÔNG SỐ MÁY:
+• CPU: ${cpuSpec}
+• RAM: ${ramSpec}${gpuSpec ? `\n• GPU: ${gpuSpec}` : ''}
+• Ổ cứng: ${ssdSpec}
+• Màn: ${screenSpec}
+
+Máy này chiến game cực đã — FPS cao, không giật lag, tản nhiệt tốt. Anh em nào đang tìm gear gaming giá hời thì inbox mình ngay!
+
+🎁 Quà tặng: Full combo phụ kiện xịn
+⚙️ Cài Win + Game + Driver MIỄN PHÍ
+🚚 Ship COD toàn quốc — Trả góp easy
+
+👉 ${link}
+
+📍 NexGear — Ninh Kiều, Cần Thơ
+📞 Hào — 0978.648.720
+#NexGear #LaptopCanTho #GamingLaptop`,
+
+            () => `⚡ VỪA TEST XONG CON NÀY — MÊ LUÔN!
+
+${nameUpper}
+Giá chỉ ${price} — rẻ hơn thị trường cả triệu đồng!
+
+🔧 Cấu hình thực tế:
+→ ${cpuSpec}
+→ ${ramSpec}${gpuSpec ? `\n→ ${gpuSpec}` : ''}
+→ ${ssdSpec}
+→ ${screenSpec}
+
+Mình vừa test chạy Valorant, CSGO full setting mượt lắm. Pin vẫn tốt, máy mát, ngoại hình còn đẹp. Ai cần máy gaming mà budget tầm này thì quá ngon!
+
+🎁 Tặng kèm balo + chuột + lót chuột
+⚙️ Cài phần mềm free trọn đời
+💳 Trả góp 0% — Giao tận nơi
+
+👉 Chi tiết: ${link}
+📞 0978.648.720 (Hào) — NexGear, Cần Thơ
+#NexGear #GamingSetup #LaptopGaming`,
+        ];
+
+        const officeVariants = [
+            () => `💼 ${nameUpper} — LAPTOP VĂN PHÒNG / SINH VIÊN GIÁ TỐT!
+
+Máy gọn nhẹ, mang đi học đi làm tiện lợi. Cấu hình đủ dùng cho Word, Excel, Zoom, xem phim...
+
+📋 CẤU HÌNH MÁY:
+✅ CPU: ${cpuSpec}
+✅ RAM: ${ramSpec}${gpuLine}
+✅ SSD: ${ssdSpec}
+✅ Màn hình: ${screenSpec}
+
+💰 Chỉ: ${price}
+📉 Thị trường: ${originalPrice}
+
+🎁 Mua tại NexGear được tặng:
+🎒 Balo + Chuột + Lót chuột + Túi chống sốc
+⚙️ Cài Win, Office MIỄN PHÍ trọn đời
+🚚 Ship tận nơi — Trả góp 0% duyệt 10 phút
+
+👉 Xem máy: ${link}
+
+📍 NexGear — Ninh Kiều, Cần Thơ
+📞 0978.648.720 (Hào)
+#NexGear #LaptopSinhVien #LaptopVanPhong`,
+
+            () => `📚 SINH VIÊN ƠI — MÁY NÀY DÀNH CHO BẠN!
+
+${nameUpper}
+Giá sinh viên: ${price} (Ngoài bán ${originalPrice})
+
+Cấu hình:
+• ${cpuSpec}
+• ${ramSpec}${gpuSpec ? `\n• ${gpuSpec}` : ''}
+• ${ssdSpec}
+• ${screenSpec}
+
+Mở 20 tab Chrome + Zoom + Word cùng lúc vẫn mượt. Pin trâu, màn đẹp, nhẹ dễ mang theo. Đi học đi làm đều okela!
+
+🎁 Full quà: Balo, chuột, lót, túi chống sốc
+⚙️ Cài đặt phần mềm free — Bảo hành chu đáo
+💳 Trả góp 0% chỉ cần CCCD
+
+👉 ${link}
+📞 Hào — 0978.648.720 | NexGear, Cần Thơ
+#NexGear #LaptopSinhVien #CanTho`,
+
+            () => `✨ GỢI Ý MÁY NGON GIÁ HỜI CHO DÂN VĂN PHÒNG
+
+${nameUpper} — ${price}
+
+Mình recommend con này cho ai cần máy:
+✔️ Soạn văn bản, bảng tính
+✔️ Họp online, email
+✔️ Xem phim, lướt web
+
+Thông số: ${cpuSpec} | ${ramSpec} | ${ssdSpec}${gpuSpec ? ` | ${gpuSpec}` : ''} | Màn ${screenSpec}
+
+Máy đã được vệ sinh, thay keo tản nhiệt, cài sẵn Win + Office bản quyền. Bảo hành 6 tháng tại shop.
+
+🎁 Tặng phụ kiện xịn khi mua
+🚚 Giao hàng nhanh — Hỗ trợ trả góp
+
+👉 ${link}
+📍 NexGear — Ninh Kiều, Cần Thơ | 📞 0978.648.720
+#NexGear #LaptopCanTho #LaptopCu`,
+        ];
+
+        const premiumVariants = [
+            () => `💎 ${nameUpper} — MÁY CAO CẤP CHO DÂN CHUYÊN NGHIỆP
+
+Dành cho anh em làm đồ họa, dựng phim, lập trình, kiến trúc... cần máy thật khỏe.
+
+⚙️ CẤU HÌNH:
+✅ CPU: ${cpuSpec}
+✅ RAM: ${ramSpec}${gpuLine}
+✅ SSD: ${ssdSpec}
+✅ Màn hình: ${screenSpec}
+
+💰 Giá ưu đãi: ${price}
+📉 Giá mới: ${originalPrice}
+
+Máy chạy Adobe, AutoCAD, Blender... phà phà. Màn hình chuẩn màu, bàn phím gõ sướng tay.
+
+🎁 Tặng: Balo + Chuột + Lót chuột pro
+⚙️ Cài phần mềm chuyên ngành FREE
+💳 Trả góp 0% — Giao hàng tận nơi
+
+👉 ${link}
+📍 NexGear — Ninh Kiều, Cần Thơ
+📞 0978.648.720 (Hào)
+#NexGear #LaptopDoHoa #PremiumLaptop`,
+
+            () => `🖥️ ĐẲNG CẤP LÀM VIỆC KHÁC BIỆT!
+
+${nameUpper}
+Giá đặc biệt: ${price} (Tiết kiệm so với mua mới!)
+
+Thông số chi tiết:
+→ ${cpuSpec}
+→ ${ramSpec}${gpuSpec ? `\n→ ${gpuSpec}` : ''}
+→ ${ssdSpec}
+→ ${screenSpec}
+
+Ai đang tìm máy render, edit video, chạy nhiều phần mềm nặng thì con này là chân ái. Mình đã test và cam kết chất lượng!
+
+🎁 Combo quà xịn + Cài phần mềm free
+🚚 Ship nhanh — Trả góp 0%
+
+👉 Xem thêm: ${link}
+📞 0978.648.720 (Hào) — NexGear, Cần Thơ
+#NexGear #WorkstationLaptop #CanTho`,
+        ];
+
+        const defaultVariants = [
+            () => `🌟 ${nameUpper} — GIÁ CỰC TỐT TẠI NEXGEAR!
+
+💰 Giá: ${price}
+📉 Thị trường: ${originalPrice}
+
+📋 Cấu hình chi tiết:
+✅ CPU: ${cpuSpec}
+✅ RAM: ${ramSpec}${gpuLine}
+✅ SSD: ${ssdSpec}
+✅ Màn hình: ${screenSpec}
+
+Máy đã qua kiểm tra kỹ lưỡng, chạy ổn định. Phù hợp cho cả học tập, làm việc và giải trí nhẹ nhàng.
+
+🎁 Quà tặng: Balo + Chuột + Lót chuột + Túi chống sốc
+⚙️ Cài đặt phần mềm & vệ sinh máy TRỌN ĐỜI
+🚚 Ship COD toàn quốc — Trả góp 0%
+
+👉 ${link}
+
+📍 NexGear — Ninh Kiều, Cần Thơ
+📞 0978.648.720 (Hào)
+#NexGear #LaptopCanTho #LaptopGiaRe`,
+
+            () => `📢 MÁY NGON GIÁ RẺ — ${nameUpper}
+
+Chỉ ${price} thôi! (Nơi khác bán ${originalPrice})
+
+Cấu hình: ${cpuSpec} | ${ramSpec} | ${ssdSpec}${gpuSpec ? ` | ${gpuSpec}` : ''} | Màn ${screenSpec}
+
+Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo hành tận tâm tại shop.
+
+🎁 Tặng full phụ kiện
+🚚 Giao hàng nhanh — Trả góp dễ dàng
+
+👉 ${link}
+📞 0978.648.720 — NexGear, Cần Thơ
+#NexGear #Laptop #CanTho`,
+        ];
+
+        if (finalTemplateType === 'gaming') {
+            content = pick(gamingVariants)();
+        } else if (finalTemplateType === 'office') {
+            content = pick(officeVariants)();
+        } else if (finalTemplateType === 'premium') {
+            content = pick(premiumVariants)();
+        } else {
+            content = pick(defaultVariants)();
         }
 
         setPostContent(content);
@@ -307,7 +452,7 @@ export default function MarketingPage() {
 
     const copyLinkOnly = () => {
         if (!selectedProduct) return;
-        const link = `https://nexgear.vn/products/${selectedProduct.slug || selectedProduct._id}`;
+        const link = `https://nex-gear.vercel.app/products/${selectedProduct.slug || selectedProduct._id}\nhttps://laplapcantho.store/laptops/${selectedProduct.slug || selectedProduct._id}`;
         navigator.clipboard.writeText(link);
         showSuccess('🔗 Đã copy link sản phẩm!');
     };
@@ -598,31 +743,7 @@ export default function MarketingPage() {
                                 </div>
                             )}
 
-                            {genType === 'standard' && (
-                                <div className={s.templates}>
-                                    <button
-                                        disabled={!selectedProduct}
-                                        className={s.templateBtn}
-                                        onClick={() => generateContent(selectedProduct!, 'office')}
-                                    >
-                                        Văn phòng 💼
-                                    </button>
-                                    <button
-                                        disabled={!selectedProduct}
-                                        className={s.templateBtn}
-                                        onClick={() => generateContent(selectedProduct!, 'gaming')}
-                                    >
-                                        Gaming 🔥
-                                    </button>
-                                    <button
-                                        disabled={!selectedProduct}
-                                        className={s.templateBtn}
-                                        onClick={() => generateContent(selectedProduct!, 'premium')}
-                                    >
-                                        Cao cấp 💎
-                                    </button>
-                                </div>
-                            )}
+                            {/* Template buttons removed — auto-detect from product name */}
 
                             <div className={s.editorWrap}>
                                 <textarea

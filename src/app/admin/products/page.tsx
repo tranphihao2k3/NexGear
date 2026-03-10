@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
 import SearchableSelect from '@/components/admin/SearchableSelect';
@@ -107,6 +108,26 @@ function removeVietnameseTones(str: string): string {
 interface Category {
     _id: string;
     name: string;
+    parent: { _id: string; name: string; slug: string } | null;
+}
+
+/** Group categories: parents first, then children indented */
+function groupedCategoryOptions(categories: Category[]): { label: string; value: string }[] {
+    const parents = categories.filter(c => !c.parent);
+    const children = categories.filter(c => c.parent);
+    const result: { label: string; value: string }[] = [];
+    for (const p of parents) {
+        result.push({ label: p.name, value: p._id });
+        for (const ch of children.filter(c => c.parent!._id === p._id)) {
+            result.push({ label: `  └ ${ch.name}`, value: ch._id });
+        }
+    }
+    // Orphan children (parent not populated)
+    const orphans = children.filter(c => !parents.some(p => p._id === c.parent!._id));
+    for (const o of orphans) {
+        result.push({ label: o.name, value: o._id });
+    }
+    return result;
 }
 
 interface Brand {
@@ -164,12 +185,9 @@ interface Product {
 
 export default function AdminProductsPage() {
     const { success, error, info } = useToast();
+    const qc = useQueryClient();
 
-    const [products, setProducts] = useState<Product[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [brands, setBrands] = useState<Brand[]>([]);
-
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false); // chỉ dùng khi save/delete
     const [search, setSearch] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
@@ -329,38 +347,29 @@ export default function AdminProductsPage() {
         }
     };
 
-    const fetchProducts = async () => {
-        try {
-            const res = await fetch('/api/products?limit=50&admin=true');
-            const json = await res.json();
-            if (json.success) setProducts(json.data);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setLoading(false);
-        }
-    };
+    // ── React Query: Products ──
+    const { data: products = [], isPending: productsLoading } = useQuery<Product[]>({
+        queryKey: ['products', 'admin'],
+        queryFn: () => fetch('/api/products?limit=100&admin=true')
+            .then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60 * 2,
+    });
 
-    const fetchDependencies = async () => {
-        try {
-            const [catRes, brandRes] = await Promise.all([
-                fetch('/api/categories?limit=100'),
-                fetch('/api/brands?limit=100')
-            ]);
-            const catJson = await catRes.json();
-            const brandJson = await brandRes.json();
+    // ── React Query: Categories (cache 30 phút) ──
+    const { data: categories = [] } = useQuery<Category[]>({
+        queryKey: ['categories', 'list', {}],
+        queryFn: () => fetch('/api/categories?limit=100')
+            .then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60 * 30,
+    });
 
-            if (catJson.success) setCategories(catJson.data);
-            if (brandJson.success) setBrands(brandJson.data);
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
-    useEffect(() => {
-        fetchProducts();
-        fetchDependencies();
-    }, []);
+    // ── React Query: Brands (cache 30 phút) ──
+    const { data: brands = [] } = useQuery<Brand[]>({
+        queryKey: ['brands', 'list', { hasProducts: false }],
+        queryFn: () => fetch('/api/brands?limit=100')
+            .then(r => r.json()).then(d => d.data ?? []),
+        staleTime: 1000 * 60 * 30,
+    });
 
     const parseVNPrice = (raw: string): string => {
         if (!raw) return '';
@@ -716,7 +725,7 @@ export default function AdminProductsPage() {
             // Close modal immediately so user can continue working
             clearDraft();
             setShowModal(false);
-            fetchProducts();
+            qc.invalidateQueries({ queryKey: ['products', 'admin'] });
             success(editingId ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm' + (hasPendingUploads ? ' — đang upload ảnh...' : ''));
 
             // Upload pending images in background
@@ -759,7 +768,7 @@ export default function AdminProductsPage() {
                         pendingVariantImages.forEach(v => v.images.forEach(img => URL.revokeObjectURL(img.url)));
 
                         success(`Ảnh sản phẩm "${formData.name}" đã upload xong`);
-                        fetchProducts();
+                        qc.invalidateQueries({ queryKey: ['products', 'admin'] });
                     } catch (e: any) {
                         error(`Upload ảnh cho "${formData.name}" thất bại: ${e.message}`);
                     }
@@ -776,37 +785,43 @@ export default function AdminProductsPage() {
         }
     };
 
-    const toggleActive = async (product: Product) => {
-        try {
-            const res = await fetch(`/api/products/${product._id}`, {
+    // ── Mutation: Toggle active ──
+    const toggleActiveMutation = useMutation({
+        mutationFn: (product: Product) =>
+            fetch(`/api/products/${product._id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ isActive: !product.isActive })
-            });
-            const data = await res.json();
+                body: JSON.stringify({ isActive: !product.isActive }),
+            }).then(r => r.json()),
+        onSuccess: (data) => {
             if (data.success) {
-                setProducts((prev) => prev.map((p) => p._id === product._id ? { ...p, isActive: !p.isActive } : p));
                 info('Đã cập nhật trạng thái');
+                qc.invalidateQueries({ queryKey: ['products', 'admin'] });
             }
-        } catch (e: any) {
-            error('Lỗi khi cập nhật trạng thái');
-        }
-    };
+        },
+        onError: () => error('Lỗi khi cập nhật trạng thái'),
+    });
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
-        try {
-            const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
-            const data = await res.json();
+    const toggleActive = (product: Product) => toggleActiveMutation.mutate(product);
+
+    // ── Mutation: Delete product ──
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) =>
+            fetch(`/api/products/${id}`, { method: 'DELETE' }).then(r => r.json()),
+        onSuccess: (data) => {
             if (data.success) {
                 success('Đã xóa sản phẩm');
-                fetchProducts();
+                qc.invalidateQueries({ queryKey: ['products', 'admin'] });
             } else {
                 error(data.error || 'Không thể xóa');
             }
-        } catch (e: any) {
-            error('Lỗi khi xóa');
-        }
+        },
+        onError: () => error('Lỗi khi xóa'),
+    });
+
+    const handleDelete = (id: string) => {
+        if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+        deleteMutation.mutate(id);
     };
 
     const filtered = products.filter((p) => {
@@ -848,8 +863,8 @@ export default function AdminProductsPage() {
                     onChange={(e) => setFilterCategory(e.target.value)}
                 >
                     <option value="">📁 Tất cả danh mục</option>
-                    {categories.map((c) => (
-                        <option key={c._id} value={c._id}>{c.name}</option>
+                    {groupedCategoryOptions(categories).map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
                     ))}
                 </select>
 
@@ -894,7 +909,7 @@ export default function AdminProductsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {loading ? (
+                            {productsLoading ? (
                                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
                             ) : filtered.length === 0 ? (
                                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Không tìm thấy sản phẩm nào</td></tr>
@@ -1072,7 +1087,7 @@ export default function AdminProductsPage() {
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Danh mục *</label>
                                     <SearchableSelect
-                                        options={[{ label: '-- Chọn danh mục --', value: '' }, ...categories.map(c => ({ label: c.name, value: c._id }))]}
+                                        options={[{ label: '-- Chọn danh mục --', value: '' }, ...groupedCategoryOptions(categories)]}
                                         value={formData.category}
                                         onChange={(val) => setFormData(p => ({ ...p, category: val }))}
                                         placeholder="-- Chọn danh mục --"

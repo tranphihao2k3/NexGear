@@ -143,6 +143,9 @@ export default function AdminPOSPage() {
     const [showNote, setShowNote] = useState(false)
     const [showCustForm, setShowCustForm] = useState(false)
 
+    // Mobile view toggle
+    const [mobileView, setMobileView] = useState<'products' | 'cart'>('products')
+
     // Order
     const [orderNote, setOrderNote] = useState('')
     const [payment, setPayment] = useState('cash')
@@ -496,10 +499,27 @@ export default function AdminPOSPage() {
     // RENDER
     // ═════════════════════════════════════════
     return (
+        <>
+        {/* Mobile Tab Bar */}
+        <div className={styles.mobileTabBar}>
+            <button
+                className={`${styles.mobileTab} ${mobileView === 'products' ? styles.mobileTabActive : ''}`}
+                onClick={() => setMobileView('products')}
+            >
+                🛍️ Sản phẩm
+            </button>
+            <button
+                className={`${styles.mobileTab} ${mobileView === 'cart' ? styles.mobileTabActive : ''}`}
+                onClick={() => setMobileView('cart')}
+            >
+                🛒 Giỏ hàng {cart.length > 0 && <span className={styles.mobileCartBadge}>{cart.length}</span>}
+            </button>
+        </div>
+
         <div className={styles.posLayout} ref={layoutRef} style={{ gridTemplateColumns: `1fr 6px ${rightWidth}px` }}>
 
             {/* ══════ LEFT: PRODUCT BROWSER ══════ */}
-            <div className={styles.leftPanel}>
+            <div className={`${styles.leftPanel} ${mobileView !== 'products' ? styles.mobileHidden : ''}`}>
 
                 {/* Search + Category bar */}
                 <div className={styles.leftToolbar}>
@@ -620,7 +640,7 @@ export default function AdminPOSPage() {
             <div className={styles.resizer} onMouseDown={onResizeStart} />
 
             {/* ══════ RIGHT: CART + CHECKOUT ══════ */}
-            <div className={styles.rightPanel}>
+            <div className={`${styles.rightPanel} ${mobileView !== 'cart' ? styles.mobileHidden : ''}`}>
 
                 {/* Tab switcher */}
                 <div className={styles.panelTabs}>
@@ -1151,5 +1171,6 @@ export default function AdminPOSPage() {
                 </div>
             )}
         </div>
+        </>
     )
 }

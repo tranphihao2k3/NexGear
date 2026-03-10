@@ -35,11 +35,11 @@ export default auth((req: any) => {
     }
 
     // 2. Handle Admin routes (Authentication)
-    if (pathname.startsWith('/admin')) {
+    if (pathname.startsWith('/admin') && !pathname.startsWith('/admin-login')) {
         const user = req.auth?.user as any;
 
         if (!user) {
-            const loginUrl = new URL('/login', req.url);
+            const loginUrl = new URL('/admin-login', req.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             return NextResponse.redirect(loginUrl);
         }

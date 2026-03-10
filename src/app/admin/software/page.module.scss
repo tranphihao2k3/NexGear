@@ -56,6 +56,11 @@
     .btnGroup {
         display: flex;
         gap: $sp-2;
+        flex-wrap: wrap;
+    }
+
+    @include mobile {
+        flex-wrap: wrap;
     }
 }
 
@@ -63,6 +68,12 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: $sp-4;
+}
+
+.tableHeader {
+    @include tablet {
+        display: none !important;
+    }
 }
 
 .softwareCard {
@@ -79,13 +90,31 @@
     }
 
     @include tablet {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
         padding: $sp-4;
+        gap: $sp-3;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+        gap: $sp-2;
     }
 
     &:hover {
         @include card-hover;
         border-color: $color-cyan;
+    }
+}
+
+// On tablet/mobile, info section spans full width
+@include tablet {
+    .infoSection {
+        grid-column: 1 / -1;
+    }
+
+    .actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
     }
 }
 

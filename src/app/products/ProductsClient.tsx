@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
 import ProductCard from '@/components/product/ProductCard';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
@@ -36,12 +37,6 @@ function CatalogContent() {
     const searchParams = useSearchParams();
     const { error } = useToast();
 
-    const [products, setProducts] = useState<Product[]>([]);
-    const [categories, setCategories] = useState<Category[]>([]);
-    const [brands, setBrands] = useState<Brand[]>([]);
-
-    const [loading, setLoading] = useState(true);
-    const [pagination, setPagination] = useState({ page: 1, totalPages: 1, totalDocs: 0 });
 
     // Filter States
     const [selectedCategory, setSelectedCategory] = useState<string>(searchParams?.get('category') || '');
@@ -50,50 +45,43 @@ function CatalogContent() {
     const searchQuery = searchParams?.get('search') || '';
     const currentPage = Number(searchParams?.get('page') || 1);
 
-    // Initial Data Fetch
-    useEffect(() => {
-        Promise.all([
-            fetch('/api/categories?limit=100').then((r) => r.json()),
-            fetch('/api/brands?limit=100&hasProducts=true').then((r) => r.json()),
-        ]).then(([catData, brandData]) => {
-            if (catData.success) setCategories(catData.data);
-            if (brandData.success) setBrands(brandData.data);
-        });
-    }, []);
+    // ── REACT QUERY: Categories & Brands (cache 30 phút) ──
+    const { data: categories = [] } = useQuery({
+        queryKey: ['categories', 'list', {}],
+        queryFn: () => fetch('/api/categories?limit=100').then(r => r.json()).then(d => d.success ? d.data : []),
+        staleTime: 1000 * 60 * 30,
+    });
 
-    // Fetch Products based on filters
-    useEffect(() => {
-        const fetchProducts = async () => {
-            setLoading(true);
-            try {
-                const query = new URLSearchParams();
-                query.append('page', currentPage.toString());
-                query.append('limit', '12'); // 12 per page
-                query.append('active', 'true');
+    const { data: brands = [] } = useQuery({
+        queryKey: ['brands', 'list', { hasProducts: true }],
+        queryFn: () => fetch('/api/brands?limit=100&hasProducts=true').then(r => r.json()).then(d => d.success ? d.data : []),
+        staleTime: 1000 * 60 * 30,
+    });
 
-                if (selectedCategory) query.append('category', selectedCategory);
-                if (selectedBrands.length > 0) query.append('brand', selectedBrands.join(','));
-                if (sort) query.append('sort', sort);
-                if (searchQuery) query.append('search', searchQuery);
+    // ── REACT QUERY: Products (cache theo filter params) ──
+    const productParams = {
+        page: currentPage,
+        limit: 12,
+        active: 'true',
+        ...(selectedCategory ? { category: selectedCategory } : {}),
+        ...(selectedBrands.length > 0 ? { brand: selectedBrands.join(',') } : {}),
+        ...(sort ? { sort } : {}),
+        ...(searchQuery ? { search: searchQuery } : {}),
+    };
+    const productSp = new URLSearchParams(
+        Object.entries(productParams).map(([k, v]) => [k, String(v)])
+    );
+    const { data: productResult, isPending: loading } = useQuery({
+        queryKey: ['products', 'list', productParams],
+        queryFn: () => fetch(`/api/products?${productSp}`).then(r => r.json()).then(d => ({
+            data: d.success ? d.data : [],
+            pagination: d.pagination ?? { page: 1, totalPages: 1, totalDocs: 0 },
+        })),
+        placeholderData: (prev) => prev,
+    });
 
-                const res = await fetch(`/api/products?${query.toString()}`);
-                const data = await res.json();
-
-                if (data.success) {
-                    setProducts(data.data);
-                    setPagination(data.pagination);
-                } else {
-                    error(data.error);
-                }
-            } catch (err) {
-                error("Lỗi kết nối máy chủ");
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProducts();
-    }, [currentPage, selectedCategory, selectedBrands, sort, searchQuery, error]);
+    const products = productResult?.data ?? [];
+    const pagination = productResult?.pagination ?? { page: 1, totalPages: 1, totalDocs: 0 };
 
     // Handlers for Filters
     const handleBrandChange = (brandId: string) => {
@@ -148,7 +136,7 @@ function CatalogContent() {
                     <div className={styles.filterGroup}>
                         <h3 className={styles.filterTitle}>Danh mục</h3>
                         <div className={styles.filterList}>
-                            {categories.map((cat) => (
+                            {categories.map((cat: any) => (
                                 <label key={cat._id} className={styles.filterItem}>
                                     <input
                                         type="radio"
@@ -171,7 +159,7 @@ function CatalogContent() {
                     <div className={styles.filterGroup}>
                         <h3 className={styles.filterTitle}>Thương hiệu</h3>
                         <div className={styles.filterList}>
-                            {brands.map((brand) => (
+                            {brands.map((brand: any) => (
                                 <label key={brand._id} className={styles.filterItem}>
                                     <input
                                         type="checkbox"
@@ -212,7 +200,7 @@ function CatalogContent() {
                         <div className={styles.emptyState}>⏳ Đang tải sản phẩm...</div>
                     ) : products.length > 0 ? (
                         <div className={styles.grid}>
-                            {products.map((p) => (
+                            {products.map((p: any) => (
                                 <ProductCard
                                     key={p._id}
                                     product={p as any}

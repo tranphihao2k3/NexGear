@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
 import styles from "./page.module.scss";
 
@@ -44,14 +45,11 @@ const STATUS_MAP: Record<string, { label: string; emoji: string }> = {
 export default function AccountPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const qc = useQueryClient();
 
-    const [user, setUser] = useState<any>(null);
-    const [orders, setOrders] = useState<any[]>([]);
-    const [stats, setStats] = useState({ orderCount: 0, points: 0, saved: 0, wishlistCount: 0 });
     const [form, setForm] = useState({ name: "", phone: "", email: "" });
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
-    const [loading, setLoading] = useState(true);
 
     const userId = (session?.user as any)?.id;
     const userEmail = session?.user?.email;
@@ -63,62 +61,52 @@ export default function AccountPage() {
         }
     }, [status, router]);
 
-    // Fetch user data + recent orders
-    useEffect(() => {
-        if (status !== "authenticated" || !session?.user) return;
-
-        async function fetchData() {
-            setLoading(true);
-            try {
-                // 1. Find user: by id first, then by email
-                let userData: any = null;
-                if (userId) {
-                    const res = await fetch(`/api/users/${userId}`).then(r => r.json());
-                    if (res.success) userData = res.data;
-                }
-                if (!userData && userEmail) {
-                    const res = await fetch(`/api/users?email=${encodeURIComponent(userEmail)}&limit=1`).then(r => r.json());
-                    if (res.success && res.data?.length > 0) userData = res.data[0];
-                }
-                if (!userData) {
-                    userData = {
-                        _id: null, name: session?.user?.name || "", email: session?.user?.email || "",
-                        role: "customer", loyaltyPoints: 0, wishlist: [], createdAt: null,
-                    };
-                }
-
-                setUser(userData);
-                setForm({ name: userData.name || "", phone: userData.addresses?.[0]?.phone || "", email: userData.email || "" });
-
-                // 2. Fetch orders
-                const uid = userData._id || userId;
-                let orderList: any[] = [];
-                let orderTotal = 0;
-                if (uid) {
-                    const ordersRes = await fetch(`/api/orders?user=${uid}&limit=5&sort=-createdAt`).then(r => r.json());
-                    if (ordersRes.success) {
-                        orderList = ordersRes.data || [];
-                        orderTotal = ordersRes.pagination?.total || orderList.length;
-                    }
-                }
-                setOrders(orderList.slice(0, 3));
-
-                const totalSaved = orderList.reduce((sum: number, o: any) => sum + (o.discount || 0), 0);
-                setStats({
-                    orderCount: orderTotal,
-                    points: userData.loyaltyPoints || 0,
-                    saved: totalSaved,
-                    wishlistCount: userData.wishlist?.length || 0,
-                });
-            } catch (err) {
-                console.error("Failed to fetch account data:", err);
-            } finally {
-                setLoading(false);
+    // ── React Query: User data ──
+    const { data: user, isPending: loadingUser } = useQuery({
+        queryKey: ['users', 'me'],
+        queryFn: async () => {
+            if (userId) {
+                const res = await fetch(`/api/users/${userId}`).then(r => r.json());
+                if (res.success) return res.data;
             }
-        }
+            if (userEmail) {
+                const res = await fetch(`/api/users?email=${encodeURIComponent(userEmail)}&limit=1`).then(r => r.json());
+                if (res.success && res.data?.length > 0) return res.data[0];
+            }
+            return { _id: null, name: session?.user?.name || "", email: session?.user?.email || "", role: "customer", loyaltyPoints: 0, wishlist: [], createdAt: null };
+        },
+        enabled: status === "authenticated",
+        staleTime: 1000 * 60 * 5,
+        placeholderData: (prev) => prev,
+    });
 
-        fetchData();
-    }, [status, userId, userEmail]);
+    // Sync form khi user data thay đổi
+    useEffect(() => {
+        if (user) {
+            setForm({ name: user.name || "", phone: user.addresses?.[0]?.phone || "", email: user.email || "" });
+        }
+    }, [user]);
+
+    // ── React Query: Orders ──
+    const actualUserId = user?._id || userId;
+    const { data: orders = [] } = useQuery({
+        queryKey: ['orders', 'user', actualUserId],
+        queryFn: () => fetch(`/api/orders?user=${actualUserId}&limit=5&sort=-createdAt`)
+            .then(r => r.json()).then(d => d.success ? d.data : []),
+        enabled: !!actualUserId,
+        staleTime: 1000 * 60 * 2,
+    });
+
+    const loading = status === "loading" || loadingUser;
+
+    const orderTotal = orders.length;
+    const totalSaved = orders.reduce((sum: number, o: any) => sum + (o.discount || 0), 0);
+    const stats = {
+        orderCount: orderTotal,
+        points: user?.loyaltyPoints || 0,
+        saved: totalSaved,
+        wishlistCount: user?.wishlist?.length || 0,
+    };
 
     async function handleSave() {
         const uid = user?._id || userId;
@@ -132,7 +120,7 @@ export default function AccountPage() {
             });
             const data = await res.json();
             if (data.success) {
-                setUser(data.data);
+                qc.invalidateQueries({ queryKey: ['users', 'me'] });
                 setSaved(true);
                 setTimeout(() => setSaved(false), 2500);
             }
@@ -160,6 +148,8 @@ export default function AccountPage() {
     const joinedDate = user.createdAt
         ? new Date(user.createdAt).toLocaleDateString("vi-VN")
         : "—";
+
+    const recentOrders = (orders as any[]).slice(0, 3);
 
     const STATS = [
         { label: "Đơn đã mua", value: String(stats.orderCount), icon: "🛒", color: "cyan" },
@@ -304,14 +294,14 @@ export default function AccountPage() {
                                 <Link href="/account/orders" className={styles.viewAllLink}>Xem tất cả →</Link>
                             </div>
 
-                            {orders.length === 0 ? (
+                            {recentOrders.length === 0 ? (
                                 <div className={styles.emptyOrders}>
                                     <span>📦</span>
                                     <p>Chưa có đơn hàng nào</p>
                                     <Link href="/products" className={styles.shopNowLink}>Mua sắm ngay →</Link>
                                 </div>
                             ) : (
-                                orders.map(o => {
+                                recentOrders.map((o: any) => {
                                     const st = STATUS_MAP[o.status] || { label: o.status, emoji: "📋" };
                                     return (
                                         <div key={o._id} className={styles.miniOrderRow}>

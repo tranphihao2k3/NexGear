@@ -8,13 +8,44 @@ import Button from "@/components/ui/Button";
 import styles from "./page.module.scss";
 
 // ── CATEGORY META ────────────────────────────────────────────
-const CATEGORY_META: Record<string, { label: string; h1: string; desc: string }> = {
+const CATEGORY_META: Record<string, { label: string; h1: string; desc: string; parent?: string }> = {
     "ban-phim": { label: "Bàn Phím", h1: "Bàn Phím Cơ", desc: "Bàn phím cơ, bàn phím gaming, membrane cao cấp" },
     "chuot": { label: "Chuột", h1: "Chuột & Lót", desc: "Chuột gaming, chuột văn phòng, lót chuột cao cấp" },
     "tai-nghe": { label: "Tai Nghe", h1: "Tai Nghe", desc: "Tai nghe gaming, Hi-Fi, TWS, headphone studio" },
     "loa-mic": { label: "Loa & Mic", h1: "Loa & Micro", desc: "Loa studio, loa gaming, micro stream, USB mic" },
+    "loa": { label: "Loa", h1: "Loa", desc: "Loa bluetooth, soundbar, loa desktop cho PC" },
     "phu-kien": { label: "Phụ Kiện", h1: "Phụ Kiện", desc: "Keycap, cable, lót chuột, phụ kiện bàn phím" },
     "laptop": { label: "Laptop", h1: "Laptop Gaming & Văn Phòng", desc: "Laptop chơi game, laptop văn phòng, làm việc đồ họa" },
+    // ── Laptop sub-categories
+    "gaming-laptop": { label: "Gaming Laptop", h1: "Gaming Laptop", desc: "Laptop hiệu năng cao cho game", parent: "laptop" },
+    "ultrabook": { label: "Ultrabook", h1: "Ultrabook", desc: "Mỏng nhẹ, thời trang", parent: "laptop" },
+    "workstation": { label: "Workstation", h1: "Workstation", desc: "Đồ họa, lập trình chuyên nghiệp", parent: "laptop" },
+    "laptop-sinh-vien": { label: "Laptop Sinh Viên", h1: "Laptop Sinh Viên", desc: "Giá tốt, phù hợp học tập", parent: "laptop" },
+    // ── Chuột sub-categories
+    "chuot-gaming": { label: "Chuột Gaming", h1: "Chuột Gaming", desc: "Chuột chơi game chuyên nghiệp", parent: "chuot" },
+    "chuot-wireless": { label: "Chuột Wireless", h1: "Chuột Wireless", desc: "Không dây, tự do di chuyển", parent: "chuot" },
+    "chuot-ergonomic": { label: "Chuột Ergonomic", h1: "Chuột Ergonomic", desc: "Thiết kế công thái học", parent: "chuot" },
+    "chuot-sieu-nhe": { label: "Chuột Siêu Nhẹ", h1: "Chuột Siêu Nhẹ", desc: "Dưới 60g, linh hoạt tối đa", parent: "chuot" },
+    // ── Bàn phím sub-categories
+    "ban-phim-co": { label: "Bàn Phím Cơ", h1: "Bàn Phím Cơ", desc: "Mechanical keyboard cao cấp", parent: "ban-phim" },
+    "ban-phim-khong-day": { label: "Bàn Phím Không Dây", h1: "Bàn Phím Không Dây", desc: "Wireless & Bluetooth", parent: "ban-phim" },
+    "ban-phim-tkl": { label: "TKL / 75%", h1: "Bàn Phím TKL / 75%", desc: "Compact, tiết kiệm không gian", parent: "ban-phim" },
+    "ban-phim-60": { label: "60% / 65%", h1: "Bàn Phím 60% / 65%", desc: "Ultra compact, tối giản", parent: "ban-phim" },
+    "custom-kit": { label: "Custom Kit", h1: "Custom Kit", desc: "Barebone & DIY kit", parent: "ban-phim" },
+    // ── Tai nghe sub-categories
+    "tai-nghe-over-ear": { label: "Over-ear", h1: "Tai Nghe Over-ear", desc: "Trùm tai, bass sâu", parent: "tai-nghe" },
+    "tai-nghe-in-ear": { label: "In-ear / TWS", h1: "Tai Nghe In-ear / TWS", desc: "True wireless stereo", parent: "tai-nghe" },
+    "tai-nghe-gaming": { label: "Tai Nghe Gaming", h1: "Tai Nghe Gaming", desc: "Âm thanh vòm 7.1", parent: "tai-nghe" },
+    // ── Loa sub-categories
+    "soundbar": { label: "Soundbar", h1: "Soundbar", desc: "Loa thanh cho bàn setup", parent: "loa" },
+    "loa-bluetooth": { label: "Loa Bluetooth", h1: "Loa Bluetooth", desc: "Di động, pin lâu", parent: "loa" },
+    "loa-desktop": { label: "Loa Desktop", h1: "Loa Desktop", desc: "2.0 / 2.1 cho PC", parent: "loa" },
+    // ── Phụ kiện sub-categories
+    "keycap": { label: "Keycap Sets", h1: "Keycap Sets", desc: "PBT, Cherry profile...", parent: "phu-kien" },
+    "switch": { label: "Switches", h1: "Switches", desc: "Gateron, Cherry MX...", parent: "phu-kien" },
+    "mouse-pad": { label: "Mouse Pad", h1: "Mouse Pad", desc: "Desk mat & gaming pad", parent: "phu-kien" },
+    "cable-hub": { label: "Cable & Hub", h1: "Cable & Hub", desc: "USB-C, Dock, Hub", parent: "phu-kien" },
+    "wrist-rest": { label: "Wrist Rest", h1: "Wrist Rest", desc: "Kê tay gỗ, silicone", parent: "phu-kien" },
 };
 
 // ── SPEC FILTER CONFIG PER CATEGORY ─────────────────────────
@@ -25,8 +56,39 @@ const CATEGORY_SPEC_FILTERS: Record<string, string[]> = {
     "chuot": ["Sensor", "DPI", "Kết nối", "Cân nặng"],
     "tai-nghe": ["Driver", "Kết nối", "ANC", "Pin"],
     "loa-mic": ["Công suất", "Kết nối", "Pin"],
+    "loa": ["Công suất", "Kết nối", "Pin"],
     "phu-kien": [],
     "laptop": ["CPU", "RAM", "GPU", "Kích thước màn hình", "Độ phân giải", "Tần số quét", "Ổ cứng"],
+    // Laptop sub-cats inherit
+    "gaming-laptop": ["CPU", "RAM", "GPU", "Kích thước màn hình", "Độ phân giải", "Tần số quét", "Ổ cứng"],
+    "ultrabook": ["CPU", "RAM", "GPU", "Kích thước màn hình", "Độ phân giải", "Ổ cứng"],
+    "workstation": ["CPU", "RAM", "GPU", "Kích thước màn hình", "Độ phân giải", "Ổ cứng"],
+    "laptop-sinh-vien": ["CPU", "RAM", "GPU", "Kích thước màn hình", "Ổ cứng"],
+    // Chuột sub-cats inherit
+    "chuot-gaming": ["Sensor", "DPI", "Kết nối", "Cân nặng"],
+    "chuot-wireless": ["Sensor", "DPI", "Kết nối", "Cân nặng"],
+    "chuot-ergonomic": ["Sensor", "Kết nối", "Cân nặng"],
+    "chuot-sieu-nhe": ["Sensor", "DPI", "Kết nối", "Cân nặng"],
+    // Bàn phím sub-cats inherit
+    "ban-phim-co": ["Switch", "Layout", "Kết nối", "Đèn LED"],
+    "ban-phim-khong-day": ["Switch", "Layout", "Kết nối", "Đèn LED"],
+    "ban-phim-tkl": ["Switch", "Kết nối", "Đèn LED"],
+    "ban-phim-60": ["Switch", "Kết nối", "Đèn LED"],
+    "custom-kit": ["Switch", "Layout", "Kết nối"],
+    // Tai nghe sub-cats inherit
+    "tai-nghe-over-ear": ["Driver", "Kết nối", "ANC", "Pin"],
+    "tai-nghe-in-ear": ["Driver", "Kết nối", "ANC", "Pin"],
+    "tai-nghe-gaming": ["Driver", "Kết nối", "ANC"],
+    // Loa sub-cats inherit
+    "soundbar": ["Công suất", "Kết nối"],
+    "loa-bluetooth": ["Công suất", "Kết nối", "Pin"],
+    "loa-desktop": ["Công suất", "Kết nối"],
+    // Phụ kiện sub-cats
+    "keycap": [],
+    "switch": [],
+    "mouse-pad": [],
+    "cable-hub": [],
+    "wrist-rest": [],
 };
 
 // Each spec filter option from API
@@ -108,6 +170,9 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
     const [specFilters, setSpecFilters] = useState<Record<string, SpecFilterOption[]>>({});
     const [selectedSpecs, setSelectedSpecs] = useState<Record<string, Set<string>>>({});
 
+    // Sub-category tabs
+    const [subCatTabs, setSubCatTabs] = useState<{ _id: string; slug: string; name: string }[]>([]);
+
     // Find category ID from slug
     const categoryObj = categories.find(c => c.slug === catSlug);
 
@@ -117,6 +182,34 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
             if (res.success) setCategories(res.data);
         });
     }, []);
+
+    // Fetch sub-category tabs (children or siblings)
+    const currentMeta = CATEGORY_META[catSlug];
+    const parentSlug = currentMeta?.parent;
+    useEffect(() => {
+        const fetchSubCatTabs = async () => {
+            try {
+                // Determine which parent to query children for
+                const targetSlug = parentSlug || catSlug;
+                // First find the parent category ID
+                const catRes = await fetch(`/api/categories?limit=50`);
+                const catData = await catRes.json();
+                if (!catData.success) return;
+                const allCats: { _id: string; slug: string; name: string; parent: any }[] = catData.data;
+                const targetCat = allCats.find((c: any) => c.slug === targetSlug);
+                if (!targetCat) return;
+
+                // Find children of this parent
+                const children = allCats.filter((c: any) =>
+                    c.parent && (typeof c.parent === 'string' ? c.parent === targetCat._id : c.parent._id === targetCat._id)
+                );
+                setSubCatTabs(children);
+            } catch (err) {
+                console.error('Failed to fetch sub-category tabs:', err);
+            }
+        };
+        fetchSubCatTabs();
+    }, [catSlug, parentSlug]);
 
     // Fetch normalized spec filters when category changes
     useEffect(() => {
@@ -264,7 +357,17 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                     <nav className={styles.breadcrumb} aria-label="Breadcrumb">
                         <Link href="/" className={styles.bcLink}>Trang chủ</Link>
                         <span className={styles.bcSep}>›</span>
-                        <span className={styles.bcCurrent}>{meta.label}</span>
+                        {parentSlug ? (
+                            <>
+                                <Link href={`/${parentSlug}`} className={styles.bcLink}>
+                                    {CATEGORY_META[parentSlug]?.label || parentSlug}
+                                </Link>
+                                <span className={styles.bcSep}>›</span>
+                                <span className={styles.bcCurrent}>{meta.label}</span>
+                            </>
+                        ) : (
+                            <span className={styles.bcCurrent}>{meta.label}</span>
+                        )}
                     </nav>
 
                     <div className={styles.headerRow}>
@@ -277,6 +380,27 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                             <span className={styles.countLabel}>sản phẩm</span>
                         </div>
                     </div>
+
+                    {/* Sub-category tabs */}
+                    {subCatTabs.length > 0 && (
+                        <div className={styles.subCatTabs}>
+                            <Link
+                                href={`/${parentSlug || catSlug}`}
+                                className={`${styles.subCatTab} ${!parentSlug ? styles.subCatTabActive : ''}`}
+                            >
+                                Tất cả
+                            </Link>
+                            {subCatTabs.map(tab => (
+                                <Link
+                                    key={tab._id}
+                                    href={`/${tab.slug}`}
+                                    className={`${styles.subCatTab} ${catSlug === tab.slug ? styles.subCatTabActive : ''}`}
+                                >
+                                    {tab.name}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 

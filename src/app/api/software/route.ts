@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
         if (searchParams.get('status')) filter.status = searchParams.get('status');
         if (searchParams.get('platform')) filter.platform = searchParams.get('platform');
         if (searchParams.get('type')) filter.type = searchParams.get('type');
+        if (searchParams.get('autoSetup') === 'true') filter.autoSetup = true;
 
         const search = searchParams.get('search') || searchParams.get('q');
         if (search) {
