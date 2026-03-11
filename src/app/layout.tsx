@@ -32,6 +32,7 @@ const jetbrainsMono = JetBrains_Mono({
 // ── METADATA ────────────────────────────────────────────────
 export const metadata: Metadata = {
   metadataBase: new URL('https://nexgear.vn'),
+  manifest: '/manifest.json',
   verification: {
     google: 'bWsGu1qOKzmhUPHyZ21TF5CkMouJhBA9AO33OgLrW2I',
   },

@@ -22,12 +22,11 @@ const localBusinessSchema = {
     height: 512,
   },
   image: 'https://nexgear.vn/og-image.jpg',
-  // TODO: Điền SĐT, địa chỉ cụ thể
-  telephone: '',
-  email: '',
+  telephone: '+84978648720',
+  email: 'nexgear.cantho@gmail.com',
   address: {
     '@type': 'PostalAddress',
-    streetAddress: '',
+    streetAddress: 'Ninh Kiều',
     addressLocality: 'Cần Thơ',
     addressRegion: 'Cần Thơ',
     postalCode: '900000',
@@ -35,8 +34,8 @@ const localBusinessSchema = {
   },
   geo: {
     '@type': 'GeoCoordinates',
-    latitude: '',
-    longitude: '',
+    latitude: '10.0452',
+    longitude: '105.7469',
   },
   openingHoursSpecification: [
     {
@@ -59,7 +58,10 @@ const localBusinessSchema = {
     { '@type': 'City', name: 'Cần Thơ' },
     { '@type': 'State', name: 'Đồng bằng sông Cửu Long' },
   ],
-  sameAs: [],
+  sameAs: [
+    'https://nex-gear.vercel.app',
+    'https://nexgzone.top',
+  ],
 }
 
 const websiteSchema = {
