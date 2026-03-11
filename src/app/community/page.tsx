@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Thanh Ly Cong Dong — NexGear',
         description: 'San thanh ly gaming gear cong dong NexGear. Tim mua ban phim, chuot, tai nghe da qua su dung.',
-        url: 'https://nexgear.vn/community',
+        url: 'https://nexgzone.top/community',
     },
 };
 

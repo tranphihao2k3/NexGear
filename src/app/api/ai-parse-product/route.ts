@@ -57,7 +57,7 @@ Trả về JSON theo schema sau (CHỈ JSON, không text khác):
     - <h3>Chính sách NEXGEAR Cần Thơ</h3>
     - <p>Bảo hành [X] tháng tại shop. Đổi trả trong 7 ngày nếu lỗi phần cứng. Hỗ trợ kỹ thuật trọn đời.</p>
     - <h3>Mua sắm tại hệ sinh thái NexGear</h3>
-    - <p>Xem thêm sản phẩm tại <a href="https://nex-gear.vercel.app">NexGear Store</a> và <a href="https://nexgzone.top">NexGzone</a> — hệ sinh thái gear uy tín hàng đầu Cần Thơ.</p>,
+    - <p>Xem thêm sản phẩm tại <a href="https://nexgzone.top/">NexGear Store</a> và <a href="https://nexgzone.top">NexGzone</a> — hệ sinh thái gear uy tín hàng đầu Cần Thơ.</p>,
   "tags": ["tag1", "tag2"],
   "specs": {
     "key": "value"

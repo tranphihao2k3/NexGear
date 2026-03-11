@@ -10,7 +10,7 @@ import CommunityListing from '@/models/CommunityListing'
 import Blog from '@/models/Blog'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://nexgear.vn'
+    const baseUrl = 'https://nexgzone.top'
 
     // Static pages
     const staticPages: MetadataRoute.Sitemap = [

@@ -45,13 +45,13 @@ const SettingSchema: Schema = new Schema(
         // Appearance
         primaryColor: { type: String, default: '#00C4AD' },
         accentColor: { type: String, default: '#F0356A' },
-        logoUrl: { type: String, default: 'https://cdn.nexgear.vn/logo.svg' },
-        faviconUrl: { type: String, default: 'https://cdn.nexgear.vn/favicon.ico' },
+        logoUrl: { type: String, default: 'https://cdn.nexgzone.top/logo.svg' },
+        faviconUrl: { type: String, default: 'https://cdn.nexgzone.top/favicon.ico' },
         bannerText: { type: String, default: 'Dòng sản phẩm phím cơ cao cấp mới nhất đã cập bến NEXGEAR' },
 
         // General
         storeName: { type: String, default: 'NEXGEAR' },
-        storeEmail: { type: String, default: 'contact@nexgear.vn' },
+        storeEmail: { type: String, default: 'contact@nexgzone.top' },
         storePhone: { type: String, default: '0901 234 567' },
         storeAddress: { type: String, default: '123 Nguyễn Huệ, Quận 1, TP.HCM' },
         taxCode: { type: String, default: '' },

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Tất Cả Sản Phẩm Gear Gaming — NexGear',
         description: 'Mua sắm thiết bị máy tính cao cấp chính hãng tại NexGear Cần Thơ.',
-        url: 'https://nexgear.vn/products',
+        url: 'https://nexgzone.top/products',
     },
 }
 

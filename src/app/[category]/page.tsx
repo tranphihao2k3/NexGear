@@ -224,7 +224,7 @@ export async function generateMetadata({
         openGraph: {
             title: seo.title,
             description: seo.description,
-            url: `https://nexgear.vn/${category}`,
+            url: `https://nexgzone.top/${category}`,
             siteName: 'NexGear',
             locale: 'vi_VN',
             type: 'website',
@@ -236,7 +236,7 @@ export async function generateMetadata({
             description: seo.description,
         },
         alternates: {
-            canonical: `https://nexgear.vn/${category}`,
+            canonical: `https://nexgzone.top/${category}`,
         },
     }
 }
@@ -255,8 +255,8 @@ export default async function CategoryPage({
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://nexgear.vn' },
-            { '@type': 'ListItem', position: 2, name: seo.h1, item: `https://nexgear.vn/${category}` },
+            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://nexgzone.top/' },
+            { '@type': 'ListItem', position: 2, name: seo.h1, item: `https://nexgzone.top/${category}` },
         ],
     }
 

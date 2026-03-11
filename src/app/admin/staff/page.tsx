@@ -289,7 +289,7 @@ export default function AdminStaffPage() {
                                     <input
                                         type="email"
                                         className={styles.formInput}
-                                        placeholder="email@nexgear.vn"
+                                        placeholder="email@nexgzone.top"
                                         value={formEmail}
                                         onChange={(e) => setFormEmail(e.target.value)}
                                     />

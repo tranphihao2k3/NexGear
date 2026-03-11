@@ -51,7 +51,7 @@ const DEFAULTS: SettingsData = {
     faviconUrl: '',
     bannerText: '',
     storeName: 'NEXGEAR',
-    storeEmail: 'contact@nexgear.vn',
+    storeEmail: 'contact@nexgzone.top',
     storePhone: '0901 234 567',
     storeAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
     taxCode: '',
@@ -495,12 +495,12 @@ export default function AdminSettingsPage() {
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Logo (URL)</label>
-                            <input className={styles.formInput} name="logoUrl" value={settings.logoUrl} onChange={handleChange} placeholder="https://cdn.nexgear.vn/logo.svg" />
+                            <input className={styles.formInput} name="logoUrl" value={settings.logoUrl} onChange={handleChange} placeholder="https://cdn.nexgzone.top/logo.svg" />
                             <span className={styles.formHint}>Khuyến nghị SVG hoặc PNG trong suốt, tối thiểu 200x200px</span>
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Favicon</label>
-                            <input className={styles.formInput} name="faviconUrl" value={settings.faviconUrl} onChange={handleChange} placeholder="https://cdn.nexgear.vn/favicon.ico" />
+                            <input className={styles.formInput} name="faviconUrl" value={settings.faviconUrl} onChange={handleChange} placeholder="https://cdn.nexgzone.top/favicon.ico" />
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Banner trang chủ</label>

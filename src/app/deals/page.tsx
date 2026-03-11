@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Flash Deal — Giảm Đến 50% Gear Gaming — NexGear',
         description: 'Flash Sale mỗi ngày tại NexGear Cần Thơ! Giảm đến 50% bàn phím, chuột, tai nghe, phụ kiện. Số lượng có hạn — nhanh tay!',
-        url: 'https://nexgear.vn/deals',
+        url: 'https://nexgzone.top/deals',
         siteName: 'NexGear',
         locale: 'vi_VN',
         type: 'website',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
         description: 'Flash Sale mỗi ngày tại NexGear Cần Thơ! Giảm đến 50% bàn phím, chuột, tai nghe, phụ kiện.',
     },
     alternates: {
-        canonical: 'https://nexgear.vn/deals',
+        canonical: 'https://nexgzone.top/deals',
     },
 }
 
@@ -44,8 +44,8 @@ export default function DealsPage() {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://nexgear.vn' },
-            { '@type': 'ListItem', position: 2, name: 'Flash Deal', item: 'https://nexgear.vn/deals' },
+            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://nexgzone.top/' },
+            { '@type': 'ListItem', position: 2, name: 'Flash Deal', item: 'https://nexgzone.top/deals' },
         ],
     }
 

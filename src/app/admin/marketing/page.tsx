@@ -137,7 +137,7 @@ export default function MarketingPage() {
     }, [activeTab, fetchBanner]);
 
     const generateContent = useCallback((product: Product, templateType = 'default', shouldReturn = false) => {
-        const linkNexGear = `https://nex-gear.vercel.app/products/${product.slug || product._id}`;
+        const linkNexGear = `https://nexgzone.top/products/${product.slug || product._id}`;
         const linkNexGzone = `https://nexgzone.top/products/${product.slug || product._id}`;
         const link = `${linkNexGear}\n${linkNexGzone}`;
         const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
@@ -452,7 +452,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
 
     const copyLinkOnly = () => {
         if (!selectedProduct) return;
-        const link = `https://nex-gear.vercel.app/products/${selectedProduct.slug || selectedProduct._id}\nhttps://nexgzone.top/products/${selectedProduct.slug || selectedProduct._id}`;
+        const link = `https://nexgzone.top/products/${selectedProduct.slug || selectedProduct._id}\nhttps://nexgzone.top/products/${selectedProduct.slug || selectedProduct._id}`;
         navigator.clipboard.writeText(link);
         showSuccess('🔗 Đã copy link sản phẩm!');
     };

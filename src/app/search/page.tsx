@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     openGraph: {
         title: 'Tìm Kiếm Sản Phẩm — NexGear',
         description: 'Tìm kiếm sản phẩm tại NexGear Cần Thơ',
-        url: 'https://nexgear.vn/search',
+        url: 'https://nexgzone.top/search',
     },
 }
 

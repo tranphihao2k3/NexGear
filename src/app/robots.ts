@@ -18,7 +18,7 @@ export default function robots(): MetadataRoute.Robots {
                 allow: '/_next/image*',
             },
         ],
-        sitemap: 'https://nexgear.vn/sitemap.xml',
-        host: 'https://nexgear.vn',
+        sitemap: 'https://nexgzone.top/sitemap.xml',
+        host: 'https://nexgzone.top/',
     }
 }

@@ -31,7 +31,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 // ── METADATA ────────────────────────────────────────────────
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nexgear.vn'),
+  metadataBase: new URL('https://nexgzone.top/'),
   manifest: '/manifest.json',
   verification: {
     google: 'bWsGu1qOKzmhUPHyZ21TF5CkMouJhBA9AO33OgLrW2I',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'vi_VN',
-    url: 'https://nexgear.vn',
+    url: 'https://nexgzone.top/',
     siteName: 'NexGear',
     title: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
     description: 'Shop gear máy tính chính hãng #1 Cần Thơ. Giao nhanh 2H, bảo hành 12T.',

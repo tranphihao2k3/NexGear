@@ -11,7 +11,7 @@ const Footer = () => {
                             NEX<span>GEAR</span>
                         </Link>
                         <p className={styles.tagline}>NEXT-GEN GEAR STORE</p>
-                     
+
                     </div>
 
                     <div className={styles.grid}>
@@ -45,7 +45,7 @@ const Footer = () => {
                         <div className={styles.col}>
                             <h3>HỆ SINH THÁI</h3>
                             <ul>
-                                <li><a href="https://nex-gear.vercel.app" target="_blank" rel="noopener">NexGear Store</a></li>
+                                <li><a href="https://nexgzone.top/" target="_blank" rel="noopener">NexGear Store</a></li>
                                 <li><a href="https://nexgzone.top" target="_blank" rel="noopener">NexGzone</a></li>
                             </ul>
                         </div>

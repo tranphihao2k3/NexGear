@@ -66,7 +66,7 @@ export async function generateMetadata({
             openGraph: {
                 title,
                 description: description.substring(0, 160),
-                url: `https://nexgear.vn/products/${slug}`,
+                url: `https://nexgzone.top/products/${slug}`,
                 siteName: 'NexGear',
                 locale: 'vi_VN',
                 type: 'website',
@@ -86,7 +86,7 @@ export async function generateMetadata({
                 images: product.images?.[0] ? [product.images[0]] : ['/og-image.jpg'],
             },
             alternates: {
-                canonical: `https://nexgear.vn/products/${slug}`,
+                canonical: `https://nexgzone.top/products/${slug}`,
             },
         }
     } catch {
@@ -129,10 +129,10 @@ export default async function ProductPage({
             name: product.brand?.name || '',
         },
         category: product.category?.name || '',
-        url: `https://nexgear.vn/products/${slug}`,
+        url: `https://nexgzone.top/products/${slug}`,
         offers: {
             '@type': 'Offer',
-            url: `https://nexgear.vn/products/${slug}`,
+            url: `https://nexgzone.top/products/${slug}`,
             priceCurrency: 'VND',
             price: product.salePrice || product.basePrice,
             priceValidUntil: new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0],
@@ -142,7 +142,7 @@ export default async function ProductPage({
             seller: {
                 '@type': 'Organization',
                 name: 'NexGear',
-                url: 'https://nexgear.vn',
+                url: 'https://nexgzone.top/',
             },
         },
         ...(product.ratings?.count > 0 ? {
@@ -161,19 +161,19 @@ export default async function ProductPage({
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://nexgear.vn' },
-            { '@type': 'ListItem', position: 2, name: 'Sản phẩm', item: 'https://nexgear.vn/products' },
+            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://nexgzone.top/' },
+            { '@type': 'ListItem', position: 2, name: 'Sản phẩm', item: 'https://nexgzone.top/products' },
             ...(product?.category ? [{
                 '@type': 'ListItem',
                 position: 3,
                 name: product.category.name,
-                item: `https://nexgear.vn/products/${product.category.slug}`,
+                item: `https://nexgzone.top/products/${product.category.slug}`,
             }] : []),
             ...(product ? [{
                 '@type': 'ListItem',
                 position: product?.category ? 4 : 3,
                 name: product.name,
-                item: `https://nexgear.vn/products/${slug}`,
+                item: `https://nexgzone.top/products/${slug}`,
             }] : []),
         ],
     }

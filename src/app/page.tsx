@@ -9,19 +9,19 @@ import HomeClient from './HomeClient'
 const localBusinessSchema = {
   '@context': 'https://schema.org',
   '@type': 'ComputerStore',
-  '@id': 'https://nexgear.vn/#organization',
+  '@id': 'https://nexgzone.top/#organization',
   name: 'NexGear',
   alternateName: 'NexGear Cần Thơ',
   description:
     'Cửa hàng thiết bị ngoại vi và phụ kiện PC chính hãng tại Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện.',
-  url: 'https://nexgear.vn',
+  url: 'https://nexgzone.top/',
   logo: {
     '@type': 'ImageObject',
-    url: 'https://nexgear.vn/logo.png',
+    url: 'https://nexgzone.top/logo.png',
     width: 512,
     height: 512,
   },
-  image: 'https://nexgear.vn/og-image.jpg',
+  image: 'https://nexgzone.top/og-image.jpg',
   telephone: '+84978648720',
   email: 'nexgear.cantho@gmail.com',
   address: {
@@ -59,7 +59,7 @@ const localBusinessSchema = {
     { '@type': 'State', name: 'Đồng bằng sông Cửu Long' },
   ],
   sameAs: [
-    'https://nex-gear.vercel.app',
+    'https://nexgzone.top/',
     'https://nexgzone.top',
   ],
 }
@@ -67,14 +67,14 @@ const localBusinessSchema = {
 const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  '@id': 'https://nexgear.vn/#website',
+  '@id': 'https://nexgzone.top/#website',
   name: 'NexGear',
-  url: 'https://nexgear.vn',
+  url: 'https://nexgzone.top/',
   potentialAction: {
     '@type': 'SearchAction',
     target: {
       '@type': 'EntryPoint',
-      urlTemplate: 'https://nexgear.vn/search?q={search_term_string}',
+      urlTemplate: 'https://nexgzone.top/search?q={search_term_string}',
     },
     'query-input': 'required name=search_term_string',
   },

@@ -1021,7 +1021,7 @@ export default function AdminPOSPage() {
                             <div className={styles.rcStoreInfo}>
                                 <div>📍 123 Nguyễn Huệ, Q.1, TP. Hồ Chí Minh</div>
                                 <div>📞 1900-NEXGEAR (1900-639-4327)</div>
-                                <div>🌐 nexgear.vn · ✉ contact@nexgear.vn</div>
+                                <div>🌐 nexgzone.top · ✉ contact@nexgzone.top</div>
                             </div>
 
                             <div className={styles.rcDividerDeco} />
@@ -1156,7 +1156,7 @@ export default function AdminPOSPage() {
                             <div className={styles.rcFooter}>
                                 <div className={styles.rcFooterLine}>Cảm ơn quý khách đã mua hàng tại NEXGEAR!</div>
                                 <div className={styles.rcFooterLine}>Sản phẩm được bảo hành theo chính sách nhà sản xuất.</div>
-                                <div className={styles.rcFooterLine}>Hotline hỗ trợ: 1900-NEXGEAR · nexgear.vn</div>
+                                <div className={styles.rcFooterLine}>Hotline hỗ trợ: 1900-NEXGEAR · nexgzone.top</div>
                                 <div className={styles.rcFooterBrand}>— NEX<em>GEAR</em> —</div>
                             </div>
                         </div>
