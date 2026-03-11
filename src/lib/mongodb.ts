@@ -14,6 +14,7 @@ if (!MONGODB_URI) {
 interface MongooseCache {
     conn: any;
     promise: Promise<any> | null;
+    modelsRegistered: boolean;
 }
 
 declare global {
@@ -23,11 +24,25 @@ declare global {
 let cached: MongooseCache = global.mongooseGlobalCache;
 
 if (!cached) {
-    cached = global.mongooseGlobalCache = { conn: null, promise: null };
+    cached = global.mongooseGlobalCache = { conn: null, promise: null, modelsRegistered: false };
+}
+
+/**
+ * Eagerly import all models so Mongoose registers their schemas before any
+ * populate() / ref resolution runs. This prevents the
+ * "Schema hasn't been registered for model X" error in Vercel serverless
+ * environments where each lambda may have a cold start with no prior imports.
+ */
+function registerModels() {
+    if (cached.modelsRegistered) return;
+    // Importing the barrel file registers every model in one shot
+    require('@/models/index');
+    cached.modelsRegistered = true;
 }
 
 async function dbConnect() {
     if (cached.conn) {
+        registerModels();
         return cached.conn;
     }
 
@@ -46,6 +61,7 @@ async function dbConnect() {
         throw e;
     }
 
+    registerModels();
     return cached.conn;
 }
 
