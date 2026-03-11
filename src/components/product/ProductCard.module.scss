@@ -1,42 +1,144 @@
 @use '../../styles/tokens' as *;
 @use '../../styles/mixins' as *;
 
-.card {
-    @include card-base;
-    @include card-hover;
-    background-color: $color-white;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: 0;
-    min-width: 0;
-    overflow: hidden;
-
-    &.card--oos {
-        opacity: 0.6;
-        cursor: not-allowed;
+// ── CYBER SCAN KEYFRAMES ────────────────────────────────────
+@keyframes scanLine {
+    0% {
+        top: -60%;
     }
-
-    &::before {
-        content: "";
-        display: block;
-        height: 2.5px;
-        width: 100%;
-        background: $gradient-top-bar;
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
+    100% {
+        top: 120%;
     }
 }
 
+@keyframes borderPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+}
+
+// ── CARD ────────────────────────────────────────────────────
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--card-bg, #fff);
+    border: 1px solid var(--border);
+    border-radius: $r-2;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    // Cyan→Magenta gradient top bar
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: $gradient-top-bar;
+        z-index: 3;
+        opacity: 0.6;
+        transition: opacity 0.3s ease;
+    }
+
+    // Corner accent — bottom-right
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        border-right: 2px solid rgba(0, 196, 173, 0.15);
+        border-bottom: 2px solid rgba(0, 196, 173, 0.15);
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+
+    &:hover {
+        border-color: rgba(0, 196, 173, 0.3);
+        box-shadow:
+            0 0 24px rgba(0, 196, 173, 0.1),
+            0 8px 32px rgba(0, 0, 0, 0.12);
+        transform: translateY(-4px);
+
+        &::before {
+            opacity: 1;
+        }
+
+        &::after {
+            width: 44px;
+            height: 44px;
+            border-color: rgba(0, 196, 173, 0.4);
+        }
+    }
+
+    &.card--oos {
+        opacity: 0.5;
+        filter: grayscale(0.4);
+        cursor: not-allowed;
+    }
+}
+
+// ── IMAGE AREA ──────────────────────────────────────────────
 .imageWrap {
     position: relative;
     display: block;
     padding: $sp-4;
-    background-color: $color-bg2;
+    background: var(--bg2);
     aspect-ratio: 4 / 3;
     overflow: hidden;
+
+    // Grid overlay — subtle cyber grid
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(0, 196, 173, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0, 196, 173, 0.04) 1px, transparent 1px);
+        background-size: 24px 24px;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .card:hover &::before {
+        opacity: 1;
+    }
+
+    // ★ SCAN LINE — stronger, more visible
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: -60%;
+        width: 100%;
+        height: 50%;
+        background: linear-gradient(
+            180deg,
+            transparent 0%,
+            rgba(0, 196, 173, 0.04) 20%,
+            rgba(0, 196, 173, 0.12) 40%,
+            rgba(0, 196, 173, 0.35) 49%,
+            rgba(0, 196, 173, 0.5) 50%,
+            rgba(0, 196, 173, 0.35) 51%,
+            rgba(0, 196, 173, 0.12) 60%,
+            rgba(0, 196, 173, 0.04) 80%,
+            transparent 100%
+        );
+        z-index: 2;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+    }
+
+    .card:hover &::after {
+        opacity: 1;
+        animation: scanLine 1.5s ease-in-out infinite;
+    }
 }
 
 .image {
@@ -46,18 +148,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1;
 }
 
 .img {
     object-fit: contain;
+    transition: transform 0.4s ease, filter 0.3s ease;
+
+    .card:hover & {
+        transform: scale(1.04);
+        filter: drop-shadow(0 0 20px rgba(0, 196, 173, 0.25));
+    }
 }
 
 .imageFallback {
     font-size: $text-3xl;
-    color: $color-ink3;
-    opacity: 0.2;
+    color: var(--ink3, $color-ink3);
+    opacity: 0.15;
 }
 
+// ── BADGES ──────────────────────────────────────────────────
 .badgesTop {
     position: absolute;
     top: $sp-2;
@@ -65,32 +175,38 @@
     display: flex;
     flex-direction: column;
     gap: $sp-1;
-    z-index: 2;
+    z-index: 4;
 }
 
 .badge {
     @include font-display($text-xs, $fw-bold);
-    padding: $sp-1 $sp-2;
-    border-radius: $r-1;
+    padding: 3px $sp-2;
+    border-radius: 0;
     color: $color-white;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    font-size: 10px;
+    // Angled clip — cyber style
+    clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
 
     &--new {
-        background-color: $color-magenta;
+        background: linear-gradient(90deg, #00C4AD, rgba(0, 196, 173, 0.7));
     }
 
     &--sale {
-        background-color: $color-gold;
+        background: linear-gradient(90deg, $color-magenta, rgba(240, 53, 106, 0.7));
     }
 
     &--hot {
-        background-color: $color-magenta;
+        background: linear-gradient(90deg, #ff6b35, rgba(240, 107, 53, 0.7));
     }
 
     &--oos {
-        background-color: $color-red;
+        background: linear-gradient(90deg, #555, #444);
     }
 }
 
+// ── ACTION BUTTONS ──────────────────────────────────────────
 .cardActions {
     position: absolute;
     top: $sp-3;
@@ -98,14 +214,12 @@
     display: flex;
     flex-direction: column;
     gap: $sp-1;
-    z-index: 3;
+    z-index: 5;
     opacity: 0;
-    transform: translateX(6px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    transform: translateX(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
 
-    // parent .card hover — triggered via JS or CSS :hover via global selector
-    :global(.card):hover &,
-    *:hover>& {
+    .card:hover & {
         opacity: 1;
         transform: translateX(0);
     }
@@ -113,58 +227,79 @@
 
 .wishlist {
     @include flex-center;
-    width: 32px;
-    height: 32px;
-    background: $color-white;
-    border: 1px solid $color-border;
-    border-radius: $r-full;
-    color: $color-ink3;
-    font-size: $text-base;
+    width: 30px;
+    height: 30px;
+    background: rgba(var(--surface-rgb, 255, 255, 255), 0.85);
+    border: 1px solid var(--border);
+    border-radius: $r-1;
+    color: var(--ink3, $color-ink3);
+    font-size: $text-sm;
     cursor: pointer;
-    box-shadow: $shadow-sm;
+    backdrop-filter: blur(8px);
     transition: $transition-fast;
 
     &:hover {
         color: $color-magenta;
-        border-color: rgba($color-magenta, 0.4);
-        transform: scale(1.1);
+        border-color: rgba(240, 53, 106, 0.4);
+        box-shadow: 0 0 10px rgba(240, 53, 106, 0.15);
     }
 
     &.wishlist--active {
         color: $color-magenta;
-        background: rgba($color-magenta, 0.07);
+        border-color: rgba(240, 53, 106, 0.4);
+        background: rgba(240, 53, 106, 0.08);
     }
 }
 
 .compareBtn {
     @include flex-center;
-    width: 32px;
-    height: 32px;
-    background: $color-white;
-    border: 1px solid $color-border;
-    border-radius: $r-full;
-    font-size: 14px;
+    width: 30px;
+    height: 30px;
+    background: rgba(var(--surface-rgb, 255, 255, 255), 0.85);
+    border: 1px solid var(--border);
+    border-radius: $r-1;
+    font-size: 12px;
     cursor: pointer;
-    box-shadow: $shadow-sm;
+    backdrop-filter: blur(8px);
     transition: $transition-fast;
 
     &:hover {
-        border-color: rgba($color-cyan, 0.4);
-        transform: scale(1.1);
+        border-color: rgba(0, 196, 173, 0.4);
+        box-shadow: 0 0 10px rgba(0, 196, 173, 0.15);
     }
 
     &.compare--active {
-        background: rgba($color-cyan, 0.1);
-        border-color: rgba($color-cyan, 0.4);
+        background: rgba(0, 196, 173, 0.08);
+        border-color: rgba(0, 196, 173, 0.4);
     }
 }
 
+// ── BODY ────────────────────────────────────────────────────
 .body {
     padding: $sp-4;
     display: flex;
     flex-direction: column;
     flex: 1;
     gap: $sp-2;
+    border-top: 1px solid var(--border);
+    position: relative;
+
+    // Left edge glow line
+    &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(
+            180deg,
+            transparent,
+            rgba(0, 196, 173, 0.25),
+            transparent
+        );
+        animation: borderPulse 3s ease-in-out infinite;
+    }
 }
 
 .bodyLink {
@@ -176,33 +311,45 @@
 }
 
 .brand {
-    @include font-body($text-xs, $fw-medium);
-    color: $color-ink3;
+    @include font-mono($text-xs, $fw-medium);
+    color: rgba(0, 196, 173, 0.75);
     text-transform: uppercase;
-    display: block;
-    /* brand now visible */
+    letter-spacing: $ls-wider;
+    font-size: 10px;
 }
 
 .name {
     @include font-body($text-base, $fw-semibold);
-    color: $color-ink;
+    color: var(--ink);
     margin: 0;
     line-height: $lh-tight;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
     word-break: break-word;
 }
 
+// ── RATING ──────────────────────────────────────────────────
 .rating {
     display: flex;
-    /* show rating stars below product name */
     align-items: center;
     gap: $sp-1;
 }
 
+.stars {
+    color: $color-gold;
+    font-size: $text-xs;
+}
+
+.ratingCount {
+    @include font-mono($text-xs, $fw-regular);
+    color: var(--ink3, $color-ink3);
+}
+
+// ── PRICE ───────────────────────────────────────────────────
 .priceRow {
     display: flex;
     align-items: center;
@@ -214,20 +361,21 @@
     display: flex;
     align-items: baseline;
     gap: $sp-2;
+    flex-wrap: wrap;
 }
 
 .price {
-    @include font-mono($text-base, $fw-semibold);
+    @include font-mono($text-base, $fw-bold);
     color: $color-cyan;
 }
 
 .originalPrice {
     @include font-mono($text-sm, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3, $color-ink3);
     text-decoration: line-through;
 }
 
+// ── ADD TO CART ─────────────────────────────────────────────
 .addBtn {
     display: none;
-    /* Based on the design mockup cards, no button is visible */
 }

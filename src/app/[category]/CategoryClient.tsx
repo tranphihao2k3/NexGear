@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import ProductCard from "@/components/product/ProductCard";
 import { ProductGridSkeleton } from "@/components/ui";
 import Button from "@/components/ui/Button";
@@ -501,7 +502,18 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                                     view === "list" ? (
                                         <div key={product._id} className={styles.listCard}>
                                             <div className={styles.listCardImage}>
-                                                <div className={styles.listImageFallback}>📷</div>
+                                                {product.images?.[0] ? (
+                                                    <Image
+                                                        src={product.images[0]}
+                                                        alt={product.name}
+                                                        fill
+                                                        sizes="(max-width:768px) 120px, 180px"
+                                                        className={styles.listImg}
+                                                        unoptimized={!product.images[0].includes('res.cloudinary.com')}
+                                                    />
+                                                ) : (
+                                                    <div className={styles.listImageFallback}>📷</div>
+                                                )}
                                                 {product.tags?.includes("hot") && <span className={`${styles.listBadge} ${styles.badgeHot}`}>🔥 HOT</span>}
                                                 {product.tags?.includes("new") && <span className={`${styles.listBadge} ${styles.badgeNew}`}>NEW</span>}
                                                 {product.tags?.includes("sale") && product.salePrice && (

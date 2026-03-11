@@ -783,6 +783,10 @@
     }
 }
 
+.listImg {
+    object-fit: contain;
+}
+
 .listImageFallback {
     font-size: 40px;
     opacity: 0.3;
