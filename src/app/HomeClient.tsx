@@ -9,6 +9,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/free-mode";
 import ProductCard from "@/components/product/ProductCard";
+import { ProductSwiperSkeleton, SectionHeaderSkeleton } from "@/components/ui/Skeleton";
 import styles from "./page.module.scss";
 
 // ── INTERSECTION OBSERVER HOOK ──────────────────────────────
@@ -144,17 +145,17 @@ export default function HomeClient() {
   const typingText = useTyping(["NEXT LEVEL", "YOUR SETUP", "THE GAME"], 90, 2500);
 
   // ── REACT QUERY — parallel data fetching (cached, no re-fetch on nav) ──
-  const { data: featuredProducts = [] } = useQuery({
+  const { data: featuredProducts = [], isPending: featuredPending } = useQuery({
     queryKey: ['products', 'list', { featured: true, active: true, limit: 4 }],
     queryFn: () => fetch('/api/products?featured=true&active=true&limit=4').then(r => r.json()).then(d => d.success ? d.data : []),
     staleTime: 1000 * 60 * 10,
   });
-  const { data: saleProducts = [] } = useQuery({
+  const { data: saleProducts = [], isPending: salePending } = useQuery({
     queryKey: ['products', 'list', { tag: 'sale', active: true, limit: 4, sort: '-createdAt' }],
     queryFn: () => fetch('/api/products?tag=sale&active=true&limit=4&sort=-createdAt').then(r => r.json()).then(d => d.success ? d.data : []),
     staleTime: 1000 * 60 * 10,
   });
-  const { data: bestsellerProducts = [] } = useQuery({
+  const { data: bestsellerProducts = [], isPending: bestsellerPending } = useQuery({
     queryKey: ['products', 'list', { active: true, limit: 4, sort: '-soldCount' }],
     queryFn: () => fetch('/api/products?active=true&limit=4&sort=-soldCount').then(r => r.json()).then(d => d.success ? d.data : []),
     staleTime: 1000 * 60 * 10,
@@ -288,7 +289,9 @@ export default function HomeClient() {
             </Link>
           </div>
 
-          {featuredProducts.length > 0 ? (
+          {featuredPending ? (
+            <ProductSwiperSkeleton count={4} />
+          ) : featuredProducts.length > 0 ? (
             <Swiper
               modules={[Navigation, FreeMode]}
               spaceBetween={16}
@@ -339,7 +342,9 @@ export default function HomeClient() {
             </div>
           </div>
 
-          {saleProducts.length > 0 ? (
+          {salePending ? (
+            <ProductSwiperSkeleton count={4} />
+          ) : saleProducts.length > 0 ? (
             <Swiper
               modules={[Navigation, FreeMode]}
               spaceBetween={16}
@@ -374,7 +379,9 @@ export default function HomeClient() {
             </Link>
           </div>
 
-          {bestsellerProducts.length > 0 ? (
+          {bestsellerPending ? (
+            <ProductSwiperSkeleton count={4} />
+          ) : bestsellerProducts.length > 0 ? (
             <Swiper
               modules={[Navigation, FreeMode]}
               spaceBetween={16}

@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
 import { ProductGridSkeleton } from "@/components/ui";
 import Button from "@/components/ui/Button";
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/query-keys";
 import styles from "./page.module.scss";
 
 // ── CATEGORY META ────────────────────────────────────────────
@@ -152,115 +154,101 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
         h1: h1
     };
 
-    // State
-    const [products, setProducts] = useState<any[]>([]);
-    const [totalCount, setTotalCount] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [brands, setBrands] = useState<{ id: string; name: string }[]>([]);
-    const [categories, setCategories] = useState<{ _id: string; slug: string; name: string }[]>([]);
-
+    // UI State (not fetched)
     const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 10_000_000]);
     const [sort, setSort] = useState("-createdAt");
     const [view, setView] = useState<"grid4" | "grid3" | "list">("grid4");
     const [page, setPage] = useState(1);
     const [sidebarMobile, setSidebarMobile] = useState(false);
-
-    // Spec filters — keyed by normalized filter key
-    const [specFilters, setSpecFilters] = useState<Record<string, SpecFilterOption[]>>({});
     const [selectedSpecs, setSelectedSpecs] = useState<Record<string, Set<string>>>({});
 
-    // Sub-category tabs
-    const [subCatTabs, setSubCatTabs] = useState<{ _id: string; slug: string; name: string }[]>([]);
-
-    // Find category ID from slug
-    const categoryObj = categories.find(c => c.slug === catSlug);
-
-    // Fetch categories on mount
-    useEffect(() => {
-        fetch('/api/categories?limit=50').then(r => r.json()).then(res => {
-            if (res.success) setCategories(res.data);
-        });
-    }, []);
-
-    // Fetch sub-category tabs (children or siblings)
     const currentMeta = CATEGORY_META[catSlug];
     const parentSlug = currentMeta?.parent;
-    useEffect(() => {
-        const fetchSubCatTabs = async () => {
-            try {
-                // Determine which parent to query children for
-                const targetSlug = parentSlug || catSlug;
-                // First find the parent category ID
-                const catRes = await fetch(`/api/categories?limit=50`);
-                const catData = await catRes.json();
-                if (!catData.success) return;
-                const allCats: { _id: string; slug: string; name: string; parent: any }[] = catData.data;
-                const targetCat = allCats.find((c: any) => c.slug === targetSlug);
-                if (!targetCat) return;
 
-                // Find children of this parent
-                const children = allCats.filter((c: any) =>
-                    c.parent && (typeof c.parent === 'string' ? c.parent === targetCat._id : c.parent._id === targetCat._id)
-                );
-                setSubCatTabs(children);
-            } catch (err) {
-                console.error('Failed to fetch sub-category tabs:', err);
-            }
-        };
-        fetchSubCatTabs();
-    }, [catSlug, parentSlug]);
+    // ── 1. All categories (for sub-cat tabs + finding category ID) ─
+    const { data: allCategories = [] } = useQuery({
+        queryKey: queryKeys.categories.list({ limit: 50 }),
+        queryFn: () => fetch('/api/categories?limit=50').then(r => r.json()).then(d => d.success ? d.data : []),
+        staleTime: 1000 * 60 * 30, // 30 phút — danh mục hiếm thay đổi
+    });
 
-    // Fetch normalized spec filters when category changes
-    useEffect(() => {
-        const fetchSpecs = async () => {
-            try {
-                const r = await fetch(`/api/products/specs?categorySlug=${catSlug}`);
-                const res = await r.json();
-                if (res.success) {
-                    const allFilters: Record<string, SpecFilterOption[]> = res.data.filters || {};
-                    const allowedKeys = CATEGORY_SPEC_FILTERS[catSlug];
-                    if (allowedKeys && allowedKeys.length > 0) {
-                        const filtered: Record<string, SpecFilterOption[]> = {};
-                        for (const key of allowedKeys) {
-                            if (allFilters[key]?.length) filtered[key] = allFilters[key];
-                        }
-                        setSpecFilters(filtered);
-                    } else if (allowedKeys && allowedKeys.length === 0) {
-                        setSpecFilters({});
-                    } else {
-                        setSpecFilters(allFilters);
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to fetch specs:', err);
-            }
-        };
-        fetchSpecs();
-        setSelectedSpecs({});
-    }, [catSlug]);
+    // Derive sub-category tabs from cached allCategories (no extra fetch needed)
+    const targetSlug = parentSlug || catSlug;
+    const targetCat = allCategories.find((c: any) => c.slug === targetSlug);
+    const subCatTabs: { _id: string; slug: string; name: string }[] = targetCat
+        ? allCategories.filter((c: any) =>
+            c.parent && (
+                typeof c.parent === 'string'
+                    ? c.parent === targetCat._id
+                    : c.parent._id === targetCat._id
+            )
+        )
+        : [];
 
-    // Fetch brands when category changes
-    useEffect(() => {
-        const fetchBrands = async () => {
-            let url = `/api/brands?limit=50&hasProducts=true&categorySlug=${catSlug}`;
-            try {
-                const r = await fetch(url);
-                const res = await r.json();
-                if (res.success) {
-                    setBrands(res.data.map((b: any) => ({ id: b._id, name: b.name })));
-                }
-            } catch (err) {
-                console.error('Failed to fetch brands:', err);
-            }
-        };
-        fetchBrands();
-    }, [catSlug]);
+    const categoryObj = allCategories.find((c: any) => c.slug === catSlug);
 
-    // Fetch products
-    const fetchProducts = useCallback(async () => {
-        setLoading(true);
-        try {
+    // ── 2. Brands for this category ──────────────────────────────
+    const { data: brands = [] } = useQuery({
+        queryKey: queryKeys.brands.list({ categorySlug: catSlug, hasProducts: true, limit: 50 }),
+        queryFn: () =>
+            fetch(`/api/brands?limit=50&hasProducts=true&categorySlug=${catSlug}`)
+                .then(r => r.json())
+                .then(d => d.success ? d.data.map((b: any) => ({ id: b._id, name: b.name })) : []),
+        staleTime: 1000 * 60 * 30,
+    });
+
+    // ── 3. Spec filters for this category ────────────────────────
+    const { data: rawSpecFilters = {} } = useQuery({
+        queryKey: ['products', 'specs', catSlug],
+        queryFn: () =>
+            fetch(`/api/products/specs?categorySlug=${catSlug}`)
+                .then(r => r.json())
+                .then(d => d.success ? (d.data.filters || {}) : {}),
+        staleTime: 1000 * 60 * 30,
+    });
+
+    // Filter allowed spec keys per category
+    const allowedKeys = CATEGORY_SPEC_FILTERS[catSlug];
+    const specFilters: Record<string, SpecFilterOption[]> = allowedKeys != null
+        ? allowedKeys.length === 0
+            ? {}
+            : Object.fromEntries(
+                allowedKeys
+                    .filter(k => (rawSpecFilters as any)[k]?.length)
+                    .map(k => [k, (rawSpecFilters as any)[k]])
+            )
+        : rawSpecFilters as Record<string, SpecFilterOption[]>;
+
+    // ── 4. Products (re-fetches when filters/page/sort change) ───
+    const specParts: string[] = [];
+    for (const [filterKey, selectedNorms] of Object.entries(selectedSpecs)) {
+        if (selectedNorms.size === 0) continue;
+        const options = specFilters[filterKey] || [];
+        const rawVals: string[] = [];
+        for (const opt of options) {
+            if (selectedNorms.has(opt.normalized)) rawVals.push(...opt.rawValues);
+        }
+        if (rawVals.length > 0) {
+            const dbKey = (filterKey === 'Kích thước màn hình' || filterKey === 'Độ phân giải')
+                ? 'Màn hình' : filterKey;
+            specParts.push(`${dbKey}:${rawVals.join('|')}`);
+        }
+    }
+
+    const productQueryParams = {
+        catSlug,
+        page,
+        sort,
+        brands: Array.from(selectedBrands).join(','),
+        minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
+        maxPrice: priceRange[1] < 10_000_000 ? priceRange[1] : undefined,
+        specs: specParts.join(',') || undefined,
+    };
+
+    const { data: productResult, isPending: loading } = useQuery({
+        queryKey: ['products', 'category', productQueryParams],
+        queryFn: async () => {
             const params = new URLSearchParams({
                 active: 'true',
                 limit: String(PRODUCTS_PER_PAGE),
@@ -268,52 +256,25 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                 sort,
                 categorySlug: catSlug,
             });
-
             if (selectedBrands.size > 0) params.set('brand', Array.from(selectedBrands).join(','));
             if (priceRange[0] > 0) params.set('minPrice', String(priceRange[0]));
             if (priceRange[1] < 10_000_000) params.set('maxPrice', String(priceRange[1]));
-
-            // Spec filters — resolve normalized selections back to raw DB values
-            const specParts: string[] = [];
-            for (const [filterKey, selectedNorms] of Object.entries(selectedSpecs)) {
-                if (selectedNorms.size === 0) continue;
-                const options = specFilters[filterKey] || [];
-                const rawVals: string[] = [];
-                for (const opt of options) {
-                    if (selectedNorms.has(opt.normalized)) {
-                        rawVals.push(...opt.rawValues);
-                    }
-                }
-                if (rawVals.length > 0) {
-                    // Find the original DB spec key — for screen sub-filters,
-                    // multiple filter keys map to the same DB key "Màn hình"
-                    // The API uses raw values so we need the original key.
-                    // We detect screen sub-keys and map back to "Màn hình".
-                    const dbKey = (filterKey === 'Kích thước màn hình' || filterKey === 'Độ phân giải')
-                        ? 'Màn hình' : filterKey;
-                    specParts.push(`${dbKey}:${rawVals.join('|')}`);
-                }
-            }
             if (specParts.length > 0) params.set('specs', specParts.join(','));
-
             const res = await fetch(`/api/products?${params}`);
             const data = await res.json();
-            if (data.success) {
-                setProducts(data.data);
-                setTotalCount(data.pagination?.total || 0);
-            }
-        } catch (err) {
-            console.error('Failed to fetch products:', err);
-            setProducts([]);
-        } finally {
-            setLoading(false);
-        }
-    }, [page, sort, catSlug, selectedBrands, priceRange, selectedSpecs]);
+            return data.success
+                ? { products: data.data, total: data.pagination?.total || 0 }
+                : { products: [], total: 0 };
+        },
+        placeholderData: prev => prev, // giữ data cũ khi thay đổi filter
+        staleTime: 1000 * 60 * 5,
+    });
 
-    useEffect(() => { fetchProducts(); }, [fetchProducts]);
-
+    const products = productResult?.products ?? [];
+    const totalCount = productResult?.total ?? 0;
     const totalPages = Math.ceil(totalCount / PRODUCTS_PER_PAGE) || 1;
 
+    // ── HANDLERS ─────────────────────────────────────────────────
     const toggleBrand = useCallback((brandId: string) => {
         setSelectedBrands(prev => {
             const next = new Set(prev);
@@ -328,11 +289,8 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
             const next = { ...prev };
             const set = new Set(prev[specKey] || []);
             set.has(value) ? set.delete(value) : set.add(value);
-            if (set.size === 0) {
-                delete next[specKey];
-            } else {
-                next[specKey] = set;
-            }
+            if (set.size === 0) delete next[specKey];
+            else next[specKey] = set;
             return next;
         });
         setPage(1);
@@ -443,7 +401,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                                 <div className={styles.rangeLabels}><span>0₫</span><span>10.000.000₫</span></div>
                             </div>
 
-                            {/* Brands from API */}
+                            {/* Brands from API (cached) */}
                             <div className={styles.filterGroup}>
                                 <div className={styles.filterGroupLabel}>Thương hiệu</div>
                                 <CheckGroup
@@ -453,7 +411,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                                 />
                             </div>
 
-                            {/* Spec filters (normalized) */}
+                            {/* Spec filters (cached) */}
                             {Object.entries(specFilters).map(([filterKey, options]) => (
                                 <div key={filterKey} className={styles.filterGroup}>
                                     <div className={styles.filterGroupLabel}>{filterKey}</div>
@@ -512,7 +470,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                         {activeCount > 0 && (
                             <div className={styles.activeTags}>
                                 {Array.from(selectedBrands).map(bId => {
-                                    const brand = brands.find(b => b.id === bId);
+                                    const brand = brands.find((b: any) => b.id === bId);
                                     return (
                                         <button key={bId} className={styles.activeTag} onClick={() => toggleBrand(bId)}>
                                             {brand?.name || bId} ✕
@@ -539,7 +497,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                             </div>
                         ) : (
                             <div className={`${styles.productGrid} ${styles[`grid--${view}`]}`}>
-                                {products.map((product) =>
+                                {products.map((product: any) =>
                                     view === "list" ? (
                                         <div key={product._id} className={styles.listCard}>
                                             <div className={styles.listCardImage}>

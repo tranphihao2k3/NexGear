@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import ProductCard from '@/components/product/ProductCard';
+import { CatalogPageSkeleton } from '@/components/ui/Skeleton';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
 
@@ -82,6 +83,11 @@ function CatalogContent() {
 
     const products = productResult?.data ?? [];
     const pagination = productResult?.pagination ?? { page: 1, totalPages: 1, totalDocs: 0 };
+
+    // Show skeleton while first-load (no cached data yet)
+    if (loading && products.length === 0) {
+        return <CatalogPageSkeleton />;
+    }
 
     // Handlers for Filters
     const handleBrandChange = (brandId: string) => {
