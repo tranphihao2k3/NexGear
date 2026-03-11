@@ -42,6 +42,13 @@ const Footer = () => {
                                 <li><Link href="/careers">Tuyển Dụng</Link></li>
                             </ul>
                         </div>
+                        <div className={styles.col}>
+                            <h3>HỆ SINH THÁI</h3>
+                            <ul>
+                                <li><a href="https://nex-gear.vercel.app" target="_blank" rel="noopener">NexGear Store</a></li>
+                                <li><a href="https://nexgzone.top" target="_blank" rel="noopener">NexGzone</a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
