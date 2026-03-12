@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -144,13 +144,39 @@ export default function MarketingPage() {
         const originalPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price * 1.15);
         const nameUpper = product.name.toUpperCase();
 
-        const cpuSpec = product.specs?.cpu || 'Mạnh mẽ, tốc độ cao';
-        const ramSpec = product.specs?.ram || 'Đa nhiệm mượt mà';
-        const ssdSpec = product.specs?.ssd || 'Khởi động thần tốc';
+        // ── Fuzzy spec lookup: tìm theo keyword dù key viết hoa/thường/tiếng Việt ──
+        const specsObj: Record<string, string> = (product.specs && typeof product.specs === 'object')
+            ? product.specs as Record<string, string>
+            : {};
+
+        const findSpec = (keywords: string[]): string => {
+            const normalizeKey = (k: string) => k.toLowerCase()
+                .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+                .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+                .replace(/[ìíịỉĩ]/g, 'i')
+                .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+                .replace(/[ùúụủũưừứựửữ]/g, 'u')
+                .replace(/[đ]/g, 'd')
+                .replace(/[\s_\-\.]/g, '');
+
+            for (const [k, v] of Object.entries(specsObj)) {
+                const nk = normalizeKey(k);
+                if (keywords.some(kw => nk.includes(normalizeKey(kw)))) {
+                    return String(v);
+                }
+            }
+            return '';
+        };
+
+        const cpuSpec  = findSpec(['cpu', 'vi xu ly', 'processor', 'chip']) || 'Mạnh mẽ, tốc độ cao';
+        const ramSpec  = findSpec(['ram', 'bo nho', 'memory'])               || 'Đa nhiệm mượt mà';
+        const ssdSpec  = findSpec(['ssd', 'hdd', 'o cung', 'storage', 'luu tru']) || 'Khởi động thần tốc';
+        const gpuSpec  = findSpec(['gpu', 'card', 'do hoa', 'graphics', 'vga']);
+        const screenRaw = findSpec(['man hinh', 'screen', 'display', 'lcd', 'oled', 'kich thuoc', 'inch']);
 
         const resolutionPart = product.specs?.resolution ? ` - ${product.specs.resolution}` : '';
         const hzPart = product.specs?.hz ? ` - ${product.specs.hz}` : '';
-        const screenSpec = `${product.specs?.screen || 'Chân thực, sắc nét'}${resolutionPart}${hzPart}`;
+        const screenSpec = `${screenRaw || product.specs?.screen || 'Chân thực, sắc nét'}${resolutionPart}${hzPart}`;
 
         let content = '';
         let finalTemplateType = templateType;
@@ -165,10 +191,10 @@ export default function MarketingPage() {
             else finalTemplateType = 'office';
         }
 
-        // Random variation helpers
+        // ── Specs block dùng chung — format nhất quán ──
         const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
-        const gpuSpec = product.specs?.gpu || '';
         const gpuLine = gpuSpec ? `\n✅ GPU: ${gpuSpec}` : '';
+        const specsBlock = `✅ CPU: ${cpuSpec}\n✅ RAM: ${ramSpec}${gpuLine}\n✅ SSD: ${ssdSpec}\n✅ Màn hình: ${screenSpec}`;
 
         const gamingVariants = [
             () => `🎮 ${nameUpper} — CON QUÁI VẬT GAMING VỪA VỀ KHO!
@@ -176,10 +202,7 @@ export default function MarketingPage() {
 Anh em ơi hàng nóng mới về, cấu hình chiến mọi tựa game AAA không cần nghĩ:
 
 ⚙️ CẤU HÌNH CHI TIẾT:
-✅ CPU: ${cpuSpec}
-✅ RAM: ${ramSpec}${gpuLine}
-✅ SSD: ${ssdSpec}
-✅ Màn hình: ${screenSpec}
+${specsBlock}
 
 💰 Giá: ${price}
 📉 Giá thị trường: ${originalPrice}
@@ -202,10 +225,7 @@ Giá sốc chỉ ${price} (thị trường ${originalPrice})
 Số lượng có hạn, ai nhanh tay người đó được!
 
 📋 THÔNG SỐ MÁY:
-• CPU: ${cpuSpec}
-• RAM: ${ramSpec}${gpuSpec ? `\n• GPU: ${gpuSpec}` : ''}
-• Ổ cứng: ${ssdSpec}
-• Màn: ${screenSpec}
+${specsBlock}
 
 Máy này chiến game cực đã — FPS cao, không giật lag, tản nhiệt tốt. Anh em nào đang tìm gear gaming giá hời thì inbox mình ngay!
 
@@ -225,10 +245,7 @@ ${nameUpper}
 Giá chỉ ${price} — rẻ hơn thị trường cả triệu đồng!
 
 🔧 Cấu hình thực tế:
-→ ${cpuSpec}
-→ ${ramSpec}${gpuSpec ? `\n→ ${gpuSpec}` : ''}
-→ ${ssdSpec}
-→ ${screenSpec}
+${specsBlock}
 
 Mình vừa test chạy Valorant, CSGO full setting mượt lắm. Pin vẫn tốt, máy mát, ngoại hình còn đẹp. Ai cần máy gaming mà budget tầm này thì quá ngon!
 
@@ -247,10 +264,7 @@ Mình vừa test chạy Valorant, CSGO full setting mượt lắm. Pin vẫn t�
 Máy gọn nhẹ, mang đi học đi làm tiện lợi. Cấu hình đủ dùng cho Word, Excel, Zoom, xem phim...
 
 📋 CẤU HÌNH MÁY:
-✅ CPU: ${cpuSpec}
-✅ RAM: ${ramSpec}${gpuLine}
-✅ SSD: ${ssdSpec}
-✅ Màn hình: ${screenSpec}
+${specsBlock}
 
 💰 Chỉ: ${price}
 📉 Thị trường: ${originalPrice}
@@ -272,10 +286,7 @@ ${nameUpper}
 Giá sinh viên: ${price} (Ngoài bán ${originalPrice})
 
 Cấu hình:
-• ${cpuSpec}
-• ${ramSpec}${gpuSpec ? `\n• ${gpuSpec}` : ''}
-• ${ssdSpec}
-• ${screenSpec}
+${specsBlock}
 
 Mở 20 tab Chrome + Zoom + Word cùng lúc vẫn mượt. Pin trâu, màn đẹp, nhẹ dễ mang theo. Đi học đi làm đều okela!
 
@@ -296,7 +307,8 @@ Mình recommend con này cho ai cần máy:
 ✔️ Họp online, email
 ✔️ Xem phim, lướt web
 
-Thông số: ${cpuSpec} | ${ramSpec} | ${ssdSpec}${gpuSpec ? ` | ${gpuSpec}` : ''} | Màn ${screenSpec}
+📋 Thông số:
+${specsBlock}
 
 Máy đã được vệ sinh, thay keo tản nhiệt, cài sẵn Win + Office bản quyền. Bảo hành 6 tháng tại shop.
 
@@ -314,10 +326,7 @@ Máy đã được vệ sinh, thay keo tản nhiệt, cài sẵn Win + Office b�
 Dành cho anh em làm đồ họa, dựng phim, lập trình, kiến trúc... cần máy thật khỏe.
 
 ⚙️ CẤU HÌNH:
-✅ CPU: ${cpuSpec}
-✅ RAM: ${ramSpec}${gpuLine}
-✅ SSD: ${ssdSpec}
-✅ Màn hình: ${screenSpec}
+${specsBlock}
 
 💰 Giá ưu đãi: ${price}
 📉 Giá mới: ${originalPrice}
@@ -339,10 +348,7 @@ ${nameUpper}
 Giá đặc biệt: ${price} (Tiết kiệm so với mua mới!)
 
 Thông số chi tiết:
-→ ${cpuSpec}
-→ ${ramSpec}${gpuSpec ? `\n→ ${gpuSpec}` : ''}
-→ ${ssdSpec}
-→ ${screenSpec}
+${specsBlock}
 
 Ai đang tìm máy render, edit video, chạy nhiều phần mềm nặng thì con này là chân ái. Mình đã test và cam kết chất lượng!
 
@@ -361,10 +367,7 @@ Ai đang tìm máy render, edit video, chạy nhiều phần mềm nặng thì c
 📉 Thị trường: ${originalPrice}
 
 📋 Cấu hình chi tiết:
-✅ CPU: ${cpuSpec}
-✅ RAM: ${ramSpec}${gpuLine}
-✅ SSD: ${ssdSpec}
-✅ Màn hình: ${screenSpec}
+${specsBlock}
 
 Máy đã qua kiểm tra kỹ lưỡng, chạy ổn định. Phù hợp cho cả học tập, làm việc và giải trí nhẹ nhàng.
 
@@ -382,7 +385,8 @@ Máy đã qua kiểm tra kỹ lưỡng, chạy ổn định. Phù hợp cho cả
 
 Chỉ ${price} thôi! (Nơi khác bán ${originalPrice})
 
-Cấu hình: ${cpuSpec} | ${ramSpec} | ${ssdSpec}${gpuSpec ? ` | ${gpuSpec}` : ''} | Màn ${screenSpec}
+📋 Cấu hình:
+${specsBlock}
 
 Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo hành tận tâm tại shop.
 
@@ -394,6 +398,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
 #NexGear #Laptop #CanTho`,
         ];
 
+
         if (finalTemplateType === 'gaming') {
             content = pick(gamingVariants)();
         } else if (finalTemplateType === 'office') {
@@ -403,6 +408,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
         } else {
             content = pick(defaultVariants)();
         }
+
 
         setPostContent(content);
         if (shouldReturn) return content;
@@ -761,9 +767,101 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
                                     </Button>
                                 </div>
                             </div>
-                        </div>
+                            </div>
+
+                        {/* Image Gallery */}
+                        {selectedProduct && (selectedProduct.images?.length ?? 0) > 0 && (
+                            <div className={s.section}>
+                                <div className={s.sectionHeader}>
+                                    <h2><span>📸</span> ẢNH SẢN PHẨM</h2>
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '11px', color: '#7A7870' }}>
+                                            Click ảnh để copy → Paste vào Facebook
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Workflow hint */}
+                                <div style={{
+                                    background: 'rgba(0,196,173,0.06)',
+                                    border: '1px dashed rgba(0,196,173,0.3)',
+                                    borderRadius: '6px',
+                                    padding: '10px 14px',
+                                    marginBottom: '12px',
+                                    fontSize: '12px',
+                                    color: '#00C4AD',
+                                    display: 'flex',
+                                    gap: '16px',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <span>📋 <b>Quy trình đăng nhanh:</b></span>
+                                    <span>1️⃣ Copy status (nút COPY ở trên)</span>
+                                    <span>→ 2️⃣ Click ảnh để copy ảnh</span>
+                                    <span>→ 3️⃣ Vào FB: Paste status → Paste ảnh vào ô đính kèm</span>
+                                </div>
+
+                                <div className={s.imageGallery}>
+                                    {(selectedProduct.images || []).map((img, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={s.imageThumb}
+                                            title={`Click để copy ảnh ${idx + 1}`}
+                                            onClick={async () => {
+                                                try {
+                                                    const res = await fetch(img);
+                                                    const blob = await res.blob();
+                                                    const item = new ClipboardItem({ [blob.type]: blob });
+                                                    await navigator.clipboard.write([item]);
+                                                    showSuccess(`✅ Đã copy ảnh ${idx + 1} vào clipboard!`);
+                                                } catch {
+                                                    // Fallback: open in new tab
+                                                    window.open(img, '_blank');
+                                                    showInfo('Trình duyệt chặn copy ảnh — đã mở ảnh mới để tải về');
+                                                }
+                                            }}
+                                        >
+                                            <img src={img} alt={`Ảnh ${idx + 1}`} />
+                                            <div className={s.imageCopyOverlay}>
+                                                <Copy size={20} />
+                                                <span>COPY</span>
+                                            </div>
+                                            {idx === 0 && (
+                                                <div className={s.imagePrimaryBadge}>CHÍNH</div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Open all images button */}
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                            const imgs = selectedProduct.images || [];
+                                            imgs.forEach(img => window.open(img, '_blank'));
+                                        }}
+                                    >
+                                        <ExternalLink size={14} /> Mở tất cả ảnh
+                                    </Button>
+                                    <Button
+                                        variant="outline-cyan"
+                                        size="sm"
+                                        onClick={async () => {
+                                            // Step 1: copy text
+                                            await navigator.clipboard.writeText(postContent);
+                                            showSuccess('📋 Đã copy status! Giờ click vào ảnh muốn dùng để copy ảnh.');
+                                        }}
+                                        disabled={!postContent}
+                                    >
+                                        <Copy size={14} /> COPY STATUS TRƯỚC
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className={s.section}>
+
                             <div className={s.sectionHeader}>
                                 <h2><span>3</span> QUẢN LÝ HỘI NHÓM</h2>
                             </div>

@@ -42,3 +42,10 @@ next-env.d.ts
 
 # duan_weblaplap
 /duan_weblaplap
+
+# env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

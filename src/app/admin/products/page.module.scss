@@ -419,18 +419,17 @@
     width: 840px;
     max-width: 95vw;
     max-height: 90vh;
-    overflow-y: auto;
-    @include custom-scrollbar(var(--adm-scrollbar));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .modalHeader {
     @include flex-between;
     padding: $sp-5;
     border-bottom: 1px solid $admin-border;
-    position: sticky;
-    top: 0;
     background: $admin-card-bg;
-    z-index: 1;
+    flex-shrink: 0;
 }
 
 .modalTitle {
@@ -457,6 +456,9 @@
 
 .modalBody {
     padding: $sp-5;
+    overflow-y: auto;
+    flex: 1;
+    @include custom-scrollbar(var(--adm-scrollbar));
 }
 
 .formGroup {
@@ -624,6 +626,8 @@
     display: flex;
     gap: $sp-3;
     justify-content: flex-end;
+    flex-shrink: 0;
+    background: $admin-card-bg;
 }
 
 .cancelBtn {
