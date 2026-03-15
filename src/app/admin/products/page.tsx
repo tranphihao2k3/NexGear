@@ -286,6 +286,14 @@ export default function AdminProductsPage() {
         setHasDraft(false);
     };
 
+    // Helper: tạo warrantyItems mặc định từ số tháng
+    const buildWarrantyItems = (months: number): string[] => {
+        const firstLine = months === 0
+            ? 'Không bảo hành'
+            : `Bảo hành ${months} tháng chính hãng`;
+        return [firstLine, 'Hỗ trợ kỹ thuật trọn đời', 'Đổi mới trong 7 ngày đầu'];
+    };
+
     const handleAiQuickFill = async () => {
         if (!aiText.trim()) { error('Nhập mô tả sản phẩm để AI phân tích'); return; }
         setAiParsing(true);
@@ -323,7 +331,13 @@ export default function AdminProductsPage() {
                     condition: d.condition || prev.condition,
                     usedGrade: resolvedUsedGrade || prev.usedGrade,
                     conditionNote: d.conditionNote || prev.conditionNote,
-                    warrantyMonths: (d.warrantyMonths != null) ? d.warrantyMonths.toString() : '3',
+                    warrantyMonths: (d.warrantyMonths != null) ? d.warrantyMonths.toString() : prev.warrantyMonths,
+                    // Đồng bộ warrantyItems: dùng items từ AI nếu có, không thì tự generate từ số tháng
+                    warrantyItems: (() => {
+                        const months = d.warrantyMonths ?? Number(prev.warrantyMonths);
+                        if (d.warranty?.items?.length > 0) return d.warranty.items;
+                        return buildWarrantyItems(months);
+                    })(),
                     gift: d.gift || prev.gift,
                     description: rawDesc, // {{IMAGE_N}} placeholders kept, real URLs injected after upload
                     tags: d.tags?.join(', ') || prev.tags,
@@ -1179,7 +1193,23 @@ export default function AdminProductsPage() {
                             <div className={styles.formRow} style={{ borderTop: '1px solid rgba(12,12,12,0.1)', paddingTop: '16px' }}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Số tháng bảo hành</label>
-                                    <select name="warrantyMonths" className={styles.formInput} value={formData.warrantyMonths} onChange={handleInputChange}>
+                                    <select
+                                        name="warrantyMonths"
+                                        className={styles.formInput}
+                                        value={formData.warrantyMonths}
+                                        onChange={(e) => {
+                                            const newMonths = Number(e.target.value);
+                                            setFormData(prev => {
+                                                // Cập nhật dòng đầu tiên của warrantyItems để khớp
+                                                const newItems = [...prev.warrantyItems];
+                                                const firstLine = newMonths === 0
+                                                    ? 'Không bảo hành'
+                                                    : `Bảo hành ${newMonths} tháng chính hãng`;
+                                                newItems[0] = firstLine;
+                                                return { ...prev, warrantyMonths: e.target.value, warrantyItems: newItems };
+                                            });
+                                        }}
+                                    >
                                         {[0, 1, 3, 6, 12, 24, 36].map(m => (
                                             <option key={m} value={m}>{m === 0 ? 'Không bảo hành' : `${m} tháng`}</option>
                                         ))}

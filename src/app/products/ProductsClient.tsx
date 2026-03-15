@@ -40,6 +40,7 @@ function CatalogContent() {
 
 
     // Filter States
+    const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string>(searchParams?.get('category') || '');
     const [selectedBrands, setSelectedBrands] = useState<string[]>(searchParams?.get('brand')?.split(',') || []);
     const [sort, setSort] = useState<string>(searchParams?.get('sort') || '-createdAt');
@@ -134,36 +135,57 @@ function CatalogContent() {
                     {searchQuery ? `Kết quả cho "${searchQuery}"` : 'Tất cả Sản phẩm'}
                 </h1>
                 <div className={styles.subtitle}>Danh mục thiết bị ngoại vi NEXGEAR</div>
+
+                {/* Sub-category Tabs / Danh mục dạng ngang cho PC/Mobile đỡ dài */}
+                <div className={styles.catTabs}>
+                    <button
+                        className={`${styles.catTab} ${selectedCategory === '' ? styles.catTabActive : ''}`}
+                        onClick={() => handleCategoryChange('')}
+                    >
+                        Tất cả
+                    </button>
+                    {categories.map((cat: any) => (
+                        <button
+                            key={cat._id}
+                            className={`${styles.catTab} ${selectedCategory === cat._id ? styles.catTabActive : ''}`}
+                            onClick={() => handleCategoryChange(cat._id === selectedCategory ? '' : cat._id)}
+                        >
+                            {cat.name}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div className={styles.layout}>
+                {/* Nút bật/tắt Lọc trên Mobile */}
+                <button
+                    className={styles.mobileFilterBtn}
+                    onClick={() => setMobileFilterOpen(true)}
+                >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+                    </svg>
+                    BỘ LỌC SẢN PHẨM
+                </button>
+
+                {/* Sidebar Overlay (dùng để ấn click bên ngoài tắt popup) */}
+                <div
+                    className={`${styles.sidebarOverlay} ${mobileFilterOpen ? styles.sidebarOverlayOpen : ''}`}
+                    onClick={() => setMobileFilterOpen(false)}
+                />
+
                 {/* Sidebar Filters */}
-                <aside className={styles.sidebar}>
-                    <div className={styles.filterGroup}>
-                        <h3 className={styles.filterTitle}>Danh mục</h3>
-                        <div className={styles.filterList}>
-                            {categories.map((cat: any) => (
-                                <label key={cat._id} className={styles.filterItem}>
-                                    <input
-                                        type="radio"
-                                        name="category"
-                                        checked={selectedCategory === cat._id}
-                                        onChange={() => handleCategoryChange(cat._id)}
-                                        onClick={(e) => {
-                                            if (selectedCategory === cat._id) {
-                                                e.preventDefault();
-                                                handleCategoryChange(cat._id);
-                                            }
-                                        }}
-                                    />
-                                    <span>{cat.name}</span>
-                                </label>
-                            ))}
-                        </div>
+                <aside className={`${styles.sidebar} ${mobileFilterOpen ? styles.sidebarOpen : ''}`}>
+                    <div className={styles.sidebarHead}>
+                        <h2 className={styles.sidebarTitle}>BỘ LỌC TÌM KIẾM</h2>
+                        <button className={styles.sidebarClose} onClick={() => setMobileFilterOpen(false)}>
+                            ✕
+                        </button>
                     </div>
 
-                    <div className={styles.filterGroup}>
-                        <h3 className={styles.filterTitle}>Thương hiệu</h3>
+                    <div className={styles.sidebarScroll}>
+                        <div className={styles.filterGroup}>
+                            <h3 className={styles.filterTitle}>Thương hiệu</h3>
                         <div className={styles.filterList}>
                             {brands.map((brand: any) => (
                                 <label key={brand._id} className={styles.filterItem}>
@@ -186,6 +208,7 @@ function CatalogContent() {
                             <label className={styles.filterItem}><input type="radio" name="price" /> Trên 2 triệu</label>
                         </div>
                     </div>
+                  </div>
                 </aside>
 
                 {/* Main Content */}

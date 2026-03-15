@@ -3,17 +3,23 @@
 
 // ── CYBER SCAN KEYFRAMES ────────────────────────────────────
 @keyframes scanLine {
-    0% {
-        top: -60%;
-    }
-    100% {
-        top: 120%;
-    }
+    0% { top: -60%; }
+    100% { top: 120%; }
 }
 
 @keyframes borderPulse {
     0%, 100% { opacity: 0.3; }
     50% { opacity: 0.8; }
+}
+
+@keyframes imgFadeIn {
+    from { opacity: 0; transform: scale(1.02); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
 }
 
 // ── CARD ────────────────────────────────────────────────────
@@ -159,6 +165,33 @@
         transform: scale(1.04);
         filter: drop-shadow(0 0 20px rgba(0, 196, 173, 0.25));
     }
+}
+
+// Ảnh đang tải — ẩn đi
+.imgHidden {
+    opacity: 0;
+}
+
+// Ảnh đã load xong — fade in mượt
+.imgVisible {
+    opacity: 1;
+    animation: imgFadeIn 0.4s ease forwards;
+}
+
+// Shimmer placeholder đứng chỗ trong khi ảnh tải
+.imgPlaceholder {
+    position: absolute;
+    inset: 0;
+    border-radius: $r-2;
+    background: linear-gradient(
+        90deg,
+        $color-bg2 0%,
+        $color-bg3 40%,
+        $color-bg2 80%
+    );
+    background-size: 800px 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    z-index: 1;
 }
 
 .imageFallback {

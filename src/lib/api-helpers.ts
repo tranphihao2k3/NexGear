@@ -13,18 +13,22 @@ export function apiPaginated(
     data: unknown[],
     total: number,
     page: number,
-    limit: number
+    limit: number,
+    headers?: Record<string, string>
 ) {
-    return NextResponse.json({
-        success: true,
-        data,
-        pagination: {
-            total,
-            page,
-            limit,
-            totalPages: Math.ceil(total / limit),
+    return NextResponse.json(
+        {
+            success: true,
+            data,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
         },
-    });
+        { headers }
+    );
 }
 
 // Parse query params for pagination

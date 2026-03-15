@@ -117,7 +117,9 @@ export async function GET(req: NextRequest) {
             Product.countDocuments(filter),
         ]);
 
-        return apiPaginated(products, total, page, limit);
+        return apiPaginated(products, total, page, limit, {
+            'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+        });
     } catch (error) {
         return apiError((error as Error).message, 500);
     }

@@ -66,13 +66,22 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
             .then(r => r.json())
             .then(d => {
                 if (d.success && Array.isArray(d.data)) {
-                    setCategories(d.data.map((cat: ApiCategory) => ({
+                    const mappedCats = d.data.map((cat: ApiCategory) => ({
                         href: `/${cat.slug}`,
                         label: cat.name,
                         sub: cat.children?.length
                             ? cat.children.map(ch => ({ href: `/${ch.slug}`, label: ch.name, desc: ch.description || '' }))
                             : undefined,
-                    })))
+                    }))
+
+                    // Đưa "Laptop" lên đầu
+                    mappedCats.sort((a: NavLink, b: NavLink) => {
+                        if (a.label.toLowerCase() === 'laptop') return -1;
+                        if (b.label.toLowerCase() === 'laptop') return 1;
+                        return 0;
+                    })
+
+                    setCategories(mappedCats)
                 }
             })
             .catch(() => {})

@@ -22,6 +22,42 @@
     color: $color-ink2;
 }
 
+.catTabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $sp-2;
+    margin-top: $sp-6;
+}
+
+.catTab {
+    @include font-body($text-sm, $fw-medium);
+    padding: $sp-1 $sp-3;
+    border-radius: 999px;
+    border: 1px solid rgba(12, 12, 12, 0.1);
+    color: $color-ink3;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    &:hover {
+        color: $color-cyan;
+        border-color: $color-cyan;
+        background: rgba(0, 196, 173, 0.05);
+    }
+}
+
+.catTabActive {
+    color: $color-white;
+    background: $color-cyan;
+    border-color: $color-cyan;
+
+    &:hover {
+        background: $color-cyan-dark;
+        color: $color-white;
+    }
+}
+
 .layout {
     display: grid;
     grid-template-columns: 240px 1fr;
@@ -39,7 +75,116 @@
     border: 1px solid $color-border;
     height: fit-content;
     position: sticky;
-    top: $sp-5;
+    top: calc(#{$nav-height} + #{$sp-5});
+
+    @include tablet {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 300px;
+        max-height: 100vh;
+        border-radius: 0;
+        border: none;
+        border-right: 1px solid $color-border;
+        z-index: $z-modal;
+        transform: translateX(-110%);
+        transition: transform 0.3s ease;
+        padding: 0; // Padding handled by internal scroll
+        background: var(--surface);
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.sidebarOpen {
+    @include tablet {
+        transform: translateX(0);
+        box-shadow: $shadow-xl;
+    }
+}
+
+.sidebarOverlay {
+    display: none;
+
+    @include tablet {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: calc(#{$z-modal} - 1);
+        backdrop-filter: blur(2px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+    }
+}
+
+.sidebarOverlayOpen {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.sidebarHead {
+    display: none;
+
+    @include tablet {
+        @include flex-between;
+        padding: $sp-5;
+        border-bottom: 1px solid $color-border;
+        align-items: center;
+        flex-shrink: 0;
+    }
+}
+
+.sidebarTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: var(--ink);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.sidebarClose {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: $color-ink3;
+}
+
+.sidebarScroll {
+    @include tablet {
+        flex: 1;
+        overflow-y: auto;
+        padding: $sp-5;
+    }
+}
+
+.mobileFilterBtn {
+    display: none;
+    @include font-display($text-xs, $fw-bold);
+    background: $color-ink;
+    color: $color-white;
+    border: none;
+    border-radius: $r-1;
+    padding: $sp-3 $sp-5;
+    cursor: pointer;
+    letter-spacing: $ls-wide;
+    align-items: center;
+    gap: $sp-2;
+    text-transform: uppercase;
+    transition: $transition-fast;
+    width: fit-content;
+    margin-bottom: $sp-4;
+
+    &:hover {
+        background: $color-cyan;
+    }
+
+    @include tablet {
+        display: flex;
+    }
 }
 
 .filterGroup {

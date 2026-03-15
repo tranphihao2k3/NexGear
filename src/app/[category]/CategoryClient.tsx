@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "@/components/product/ProductCard";
 import { ProductGridSkeleton } from "@/components/ui";
 import Button from "@/components/ui/Button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
 import styles from "./page.module.scss";
 
@@ -262,6 +262,37 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
     const products = productResult?.products ?? [];
     const totalCount = productResult?.total ?? 0;
     const totalPages = Math.ceil(totalCount / PRODUCTS_PER_PAGE) || 1;
+
+    // ── PREFETCH trang tiếp theo ─────────────────────────────────
+    const queryClient = useQueryClient();
+    useEffect(() => {
+        if (page < totalPages) {
+            const nextPage = page + 1;
+            const nextParams = { ...productQueryParams, page: nextPage };
+            queryClient.prefetchQuery({
+                queryKey: ['products', 'category', nextParams],
+                queryFn: async () => {
+                    const params = new URLSearchParams({
+                        active: 'true',
+                        limit: String(PRODUCTS_PER_PAGE),
+                        page: String(nextPage),
+                        sort,
+                        categorySlug: catSlug,
+                    });
+                    if (selectedBrands.size > 0) params.set('brand', Array.from(selectedBrands).join(','));
+                    if (priceRange[0] > 0) params.set('minPrice', String(priceRange[0]));
+                    if (priceRange[1] < 10_000_000) params.set('maxPrice', String(priceRange[1]));
+                    if (specParts.length > 0) params.set('specs', specParts.join(','));
+                    const res = await fetch(`/api/products?${params}`);
+                    const data = await res.json();
+                    return data.success
+                        ? { products: data.data, total: data.pagination?.total || 0 }
+                        : { products: [], total: 0 };
+                },
+                staleTime: 1000 * 60 * 5,
+            });
+        }
+    }, [page, totalPages, productQueryParams]);
 
     // ── HANDLERS ─────────────────────────────────────────────────
     const toggleBrand = useCallback((brandId: string) => {
