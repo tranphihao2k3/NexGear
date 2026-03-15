@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
 
         const [attendances, total] = await Promise.all([
             Attendance.find(filter)
-                .populate('employee', 'employeeCode firstName lastName profileImage department')
+                .populate('employee', 'name image role')
                 .populate('createdBy', 'name email')
                 .sort({ date: -1, createdAt: -1 })
                 .skip(skip)

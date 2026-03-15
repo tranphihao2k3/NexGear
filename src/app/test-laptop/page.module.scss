@@ -308,6 +308,176 @@
     }
 }
 
+.uploadSection {
+    margin-top: $sp-4;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.divider {
+    height: 1px;
+    background: $color-border;
+    width: 100%;
+}
+
+.uploadControls {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+    align-items: stretch;
+}
+
+.btnGroup {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+}
+
+.btnSystem {
+    @include btn-base;
+    @include btn-size-md;
+    @include font-display($text-xs, $fw-bold);
+    background: $color-cyan;
+    color: $color-ink;
+    flex: 1;
+    min-width: 200px;
+    
+    &:hover {
+        background: $color-cyan-dark;
+    }
+}
+
+.uploadLabel {
+    @include btn-base;
+    @include btn-size-md;
+    @include font-display($text-xs, $fw-bold);
+    background: transparent;
+    color: $color-ink2;
+    border: 1px solid $color-border2;
+    cursor: pointer;
+    transition: $transition-fast;
+    flex: 1;
+    min-width: 160px;
+
+    &:hover {
+        background: $color-bg2;
+    }
+}
+
+.playerWrapper {
+    background: $color-bg;
+    padding: $sp-4;
+    border-radius: $r-3;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+    border: 1px solid $color-border;
+}
+
+.playerHeader {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.pannerControl {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    background: $color-white;
+    padding: $sp-4;
+    border-radius: $r-2;
+}
+
+.pannerLabels {
+    display: flex;
+    justify-content: space-between;
+    @include font-display(10px, $fw-bold);
+    color: $color-ink3;
+    letter-spacing: $ls-wide;
+}
+
+.pannerSlider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: $color-bg2;
+    border-radius: $r-full;
+    outline: none;
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: $color-cyan;
+        cursor: pointer;
+        box-shadow: $shadow-sm;
+        border: 2px solid $color-white;
+    }
+}
+
+.pannerValues {
+    display: flex;
+    justify-content: space-between;
+    @include font-mono(11px, $fw-bold);
+    color: $color-ink2;
+}
+
+.quickPan {
+    display: flex;
+    gap: $sp-2;
+    margin-top: $sp-2;
+
+    @include mobile {
+        flex-direction: column;
+    }
+}
+
+.panBtn {
+    @include btn-base;
+    @include btn-size-sm;
+    flex: 1;
+    background: $color-bg;
+    color: $color-ink2;
+    border: 1px solid $color-border;
+    font-size: 10px;
+
+    &:hover {
+        background: $color-bg2;
+    }
+
+    &.panActive {
+        background: $color-cyan-light;
+        color: $color-cyan;
+        border-color: $color-cyan;
+    }
+}
+
+.playingHint {
+    @include font-body(11px);
+    color: $color-cyan;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &::before {
+        content: '●';
+        animation: blink 1s infinite;
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.hiddenInput {
+    display: none;
+}
+
 // ── DISPLAY ──
 .fullscreenColor {
     position: fixed;

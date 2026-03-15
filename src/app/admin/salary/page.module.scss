@@ -1,12 +1,44 @@
-// ============================================================
-// NEXGEAR — Admin Salary Styles
-// ============================================================
-
-.header {
-    @include flex-between;
-    margin-bottom: $sp-6;
+// ── LEAVE BADGES ────────────────────────────────────────────
+.leaveBadges {
+    display: flex;
     flex-wrap: wrap;
+    gap: $sp-2;
+    margin-top: $sp-2;
+}
+
+.leaveTag {
+    @include font-body($text-xs, $fw-medium);
+    padding: 2px $sp-2;
+    border-radius: $r-1;
+    background: rgba(255,255,255,.07);
+    color: $admin-ink3;
+    border: 1px solid $admin-border;
+}
+
+.absentTag {
+    background: rgba($color-gold, .12);
+    color: $color-gold;
+    border-color: rgba($color-gold, .3);
+}
+
+.deductTag {
+    background: rgba($color-red, .12);
+    color: $color-red;
+    border-color: rgba($color-red, .25);
+}
+
+// ── HEADER ──────────────────────────────────────────────────
+.header {
+    display: flex;
+    flex-direction: column;
     gap: $sp-4;
+    margin-bottom: $sp-6;
+
+    @media (min-width: 900px) {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
 }
 
 .headerLeft {
@@ -23,118 +55,456 @@
     }
 }
 
-.filterGroup {
+.periodPicker {
     display: flex;
     gap: $sp-2;
 }
 
 .filterSelect {
     @include font-body($text-sm);
-    width: 100%;
     padding: $sp-2 $sp-3;
     background: $admin-surface;
     border: 1px solid $admin-border;
     border-radius: $r-2;
     color: $admin-ink;
     outline: none;
-    min-width: 120px;
+    cursor: pointer;
+    min-width: 110px;
 
-    &:focus {
-        border-color: $color-cyan;
-        box-shadow: $shadow-glow-cyan;
-    }
+    &:focus { border-color: $color-cyan; box-shadow: $shadow-glow-cyan; }
 }
 
-.addBtn {
-    @include btn-base;
-    @include btn-size-lg;
-    background: $color-cyan;
-    color: $color-ink;
-
-    &:hover {
-        background: $color-cyan-dark;
-    }
-}
-
-.summary {
+// ── TABS ────────────────────────────────────────────────────
+.tabs {
     display: flex;
-    gap: $sp-4;
+    gap: $sp-2;
+    background: rgba(0,0,0,.2);
+    padding: $sp-1;
+    border-radius: $r-3;
+    border: 1px solid $admin-border;
+}
+
+.tab {
+    @include btn-base;
+    @include font-body($text-sm, $fw-medium);
+    padding: $sp-2 $sp-5;
+    border-radius: $r-2;
+    color: $admin-ink3;
+    background: transparent;
+    transition: $transition-fast;
+
+    &:hover { color: $admin-ink; background: rgba(255,255,255,.05); }
+}
+
+.tabActive {
+    background: $color-cyan !important;
+    color: $color-ink !important;
+    @include font-body($text-sm, $fw-semibold);
+}
+
+// ── SUMMARY BAR ─────────────────────────────────────────────
+.summaryBar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-3;
     margin-bottom: $sp-6;
-    flex-wrap: wrap;
+
+    @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 480px) { grid-template-columns: 1fr; }
 }
 
 .summaryItem {
     background: $admin-card-bg;
     border: 1px solid $admin-border;
-    border-radius: $r-2;
-    padding: $sp-4 $sp-5;
-    min-width: 180px;
+    border-radius: $r-3;
+    padding: $sp-4;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-1;
+
+    &.green .sVal { color: $color-green; }
+    &.red .sVal { color: $color-red; }
+    &.cyan .sVal { color: $color-cyan; }
+    &.purple .sVal { color: $color-purple; }
 }
 
-.summaryLabel {
-    @include font-body($text-sm, $fw-regular);
+.sLabel {
+    @include font-body($text-xs, $fw-regular);
     color: $admin-ink3;
-    display: block;
-    margin-bottom: $sp-1;
 }
 
-.summaryValue {
-    @include font-display($text-lg, $fw-bold);
+.sVal {
+    @include font-mono($text-lg, $fw-bold);
     color: $admin-ink;
 }
 
-.tableWrapper {
-    overflow-x: auto;
+// ── EMPTY ───────────────────────────────────────────────────
+.empty {
+    text-align: center;
+    padding: $sp-12;
+    color: $admin-ink3;
+    @include font-body($text-sm);
+}
+
+.emptyIcon {
+    font-size: 40px;
+    margin-bottom: $sp-3;
+    opacity: .5;
+}
+
+// ════════════════════════════════════════════════════════════
+// TAB 1: GHI NHẬN HÀNG NGÀY
+// ════════════════════════════════════════════════════════════
+.logTab {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+// Quick log form
+.logForm {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-left: 3px solid $color-cyan;
+    border-radius: $r-3;
+    padding: $sp-5;
+}
+
+.logFormTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $color-cyan;
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    margin-bottom: $sp-3;
+}
+
+.logFormRow {
+    display: flex;
+    gap: $sp-2;
+    flex-wrap: wrap;
+    align-items: stretch;
+}
+
+.empSelect {
+    @include font-body($text-sm);
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    min-width: 200px;
+    cursor: pointer;
+
+    &:focus { border-color: $color-cyan; box-shadow: $shadow-glow-cyan; }
+}
+
+.typeSelect {
+    @include font-body($text-sm, $fw-semibold);
+    padding: $sp-2 $sp-3;
+    border-radius: $r-2;
+    outline: none;
+    cursor: pointer;
+    min-width: 130px;
+    border: 1.5px solid;
+
+    &.bonus {
+        background: rgba($color-green, .12);
+        border-color: rgba($color-green, .35);
+        color: $color-green;
+    }
+    &.deduction {
+        background: rgba($color-red, .1);
+        border-color: rgba($color-red, .3);
+        color: $color-red;
+    }
+    &.other {
+        background: rgba($color-purple, .1);
+        border-color: rgba($color-purple, .3);
+        color: $color-purple;
+    }
+}
+
+.amountInput {
+    @include font-mono($text-sm);
+    width: 150px;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &:focus { border-color: $color-cyan; box-shadow: $shadow-glow-cyan; }
+    &::placeholder { color: $admin-ink3; }
+}
+
+.quickInput {
+    @include font-body($text-sm);
+    flex: 1;
+    min-width: 220px;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    transition: $transition-fast;
+
+    &:focus { border-color: $color-cyan; box-shadow: $shadow-glow-cyan; }
+    &::placeholder { color: $admin-ink3; }
+}
+
+.dateInput {
+    @include font-mono($text-sm);
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    cursor: pointer;
+
+    &:focus { border-color: $color-cyan; }
+}
+
+.logBtn {
+    @include btn-base;
+    padding: $sp-2 $sp-5;
+    background: $color-cyan;
+    color: $color-ink;
+    @include font-display($text-xs, $fw-bold);
+    border-radius: $r-2;
+    letter-spacing: $ls-wide;
+    white-space: nowrap;
+
+    &:hover { background: $color-cyan-dark; }
+}
+
+.logHint {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    font-style: italic;
+    margin-top: $sp-2;
+}
+
+// Transaction list header
+.txHeader {
+    @include flex-between;
+}
+
+.txTitle {
+    @include font-display($text-sm, $fw-bold);
+    color: $admin-ink2;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.clearFilter {
+    @include btn-base;
+    @include font-body($text-xs);
+    color: $color-cyan;
+    background: transparent;
+    padding: 0;
+
+    &:hover { text-decoration: underline; }
+}
+
+// Transaction cards
+.txList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-2;
+}
+
+.txCard {
+    display: grid;
+    grid-template-columns: 44px 160px 1fr 80px 64px;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-3 $sp-4;
     background: $admin-card-bg;
     border: 1px solid $admin-border;
     border-radius: $r-2;
-}
+    transition: $transition-fast;
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
+    &:hover { background: rgba(255,255,255,.03); }
 
-    th, td {
-        padding: $sp-3 $sp-4;
-        text-align: left;
-        border-bottom: 1px solid $admin-border;
-    }
+    &.bonus { border-left: 3px solid $color-green; }
+    &.deduction { border-left: 3px solid $color-red; }
+    &.otherTx   { border-left: 3px solid $color-purple; }
 
-    th {
-        @include font-display($text-xs, $fw-bold);
-        color: $admin-ink3;
-        text-transform: uppercase;
-        letter-spacing: $ls-wide;
-        background: rgba(0, 0, 0, 0.2);
-    }
-
-    td {
-        @include font-body($text-sm, $fw-regular);
-        color: $admin-ink;
-    }
-
-    tbody tr:hover {
-        background: rgba(255, 255, 255, 0.02);
+    @media (max-width: 700px) {
+        grid-template-columns: 44px 1fr 80px 64px;
+        .txEmp { display: none; }
     }
 }
 
-.employeeName {
+.txDate {
+    @include font-mono($text-sm, $fw-bold);
+    color: $admin-ink3;
+    text-align: center;
+    background: rgba(255,255,255,.05);
+    padding: $sp-1 $sp-2;
+    border-radius: $r-1;
+}
+
+.txEmp {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.txEmpName {
     @include font-body($text-sm, $fw-semibold);
     color: $admin-ink;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.mono {
-    @include font-mono($text-xs, $fw-regular);
+.txEmpRole {
+    @include font-body($text-xs, $fw-regular);
     color: $admin-ink3;
 }
 
-.money {
-    @include font-mono($text-sm, $fw-medium);
+.txLabel {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+}
+
+.txAmount {
+    @include font-mono($text-sm, $fw-bold);
     text-align: right;
 
-    &.net {
-        color: $color-cyan;
+    &.bonus { color: $color-green; }
+    &.deduction { color: $color-red; }
+}
+
+.txActions {
+    display: flex;
+    gap: $sp-1;
+    justify-content: flex-end;
+}
+
+.txBtn {
+    @include btn-base;
+    background: transparent;
+    border: none;
+    padding: $sp-1;
+    border-radius: $r-1;
+    cursor: pointer;
+    transition: $transition-fast;
+    font-size: 14px;
+
+    &:hover { background: rgba(255,255,255,.1); }
+    &.del:hover { background: rgba($color-red,.15); }
+}
+
+// ════════════════════════════════════════════════════════════
+// TAB 2: TÍNH LƯƠNG CUỐI THÁNG
+// ════════════════════════════════════════════════════════════
+.calcTab {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+.calcActions {
+    @include flex-between;
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    padding: $sp-4 $sp-5;
+}
+
+.calcInfo {
+    @include font-body($text-sm, $fw-medium);
+    color: $admin-ink2;
+}
+
+.payAllBtn {
+    @include btn-base;
+    padding: $sp-2 $sp-6;
+    background: $color-cyan;
+    color: $color-ink;
+    @include font-display($text-xs, $fw-bold);
+    border-radius: $r-2;
+    letter-spacing: $ls-wide;
+
+    &:hover:not(:disabled) { background: $color-cyan-dark; }
+    &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+.calcList {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+.calcCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    overflow: hidden;
+
+    &.paid {
+        border-color: rgba($color-green,.3);
     }
+
+    &::before {
+        content: '';
+        display: block;
+        height: 2.5px;
+        background: linear-gradient(90deg, $color-cyan, $color-purple);
+    }
+
+    &.paid::before {
+        background: $color-green;
+    }
+}
+
+.calcCardHeader {
+    @include flex-between;
+    padding: $sp-4 $sp-5;
+    border-bottom: 1px solid $admin-border;
+    flex-wrap: wrap;
+    gap: $sp-3;
+}
+
+.calcEmpInfo {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+}
+
+.calcAvatar {
+    width: 40px; height: 40px;
+    border-radius: $r-full;
+    background: linear-gradient(135deg, $color-cyan, $color-purple);
+    @include flex-center;
+    @include font-display($text-base, $fw-bold);
+    color: white;
+    flex-shrink: 0;
+}
+
+.calcEmpName {
+    @include font-body($text-base, $fw-semibold);
+    color: $admin-ink;
+}
+
+.calcEmpSub {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    margin-top: 2px;
+}
+
+.calcCardRight {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
 }
 
 .status {
@@ -144,117 +514,257 @@
     text-transform: uppercase;
     letter-spacing: $ls-wide;
 
-    &.gray {
-        background: rgba(128, 128, 128, 0.15);
-        color: #888;
-    }
-
-    &.orange {
-        background: rgba($color-gold, 0.15);
-        color: $color-gold;
-    }
-
-    &.green {
-        background: rgba($color-green, 0.15);
-        color: $color-green;
-    }
-
-    &.red {
-        background: rgba($color-red, 0.15);
-        color: $color-red;
-    }
+    &.gray   { background: rgba(128,128,128,.15); color: #888; }
+    &.orange { background: rgba($color-gold,.15); color: $color-gold; }
+    &.green  { background: rgba($color-green,.15); color: $color-green; }
+    &.red    { background: rgba($color-red,.15); color: $color-red; }
 }
 
-.actions {
+.payBtn {
+    @include btn-base;
+    padding: $sp-2 $sp-5;
+    background: $color-cyan;
+    color: $color-ink;
+    @include font-display($text-xs, $fw-bold);
+    border-radius: $r-2;
+
+    &:hover:not(:disabled) { background: $color-cyan-dark; }
+    &:disabled { opacity: .5; cursor: not-allowed; }
+}
+
+.calcDetail {
+    padding: $sp-5;
     display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+}
+
+.calcColums {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+
+    @media (max-width: 640px) { grid-template-columns: 1fr; }
+}
+
+.calcCol {
+    background: rgba(0,0,0,.15);
+    border-radius: $r-2;
+    padding: $sp-3 $sp-4;
+    border: 1px solid $admin-border;
+}
+
+.calcColTitle {
+    @include font-display($text-xs, $fw-bold);
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    color: $admin-ink3;
+    margin-bottom: $sp-3;
+    display: flex;
+    align-items: center;
     gap: $sp-2;
 }
 
-.actionBtn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: $sp-1;
-    border-radius: $r-1;
-    transition: $transition-fast;
+.bonusDot { width:8px; height:8px; border-radius:$r-full; background:$color-green; flex-shrink:0; }
+.deductDot { width:8px; height:8px; border-radius:$r-full; background:$color-red; flex-shrink:0; }
+.otherDot { width:8px; height:8px; border-radius:$r-full; background:$color-purple; flex-shrink:0; }
 
-    &:hover {
-        background: rgba(255, 255, 255, 0.1);
-    }
+.calcItem {
+    display: grid;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: $sp-2;
+    padding: $sp-1 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
 
-    &.danger:hover {
-        background: rgba($color-red, 0.2);
-    }
+    &:last-child { border-bottom: none; }
 }
 
-// Modal
-.modalOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.7);
-    @include flex-center;
-    z-index: 1000;
-    padding: $sp-4;
+.calcItemDate {
+    @include font-mono($text-xs, $fw-regular);
+    color: $admin-ink3;
 }
 
-.modal {
-    background: $admin-card-bg;
-    border: 1px solid $admin-border;
-    border-radius: $r-3;
-    width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
-    overflow-y: auto;
+.calcItemLabel {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
 }
 
-.modalHeader {
+.calcItemAmt {
+    @include font-mono($text-xs, $fw-bold);
+}
+
+.noItems {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    font-style: italic;
+    text-align: center;
+    padding: $sp-2;
+}
+
+.calcSubtotal {
     @include flex-between;
-    padding: $sp-4 $sp-5;
-    border-bottom: 1px solid $admin-border;
-}
-
-.modalTitle {
-    @include font-display($text-lg, $fw-bold);
+    padding-top: $sp-2;
+    margin-top: $sp-2;
+    border-top: 1px solid $admin-border;
+    @include font-body($text-sm, $fw-semibold);
     color: $admin-ink;
 }
 
-.modalClose {
-    background: transparent;
-    border: none;
-    color: $admin-ink3;
-    cursor: pointer;
-    font-size: $text-lg;
-    padding: $sp-1;
+// Allowance input
+.allowanceRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-3 $sp-4;
+    background: rgba(0,0,0,.1);
+    border-radius: $r-2;
+    border: 1px dashed $admin-border;
+    flex-wrap: wrap;
+}
 
-    &:hover {
+.allowanceLabel {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+    flex: 1;
+    min-width: 200px;
+}
+
+.allowanceInput {
+    @include font-mono($text-sm);
+    width: 130px;
+    padding: $sp-2 $sp-3;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    color: $admin-ink;
+    outline: none;
+    text-align: right;
+
+    &:focus { border-color: $color-cyan; }
+}
+
+// Calculation total
+.calcTotal {
+    background: rgba(0,0,0,.25);
+    border-radius: $r-2;
+    padding: $sp-4;
+    border: 1px solid $admin-border;
+}
+
+.calcTotalRow {
+    @include flex-between;
+    padding: $sp-2 0;
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink2;
+
+    &.bonus .mono { color: $color-green; }
+    &.deduct .mono { color: $color-red; }
+    &.netRow {
+        @include font-body($text-base, $fw-bold);
         color: $admin-ink;
     }
 }
 
-.modalBody {
-    padding: $sp-5;
+.calcDivider {
+    height: 1px;
+    background: $admin-border;
+    margin: $sp-2 0;
 }
 
-.formRow {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: $sp-4;
-    margin-bottom: $sp-4;
+.mono {
+    @include font-mono($text-sm, $fw-medium);
+}
 
-    @media (max-width: 640px) {
-        grid-template-columns: 1fr;
+.bonusAmt { color: $color-green; }
+.deductAmt { color: $color-red; }
+.otherAmt { color: $color-purple; }
+.netAmt {
+    @include font-mono($text-lg, $fw-bold);
+    color: $color-cyan;
+}
+
+// ── EDIT MODAL ──────────────────────────────────────────────
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.75);
+    @include flex-center;
+    z-index: $z-modal;
+    padding: $sp-4;
+}
+
+.editModal {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-3;
+    width: 100%;
+    max-width: 400px;
+}
+
+.editHeader {
+    @include flex-between;
+    padding: $sp-4 $sp-5;
+    border-bottom: 1px solid $admin-border;
+
+    span {
+        @include font-display($text-base, $fw-bold);
+        color: $admin-ink;
+    }
+
+    button {
+        background: transparent;
+        border: none;
+        color: $admin-ink3;
+        cursor: pointer;
+        font-size: $text-lg;
+
+        &:hover { color: $admin-ink; }
     }
 }
 
-.formGroup {
-    margin-bottom: $sp-3;
+.editBody {
+    padding: $sp-5;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
 }
 
-.formLabel {
-    @include font-body($text-sm, $fw-medium);
-    color: $admin-ink2;
-    display: block;
-    margin-bottom: $sp-2;
+.typeRow {
+    display: flex;
+    gap: $sp-2;
+    align-items: center;
+}
+
+.mathToggle {
+    display: flex;
+    background: $admin-surface;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    overflow: hidden;
+    height: 38px;
+}
+
+.mathBtn {
+    @include btn-base;
+    width: 40px;
+    height: 100%;
+    border-radius: 0;
+    font-size: $text-lg;
+    background: transparent;
+    color: $admin-ink3;
+    transition: $transition-fast;
+
+    &:hover { background: rgba(255,255,255,.05); }
+
+    &.activeAdd {
+        background: $color-green !important;
+        color: $color-white !important;
+    }
+    &.activeSub {
+        background: $color-red !important;
+        color: $color-white !important;
+    }
 }
 
 .formInput {
@@ -266,44 +776,12 @@
     border-radius: $r-2;
     color: $admin-ink;
     outline: none;
+    transition: $transition-fast;
 
-    &:focus {
-        border-color: $color-cyan;
-        box-shadow: $shadow-glow-cyan;
-    }
+    &:focus { border-color: $color-cyan; box-shadow: $shadow-glow-cyan; }
 }
 
-.salarySummary {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: $r-2;
-    padding: $sp-4;
-    margin-top: $sp-4;
-}
-
-.summaryRow {
-    @include flex-between;
-    margin-bottom: $sp-2;
-
-    &:last-child {
-        margin-bottom: 0;
-    }
-
-    span:first-child {
-        @include font-body($text-sm, $fw-regular);
-        color: $admin-ink3;
-    }
-}
-
-.summaryAmount {
-    @include font-display($text-md, $fw-bold);
-    color: $admin-ink;
-
-    &.net {
-        color: $color-cyan;
-    }
-}
-
-.modalFooter {
+.editFooter {
     @include flex-between;
     padding: $sp-4 $sp-5;
     border-top: 1px solid $admin-border;
@@ -317,14 +795,7 @@
     border: 1px solid $admin-border;
     color: $admin-ink2;
 
-    &:hover:not(:disabled) {
-        background: rgba(255, 255, 255, 0.05);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+    &:hover { background: rgba(255,255,255,.05); }
 }
 
 .saveBtn {
@@ -334,12 +805,5 @@
     color: $color-ink;
     flex: 1;
 
-    &:hover:not(:disabled) {
-        background: $color-cyan-dark;
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+    &:hover { background: $color-cyan-dark; }
 }

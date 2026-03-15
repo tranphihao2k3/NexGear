@@ -56,19 +56,41 @@ export async function GET(req: NextRequest) {
         if (search) filter.$text = { $search: search };
 
         // Specs filter: specs=Switch:Cherry MX Red,Layout:65%|75%
+        // Alias map: canonical filter key → các DB key tương đương
+        const FILTER_KEY_ALIASES: Record<string, string[]> = {
+            'GPU': ['GPU', 'Card đồ họa'],
+            'Ổ cứng': ['Ổ cứng', 'SSD', 'HDD'],
+        };
+
         const specsParam = searchParams.get('specs');
         if (specsParam) {
             const specEntries = specsParam.split(',');
+            const orConditions: Record<string, unknown>[] = [];
             for (const entry of specEntries) {
                 const colonIdx = entry.indexOf(':');
                 if (colonIdx === -1) continue;
                 const key = entry.substring(0, colonIdx);
                 const valPart = entry.substring(colonIdx + 1);
                 const values = valPart.split('|');
-                if (values.length === 1) {
-                    filter[`specs.${key}`] = values[0];
+                const valueQuery = values.length === 1 ? values[0] : { $in: values };
+
+                const dbKeys = FILTER_KEY_ALIASES[key] ?? [key];
+                if (dbKeys.length === 1) {
+                    // Không có alias, query trực tiếp
+                    filter[`specs.${dbKeys[0]}`] = valueQuery;
                 } else {
-                    filter[`specs.${key}`] = { $in: values };
+                    // Có alias → dùng $or để match cả 2 key
+                    const orParts = dbKeys.map(k => ({ [`specs.${k}`]: valueQuery }));
+                    orConditions.push(...orParts);
+                }
+            }
+            if (orConditions.length > 0) {
+                // Merge với filter.$or có sẵn nếu có
+                if (filter.$or) {
+                    filter.$and = [{ $or: filter.$or as Record<string, unknown>[] }, { $or: orConditions }];
+                    delete filter.$or;
+                } else {
+                    filter.$or = orConditions;
                 }
             }
         }

@@ -301,7 +301,12 @@ function MicTest() {
 // ══════════════════════════════════════════════
 function AudioTest() {
     const [status, setStatus] = useState<TestStatus>('idle');
+    const [customAudio, setCustomAudio] = useState<string | null>(null);
     const ctxRef = useRef<AudioContext | null>(null);
+    const [balance, setBalance] = useState(0); // -1 (Left) to 1 (Right)
+    const audioRef = useRef<HTMLAudioElement>(null);
+    const pannerRef = useRef<StereoPannerNode | null>(null);
+    const sourceRef = useRef<MediaElementAudioSourceNode | null>(null);
 
     const playTone = (freq: number, pan: number, duration = 1) => {
         setStatus('running');
@@ -319,6 +324,46 @@ function AudioTest() {
         osc.onended = () => setStatus('pass');
     };
 
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (customAudio) URL.revokeObjectURL(customAudio);
+            setCustomAudio(URL.createObjectURL(file));
+            setStatus('pass');
+        }
+    };
+
+    const useSystemAudio = () => {
+        setCustomAudio('/audio/music_test.mp3');
+        setStatus('pass');
+    };
+
+    // Setup Web Audio for the audio element
+    useEffect(() => {
+        if (!audioRef.current || !customAudio) return;
+
+        const ctx = ctxRef.current || new AudioContext();
+        ctxRef.current = ctx;
+
+        if (!sourceRef.current) {
+            sourceRef.current = ctx.createMediaElementSource(audioRef.current);
+            pannerRef.current = ctx.createStereoPanner();
+            sourceRef.current.connect(pannerRef.current).connect(ctx.destination);
+        }
+
+        if (pannerRef.current) {
+            pannerRef.current.pan.value = balance;
+        }
+
+        const resume = () => { if (ctx.state === 'suspended') ctx.resume(); };
+        audioRef.current.addEventListener('play', resume);
+        return () => audioRef.current?.removeEventListener('play', resume);
+    }, [customAudio, balance]);
+
+    useEffect(() => () => {
+        if (customAudio) URL.revokeObjectURL(customAudio);
+    }, [customAudio]);
+
     return (
         <div className={s.testPanel}>
             <div className={s.testHeader}>
@@ -332,6 +377,83 @@ function AudioTest() {
                     <button className={s.btnCyan} onClick={() => playTone(440, 1)}>🔊 Loa Phải</button>
                     <button className={s.btnCyan} onClick={() => playTone(440, 0)}>🔊 Stereo</button>
                     <button className={s.btnMagenta} onClick={() => playTone(80, 0, 2)}>🔊 Bass Test</button>
+                </div>
+
+                <div className={s.uploadSection}>
+                    <div className={s.divider} />
+                    <p className={s.testHint}>Hoặc sử dụng nhạc test của hệ thống:</p>
+                    <div className={s.uploadControls}>
+                        <div className={s.btnGroup}>
+                            <button className={s.btnSystem} onClick={useSystemAudio}>
+                                <Play size={16} /> DÙNG NHẠC HỆ THỐNG
+                            </button>
+                            
+                            <input 
+                                type="file" 
+                                accept="audio/*" 
+                                id="audio-upload"
+                                onChange={handleFileUpload}
+                                className={s.hiddenInput}
+                            />
+                            <label htmlFor="audio-upload" className={s.uploadLabel}>
+                                <RotateCcw size={14} /> TẢI LÊN FILE KHÁC
+                            </label>
+                        </div>
+                        
+                        {customAudio && (
+                            <div className={s.playerWrapper}>
+                                <div className={s.playerHeader}>
+                                    <audio 
+                                        ref={audioRef}
+                                        controls 
+                                        src={customAudio} 
+                                        className={s.audioPlayer} 
+                                        crossOrigin="anonymous"
+                                    />
+                                    {customAudio.includes('soundhelix') && (
+                                        <p className={s.playingHint}>Nhạc test hệ thống</p>
+                                    )}
+                                </div>
+
+                                <div className={s.pannerControl}>
+                                    <div className={s.pannerLabels}>
+                                        <span>TRÁI</span>
+                                        <span>CÂN BẰNG</span>
+                                        <span>PHẢI</span>
+                                    </div>
+                                    <input 
+                                        type="range" 
+                                        min="-1" 
+                                        max="1" 
+                                        step="0.01" 
+                                        value={balance} 
+                                        onChange={(e) => setBalance(parseFloat(e.target.value))}
+                                        className={s.pannerSlider}
+                                    />
+                                    <div className={s.pannerValues}>
+                                        <span>{balance < 0 ? `${Math.round(Math.abs(balance) * 100)}%` : '0%'}</span>
+                                        <span>{balance === 0 ? 'Stereo' : '0%'}</span>
+                                        <span>{balance > 0 ? `${Math.round(balance * 100)}%` : '0%'}</span>
+                                    </div>
+
+                                    <div className={s.quickPan}>
+                                        <button 
+                                            className={`${s.panBtn} ${balance === -1 ? s.panActive : ''}`}
+                                            onClick={() => setBalance(-1)}
+                                        >Chỉ Loa Trái</button>
+                                        <button 
+                                            className={`${s.panBtn} ${balance === 0 ? s.panActive : ''}`}
+                                            onClick={() => setBalance(0)}
+                                        >Cả Hai (Stereo)</button>
+                                        <button 
+                                            className={`${s.panBtn} ${balance === 1 ? s.panActive : ''}`}
+                                            onClick={() => setBalance(1)}
+                                        >Chỉ Loa Phải</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -39,11 +39,13 @@ export default function AdminAttendancePage() {
             if (filterStatus) params.set('status', filterStatus)
             const [attRes, empRes] = await Promise.all([
                 fetch(`/api/attendance?${params}`),
-                fetch('/api/users?role=staff&limit=100')
+                fetch('/api/users?limit=200')
             ])
             const [attJson, empJson] = await Promise.all([attRes.json(), empRes.json()])
             if (attJson.success) setRecords(attJson.data)
-            if (empJson.success) setEmployees(empJson.data)
+            if (empJson.success) {
+                setEmployees((empJson.data || []).filter((u: any) => u.role !== 'customer'))
+            }
         } catch (e) { console.error(e) }
         finally { setLoading(false) }
     }, [filterDate, filterStatus])

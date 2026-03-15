@@ -12,7 +12,9 @@ interface Staff {
     name: string
     email: string
     image?: string
-    role: 'admin' | 'manager' | 'staff' | 'cashier'
+    role: string   // admin | manager | staff | cashier | superadmin | customer
+    baseSalary?: number
+    leaveQuota?: number
     createdAt: string
 }
 
@@ -47,6 +49,8 @@ export default function AdminStaffPage() {
     const [formPhone, setFormPhone] = useState('')
     const [formRole, setFormRole] = useState('staff')
     const [formPassword, setFormPassword] = useState('')
+    const [formSalary, setFormSalary] = useState('')
+    const [formLeave, setFormLeave] = useState('2')
 
     // Reset password modal
     const [showResetModal, setShowResetModal] = useState(false)
@@ -56,15 +60,12 @@ export default function AdminStaffPage() {
     const fetchStaff = useCallback(async () => {
         setLoading(true)
         try {
-            const roles = ['admin', 'manager', 'staff', 'cashier']
-            const results = await Promise.all(
-                roles.map(async (role) => {
-                    const res = await fetch(`/api/users?role=${role}&limit=50`)
-                    const json = await res.json()
-                    return json.success ? json.data : []
-                })
-            )
-            setStaffList(results.flat())
+            // Lấy tất cả users, lọc bỏ customer phía client
+            const res = await fetch('/api/users?limit=200')
+            const json = await res.json()
+            if (json.success) {
+                setStaffList((json.data as Staff[]).filter(u => u.role !== 'customer'))
+            }
         } catch (err) {
             console.error('Failed to fetch staff:', err)
         } finally {
@@ -81,6 +82,8 @@ export default function AdminStaffPage() {
         setFormPhone('')
         setFormRole('staff')
         setFormPassword('')
+        setFormSalary('')
+        setFormLeave('2')
     }
 
     const openAddModal = () => {
@@ -95,6 +98,8 @@ export default function AdminStaffPage() {
         setFormPhone('')
         setFormRole(member.role)
         setFormPassword('')
+        setFormSalary(member.baseSalary ? member.baseSalary.toString() : '')
+        setFormLeave(member.leaveQuota ? member.leaveQuota.toString() : '2')
         setShowModal(true)
     }
 
@@ -113,6 +118,8 @@ export default function AdminStaffPage() {
                         name: formName,
                         email: formEmail,
                         role: formRole,
+                        baseSalary: formSalary ? Number(formSalary) : 0,
+                        leaveQuota: formLeave ? Number(formLeave) : 2,
                     }),
                 })
                 const json = await res.json()
@@ -128,6 +135,8 @@ export default function AdminStaffPage() {
                         email: formEmail,
                         password: formPassword || '123456',
                         role: formRole,
+                        baseSalary: formSalary ? Number(formSalary) : 0,
+                        leaveQuota: formLeave ? Number(formLeave) : 2,
                     }),
                 })
                 const json = await res.json()
@@ -236,6 +245,16 @@ export default function AdminStaffPage() {
                                     <span className={styles.detailValue}>{ROLE_LABELS[member.role] || member.role}</span>
                                 </div>
                                 <div className={styles.detailRow}>
+                                    <span className={styles.detailLabel}>Lương cứng</span>
+                                    <span className={styles.detailValue} style={{ color: '#00C4AD', fontFamily: 'monospace' }}>
+                                        {member.baseSalary ? new Intl.NumberFormat('vi-VN').format(member.baseSalary) + '₫' : '— Chưa set'}
+                                    </span>
+                                </div>
+                                <div className={styles.detailRow}>
+                                    <span className={styles.detailLabel}>Phép/tháng</span>
+                                    <span className={styles.detailValue}>{member.leaveQuota ?? 2} ngày</span>
+                                </div>
+                                <div className={styles.detailRow}>
                                     <span className={styles.detailLabel}>Ngày tham gia</span>
                                     <span className={styles.detailValue}>{formatDate(member.createdAt)}</span>
                                 </div>
@@ -318,6 +337,30 @@ export default function AdminStaffPage() {
                                         <option value="manager">Quản lý</option>
                                         <option value="admin">Admin</option>
                                     </select>
+                                </div>
+                            </div>
+                            <div className={styles.formRow}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Lương cứng (VNĐ)</label>
+                                    <input
+                                        type="number"
+                                        className={styles.formInput}
+                                        placeholder="5000000"
+                                        value={formSalary}
+                                        onChange={(e) => setFormSalary(e.target.value)}
+                                    />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Ngày phép/tháng</label>
+                                    <input
+                                        type="number"
+                                        className={styles.formInput}
+                                        placeholder="2"
+                                        min="0"
+                                        max="30"
+                                        value={formLeave}
+                                        onChange={(e) => setFormLeave(e.target.value)}
+                                    />
                                 </div>
                             </div>
                             {!editingId && (

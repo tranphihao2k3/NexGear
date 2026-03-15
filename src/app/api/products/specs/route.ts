@@ -23,8 +23,12 @@ export async function GET(req: NextRequest) {
             return apiSuccess({ filters: {}, rawMap: {} });
         }
 
+        // Lấy tất cả sub-categories (children) để bao gồm sản phẩm trong sub-cats
+        const subCats = await Category.find({ parent: cat._id, isActive: true }).lean();
+        const catIds = [cat._id, ...subCats.map((c: any) => c._id)];
+
         const results = await Product.aggregate([
-            { $match: { category: cat._id, isActive: true } },
+            { $match: { category: { $in: catIds }, isActive: true } },
             { $project: { specs: { $objectToArray: '$specs' } } },
             { $unwind: '$specs' },
             {
@@ -36,14 +40,27 @@ export async function GET(req: NextRequest) {
             { $sort: { _id: 1 } },
         ]);
 
-        // Raw spec map from DB
+        // Alias map: nhiều key DB khác nhau nhưng cùng ý nghĩa → gom vào 1 canonical key
+        // Ví dụ: "Card đồ họa" và "GPU" đều là GPU, "SSD"/"HDD" đều là "Ổ cứng"
+        const SPEC_KEY_ALIASES: Record<string, string> = {
+            'Card đồ họa': 'GPU',
+            'SSD': 'Ổ cứng',
+            'HDD': 'Ổ cứng',
+        };
+
+        // Raw spec map from DB (gom alias về canonical key)
         const rawMap: Record<string, string[]> = {};
         for (const r of results) {
             const vals = r.values
                 .filter((v: unknown) => typeof v === 'string' || typeof v === 'number')
                 .map(String);
-            if (vals.length > 0) {
-                rawMap[r._id] = vals;
+            if (vals.length === 0) continue;
+            // Map alias → canonical key
+            const canonicalKey = SPEC_KEY_ALIASES[r._id] ?? r._id;
+            if (!rawMap[canonicalKey]) rawMap[canonicalKey] = [];
+            // Merge values (tránh trùng lặp)
+            for (const v of vals) {
+                if (!rawMap[canonicalKey].includes(v)) rawMap[canonicalKey].push(v);
             }
         }
 

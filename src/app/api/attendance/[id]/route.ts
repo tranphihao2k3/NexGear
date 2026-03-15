@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Attendance from '@/models/Attendance';
+import User from '@/models/User';
 import { apiSuccess, apiError } from '@/lib/api-helpers';
 
 interface Params { params: Promise<{ id: string }> }
@@ -12,7 +13,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
         const { id } = await params;
 
         const attendance = await Attendance.findById(id)
-            .populate('employee', 'employeeCode firstName lastName profileImage department')
+            .populate('employee', 'name image role')
             .lean();
 
         if (!attendance) return apiError('Attendance record not found', 404);

@@ -8,7 +8,7 @@ const UserSchema = new Schema(
         image: { type: String },
         role: {
             type: String,
-            enum: ['admin', 'manager', 'staff', 'cashier', 'customer'],
+            enum: ['admin', 'superadmin', 'manager', 'staff', 'cashier', 'customer'],
             default: 'customer',
         },
         addresses: [
@@ -25,9 +25,17 @@ const UserSchema = new Schema(
         wishlist: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
         totalSpent: { type: Number, default: 0 },
         loyaltyPoints: { type: Number, default: 0 },
+        // ── Nhân viên ──
+        baseSalary: { type: Number, default: 0 },       // lương cứng (VNĐ)
+        leaveQuota: { type: Number, default: 2 },        // số ngày phép/tháng
     },
     { timestamps: true }
 );
+
+// Trong dev, xóa cache để tránh Mongoose giữ schema cũ sau HMR
+if (process.env.NODE_ENV !== 'production' && models.User) {
+    delete (models as any).User;
+}
 
 const User = models.User || model('User', UserSchema);
 

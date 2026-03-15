@@ -9,6 +9,7 @@ export interface IEmployee extends Document {
     position: string;
     department: string;
     salary: number;
+    leaveQuota: number;   // Số ngày phép được nghỉ mỗi tháng (default 2)
     hireDate: Date;
     status: 'active' | 'on_leave' | 'suspended' | 'terminated';
     profileImage: string;
@@ -34,6 +35,7 @@ const EmployeeSchema = new Schema<IEmployee>(
         },
         department: { type: String, default: '' },
         salary: { type: Number, default: 0 },
+        leaveQuota: { type: Number, default: 2 },  // 2 ngày phép/tháng mặc định
         hireDate: { type: Date, default: Date.now },
         status: {
             type: String,
