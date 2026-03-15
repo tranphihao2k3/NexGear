@@ -49,6 +49,8 @@ export interface IProduct extends Document {
     tags: string[];
     ratings: { avg: number; count: number };
     soldCount: number;
+    productType: 'product' | 'component';
+    componentType: 'RAM' | 'SSD' | 'MOUSE' | 'KEYBOARD' | 'CPU' | 'VGA' | 'MAINBOARD' | 'PSU' | 'CASE' | 'COOLING' | 'OTHER' | null;
     isActive: boolean;
     isFeatured: boolean;
     seoTitle: string;
@@ -73,8 +75,8 @@ const ProductSchema = new Schema<IProduct>(
         slug: { type: String, required: true, unique: true },
         sku: { type: String, required: true, unique: true },
         barcode: { type: String, default: '' },
-        category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
-        brand: { type: Schema.Types.ObjectId, ref: 'Brand', required: true },
+        category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
+        brand: { type: Schema.Types.ObjectId, ref: 'Brand', default: null },
         variants: [VariantSchema],
         basePrice: { type: Number, required: true },
         salePrice: { type: Number, default: null },
@@ -90,6 +92,12 @@ const ProductSchema = new Schema<IProduct>(
             count: { type: Number, default: 0 },
         },
         soldCount: { type: Number, default: 0 },
+        productType: { type: String, enum: ['product', 'component'], default: 'product' },
+        componentType: {
+            type: String,
+            enum: ['RAM', 'SSD', 'MOUSE', 'KEYBOARD', 'CPU', 'VGA', 'MAINBOARD', 'PSU', 'CASE', 'COOLING', 'OTHER'],
+            default: null,
+        },
         isActive: { type: Boolean, default: true },
         isFeatured: { type: Boolean, default: false },
         seoTitle: { type: String, default: '' },
@@ -125,6 +133,7 @@ ProductSchema.index({ soldCount: -1 });
 ProductSchema.index({ name: 'text', tags: 'text' });
 ProductSchema.index({ isUsed: 1, condition: 1 });
 ProductSchema.index({ source: 1 });
+ProductSchema.index({ productType: 1, componentType: 1 });
 
 const Product = models.Product || model<IProduct>('Product', ProductSchema);
 export default Product;

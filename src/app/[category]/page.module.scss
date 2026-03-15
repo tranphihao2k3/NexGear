@@ -332,6 +332,45 @@
     margin-bottom: $sp-3;
 }
 
+.filterToggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 0;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+.filterToggleOpen {
+    margin-bottom: $sp-3;
+}
+
+.filterCount {
+    @include font-mono(10px, $fw-bold);
+    background: $color-cyan;
+    color: $color-white;
+    border-radius: $r-full;
+    padding: 1px 6px;
+    margin-left: $sp-1;
+}
+
+.filterArrow {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+    color: $color-ink3;
+}
+
+.filterArrowOpen {
+    transform: rotate(180deg);
+}
+
 // ── Price Range ───────────────────────────────────────────
 .priceDisplay {
     display: flex;
@@ -442,6 +481,18 @@
     display: flex;
     flex-direction: column;
     gap: $sp-2;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: $sp-1;
+
+    &::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $color-border2;
+        border-radius: $r-full;
+    }
 }
 
 .checkLabel {

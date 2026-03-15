@@ -52,7 +52,7 @@ export { default as Notification } from './Notification';
 // Software & License
 export { default as Software } from './Software';
 export { default as License } from './License';
-export { default as Component } from './Component';
+
 
 // System
 export { default as AuditLog } from './AuditLog';

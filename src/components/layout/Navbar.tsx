@@ -10,104 +10,33 @@ import { useTheme } from '@/contexts/ThemeContext'
 import { useCompareStore } from '@/store/useCompareStore'
 import styles from './Navbar.module.scss'
 
-interface SubLink {
-    href: string
-    label: string
-    desc?: string
-}
-
-interface MegaBanner {
-    title: string
-    desc: string
-    cta: string
-    ctaHref: string
+interface ApiCategory {
+    _id: string
+    name: string
+    slug: string
+    icon?: string
+    description?: string
+    children?: ApiCategory[]
 }
 
 interface NavLink {
     href: string
     label: string
-    sub?: SubLink[]
-    megaBanner?: MegaBanner
+    sub?: { href: string; label: string; desc?: string }[]
 }
 
-const CATEGORIES: NavLink[] = [
-    {
-        href: '/laptop', label: 'Laptop',
-        sub: [
-            { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
-            { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
-            { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
-            { href: '/laptop-sinh-vien', label: 'Sinh viên', desc: 'Giá tốt, phù hợp học tập' },
-        ],
-        megaBanner: {
-            title: 'Laptop Gaming RTX 50 Series',
-            desc: 'Sẵn sàng với GPU thế hệ mới nhất',
-            cta: 'KHÁM PHÁ NGAY',
-            ctaHref: '/gaming-laptop',
-        },
-    },
-    {
-        href: '/chuot', label: 'Chuột',
-        sub: [
-            { href: '/chuot-gaming', label: 'Gaming Mouse', desc: 'Chuột chơi game chuyên nghiệp' },
-            { href: '/chuot-wireless', label: 'Wireless', desc: 'Không dây, tự do di chuyển' },
-            { href: '/chuot-ergonomic', label: 'Ergonomic', desc: 'Thiết kế công thái học' },
-            { href: '/chuot-sieu-nhe', label: 'Siêu nhẹ', desc: 'Dưới 60g, linh hoạt tối đa' },
-        ],
-        megaBanner: {
-            title: 'Chuột gaming siêu nhẹ',
-            desc: 'Dòng chuột dưới 50g, sensor 26K DPI',
-            cta: 'XEM NGAY',
-            ctaHref: '/chuot-sieu-nhe',
-        },
-    },
-    {
-        href: '/ban-phim', label: 'Bàn phím',
-        sub: [
-            { href: '/ban-phim-co', label: 'Bàn phím cơ', desc: 'Mechanical keyboard cao cấp' },
-            { href: '/ban-phim-khong-day', label: 'Không dây', desc: 'Wireless & Bluetooth' },
-            { href: '/ban-phim-tkl', label: 'TKL / 75%', desc: 'Compact, tiết kiệm không gian' },
-            { href: '/ban-phim-60', label: '60% / 65%', desc: 'Ultra compact, tối giản' },
-            { href: '/custom-kit', label: 'Custom Kit', desc: 'Barebone & DIY kit' },
-        ],
-        megaBanner: {
-            title: 'Custom keyboard mới',
-            desc: 'Kit barebone gasket mount từ các hãng lớn',
-            cta: 'KHÁM PHÁ',
-            ctaHref: '/custom-kit',
-        },
-    },
-    {
-        href: '/tai-nghe', label: 'Tai nghe',
-        sub: [
-            { href: '/tai-nghe-over-ear', label: 'Over-ear', desc: 'Trùm tai, bass sâu' },
-            { href: '/tai-nghe-in-ear', label: 'In-ear / TWS', desc: 'True wireless stereo' },
-            { href: '/tai-nghe-gaming', label: 'Gaming Headset', desc: 'Âm thanh vòm 7.1' },
-        ],
-    },
-    {
-        href: '/loa', label: 'Loa',
-        sub: [
-            { href: '/soundbar', label: 'Soundbar', desc: 'Loa thanh cho bàn setup' },
-            { href: '/loa-bluetooth', label: 'Bluetooth', desc: 'Di động, pin lâu' },
-            { href: '/loa-desktop', label: 'Desktop Speaker', desc: '2.0 / 2.1 cho PC' },
-        ],
-    },
-    {
-        href: '/phu-kien', label: 'Phụ kiện',
-        sub: [
-            { href: '/keycap', label: 'Keycap Sets', desc: 'PBT, Cherry profile...' },
-            { href: '/switch', label: 'Switches', desc: 'Gateron, Cherry MX...' },
-            { href: '/mouse-pad', label: 'Mouse Pad', desc: 'Desk mat & gaming pad' },
-            { href: '/cable-hub', label: 'Cable & Hub', desc: 'USB-C, Dock, Hub' },
-            { href: '/wrist-rest', label: 'Wrist Rest', desc: 'Kê tay gỗ, silicone' },
-        ],
-    },
-]
+const SERVICE_MENU: NavLink = {
+    href: '/sua-chua-laptop',
+    label: 'Dịch vụ',
+    sub: [
+        { href: '/sua-chua-laptop', label: 'Sửa chữa Laptop', desc: 'Chẩn đoán, sửa chữa chuyên nghiệp' },
+        { href: '/thu-cu-doi-moi', label: 'Thu cũ đổi mới', desc: 'Lên đời laptop, trợ giá tốt' },
+    ],
+}
 
-const MORE_LINKS: { href: string; label: string; icon: string; highlight?: boolean }[] = [
-    { href: '/deals', label: 'Flash Deal', icon: '⚡', highlight: true },
-    { href: '/community', label: 'Thanh lý', icon: '🔄' },
+const MORE_LINKS: { href: string; label: string; highlight?: boolean }[] = [
+    { href: '/blog', label: 'Blog' },
+    { href: '/deals', label: 'Flash Deal', highlight: true },
 ]
 
 interface NavbarProps {
@@ -126,11 +55,28 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
 
     const compareCount = useCompareStore(state => state.items.length)
     const [isMounted, setIsMounted] = useState(false)
+    const [categories, setCategories] = useState<NavLink[]>([])
 
     useEffect(() => {
         setIsMounted(true)
         const handler = () => setScrolled(window.scrollY > 8)
         window.addEventListener('scroll', handler, { passive: true })
+
+        fetch('/api/categories?tree=true&active=true')
+            .then(r => r.json())
+            .then(d => {
+                if (d.success && Array.isArray(d.data)) {
+                    setCategories(d.data.map((cat: ApiCategory) => ({
+                        href: `/${cat.slug}`,
+                        label: cat.name,
+                        sub: cat.children?.length
+                            ? cat.children.map(ch => ({ href: `/${ch.slug}`, label: ch.name, desc: ch.description || '' }))
+                            : undefined,
+                    })))
+                }
+            })
+            .catch(() => {})
+
         return () => window.removeEventListener('scroll', handler)
     }, [])
 
@@ -211,7 +157,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                 <div className={styles.catBar}>
                     <div className={styles.catBarInner}>
                         <nav className={styles.catNav} aria-label="Danh mục">
-                            {CATEGORIES.map(cat => (
+                            {categories.map(cat => (
                                 <div
                                     key={cat.href}
                                     className={styles.catWrap}
@@ -226,16 +172,15 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                         {cat.sub && <span className={styles.catChevron}>▾</span>}
                                     </Link>
 
-                                    {/* Mega Dropdown */}
-                                    {cat.sub && activeDropdown === cat.href && (
+                                    {/* Mega Dropdown — always in DOM, toggled via CSS class */}
+                                    {cat.sub && (
                                         <div
-                                            className={`${styles.megaDropdown} ${cat.megaBanner ? styles.megaDropdownWide : ''}`}
+                                            className={`${styles.megaDropdown} ${activeDropdown === cat.href ? styles.megaDropdownOpen : ''}`}
                                             onMouseEnter={() => handleMouseEnter(cat.href)}
                                             onMouseLeave={handleMouseLeave}
                                         >
                                             <div className={styles.megaBar} />
                                             <div className={styles.megaContent}>
-                                                {/* Left: category list */}
                                                 <div className={styles.megaList}>
                                                     <div className={styles.megaListTitle}>{cat.label.toUpperCase()}</div>
                                                     {cat.sub.map((s, i) => (
@@ -253,18 +198,6 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                                         Xem tất cả {cat.label} →
                                                     </Link>
                                                 </div>
-
-                                                {/* Right: promo banner */}
-                                                {cat.megaBanner && (
-                                                    <div className={styles.megaBanner}>
-                                                        <div className={styles.megaBannerGlow} />
-                                                        <span className={styles.megaBannerTitle}>{cat.megaBanner.title}</span>
-                                                        <span className={styles.megaBannerDesc}>{cat.megaBanner.desc}</span>
-                                                        <Link href={cat.megaBanner.ctaHref} className={styles.megaBannerCta}>
-                                                            {cat.megaBanner.cta}
-                                                        </Link>
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -273,13 +206,46 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
 
                             <span className={styles.catSep} />
 
+                            {/* Dịch vụ dropdown */}
+                            <div
+                                className={styles.catWrap}
+                                onMouseEnter={() => handleMouseEnter(SERVICE_MENU.href + '-svc')}
+                                onMouseLeave={handleMouseLeave}
+                            >
+                                <Link
+                                    href={SERVICE_MENU.href}
+                                    className={`${styles.catLink} ${pathname.startsWith('/sua-chua') || pathname.startsWith('/thu-cu') ? styles.catLinkActive : ''}`}
+                                >
+                                    {SERVICE_MENU.label}
+                                    <span className={styles.catChevron}>▾</span>
+                                </Link>
+                                {SERVICE_MENU.sub && (
+                                    <div
+                                        className={`${styles.megaDropdown} ${activeDropdown === SERVICE_MENU.href + '-svc' ? styles.megaDropdownOpen : ''}`}
+                                        onMouseEnter={() => handleMouseEnter(SERVICE_MENU.href + '-svc')}
+                                        onMouseLeave={handleMouseLeave}
+                                    >
+                                        <div className={styles.megaBar} />
+                                        <div className={styles.megaContent}>
+                                            <div className={styles.megaList}>
+                                                {SERVICE_MENU.sub.map((s, i) => (
+                                                    <Link key={s.href} href={s.href} className={styles.megaItem} style={{ animationDelay: `${i * 35}ms` }}>
+                                                        <span className={styles.megaItemLabel}>{s.label}</span>
+                                                        {s.desc && <span className={styles.megaItemDesc}>{s.desc}</span>}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             {MORE_LINKS.map(link => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
                                     className={`${styles.catLink} ${link.highlight ? styles.catLinkDeal : ''} ${pathname.startsWith(link.href) ? styles.catLinkActive : ''}`}
                                 >
-                                    <span className={styles.catLinkEmoji}>{link.icon}</span>
                                     {link.label}
                                 </Link>
                             ))}
@@ -303,7 +269,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                         </div>
                         <div className={styles.mobileDivider} />
 
-                        {CATEGORIES.map(cat => (
+                        {categories.map(cat => (
                             <div key={cat.href} className={styles.mobileLinkGroup}>
                                 <div className={styles.mobileLinkRow}>
                                     <Link href={cat.href} className={`${styles.mobileLink} ${pathname.startsWith(cat.href) ? styles.mobileLinkActive : ''}`}>
@@ -329,9 +295,11 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                         ))}
 
                         <div className={styles.mobileDivider} />
+                        <Link href="/sua-chua-laptop" className={styles.mobileLink}>🔧 Sửa chữa Laptop</Link>
+                        <Link href="/thu-cu-doi-moi" className={styles.mobileLink}>🔄 Thu cũ đổi mới</Link>
                         {MORE_LINKS.map(link => (
                             <Link key={link.href} href={link.href} className={`${styles.mobileLink} ${link.highlight ? styles.mobileLinkHighlight : ''}`}>
-                                <span className={styles.mobileLinkIcon}>{link.icon}</span> {link.label}
+                                {link.label}
                             </Link>
                         ))}
                         <div className={styles.mobileDivider} />

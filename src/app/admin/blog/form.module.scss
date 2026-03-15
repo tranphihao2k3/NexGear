@@ -101,6 +101,84 @@
     }
 }
 
+// AI Generator
+.aiBox {
+    background: rgba($color-cyan, 0.05);
+    border: 1px solid rgba($color-cyan, 0.2);
+    border-radius: $r-2;
+    padding: $sp-4;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+}
+
+.aiRow {
+    display: flex;
+    gap: $sp-3;
+
+    @include mobile {
+        flex-direction: column;
+    }
+}
+
+.aiInput {
+    @include input-base;
+    flex: 1;
+    border-color: rgba($color-cyan, 0.3);
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: 0 0 0 2px rgba($color-cyan, 0.15);
+    }
+}
+
+.aiBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: $sp-2;
+    padding: $sp-2 $sp-4;
+    @include font-mono(12px, $fw-bold);
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    white-space: nowrap;
+    border: none;
+    border-radius: $r-2;
+    cursor: pointer;
+    transition: all $transition-fast;
+    background: linear-gradient(135deg, $color-cyan, $color-magenta);
+    color: #fff;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba($color-cyan, 0.3);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.aiBtnImage {
+    background: linear-gradient(135deg, $color-magenta, #ff6b6b);
+}
+
+.aiHint {
+    @include font-body(11px, $fw-medium);
+    color: $color-ink3;
+    font-style: italic;
+    margin: 0;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .actions {
     display: flex;
     gap: $sp-4;

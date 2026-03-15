@@ -15,6 +15,12 @@ export async function GET(req: NextRequest) {
         const filter: Record<string, unknown> = {};
 
         // Filters
+        const productType = searchParams.get('productType');
+        if (productType) filter.productType = productType;
+
+        const componentType = searchParams.get('componentType');
+        if (componentType) filter.componentType = componentType;
+
         if (searchParams.get('active') === 'true') filter.isActive = true;
         if (searchParams.get('featured') === 'true') filter.isFeatured = true;
 
@@ -123,8 +129,12 @@ export async function POST(req: NextRequest) {
         await dbConnect();
         const body = await req.json();
 
-        if (!body.name || !body.slug || !body.sku || !body.category || !body.brand || !body.basePrice) {
-            return apiError('name, slug, sku, category, brand, and basePrice are required');
+        if (!body.name || !body.slug || !body.sku || !body.basePrice) {
+            return apiError('name, slug, sku, and basePrice are required');
+        }
+
+        if (body.productType !== 'component' && (!body.category || !body.brand)) {
+            return apiError('category and brand are required for products');
         }
 
         // Check uniqueness

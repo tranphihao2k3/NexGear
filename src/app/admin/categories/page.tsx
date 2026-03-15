@@ -5,6 +5,16 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import styles from './page.module.scss';
 import { CyberpunkLoader, useToast } from '@/components/ui';
 
+function toSlug(str: string): string {
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd').replace(/Đ/g, 'd')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+}
+
 interface Category {
     _id: string;
     name: string;
@@ -12,6 +22,8 @@ interface Category {
     icon: string;
     isActive: boolean;
     order: number;
+    parent?: { _id: string; name: string; slug: string } | string | null;
+    children?: Category[];
 }
 
 export default function AdminCategoriesPage() {
@@ -19,7 +31,7 @@ export default function AdminCategoriesPage() {
     const qc = useQueryClient();
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
-    const [formData, setFormData] = useState({ name: '', slug: '', icon: '', order: '0' });
+    const [formData, setFormData] = useState({ name: '', slug: '', icon: '', order: '0', parent: '' });
 
     // ── React Query ──
     const { data: categories = [], isPending: loading } = useQuery<Category[]>({
@@ -35,20 +47,44 @@ export default function AdminCategoriesPage() {
             [name]: value,
             // Auto generate slug
             ...(name === 'name' && !editingId
-                ? { slug: value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') }
+                ? { slug: toSlug(value) }
                 : {})
         }));
     };
 
+    // Root categories for parent dropdown
+    const rootCategories = categories.filter(c => !c.parent);
+
+    // Build tree-ordered flat list for table display
+    const treeOrderedCategories = (() => {
+        const roots = categories.filter(c => !c.parent);
+        const childrenMap = new Map<string, Category[]>();
+        for (const c of categories) {
+            const pid = typeof c.parent === 'object' && c.parent ? c.parent._id : c.parent;
+            if (pid) {
+                if (!childrenMap.has(pid)) childrenMap.set(pid, []);
+                childrenMap.get(pid)!.push(c);
+            }
+        }
+        const result: { cat: Category; depth: number }[] = [];
+        for (const root of roots) {
+            result.push({ cat: root, depth: 0 });
+            const children = childrenMap.get(root._id) || [];
+            for (const child of children) result.push({ cat: child, depth: 1 });
+        }
+        return result;
+    })();
+
     const openAdd = () => {
         setEditingId(null);
-        setFormData({ name: '', slug: '', icon: '', order: '0' });
+        setFormData({ name: '', slug: '', icon: '', order: '0', parent: '' });
         setShowModal(true);
     };
 
     const openEdit = (cat: Category) => {
         setEditingId(cat._id);
-        setFormData({ name: cat.name, slug: cat.slug, icon: cat.icon, order: cat.order.toString() });
+        const parentId = typeof cat.parent === 'object' && cat.parent ? cat.parent._id : (cat.parent || '');
+        setFormData({ name: cat.name, slug: cat.slug, icon: cat.icon, order: cat.order.toString(), parent: parentId });
         setShowModal(true);
     };
 
@@ -83,7 +119,7 @@ export default function AdminCategoriesPage() {
         if (!formData.name || !formData.slug) return error('Tên và Slug là bắt buộc!');
         saveCategoryMutation.mutate({
             id: editingId ?? undefined,
-            data: { ...formData, order: Number(formData.order) },
+            data: { ...formData, order: Number(formData.order), parent: formData.parent || null },
         });
     };
 
@@ -118,10 +154,10 @@ export default function AdminCategoriesPage() {
                         </tr>
                     </thead>
                     <tbody>
-                        {loading ? <tr><td colSpan={6}><CyberpunkLoader message="Đang tải danh mục..." compact /></td></tr> : categories.map(cat => (
+                        {loading ? <tr><td colSpan={6}><CyberpunkLoader message="Đang tải danh mục..." compact /></td></tr> : treeOrderedCategories.map(({ cat, depth }) => (
                             <tr key={cat._id}>
                                 <td style={{ fontSize: '24px' }}>{cat.icon || '📁'}</td>
-                                <td style={{ color: '#fff', fontWeight: 500 }}>{cat.name}</td>
+                                <td style={{ color: '#fff', fontWeight: 500, paddingLeft: depth > 0 ? `${depth * 24 + 8}px` : undefined }}>{depth > 0 ? '└ ' : ''}{cat.name}</td>
                                 <td>{cat.slug}</td>
                                 <td>{cat.order}</td>
                                 <td>
@@ -159,6 +195,19 @@ export default function AdminCategoriesPage() {
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Slug</label>
                                 <input type="text" name="slug" className={styles.formInput} value={formData.slug} onChange={handleInputChange} />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Danh mục cha</label>
+                                <select
+                                    className={styles.formInput}
+                                    value={formData.parent}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, parent: e.target.value }))}
+                                >
+                                    <option value="">— Không (root) —</option>
+                                    {rootCategories.filter(c => c._id !== editingId).map(c => (
+                                        <option key={c._id} value={c._id}>{c.icon} {c.name}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Icon (Emoji - vd: ⌨️)</label>

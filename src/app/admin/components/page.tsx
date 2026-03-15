@@ -40,12 +40,14 @@ interface ComponentSpec {
 interface Component {
     _id: string;
     name: string;
-    type: 'RAM' | 'SSD' | 'MOUSE' | 'KEYBOARD' | 'CPU' | 'VGA' | 'MAINBOARD' | 'PSU' | 'CASE' | 'COOLING' | 'OTHER';
-    price: number;
+    slug: string;
+    sku: string;
+    componentType: 'RAM' | 'SSD' | 'MOUSE' | 'KEYBOARD' | 'CPU' | 'VGA' | 'MAINBOARD' | 'PSU' | 'CASE' | 'COOLING' | 'OTHER';
+    basePrice: number;
     specs: ComponentSpec;
-    image: string;
+    images: string[];
     stock: number;
-    active: boolean;
+    isActive: boolean;
     description?: string;
 }
 
@@ -72,11 +74,13 @@ export default function ComponentsPage() {
 
     const [formData, setFormData] = useState<Partial<Component>>({
         name: '',
-        type: 'RAM',
-        price: 0,
+        slug: '',
+        sku: '',
+        componentType: 'RAM',
+        basePrice: 0,
         stock: 0,
-        image: '',
-        active: true,
+        images: [],
+        isActive: true,
         specs: {},
         description: ''
     });
@@ -84,7 +88,7 @@ export default function ComponentsPage() {
     const fetchComponents = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/components?all=true');
+            const res = await fetch('/api/products?productType=component&limit=200&admin=true');
             const data = await res.json();
             if (data.success) {
                 setComponents(data.data);
@@ -108,11 +112,13 @@ export default function ComponentsPage() {
             setEditingComponent(null);
             setFormData({
                 name: '',
-                type: 'RAM',
-                price: 0,
+                slug: '',
+                sku: '',
+                componentType: 'RAM',
+                basePrice: 0,
                 stock: 0,
-                image: '',
-                active: true,
+                images: [],
+                isActive: true,
                 specs: {},
                 description: ''
             });
@@ -128,13 +134,14 @@ export default function ComponentsPage() {
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const url = editingComponent ? `/api/components/${editingComponent._id}` : '/api/components';
+            const url = editingComponent ? `/api/products/${editingComponent._id}` : '/api/products';
             const method = editingComponent ? 'PUT' : 'POST';
 
+            const payload = { ...formData, productType: 'component' };
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             });
 
             const data = await res.json();
@@ -153,7 +160,7 @@ export default function ComponentsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm('Xóa linh kiện này?')) return;
         try {
-            const res = await fetch(`/api/components/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/products/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 success('Đã xóa linh kiện');
                 fetchComponents();
@@ -172,7 +179,7 @@ export default function ComponentsPage() {
 
     const filteredComponents = components.filter(c => {
         const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesType = filterType === 'ALL' || c.type === filterType;
+        const matchesType = filterType === 'ALL' || c.componentType === filterType;
         return matchesSearch && matchesType;
     });
 
@@ -241,8 +248,8 @@ export default function ComponentsPage() {
                                     <div className={s.componentContent}>
                                         <div className={s.componentPreview}>
                                             <div className={s.componentImg}>
-                                                {item.image ? (
-                                                    <img src={item.image} alt={item.name} />
+                                                {item.images?.[0] ? (
+                                                    <img src={item.images[0]} alt={item.name} />
                                                 ) : (
                                                     <div className={s.placeholderIcon}><Package size={24} /></div>
                                                 )}
@@ -250,13 +257,13 @@ export default function ComponentsPage() {
                                             <div className={s.componentMeta}>
                                                 <h3 className={s.componentName}>{item.name}</h3>
                                                 <div className={s.componentSpecs}>
-                                                    {item.type === 'RAM' && (
+                                                    {item.componentType === 'RAM' && (
                                                         <span>{item.specs.capacity} {item.specs.ramType} {item.specs.bus}</span>
                                                     )}
-                                                    {item.type === 'SSD' && (
+                                                    {item.componentType === 'SSD' && (
                                                         <span>{item.specs.capacity} {item.specs.storageType}</span>
                                                     )}
-                                                    {item.type === 'MOUSE' && (
+                                                    {item.componentType === 'MOUSE' && (
                                                         <span>{item.specs.connection} {item.specs.color}</span>
                                                     )}
                                                 </div>
@@ -264,13 +271,13 @@ export default function ComponentsPage() {
                                         </div>
 
                                         <div className={s.componentTypeBadge}>
-                                            <Badge variant={item.type === 'RAM' || item.type === 'SSD' ? 'cyan' : 'purple'}>
-                                                {item.type}
+                                            <Badge variant={item.componentType === 'RAM' || item.componentType === 'SSD' ? 'cyan' : 'purple'}>
+                                                {item.componentType}
                                             </Badge>
                                         </div>
 
                                         <div className={`${s.componentPrice} ${s.center}`}>
-                                            <span className={s.priceValue}>{item.price.toLocaleString()}đ</span>
+                                            <span className={s.priceValue}>{item.basePrice.toLocaleString()}đ</span>
                                         </div>
 
                                         <div className={`${s.componentStock} ${s.center}`}>
@@ -280,7 +287,7 @@ export default function ComponentsPage() {
                                         </div>
 
                                         <div className={`${s.componentStatus} ${s.center}`}>
-                                            {item.active ? (
+                                            {item.isActive ? (
                                                 <Badge variant="green">ĐANG HIỆN</Badge>
                                             ) : (
                                                 <Badge variant="ink">ĐANG ẨN</Badge>
@@ -331,16 +338,29 @@ export default function ComponentsPage() {
                                                 label="Tên linh kiện *"
                                                 required
                                                 value={formData.name}
-                                                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                onChange={e => {
+                                                    const name = e.target.value;
+                                                    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                                                    setFormData({ ...formData, name, slug });
+                                                }}
                                                 placeholder="VD: RAM Kingston Fury Beast 16GB DDR5 5200MHz"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Input
+                                                label="SKU *"
+                                                required
+                                                value={formData.sku}
+                                                onChange={e => setFormData({ ...formData, sku: e.target.value })}
+                                                placeholder="VD: RAM-KF-16-DDR5"
                                             />
                                         </div>
                                         <div>
                                             <label className={s.fieldLabel}>Phân loại *</label>
                                             <select
                                                 className={s.select}
-                                                value={formData.type}
-                                                onChange={e => setFormData({ ...formData, type: e.target.value as any })}
+                                                value={formData.componentType}
+                                                onChange={e => setFormData({ ...formData, componentType: e.target.value as any })}
                                             >
                                                 {COMPONENT_TYPES.map(t => (
                                                     <option key={t.id} value={t.id}>{t.label}</option>
@@ -349,8 +369,8 @@ export default function ComponentsPage() {
                                         </div>
                                         <div>
                                             <PriceInput
-                                                value={formData.price || 0}
-                                                onChange={val => setFormData({ ...formData, price: val })}
+                                                value={formData.basePrice || 0}
+                                                onChange={val => setFormData({ ...formData, basePrice: val })}
                                                 required
                                             />
                                         </div>
@@ -368,8 +388,8 @@ export default function ComponentsPage() {
                                                 <input
                                                     type="checkbox"
                                                     id="active"
-                                                    checked={formData.active}
-                                                    onChange={e => setFormData({ ...formData, active: e.target.checked })}
+                                                    checked={formData.isActive}
+                                                    onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
                                                 />
                                                 <label htmlFor="active">Sẵn sàng bán</label>
                                             </div>
@@ -383,33 +403,33 @@ export default function ComponentsPage() {
                                         <span>THÔNG SỐ KỸ THUẬT</span>
                                     </div>
                                     <div className={s.formGrid}>
-                                        {formData.type === 'RAM' && (
+                                        {formData.componentType === 'RAM' && (
                                             <>
                                                 <Input label="Dung lượng" placeholder="8GB, 16GB..." value={formData.specs?.capacity} onChange={e => handleSpecChange('capacity', e.target.value)} />
                                                 <Input label="Loại RAM" placeholder="DDR4, DDR5..." value={formData.specs?.ramType} onChange={e => handleSpecChange('ramType', e.target.value)} />
                                                 <Input label="Bus" placeholder="3200MHz, 5200MHz..." value={formData.specs?.bus} onChange={e => handleSpecChange('bus', e.target.value)} />
                                             </>
                                         )}
-                                        {formData.type === 'SSD' && (
+                                        {formData.componentType === 'SSD' && (
                                             <>
                                                 <Input label="Dung lượng" placeholder="256GB, 512GB..." value={formData.specs?.capacity} onChange={e => handleSpecChange('capacity', e.target.value)} />
                                                 <Input label="Loại ổ cứng" placeholder="SATA 3, NVMe..." value={formData.specs?.storageType} onChange={e => handleSpecChange('storageType', e.target.value)} />
                                             </>
                                         )}
-                                        {(formData.type === 'MOUSE' || formData.type === 'KEYBOARD') && (
+                                        {(formData.componentType === 'MOUSE' || formData.componentType === 'KEYBOARD') && (
                                             <>
                                                 <Input label="Kết nối" placeholder="Có dây, Wireless, Bluetooth..." value={formData.specs?.connection} onChange={e => handleSpecChange('connection', e.target.value)} />
                                                 <Input label="Màu sắc" placeholder="Đen, Trắng, Hồng..." value={formData.specs?.color} onChange={e => handleSpecChange('color', e.target.value)} />
                                             </>
                                         )}
-                                        {formData.type === 'CPU' && (
+                                        {formData.componentType === 'CPU' && (
                                             <>
                                                 <Input label="Socket" placeholder="LGA 1700, AM5..." value={formData.specs?.socket} onChange={e => handleSpecChange('socket', e.target.value)} />
                                                 <Input label="Số nhân/luồng" placeholder="6C/12T, 10C/16T..." value={formData.specs?.cores} onChange={e => handleSpecChange('cores', e.target.value)} />
                                             </>
                                         )}
                                         {/* Fallback for others */}
-                                        {(!['RAM', 'SSD', 'MOUSE', 'KEYBOARD', 'CPU'].includes(formData.type as string)) && (
+                                        {(!['RAM', 'SSD', 'MOUSE', 'KEYBOARD', 'CPU'].includes(formData.componentType as string)) && (
                                             <div className={s.fullWidth}>
                                                 <p className={s.hint}>Vui lòng nhập thông số vào phần mô tả bên dưới.</p>
                                             </div>
@@ -423,9 +443,9 @@ export default function ComponentsPage() {
                                         <span>HÌNH ẢNH & CHI TIẾT</span>
                                     </div>
                                     <ImageUploader
-                                        maxImages={1}
-                                        value={formData.image ? [formData.image] : []}
-                                        onChange={urls => setFormData({ ...formData, image: urls[0] || '' })}
+                                        maxImages={4}
+                                        value={formData.images || []}
+                                        onChange={urls => setFormData({ ...formData, images: urls })}
                                     />
                                     <div className={s.fullWidth} style={{ marginTop: '16px' }}>
                                         <textarea

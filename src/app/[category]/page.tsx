@@ -199,6 +199,43 @@ const CATEGORY_SEO: Record<string, {
         h1: 'Wrist Rest',
         keywords: ['wrist rest Cần Thơ', 'kê tay bàn phím', 'kê tay gỗ', 'wrist rest silicone'],
     },
+    // ── LINH KIỆN SUB-CATEGORIES ──
+    'linh-kien': {
+        title: 'Linh Kiện PC & Laptop Chính Hãng — NexGear Cần Thơ',
+        description: 'Linh kiện nâng cấp PC & Laptop chính hãng giá tốt. RAM, SSD, sạc laptop, pin laptop tại Cần Thơ.',
+        h1: 'Linh Kiện PC & Laptop',
+        keywords: ['linh kiện pc', 'linh kiện laptop Cần Thơ', 'nâng cấp laptop'],
+    },
+    'ram': {
+        title: 'RAM PC & Laptop Chính Hãng — NexGear Cần Thơ',
+        description: 'RAM DDR4, DDR5 cho PC & Laptop. Nâng cấp RAM giá tốt, lắp đặt miễn phí tại Cần Thơ.',
+        h1: 'RAM Cấp Tốc',
+        keywords: ['ram pc', 'ram laptop', 'nâng cấp ram Cần Thơ', 'ram ddr4', 'ram ddr5'],
+    },
+    'ssd': {
+        title: 'Ổ Cứng SSD NVMe & SATA — NexGear Cần Thơ',
+        description: 'Ổ cứng SSD tốc độ cao, chính hãng Samsung, WD, Kingston. Nâng cấp SSD tại Cần Thơ.',
+        h1: 'Ổ Cứng SSD',
+        keywords: ['ssd Cần Thơ', 'ổ cứng ssd', 'ổ cứng nvme', 'nâng cấp ssd'],
+    },
+    'sac-laptop': {
+        title: 'Sạc Laptop Chính Hãng — NexGear Cần Thơ',
+        description: 'Sạc pin laptop chính hãng Dell, HP, ASUS, Lenovo. Sạc zin, chuẩn Type-C.',
+        h1: 'Sạc Laptop',
+        keywords: ['sạc laptop Cần Thơ', 'sạc pin laptop', 'sạc macbook', 'sạc type-c'],
+    },
+    'pin-laptop': {
+        title: 'Pin Laptop Thay Thế Chính Hãng — NexGear Cần Thơ',
+        description: 'Pin laptop thay thế chính hãng Dell, HP, ASUS, MacBook. Bảo hành uy tín tại Cần Thơ.',
+        h1: 'Pin Laptop',
+        keywords: ['pin laptop Cần Thơ', 'thay pin laptop', 'pin macbook', 'pin dell'],
+    },
+    'tannhiet': {
+        title: 'Tản Nhiệt PC & Laptop — NexGear Cần Thơ',
+        description: 'Quạt tản nhiệt, tản tháp, tản nước AIO và keo tản nhiệt chính hãng tại Cần Thơ.',
+        h1: 'Tản Nhiệt',
+        keywords: ['tản nhiệt Cần Thơ', 'quạt tản nhiệt', 'keo tản nhiệt', 'tản nước AIO'],
+    },
 }
 
 // ── GENERATE METADATA ───────────────────────────────────────

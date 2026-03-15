@@ -13,9 +13,6 @@
     color: $color-white;
     padding: $sp-16 $page-padding;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     @include tablet {
         padding: $sp-10 $page-padding-sm;
@@ -35,9 +32,7 @@
 
 .heroInner {
     max-width: $max-width;
-    width: 100%;
     margin: 0 auto;
-    flex: 1;
     position: relative;
     z-index: 2;
 
@@ -48,11 +43,10 @@
 
 .heroGraphic {
     display: none;
-
     @include above-tablet {
         display: flex;
         position: absolute;
-        right: $page-padding;
+        right: 10%;
         top: 50%;
         transform: translateY(-50%);
     }
@@ -88,9 +82,7 @@
     line-height: 1.1;
     margin-bottom: $sp-4;
 
-    span {
-        color: $color-cyan;
-    }
+    span { color: $color-cyan; }
 }
 
 .heroDesc {
@@ -98,7 +90,6 @@
     opacity: 0.85;
     line-height: $lh-relaxed;
     margin-bottom: $sp-8;
-    max-width: 520px;
 }
 
 .heroCtas {
@@ -118,10 +109,7 @@
     gap: 8px;
     text-decoration: none;
 
-    &:hover {
-        filter: brightness(1.1);
-        transform: translateY(-1px);
-    }
+    &:hover { filter: brightness(1.1); transform: translateY(-1px); }
 }
 
 .heroBtnGhost {
@@ -132,158 +120,46 @@
     color: $color-white;
     border: 1px solid rgba($color-white, 0.3);
     text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 
-    &:hover {
-        background: rgba($color-white, 0.08);
-    }
+    &:hover { background: rgba($color-white, 0.08); }
 }
 
-// ── BENEFITS ──────────────────────────────────────────────────
-.benefitsSection {
+// ── COMMON ISSUES ─────────────────────────────────────────────
+.issuesSection {
+    padding: $sp-12 0;
+    @include tablet { padding: $sp-8 0; }
+}
+
+.issuesInner {
     @include container;
-    padding: $sp-12 $page-padding;
-
-    @include tablet {
-        padding: $sp-8 $page-padding-sm;
-    }
-}
-
-.benefitsGrid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: $sp-4;
-
-    @include tablet {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    @include mobile {
-        grid-template-columns: 1fr;
-    }
-}
-
-.benefitCard {
-    @include card-base;
-    padding: $sp-6;
-    text-align: center;
-    transition: $transition-base;
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: $shadow-md;
-    }
-
-    .benefitIcon {
-        width: 48px;
-        height: 48px;
-        background: $color-cyan-light;
-        color: $color-cyan;
-        border-radius: $r-full;
-        @include flex-center;
-        margin: 0 auto $sp-3;
-    }
-
-    h3 {
-        @include font-body($text-sm, $fw-bold);
-        color: $color-ink;
-        margin-bottom: $sp-1;
-    }
-
-    p {
-        @include font-body($text-xs, $fw-regular);
-        color: $color-ink3;
-    }
-}
-
-// ── STEPS ─────────────────────────────────────────────────────
-.stepsSection {
-    @include container;
-    padding: 0 $page-padding $sp-12;
-
-    @include tablet {
-        padding: 0 $page-padding-sm $sp-8;
-    }
 }
 
 .sectionTitle {
     @include font-body($text-xl, $fw-bold);
     color: $color-ink;
-    text-align: center;
     margin-bottom: $sp-8;
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+
+    .titleIcon {
+        font-size: 20px;
+    }
 }
 
-.stepsGrid {
+.issuesGrid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: $sp-6;
+    gap: $sp-4;
 
-    @include tablet {
-        grid-template-columns: 1fr;
-        gap: $sp-4;
-    }
+    @include tablet { grid-template-columns: 1fr 1fr; }
+    @include mobile { grid-template-columns: 1fr; }
 }
 
-.stepCard {
-    @include card-base;
-    padding: $sp-6;
-    text-align: center;
-    position: relative;
-
-    .stepNum {
-        position: absolute;
-        top: $sp-3;
-        left: $sp-3;
-        width: 28px;
-        height: 28px;
-        background: $color-cyan;
-        color: $color-ink;
-        border-radius: $r-full;
-        @include flex-center;
-        @include font-body($text-xs, $fw-bold);
-    }
-
-    .stepEmoji {
-        font-size: 36px;
-        margin-bottom: $sp-3;
-    }
-
-    h3 {
-        @include font-body($text-sm, $fw-bold);
-        color: $color-ink;
-        margin-bottom: $sp-1;
-    }
-
-    p {
-        @include font-body($text-xs, $fw-regular);
-        color: $color-ink3;
-    }
-}
-
-// ── HEALTH CHECK ──────────────────────────────────────────────
-.checkSection {
-    background: $color-bg2;
-    padding: $sp-12 0;
-
-    @include tablet {
-        padding: $sp-8 0;
-    }
-}
-
-.checkInner {
-    @include container;
-}
-
-.checkGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: $sp-6;
-
-    @include tablet {
-        grid-template-columns: 1fr;
-    }
-}
-
-.checkCard {
+.issueCard {
     @include card-base;
     padding: $sp-6;
     display: flex;
@@ -296,50 +172,35 @@
         box-shadow: $shadow-md;
     }
 
-    .checkIcon {
+    .issueIcon {
         width: 56px;
         height: 56px;
         min-width: 56px;
-        background: $color-cyan-light;
-        color: $color-cyan;
-        border-radius: $r-2;
+        background: $color-bg2;
+        border-radius: $r-full;
         @include flex-center;
+        color: $color-ink2;
     }
 
-    h4 {
-        @include font-body($text-base, $fw-bold);
+    h3 {
+        @include font-body($text-sm, $fw-bold);
         color: $color-ink;
+        text-transform: uppercase;
         margin-bottom: 4px;
     }
 
     p {
         @include font-body($text-xs, $fw-regular);
         color: $color-ink3;
-        margin-bottom: $sp-2;
-    }
-
-    a {
-        @include font-mono($text-xs, $fw-bold);
-        color: $color-cyan;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-
-        &:hover {
-            text-decoration: underline;
-        }
+        line-height: $lh-relaxed;
     }
 }
 
 // ── FORM ──────────────────────────────────────────────────────
 .formSection {
     @include container;
-    padding: $sp-12 $page-padding;
-
-    @include tablet {
-        padding: $sp-8 $page-padding-sm;
-    }
+    padding: 0 $page-padding $sp-12;
+    @include tablet { padding: 0 $page-padding-sm $sp-8; }
 }
 
 .formBox {
@@ -371,20 +232,14 @@
     display: flex;
     flex-direction: column;
     gap: $sp-5;
-
-    @include mobile {
-        padding: $sp-4;
-    }
+    @include mobile { padding: $sp-4; }
 }
 
 .inputGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $sp-4;
-
-    @include mobile {
-        grid-template-columns: 1fr;
-    }
+    @include mobile { grid-template-columns: 1fr; }
 }
 
 .fieldGroup {
@@ -402,14 +257,8 @@
         @include input-base;
     }
 
-    select {
-        cursor: pointer;
-    }
-
-    textarea {
-        resize: vertical;
-        min-height: 80px;
-    }
+    select { cursor: pointer; }
+    textarea { resize: vertical; min-height: 80px; }
 }
 
 .fileInput {
@@ -429,10 +278,7 @@
     grid-template-columns: repeat(5, 1fr);
     gap: $sp-3;
     margin-top: $sp-4;
-
-    @include mobile {
-        grid-template-columns: repeat(3, 1fr);
-    }
+    @include mobile { grid-template-columns: repeat(3, 1fr); }
 }
 
 .preview {
@@ -441,11 +287,7 @@
     overflow: hidden;
     position: relative;
 
-    img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
+    img { width: 100%; height: 100%; object-fit: cover; }
 
     .remove {
         position: absolute;
@@ -458,10 +300,7 @@
         border-radius: $r-full;
         @include flex-center;
         cursor: pointer;
-
-        &:hover {
-            background: $color-red;
-        }
+        &:hover { background: $color-red; }
     }
 }
 
@@ -474,15 +313,8 @@
     color: $color-ink;
     border-radius: $r-2;
 
-    &:hover:not(:disabled) {
-        filter: brightness(1.1);
-        transform: translateY(-1px);
-    }
-
-    &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
+    &:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 .formNote {
@@ -546,8 +378,62 @@
     display: flex;
     justify-content: center;
     gap: $sp-4;
+    @include mobile { flex-direction: column; }
+}
 
-    @include mobile {
-        flex-direction: column;
+// ── PROCESS ───────────────────────────────────────────────────
+.processSection {
+    background: linear-gradient(135deg, #1a3a5c 0%, #0f2847 100%);
+    color: $color-white;
+    padding: $sp-12 0;
+    @include tablet { padding: $sp-8 0; }
+
+    .sectionTitle {
+        color: $color-white;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+.processInner {
+    @include container;
+}
+
+.processGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $sp-4;
+
+    @include tablet { grid-template-columns: 1fr 1fr; }
+    @include mobile { grid-template-columns: 1fr; }
+}
+
+.processCard {
+    background: rgba($color-white, 0.06);
+    border: 1px solid rgba($color-white, 0.1);
+    border-radius: $r-2;
+    padding: $sp-6;
+    text-align: center;
+    position: relative;
+
+    .processNum {
+        width: 36px;
+        height: 36px;
+        background: $color-cyan;
+        color: $color-ink;
+        border-radius: $r-full;
+        @include flex-center;
+        @include font-body($text-sm, $fw-bold);
+        margin: 0 auto $sp-3;
+    }
+
+    h3 {
+        @include font-body($text-sm, $fw-bold);
+        margin-bottom: $sp-1;
+    }
+
+    p {
+        @include font-body($text-xs, $fw-regular);
+        opacity: 0.7;
     }
 }

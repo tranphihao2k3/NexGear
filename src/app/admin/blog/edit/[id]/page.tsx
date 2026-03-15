@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ChevronLeft, Save, Globe } from 'lucide-react';
 import Toast from '@/components/admin/Toast';
 import ImageUploader from '@/components/admin/ImageUploader';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Button } from '@/components/ui';
 import s from '../../form.module.scss';
 
@@ -180,14 +181,11 @@ export default function EditBlogPage() {
                     </div>
 
                     <div className={s.field}>
-                        <label>Nội dung chi tiết (HTML/Text) <span>*</span></label>
-                        <textarea
+                        <label>Nội dung chi tiết <span>*</span></label>
+                        <RichTextEditor
                             value={formData.content}
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            className={s.mono}
-                            rows={15}
-                            placeholder="Nhập nội dung bài viết..."
-                            required
+                            onChange={(html) => setFormData({ ...formData, content: html })}
+                            placeholder="Bắt đầu viết bài..."
                         />
                     </div>
                 </div>

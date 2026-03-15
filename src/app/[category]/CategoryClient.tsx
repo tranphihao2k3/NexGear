@@ -10,46 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
 import styles from "./page.module.scss";
 
-// ── CATEGORY META ────────────────────────────────────────────
-const CATEGORY_META: Record<string, { label: string; h1: string; desc: string; parent?: string }> = {
-    "ban-phim": { label: "Bàn Phím", h1: "Bàn Phím Cơ", desc: "Bàn phím cơ, bàn phím gaming, membrane cao cấp" },
-    "chuot": { label: "Chuột", h1: "Chuột & Lót", desc: "Chuột gaming, chuột văn phòng, lót chuột cao cấp" },
-    "tai-nghe": { label: "Tai Nghe", h1: "Tai Nghe", desc: "Tai nghe gaming, Hi-Fi, TWS, headphone studio" },
-    "loa-mic": { label: "Loa & Mic", h1: "Loa & Micro", desc: "Loa studio, loa gaming, micro stream, USB mic" },
-    "loa": { label: "Loa", h1: "Loa", desc: "Loa bluetooth, soundbar, loa desktop cho PC" },
-    "phu-kien": { label: "Phụ Kiện", h1: "Phụ Kiện", desc: "Keycap, cable, lót chuột, phụ kiện bàn phím" },
-    "laptop": { label: "Laptop", h1: "Laptop Gaming & Văn Phòng", desc: "Laptop chơi game, laptop văn phòng, làm việc đồ họa" },
-    // ── Laptop sub-categories
-    "gaming-laptop": { label: "Gaming Laptop", h1: "Gaming Laptop", desc: "Laptop hiệu năng cao cho game", parent: "laptop" },
-    "ultrabook": { label: "Ultrabook", h1: "Ultrabook", desc: "Mỏng nhẹ, thời trang", parent: "laptop" },
-    "workstation": { label: "Workstation", h1: "Workstation", desc: "Đồ họa, lập trình chuyên nghiệp", parent: "laptop" },
-    "laptop-sinh-vien": { label: "Laptop Sinh Viên", h1: "Laptop Sinh Viên", desc: "Giá tốt, phù hợp học tập", parent: "laptop" },
-    // ── Chuột sub-categories
-    "chuot-gaming": { label: "Chuột Gaming", h1: "Chuột Gaming", desc: "Chuột chơi game chuyên nghiệp", parent: "chuot" },
-    "chuot-wireless": { label: "Chuột Wireless", h1: "Chuột Wireless", desc: "Không dây, tự do di chuyển", parent: "chuot" },
-    "chuot-ergonomic": { label: "Chuột Ergonomic", h1: "Chuột Ergonomic", desc: "Thiết kế công thái học", parent: "chuot" },
-    "chuot-sieu-nhe": { label: "Chuột Siêu Nhẹ", h1: "Chuột Siêu Nhẹ", desc: "Dưới 60g, linh hoạt tối đa", parent: "chuot" },
-    // ── Bàn phím sub-categories
-    "ban-phim-co": { label: "Bàn Phím Cơ", h1: "Bàn Phím Cơ", desc: "Mechanical keyboard cao cấp", parent: "ban-phim" },
-    "ban-phim-khong-day": { label: "Bàn Phím Không Dây", h1: "Bàn Phím Không Dây", desc: "Wireless & Bluetooth", parent: "ban-phim" },
-    "ban-phim-tkl": { label: "TKL / 75%", h1: "Bàn Phím TKL / 75%", desc: "Compact, tiết kiệm không gian", parent: "ban-phim" },
-    "ban-phim-60": { label: "60% / 65%", h1: "Bàn Phím 60% / 65%", desc: "Ultra compact, tối giản", parent: "ban-phim" },
-    "custom-kit": { label: "Custom Kit", h1: "Custom Kit", desc: "Barebone & DIY kit", parent: "ban-phim" },
-    // ── Tai nghe sub-categories
-    "tai-nghe-over-ear": { label: "Over-ear", h1: "Tai Nghe Over-ear", desc: "Trùm tai, bass sâu", parent: "tai-nghe" },
-    "tai-nghe-in-ear": { label: "In-ear / TWS", h1: "Tai Nghe In-ear / TWS", desc: "True wireless stereo", parent: "tai-nghe" },
-    "tai-nghe-gaming": { label: "Tai Nghe Gaming", h1: "Tai Nghe Gaming", desc: "Âm thanh vòm 7.1", parent: "tai-nghe" },
-    // ── Loa sub-categories
-    "soundbar": { label: "Soundbar", h1: "Soundbar", desc: "Loa thanh cho bàn setup", parent: "loa" },
-    "loa-bluetooth": { label: "Loa Bluetooth", h1: "Loa Bluetooth", desc: "Di động, pin lâu", parent: "loa" },
-    "loa-desktop": { label: "Loa Desktop", h1: "Loa Desktop", desc: "2.0 / 2.1 cho PC", parent: "loa" },
-    // ── Phụ kiện sub-categories
-    "keycap": { label: "Keycap Sets", h1: "Keycap Sets", desc: "PBT, Cherry profile...", parent: "phu-kien" },
-    "switch": { label: "Switches", h1: "Switches", desc: "Gateron, Cherry MX...", parent: "phu-kien" },
-    "mouse-pad": { label: "Mouse Pad", h1: "Mouse Pad", desc: "Desk mat & gaming pad", parent: "phu-kien" },
-    "cable-hub": { label: "Cable & Hub", h1: "Cable & Hub", desc: "USB-C, Dock, Hub", parent: "phu-kien" },
-    "wrist-rest": { label: "Wrist Rest", h1: "Wrist Rest", desc: "Kê tay gỗ, silicone", parent: "phu-kien" },
-};
+// Category meta is now fetched from API instead of hardcoded
 
 // ── SPEC FILTER CONFIG PER CATEGORY ─────────────────────────
 // Keys here match the NORMALIZED filter keys from API (after spec-normalize).
@@ -92,6 +53,13 @@ const CATEGORY_SPEC_FILTERS: Record<string, string[]> = {
     "mouse-pad": [],
     "cable-hub": [],
     "wrist-rest": [],
+    // Linh kiện sub-cats
+    "linh-kien": ["Loại linh kiện", "Dung lượng", "Chuẩn kết nối"],
+    "ram": ["Dung lượng", "Bus", "Loại RAM"],
+    "ssd": ["Dung lượng", "Chuẩn giao tiếp", "Tốc độ đọc"],
+    "sac-laptop": ["Công suất", "Đầu cắm"],
+    "pin-laptop": ["Dung lượng", "Thương hiệu tương thích"],
+    "tannhiet": ["Loại tản nhiệt", "Kích thước"],
 };
 
 // Each spec filter option from API
@@ -114,29 +82,46 @@ function formatPrice(v: number) {
 }
 
 // ── CHECKBOX GROUP ───────────────────────────────────────────
-function CheckGroup({
+function FilterDropdown({
+    label,
     options,
     selected,
     onChange,
 }: {
+    label: string;
     options: { id: string; name: string }[];
     selected: Set<string>;
     onChange: (val: string) => void;
 }) {
+    const [open, setOpen] = useState(false);
+    const count = selected.size;
+
     return (
-        <div className={styles.checkGroup}>
-            {options.map((opt) => (
-                <label key={opt.id} className={styles.checkLabel}>
-                    <input
-                        type="checkbox"
-                        className={styles.checkInput}
-                        checked={selected.has(opt.id)}
-                        onChange={() => onChange(opt.id)}
-                    />
-                    <span className={styles.checkBox} />
-                    <span className={styles.checkText}>{opt.name}</span>
-                </label>
-            ))}
+        <div className={styles.filterGroup}>
+            <button
+                type="button"
+                className={`${styles.filterGroupLabel} ${styles.filterToggle} ${open ? styles.filterToggleOpen : ''}`}
+                onClick={() => setOpen(!open)}
+            >
+                <span>{label} {count > 0 && <span className={styles.filterCount}>{count}</span>}</span>
+                <span className={`${styles.filterArrow} ${open ? styles.filterArrowOpen : ''}`}>▾</span>
+            </button>
+            {open && (
+                <div className={styles.checkGroup}>
+                    {options.map((opt) => (
+                        <label key={opt.id} className={styles.checkLabel}>
+                            <input
+                                type="checkbox"
+                                className={styles.checkInput}
+                                checked={selected.has(opt.id)}
+                                onChange={() => onChange(opt.id)}
+                            />
+                            <span className={styles.checkBox} />
+                            <span className={styles.checkText}>{opt.name}</span>
+                        </label>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
@@ -150,10 +135,6 @@ interface CategoryClientProps {
 // ── PAGE ─────────────────────────────────────────────────────
 export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps) {
     const catSlug = categorySlug;
-    const meta = {
-        ...CATEGORY_META[catSlug] ?? CATEGORY_META["ban-phim"],
-        h1: h1
-    };
 
     // UI State (not fetched)
     const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
@@ -164,15 +145,24 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
     const [sidebarMobile, setSidebarMobile] = useState(false);
     const [selectedSpecs, setSelectedSpecs] = useState<Record<string, Set<string>>>({});
 
-    const currentMeta = CATEGORY_META[catSlug];
-    const parentSlug = currentMeta?.parent;
-
     // ── 1. All categories (for sub-cat tabs + finding category ID) ─
     const { data: allCategories = [] } = useQuery({
         queryKey: queryKeys.categories.list({ limit: 50 }),
         queryFn: () => fetch('/api/categories?limit=50').then(r => r.json()).then(d => d.success ? d.data : []),
         staleTime: 1000 * 60 * 30, // 30 phút — danh mục hiếm thay đổi
     });
+
+    // Derive meta from API data
+    const categoryObj = allCategories.find((c: any) => c.slug === catSlug);
+    const parentObj = categoryObj?.parent
+        ? (typeof categoryObj.parent === 'object' ? categoryObj.parent : allCategories.find((c: any) => c._id === categoryObj.parent))
+        : null;
+    const parentSlug = parentObj?.slug || null;
+    const meta = {
+        label: categoryObj?.name || catSlug,
+        h1: h1 || categoryObj?.name || catSlug,
+        desc: categoryObj?.description || categoryObj?.metaDescription || '',
+    };
 
     // Derive sub-category tabs from cached allCategories (no extra fetch needed)
     const targetSlug = parentSlug || catSlug;
@@ -186,8 +176,6 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
             )
         )
         : [];
-
-    const categoryObj = allCategories.find((c: any) => c.slug === catSlug);
 
     // ── 2. Brands for this category ──────────────────────────────
     const { data: brands = [] } = useQuery({
@@ -319,7 +307,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                         {parentSlug ? (
                             <>
                                 <Link href={`/${parentSlug}`} className={styles.bcLink}>
-                                    {CATEGORY_META[parentSlug]?.label || parentSlug}
+                                    {parentObj?.name || parentSlug}
                                 </Link>
                                 <span className={styles.bcSep}>›</span>
                                 <span className={styles.bcCurrent}>{meta.label}</span>
@@ -403,25 +391,22 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                             </div>
 
                             {/* Brands from API (cached) */}
-                            <div className={styles.filterGroup}>
-                                <div className={styles.filterGroupLabel}>Thương hiệu</div>
-                                <CheckGroup
-                                    options={brands}
-                                    selected={selectedBrands}
-                                    onChange={toggleBrand}
-                                />
-                            </div>
+                            <FilterDropdown
+                                label="Thương hiệu"
+                                options={brands}
+                                selected={selectedBrands}
+                                onChange={toggleBrand}
+                            />
 
                             {/* Spec filters (cached) */}
                             {Object.entries(specFilters).map(([filterKey, options]) => (
-                                <div key={filterKey} className={styles.filterGroup}>
-                                    <div className={styles.filterGroupLabel}>{filterKey}</div>
-                                    <CheckGroup
-                                        options={options.map(o => ({ id: o.normalized, name: o.normalized }))}
-                                        selected={selectedSpecs[filterKey] || new Set()}
-                                        onChange={(val) => toggleSpec(filterKey, val)}
-                                    />
-                                </div>
+                                <FilterDropdown
+                                    key={filterKey}
+                                    label={filterKey}
+                                    options={options.map(o => ({ id: o.normalized, name: o.normalized }))}
+                                    selected={selectedSpecs[filterKey] || new Set()}
+                                    onChange={(val) => toggleSpec(filterKey, val)}
+                                />
                             ))}
                         </div>
 

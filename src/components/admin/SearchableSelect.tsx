@@ -32,7 +32,14 @@ export default function SearchableSelect({ options, value, onChange, placeholder
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const filteredOptions = options.filter(o => o.label.toLowerCase().includes(searchTerm.toLowerCase()));
+    const removeTones = (str: string) => 
+        str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+
+    const filteredOptions = options.filter(o => 
+        removeTones(o.label.toLowerCase()).includes(removeTones(searchTerm.toLowerCase())) ||
+        // Đôi khi người dùng gõ có dấu nhưng tên option không dấu, giữ lại điều kiện fallback
+        o.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <div className={styles.wrapper} ref={wrapperRef}>

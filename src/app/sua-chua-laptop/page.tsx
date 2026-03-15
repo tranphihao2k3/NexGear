@@ -1,48 +1,53 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
-    RefreshCcw, CheckCircle, Send, X,
-    Monitor, Battery, Cpu, MemoryStick,
-    HardDrive, ArrowRight, Shield, Clock, Zap, Star
+    Wrench, CheckCircle, Send, X, Monitor, Battery,
+    Cpu, Wifi, Keyboard, HardDrive, Shield, Clock, Search, Phone
 } from 'lucide-react';
-import { Button, Input, useToast } from '@/components/ui';
+import { Button, useToast } from '@/components/ui';
 import s from './page.module.scss';
 
-const STEPS = [
-    { icon: '📱', title: 'Gửi thông tin máy', desc: 'Điền form bên dưới với cấu hình & ảnh máy cũ' },
-    { icon: '💰', title: 'Nhận báo giá', desc: 'Chuyên viên định giá & phản hồi trong 15 phút' },
-    { icon: '🔄', title: 'Đổi máy mới', desc: 'Mang máy cũ đến cửa hàng, nhận máy mới ngay' },
+const COMMON_ISSUES = [
+    { icon: <Battery size={28} />, title: 'Lỗi Nguồn', desc: 'Máy không lên nguồn, máy tự đóng tắt, sạc không vào điện hoặc bị chập chờn.' },
+    { icon: <Monitor size={28} />, title: 'Lỗi Màn Hình', desc: 'Màn hình bị xọc, nhòe màu, có điểm chết hoặc không hiển thị (màn hình đen).' },
+    { icon: <Keyboard size={28} />, title: 'Lỗi Bàn Phím/Chuột', desc: 'Bàn phím bị liệt nút, kẹt phím, nhảy chữ hoặc Touchpad không nhận.' },
+    { icon: <HardDrive size={28} />, title: 'Lỗi Phần Cứng', desc: 'Hư hỏng ổ cứng, RAM không nhận, quạt tản nhiệt kêu to hoặc bị gãy bản lề.' },
+    { icon: <Wifi size={28} />, title: 'Lỗi Kết Nối', desc: 'Không bắt được Wifi, lỗi Bluetooth, hỏng cổng USB hoặc cổng HDMI.' },
+    { icon: <Cpu size={28} />, title: 'Lỗi Phần Mềm', desc: 'Máy tự nhiễm Virus, lỗi Windows, đóng máy khi mở ứng dụng nặng.' },
 ];
 
-const CONDITION_OPTIONS = [
-    { id: '99', label: '99%', title: 'Loại 1', desc: 'Đẹp keng, không trầy xước', emoji: '✨' },
-    { id: '98', label: '98%', title: 'Loại 2', desc: 'Màn đẹp, xước dăm nhẹ', emoji: '👍' },
-    { id: '95', label: '95%', title: 'Loại 3', desc: 'Trầy rõ, cấn móp nhẹ', emoji: '⚡' },
-    { id: '90', label: '90%', title: 'Loại 4', desc: 'Lỗi chức năng, màn ám', emoji: '🔧' },
+const PROCESS_STEPS = [
+    { num: 1, title: 'Tiếp nhận & Kiểm tra', desc: 'Kiểm tra miễn phí, báo lỗi chi tiết' },
+    { num: 2, title: 'Báo giá & Xác nhận', desc: 'Báo giá trước khi sửa, không phát sinh' },
+    { num: 3, title: 'Sửa chữa & Thay thế', desc: 'Linh kiện chính hãng, thợ chuyên nghiệp' },
+    { num: 4, title: 'Kiểm tra & Bàn giao', desc: 'Test kỹ trước khi giao, bảo hành rõ ràng' },
 ];
 
-const BENEFITS = [
-    { icon: <Zap size={24} />, title: 'Định giá nhanh', desc: 'Phản hồi báo giá trong 15 phút' },
-    { icon: <Shield size={24} />, title: 'Giá thu cao nhất', desc: 'Cam kết giá thu tốt nhất thị trường' },
-    { icon: <Star size={24} />, title: 'Trợ giá lên đời', desc: 'Hỗ trợ thêm đến 2.000.000đ' },
-    { icon: <Clock size={24} />, title: 'Giao dịch nhanh', desc: 'Nhận máy mới chỉ trong 30 phút' },
+const ISSUE_OPTIONS = [
+    'Sửa chữa', 'Thay linh kiện', 'Cài đặt phần mềm', 'Nâng cấp', 'Khác'
 ];
 
-export default function TradeInPage() {
+const SEVERITY_OPTIONS = [
+    'Bình thường', 'Gấp', 'Rất gấp'
+];
+
+export default function RepairPage() {
     const { success: showSuccess, error: showError } = useToast();
-
     const [formData, setFormData] = useState({
-        name: '', contact: '', model: '', cpu: '', ram: '', ssd: '', gpu: '',
-        condition: '99', battery: '', notes: '',
+        name: '', phone: '', brand: '', model: '',
+        issueType: 'Sửa chữa', severity: 'Bình thường', description: '',
     });
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [orderCode, setOrderCode] = useState('');
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -61,12 +66,12 @@ export default function TradeInPage() {
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!formData.phone || !formData.description) {
+            showError('Vui lòng nhập SĐT và mô tả lỗi');
+            return;
+        }
         setLoading(true);
         try {
             let imageUrls: string[] = [];
@@ -80,27 +85,26 @@ export default function TradeInPage() {
                 });
                 imageUrls = await Promise.all(uploadPromises);
             }
-            const res = await fetch('/api/buyback-orders', {
+
+            const res = await fetch('/api/repair-orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    sellerName: formData.name,
-                    sellerPhone: formData.contact,
-                    productInfo: {
-                        model: formData.model,
-                        condition: `${formData.condition}%`,
-                        specs: { cpu: formData.cpu, ram: formData.ram, ssd: formData.ssd, gpu: formData.gpu },
-                    },
+                    customerName: formData.name,
+                    customerPhone: formData.phone,
+                    deviceInfo: { brand: formData.brand, model: formData.model },
+                    issueType: formData.issueType,
+                    severity: formData.severity,
+                    description: formData.description,
                     images: imageUrls,
-                    inspectionNotes: `Pin/Màn: ${formData.battery}. Ghi chú: ${formData.notes}`,
                     status: 'pending',
                 }),
             });
             const result = await res.json();
             if (result.success) {
-                setOrderCode(result.data.buybackNumber);
+                setOrderCode(result.data?.repairNumber || result.data?._id || 'N/A');
                 setSubmitted(true);
-                showSuccess('Gửi yêu cầu thành công!');
+                showSuccess('Gửi yêu cầu sửa chữa thành công!');
             } else {
                 showError(result.error || 'Có lỗi xảy ra');
             }
@@ -117,87 +121,55 @@ export default function TradeInPage() {
             <section className={s.hero}>
                 <div className={s.heroInner}>
                     <div className={s.heroBadge}>
-                        <RefreshCcw size={14} /> Thu cũ đổi mới
+                        <Wrench size={14} /> Khắc phục mọi sự cố
                     </div>
                     <h1 className={s.heroTitle}>
-                        Lên Đời Laptop<br />
-                        <span>Tiết Kiệm Tối Đa</span>
+                        Sửa Chữa Laptop<br />
+                        <span>Uy Tín & Chuyên Nghiệp</span>
                     </h1>
                     <p className={s.heroDesc}>
-                        Định giá siêu nhanh trong 15 phút. Trợ giá lên đời lên đến 2.000.000đ.
-                        Nhận máy mới chỉ trong 30 phút tại cửa hàng.
+                        Chẩn đoán chính xác — Sửa chữa tận tâm.<br />
+                        Đội ngũ kỹ thuật viên giàu kinh nghiệm tại Cần Thơ.
                     </p>
                     <div className={s.heroCtas}>
-                        <a href="#form-section" className={s.heroBtn}>
-                            <Send size={16} /> Gửi yêu cầu ngay
+                        <a href="#repair-form" className={s.heroBtn}>
+                            <Search size={16} /> Kiểm tra miễn phí
                         </a>
                         <a href="tel:0978648720" className={s.heroBtnGhost}>
-                            Hotline: 0978 648 720
+                            <Shield size={16} /> Bảo hành uy tín
                         </a>
                     </div>
                 </div>
                 <div className={s.heroGraphic}>
                     <div className={s.heroIconCircle}>
-                        <RefreshCcw size={56} />
+                        <Wrench size={56} />
                     </div>
                 </div>
             </section>
 
-            {/* ── BENEFITS ── */}
-            <section className={s.benefitsSection}>
-                <div className={s.benefitsGrid}>
-                    {BENEFITS.map((b, i) => (
-                        <div key={i} className={s.benefitCard}>
-                            <div className={s.benefitIcon}>{b.icon}</div>
-                            <h3>{b.title}</h3>
-                            <p>{b.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* ── HOW IT WORKS ── */}
-            <section className={s.stepsSection}>
-                <h2 className={s.sectionTitle}>Quy trình thu cũ đổi mới</h2>
-                <div className={s.stepsGrid}>
-                    {STEPS.map((step, i) => (
-                        <div key={i} className={s.stepCard}>
-                            <div className={s.stepNum}>{i + 1}</div>
-                            <div className={s.stepEmoji}>{step.icon}</div>
-                            <h3>{step.title}</h3>
-                            <p>{step.desc}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* ── HEALTH CHECK ── */}
-            <section className={s.checkSection}>
-                <div className={s.checkInner}>
-                    <h2 className={s.sectionTitle}>Kiểm tra sức khỏe máy trước khi gửi</h2>
-                    <div className={s.checkGrid}>
-                        <div className={s.checkCard}>
-                            <div className={s.checkIcon}><Monitor size={28} /></div>
-                            <div>
-                                <h4>Test Màn hình / Loa / Phím</h4>
-                                <p>Kiểm tra nhanh các chức năng cơ bản</p>
-                                <a href="/test-hardware" target="_blank">TRUY CẬP CÔNG CỤ TEST <ArrowRight size={14} /></a>
+            {/* ── COMMON ISSUES ── */}
+            <section className={s.issuesSection}>
+                <div className={s.issuesInner}>
+                    <h2 className={s.sectionTitle}>
+                        <span className={s.titleIcon}>⚠️</span>
+                        Các lỗi Laptop thường gặp cần xử lý ngay
+                    </h2>
+                    <div className={s.issuesGrid}>
+                        {COMMON_ISSUES.map((issue, i) => (
+                            <div key={i} className={s.issueCard}>
+                                <div className={s.issueIcon}>{issue.icon}</div>
+                                <div>
+                                    <h3>{issue.title}</h3>
+                                    <p>{issue.desc}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className={s.checkCard}>
-                            <div className={s.checkIcon}><Battery size={28} /></div>
-                            <div>
-                                <h4>Kiểm tra độ chai Pin</h4>
-                                <p>Tải phần mềm BatteryMon miễn phí</p>
-                                <a href="/software/BatteryMon.zip" download>TẢI BATTERYMON (8MB) <ArrowRight size={14} /></a>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* ── FORM ── */}
-            <section className={s.formSection} id="form-section">
+            {/* ── REPAIR FORM ── */}
+            <section className={s.formSection} id="repair-form">
                 <AnimatePresence mode="wait">
                     {!submitted ? (
                         <motion.div
@@ -208,8 +180,8 @@ export default function TradeInPage() {
                             className={s.formBox}
                         >
                             <div className={s.formHeader}>
-                                <h3>Gửi Yêu Cầu Định Giá</h3>
-                                <p>Nhận báo giá miễn phí ngay</p>
+                                <h3>Đăng Ký Sửa Chữa</h3>
+                                <p>Nhận tư vấn miễn phí ngay</p>
                             </div>
 
                             <form onSubmit={handleSubmit} className={s.formBody}>
@@ -220,44 +192,45 @@ export default function TradeInPage() {
                                     </div>
                                     <div className={s.fieldGroup}>
                                         <label>SĐT / Zalo *</label>
-                                        <input type="text" name="contact" value={formData.contact} onChange={handleChange} placeholder="VD: 0978..." required />
+                                        <input type="text" name="phone" value={formData.phone} onChange={handleChange} placeholder="VD: 0978..." required />
                                     </div>
                                 </div>
 
                                 <div className={s.inputGrid}>
                                     <div className={s.fieldGroup}>
                                         <label>Hãng máy</label>
-                                        <input type="text" name="model" value={formData.model} onChange={handleChange} placeholder="VD: Dell, HP, Asus..." />
+                                        <input type="text" name="brand" value={formData.brand} onChange={handleChange} placeholder="VD: Dell, HP, Asus..." />
                                     </div>
                                     <div className={s.fieldGroup}>
                                         <label>Model máy</label>
-                                        <input type="text" name="cpu" value={formData.cpu} onChange={handleChange} placeholder="VD: XPS 15, Nitro 5..." />
+                                        <input type="text" name="model" value={formData.model} onChange={handleChange} placeholder="VD: XPS 15, Nitro 5..." />
                                     </div>
                                 </div>
 
                                 <div className={s.inputGrid}>
                                     <div className={s.fieldGroup}>
-                                        <label>Tình trạng ngoại hình</label>
-                                        <select name="condition" value={formData.condition} onChange={handleChange}>
-                                            {CONDITION_OPTIONS.map(opt => (
-                                                <option key={opt.id} value={opt.id}>{opt.emoji} {opt.label} - {opt.desc}</option>
-                                            ))}
+                                        <label>Loại dịch vụ</label>
+                                        <select name="issueType" value={formData.issueType} onChange={handleChange}>
+                                            {ISSUE_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                                         </select>
                                     </div>
                                     <div className={s.fieldGroup}>
-                                        <label>Tình trạng Pin / Màn</label>
-                                        <input type="text" name="battery" value={formData.battery} onChange={handleChange} placeholder="VD: Chai 10%, ám nhẹ..." />
+                                        <label>Mức độ khẩn</label>
+                                        <select name="severity" value={formData.severity} onChange={handleChange}>
+                                            {SEVERITY_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                                        </select>
                                     </div>
                                 </div>
 
                                 <div className={s.fieldGroup}>
                                     <label>Mô tả lỗi / yêu cầu *</label>
                                     <textarea
-                                        name="notes"
-                                        value={formData.notes}
+                                        name="description"
+                                        value={formData.description}
                                         onChange={handleChange}
                                         placeholder="VD: Máy không lên nguồn, màn hình bị vỡ, bàn phím kẹt phím..."
                                         rows={4}
+                                        required
                                     />
                                 </div>
 
@@ -279,7 +252,7 @@ export default function TradeInPage() {
                                 </div>
 
                                 <button type="submit" className={s.submitBtn} disabled={loading}>
-                                    {loading ? '⏳ Đang gửi...' : '🔄 Gửi Yêu Cầu Định Giá'}
+                                    {loading ? '⏳ Đang gửi...' : '🔧 Gửi Yêu Cầu Sửa Chữa'}
                                 </button>
 
                                 <p className={s.formNote}>Chúng tôi sẽ liên hệ bạn trong vòng 15 phút</p>
@@ -293,15 +266,15 @@ export default function TradeInPage() {
                             className={s.successBox}
                         >
                             <div className={s.successIcon}><CheckCircle size={48} /></div>
-                            <h2>Gửi yêu cầu thành công!</h2>
-                            <p>Chuyên viên NexGear sẽ định giá và phản hồi trong 15 phút.</p>
+                            <h2>Đăng ký sửa chữa thành công!</h2>
+                            <p>Kỹ thuật viên sẽ liên hệ bạn trong 15 phút để tư vấn.</p>
                             <div className={s.orderCode}>
                                 <div className={s.codeLabel}>Mã yêu cầu</div>
                                 <div className={s.code}>{orderCode}</div>
                             </div>
                             <div className={s.successActions}>
                                 <Button variant="cyan" size="lg" onClick={() => window.open('https://zalo.me/0978648720', '_blank')}>
-                                    CHAT ZALO NHẬN BÁO GIÁ
+                                    CHAT ZALO TƯ VẤN
                                 </Button>
                                 <Button variant="ghost" size="lg" onClick={() => setSubmitted(false)}>
                                     GỬI YÊU CẦU KHÁC
@@ -310,6 +283,22 @@ export default function TradeInPage() {
                         </motion.div>
                     )}
                 </AnimatePresence>
+            </section>
+
+            {/* ── REPAIR PROCESS ── */}
+            <section className={s.processSection}>
+                <div className={s.processInner}>
+                    <h2 className={s.sectionTitle}>Quy trình sửa chữa minh bạch tại NexGear</h2>
+                    <div className={s.processGrid}>
+                        {PROCESS_STEPS.map((step) => (
+                            <div key={step.num} className={s.processCard}>
+                                <div className={s.processNum}>{step.num}</div>
+                                <h3>{step.title}</h3>
+                                <p>{step.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </section>
         </div>
     );

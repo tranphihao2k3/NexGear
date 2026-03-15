@@ -32,6 +32,7 @@ const Footer = () => {
                                 <li><Link href="/shipping">Vận Chuyển</Link></li>
                                 <li><Link href="/returns">Đổi Trả</Link></li>
                                 <li><Link href="/contact">Liên Hệ</Link></li>
+                                <li><Link href="/test-laptop">Công cụ Test Laptop</Link></li>
                             </ul>
                         </div>
                         <div className={styles.col}>

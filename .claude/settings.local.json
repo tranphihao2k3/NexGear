@@ -12,7 +12,9 @@
       "Bash(npx tsc:*)",
       "Bash(npm run:*)",
       "Bash(npm install:*)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(source:*)",
+      "Bash(node:*)"
     ]
   }
 }

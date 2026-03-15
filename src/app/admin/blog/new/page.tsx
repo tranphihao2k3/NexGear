@@ -3,15 +3,20 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Save, Globe } from 'lucide-react';
+import { ChevronLeft, Save, Globe, Sparkles, ImagePlus, Loader2 } from 'lucide-react';
 import Toast from '@/components/admin/Toast';
 import ImageUploader from '@/components/admin/ImageUploader';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Button } from '@/components/ui';
 import s from '../form.module.scss';
 
 export default function NewBlogPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [aiLoading, setAiLoading] = useState(false);
+    const [imageLoading, setImageLoading] = useState(false);
+    const [keyword, setKeyword] = useState('');
+    const [imagePrompt, setImagePrompt] = useState('');
     const [formData, setFormData] = useState({
         title: '',
         slug: '',
@@ -54,6 +59,80 @@ export default function NewBlogPage() {
             title,
             slug: generateSlug(title),
         });
+    };
+
+    // AI Generate Blog
+    const handleAiGenerate = async () => {
+        if (!keyword.trim()) {
+            showToast('Vui lòng nhập từ khóa để AI viết bài', 'error');
+            return;
+        }
+
+        setAiLoading(true);
+        try {
+            const res = await fetch('/api/ai/generate-blog', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keyword: keyword.trim() }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                const blog = data.data;
+                setFormData({
+                    ...formData,
+                    title: blog.title,
+                    slug: generateSlug(blog.title),
+                    excerpt: blog.excerpt,
+                    content: blog.content,
+                    tags: blog.tags,
+                    metaTitle: blog.metaTitle,
+                    metaDescription: blog.metaDescription,
+                });
+                if (blog.imagePrompt) {
+                    setImagePrompt(blog.imagePrompt);
+                }
+                showToast('AI đã viết xong bài! Bạn có thể chỉnh sửa trước khi đăng.', 'success');
+            } else {
+                showToast('Lỗi AI: ' + data.error, 'error');
+            }
+        } catch {
+            showToast('Có lỗi xảy ra khi gọi AI', 'error');
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    // AI Generate Image
+    const handleAiImage = async () => {
+        const prompt = imagePrompt.trim() || `Featured image for blog about: ${keyword || formData.title}`;
+        if (!prompt) {
+            showToast('Vui lòng nhập mô tả ảnh hoặc từ khóa', 'error');
+            return;
+        }
+
+        setImageLoading(true);
+        try {
+            const res = await fetch('/api/ai/generate-image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                setFormData({ ...formData, featuredImage: data.url });
+                showToast('Đã tạo ảnh đại diện thành công!', 'success');
+            } else {
+                showToast('Lỗi tạo ảnh: ' + data.error, 'error');
+            }
+        } catch {
+            showToast('Có lỗi xảy ra khi tạo ảnh', 'error');
+        } finally {
+            setImageLoading(false);
+        }
     };
 
     const handleSubmit = async (status: 'draft' | 'published') => {
@@ -116,6 +195,56 @@ export default function NewBlogPage() {
             </div>
 
             <form className={s.form} onSubmit={(e) => e.preventDefault()}>
+                {/* AI Generator Section */}
+                <div className={s.section}>
+                    <h2><Sparkles size={16} /> AI Viết Bài Tự Động</h2>
+
+                    <div className={s.aiBox}>
+                        <div className={s.aiRow}>
+                            <input
+                                type="text"
+                                value={keyword}
+                                onChange={(e) => setKeyword(e.target.value)}
+                                placeholder="Nhập từ khóa (VD: laptop gaming giá rẻ 2024, chuột gaming tốt nhất...)"
+                                className={s.aiInput}
+                                onKeyDown={(e) => e.key === 'Enter' && !aiLoading && handleAiGenerate()}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleAiGenerate}
+                                disabled={aiLoading}
+                                className={s.aiBtn}
+                            >
+                                {aiLoading ? <><Loader2 size={16} className={s.spin} /> Đang viết...</> : <><Sparkles size={16} /> AI Viết Bài</>}
+                            </button>
+                        </div>
+
+                        {imagePrompt && (
+                            <div className={s.aiRow}>
+                                <input
+                                    type="text"
+                                    value={imagePrompt}
+                                    onChange={(e) => setImagePrompt(e.target.value)}
+                                    placeholder="Mô tả ảnh đại diện (tiếng Anh)..."
+                                    className={s.aiInput}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleAiImage}
+                                    disabled={imageLoading}
+                                    className={`${s.aiBtn} ${s.aiBtnImage}`}
+                                >
+                                    {imageLoading ? <><Loader2 size={16} className={s.spin} /> Đang tạo...</> : <><ImagePlus size={16} /> Tạo Ảnh AI</>}
+                                </button>
+                            </div>
+                        )}
+
+                        <p className={s.aiHint}>
+                            Gemini AI viết bài + Unsplash tạo ảnh stock. Bạn có thể chỉnh sửa sau khi AI tạo xong.
+                        </p>
+                    </div>
+                </div>
+
                 <div className={s.section}>
                     <h2>Nội dung chính</h2>
 
@@ -153,16 +282,12 @@ export default function NewBlogPage() {
                     </div>
 
                     <div className={s.field}>
-                        <label>Nội dung chi tiết (HTML/Text) <span>*</span></label>
-                        <textarea
+                        <label>Nội dung chi tiết <span>*</span></label>
+                        <RichTextEditor
                             value={formData.content}
-                            onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                            className={s.mono}
-                            rows={15}
-                            placeholder="Nhập nội dung bài viết. Bạn có thể sử dụng các thẻ HTML cơ bản..."
-                            required
+                            onChange={(html) => setFormData({ ...formData, content: html })}
+                            placeholder="Bắt đầu viết bài..."
                         />
-                        <p className={s.hint}>Mẹo: Sử dụng &lt;p&gt;, &lt;h2&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;img&gt; để định dạng.</p>
                     </div>
                 </div>
 

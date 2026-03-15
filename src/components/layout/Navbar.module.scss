@@ -341,13 +341,21 @@
     box-shadow:
         0 12px 40px rgba(0, 0, 0, 0.1),
         0 0 0 1px rgba(0, 196, 173, 0.06);
-    animation: dropdown-in 0.15s ease;
     z-index: $z-dropdown;
     overflow: hidden;
 
-    // Có banner → rộng hơn
-    &.megaDropdownWide {
-        min-width: 480px;
+    // Hidden by default, shown via class
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+
+    &.megaDropdownOpen {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
     }
 }
 
