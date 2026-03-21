@@ -456,12 +456,13 @@ export default function HomeClient() {
 
             <ScrollReveal delay={0.2} className={styles.locationMap} direction="right">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m105.7469!2d10.0452!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0895a51d6071b%3A0x9d90108343167180!2zTmluaCBLaeG7gXUsIEPhuqduIFRoxqEsIFZp4buHdCBOYW0!5e0!3m2!1svi!2svn!4v1710660000000!5m2!1svi!2svn"
+                src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d982.2480117537547!2d105.75763927605692!3d10.017514318443373!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zMTDCsDAxJzAzLjEiTiAxMDXCsDQ1JzMxLjkiRQ!5e0!3m2!1svi!2s!4v1774098171681!5m2!1svi!2s"
                 width="100%"
                 height="100%"
                 style={{ border: 0, borderRadius: "16px", backgroundColor: "#1a1a1a" }}
                 allowFullScreen={true}
                 loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
               />
             </ScrollReveal>
           </div>
