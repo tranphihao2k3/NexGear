@@ -40,6 +40,7 @@ export { default as Shipping } from './Shipping';
 export { default as Debt } from './Debt';
 export { default as LoyaltyPoints } from './LoyaltyPoints';
 export { default as Promotion } from './Promotion';
+export { default as InstallmentPlan } from './InstallmentPlan';
 
 // Content & Marketing
 export { default as Blog } from './Blog';

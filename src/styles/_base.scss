@@ -2,6 +2,10 @@
 
 // ── THEME CSS VARIABLES ─────────────────────────────────────
 :root,
+html {
+    scroll-behavior: smooth;
+}
+
 html[data-theme='light'] {
     --bg: #F4F2ED;
     --bg-rgb: 244, 242, 237;

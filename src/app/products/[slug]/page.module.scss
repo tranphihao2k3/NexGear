@@ -73,6 +73,61 @@
 }
 
 // ════════════════════════════════════════════════════════════
+// STICKY BAR
+// ════════════════════════════════════════════════════════════
+.stickyBar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--nav-bg, rgba(244, 242, 237, 0.95));
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    z-index: 1000;
+    transform: translateY(-100%);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    padding: $sp-2 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.stickyBarShow {
+    transform: translateY(0);
+}
+
+.stickyBarInner {
+    @include container;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stickyProduct {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+
+    img {
+        width: 44px;
+        height: 44px;
+        border-radius: $r-1;
+        object-fit: cover;
+        border: 1px solid var(--border);
+    }
+}
+
+.stickyName {
+    @include font-body($text-sm, $fw-bold);
+    color: var(--ink);
+    @include truncate(1);
+    max-width: 300px;
+}
+
+.stickyPrice {
+    @include font-mono($text-sm, $fw-bold);
+    color: #00C4AD;
+}
+
+// ════════════════════════════════════════════════════════════
 // PAGE
 // ════════════════════════════════════════════════════════════
 .page {
@@ -104,7 +159,7 @@
 
 .loadingText {
     @include font-mono($text-sm, $fw-semibold);
-    color: $color-ink3;
+    color: var(--ink3);
     letter-spacing: $ls-wider;
 }
 
@@ -122,7 +177,7 @@
 // BREADCRUMB
 // ════════════════════════════════════════════════════════════
 .breadcrumbBar {
-    background: rgba(var(--surface-rgb), 0.7);
+    background: var(--bg2);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     padding: $sp-3 0;
@@ -142,8 +197,8 @@
 }
 
 .bcLink {
-    @include font-mono($text-xs, $fw-medium);
-    color: $color-ink3;
+    @include font-mono($text-sm, $fw-medium);
+    color: var(--ink3);
     text-decoration: none;
     transition: color 0.15s ease;
     letter-spacing: 0.02em;
@@ -154,12 +209,12 @@
 }
 
 .bcSep {
-    @include font-mono($text-xs);
+    @include font-mono($text-sm);
     color: rgba(0, 196, 173, 0.3);
 }
 
 .bcCurrent {
-    @include font-mono($text-xs, $fw-semibold);
+    @include font-mono($text-sm, $fw-semibold);
     color: var(--ink);
     @include truncate(1);
     max-width: 300px;
@@ -392,19 +447,20 @@
 .topMeta {
     display: flex;
     align-items: center;
-    gap: $sp-2;
+    gap: $sp-3;
     flex-wrap: wrap;
+    margin-bottom: $sp-2;
 }
 
 .brandLabel {
-    @include font-display(10px, $fw-bold);
-    color: #00C4AD;
+    @include font-display(11px, $fw-black);
+    color: #fff;
     letter-spacing: $ls-widest;
     text-transform: uppercase;
-    padding: 3px $sp-2;
-    background: rgba(0, 196, 173, 0.06);
-    border: 1px solid rgba(0, 196, 173, 0.15);
-    border-radius: $r-1;
+    padding: 4px $sp-4;
+    background: #00C4AD;
+    border-radius: $r-full;
+    box-shadow: 0 0 15px rgba(0, 196, 173, 0.4);
 }
 
 .tagPill {
@@ -419,13 +475,19 @@
 }
 
 .productTitle {
-    @include font-body($text-xl, $fw-bold);
+    @include font-display($text-3xl, $fw-black);
     color: var(--ink);
     margin: 0;
-    line-height: 1.3;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+
+    @include tablet {
+        font-size: $text-2xl;
+    }
 
     @include mobile {
-        font-size: $text-lg;
+        font-size: $text-xl;
     }
 }
 
@@ -433,8 +495,10 @@
 .ratingRow {
     display: flex;
     align-items: center;
-    gap: $sp-2;
+    gap: $sp-4;
     flex-wrap: wrap;
+    padding-bottom: $sp-2;
+    border-bottom: 1px solid var(--border);
 }
 
 .stars {
@@ -457,7 +521,7 @@
 }
 
 .starEmpty {
-    color: $color-bg3;
+    color: var(--bg3);
 }
 
 .ratingNum {
@@ -503,9 +567,10 @@
     position: relative;
     background: var(--bg2);
     border: 1px solid var(--border);
-    border-radius: $r-2;
-    padding: $sp-5 $sp-6;
+    border-radius: $r-3;
+    padding: $sp-6 $sp-8;
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 
     &::before {
         content: '';
@@ -513,8 +578,12 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 2px;
+        height: 3px;
         background: linear-gradient(90deg, #00C4AD, #F0356A);
+    }
+
+    @include mobile {
+        padding: $sp-5 $sp-6;
     }
 }
 
@@ -547,7 +616,7 @@
 
 .basePrice {
     @include font-mono($text-md, $fw-regular);
-    color: $color-ink3;
+    color: var(--ink3);
     text-decoration: line-through;
 }
 
@@ -634,48 +703,48 @@
 .variantBtn {
     display: flex;
     align-items: center;
-    gap: $sp-2;
-    padding: $sp-2 $sp-3;
-    border: 1.5px solid var(--border2);
+    gap: $sp-3;
+    padding: $sp-3 $sp-4;
+    border: 1.5px solid var(--border);
     border-radius: $r-2;
-    background: var(--surface);
+    background: var(--bg);
     color: var(--ink2);
     cursor: pointer;
-    @include font-body($text-sm, $fw-medium);
-    transition: all 0.2s ease;
+    @include font-body(13px, $fw-semibold);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: hidden;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: #00C4AD;
-        transform: scaleX(0);
-        transition: transform 0.2s ease;
-    }
+    min-width: 140px;
 
     &:hover:not(:disabled) {
-        border-color: rgba(0, 196, 173, 0.5);
+        border-color: #00C4AD;
         color: var(--ink);
-
-        &::before {
-            transform: scaleX(1);
-        }
+        background: var(--bg2);
+        transform: translateY(-2px);
     }
 }
 
 .variantBtnActive {
     border-color: #00C4AD;
-    background: rgba(0, 196, 173, 0.04);
+    background: var(--bg2);
     color: var(--ink);
-    box-shadow: 0 0 0 1px rgba(0, 196, 173, 0.2), 0 0 12px rgba(0, 196, 173, 0.06);
+    box-shadow: 0 0 20px rgba(0, 196, 173, 0.15);
+    transform: translateY(-2px);
 
-    &::before {
-        transform: scaleX(1);
+    &::after {
+        content: '✓';
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 20px;
+        height: 20px;
+        background: #00C4AD;
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        box-shadow: 0 0 10px rgba(0, 196, 173, 0.5);
     }
 }
 
@@ -751,7 +820,7 @@
 
 .attrValue {
     @include font-mono(13px, $fw-bold);
-    color: $color-ink;
+    color: var(--ink);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -948,7 +1017,7 @@
     padding: $sp-3 $sp-4;
     border: 1px solid var(--border);
     border-radius: $r-1;
-    background: rgba(var(--surface-rgb), 0.5);
+    background: var(--bg2);
     color: var(--ink3);
     @include font-display($text-xs, $fw-bold);
     letter-spacing: $ls-wide;
@@ -978,8 +1047,9 @@
 // ════════════════════════════════════════════════════════════
 .serviceGrid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: $sp-3;
+    margin-top: $sp-6;
 
     @include mobile {
         grid-template-columns: 1fr;
@@ -988,154 +1058,135 @@
 
 .serviceCard {
     display: flex;
-    align-items: flex-start;
-    gap: $sp-4;
-    padding: $sp-5;
-    background: rgba(var(--surface-rgb), 0.5);
-    backdrop-filter: blur(10px);
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-4;
+    background: var(--bg2);
     border: 1px solid var(--border);
-    border-left: 2px solid var(--border);
-    border-radius: $r-1;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
+    border-radius: $r-2;
+    transition: all 0.3s ease;
 
     &:hover {
-        border-color: rgba(0, 196, 173, 0.3);
-        border-left-color: #00C4AD;
-        background: rgba(var(--surface-rgb), 0.8);
-        transform: translateX(4px);
-        box-shadow:
-            0 4px 20px rgba(0, 0, 0, 0.2),
-            inset 0 0 20px rgba(0, 196, 173, 0.03);
-
-        svg {
-            color: #00C4AD;
-            filter: drop-shadow(0 0 5px rgba(0, 196, 173, 0.4));
-        }
+        border-color: rgba(0, 196, 173, 0.4);
+        transform: translateY(-2px);
+        background: var(--bg3);
     }
+}
 
-    svg {
-        flex-shrink: 0;
-        color: var(--ink3);
-        margin-top: 2px;
-        font-size: 20px;
-        transition: all 0.3s ease;
-    }
+.serviceIcon {
+    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    @include flex-center;
+    background: rgba(0, 196, 173, 0.08);
+    border-radius: 50%;
+    color: #00C4AD;
+}
 
-    div {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
+.serviceInfo {
+    display: flex;
+    flex-direction: column;
+}
 
-    strong {
-        @include font-display(11px, $fw-bold);
-        color: var(--ink);
-        letter-spacing: $ls-wide;
-        text-transform: uppercase;
-    }
+.serviceTitle {
+    @include font-body(12px, $fw-bold);
+    color: var(--ink);
+    text-transform: uppercase;
+}
 
-    span {
-        @include font-body(11px, $fw-regular);
-        color: var(--ink3);
-        line-height: $lh-tight;
-    }
+.serviceDesc {
+    @include font-body(11px, $fw-regular);
+    color: var(--ink3);
 }
 
 // ════════════════════════════════════════════════════════════
 // DETAIL TABS
 // ════════════════════════════════════════════════════════════
 .detailSection {
-    position: relative;
-    z-index: 2;
-    background: var(--surface);
-    border-top: 1px solid var(--border);
+    @include container;
+    margin-top: $sp-12;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: $r-4;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
 
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(0, 196, 173, 0.3), transparent);
+    @include tablet {
+        margin-top: $sp-8;
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
     }
 }
 
 .detailInner {
-    @include container;
-    padding-top: $sp-8;
-    padding-bottom: $sp-12;
+    padding: 0;
 }
 
-// Tab nav
 .tabNav {
     display: flex;
-    gap: $sp-1;
-    position: relative;
-    margin-bottom: $sp-8;
     border-bottom: 1px solid var(--border);
-}
+    background: var(--bg);
+    position: sticky;
+    top: $nav-height;
+    z-index: 50;
 
-.tabNavLine {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--border);
+    @include tablet {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        &::-webkit-scrollbar { display: none; }
+    }
 }
 
 .tabBtn {
-    display: flex;
-    align-items: center;
-    gap: $sp-2;
-    padding: $sp-3 $sp-5;
+    padding: $sp-6 $sp-10;
+    @include font-display($text-sm, $fw-bold);
+    color: var(--ink3);
+    background: transparent;
     border: none;
-    background: none;
     cursor: pointer;
-    @include font-body($text-sm, $fw-semibold);
-    color: $color-ink3;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
     position: relative;
-    transition: color 0.2s ease;
+    white-space: nowrap;
 
-    &:hover {
-        color: var(--ink);
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: #00C4AD;
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+        box-shadow: 0 0 15px rgba(0, 196, 173, 0.5);
     }
 
-    @include mobile {
-        padding: $sp-3;
-        font-size: $text-xs;
+    &:hover {
+        color: #00C4AD;
+        background: rgba(0, 196, 173, 0.04);
     }
 }
 
 .tabBtnActive {
-    color: #00C4AD;
-}
+    color: #00C4AD !important;
+    background: var(--bg2);
 
-.tabIcon {
-    font-size: 14px;
-
-    @include mobile {
-        display: none;
+    &::after {
+        transform: scaleX(1);
     }
 }
 
-.tabIndicator {
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #00C4AD, rgba(0, 196, 173, 0.3));
-    border-radius: 2px 2px 0 0;
-    animation: tab-slide 0.25s ease;
-}
-
-// Tab content
 .tabContent {
-    animation: fade-in 0.3s ease;
+    padding: $sp-10;
+    animation: fade-in 0.4s ease;
+
+    @include mobile {
+        padding: $sp-6 $sp-4;
+    }
 }
 
 // ── DESCRIPTION TAB ────────────────────────────────────────
@@ -1323,12 +1374,12 @@
 
     span {
         @include font-body($text-xs, $fw-regular);
-        color: $color-ink3;
+        color: var(--ink3);
     }
 
     strong {
         @include font-mono($text-xs, $fw-semibold);
-        color: var(--ink);
+        color: #00C4AD;
     }
 }
 
@@ -1339,38 +1390,50 @@
     gap: $sp-8;
 }
 
-.specTable {
-    width: 100%;
-    border-collapse: collapse;
+.specsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
     border: 1px solid var(--border);
-    border-radius: $r-3;
+    border-radius: $r-2;
     overflow: hidden;
 }
 
-.specRowEven {
-    background: var(--surface);
-}
-
-.specRowOdd {
+.specItem {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    border-bottom: 1px solid var(--border);
     background: var(--bg);
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:nth-child(even) {
+        background: var(--bg2);
+    }
+
+    @include tablet {
+        grid-template-columns: 140px 1fr;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
 }
 
 .specKey {
     @include font-body($text-sm, $fw-semibold);
     color: var(--ink2);
-    padding: $sp-3 $sp-5;
-    width: 35%;
+    padding: $sp-4 $sp-6;
+    background: rgba(0, 196, 173, 0.03);
     border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
 }
 
-.specVal {
-    @include font-mono($text-sm, $fw-medium);
+.specValue {
+    @include font-body($text-sm, $fw-regular);
     color: var(--ink);
-    padding: $sp-3 $sp-5;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
+    padding: $sp-4 $sp-6;
 }
 
 .specBasic {
@@ -1702,4 +1765,186 @@
 .sectionLabel {
     @include section-label;
     margin-bottom: $sp-8;
+}
+
+// ── INSTALLMENT TAB ──────────────────────────────────────
+.installmentTab {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.installProviders {
+    display: flex;
+    gap: $sp-2;
+}
+
+.providerBtn {
+    @include font-body($text-sm, $fw-bold);
+    font-family: $font-body;
+    padding: 10px 28px;
+    border-radius: $r-4;
+    border: 2px solid $color-border2;
+    background: $color-white;
+    color: $color-ink2;
+    cursor: pointer;
+    transition: $transition-base;
+
+    &:hover { background: $color-bg; border-color: $color-cyan; }
+}
+
+.providerActive {
+    background: linear-gradient(135deg, #0f2847, #1a3a5c);
+    color: $color-white;
+    border-color: transparent;
+
+    &:hover { background: linear-gradient(135deg, #1a3a5c, #0f2847); border-color: transparent; }
+}
+
+.installInputRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-4;
+    background: var(--bg2);
+    padding: $sp-5;
+    border-radius: $r-4;
+    border: 1px solid var(--border);
+
+    @media (max-width: 560px) { grid-template-columns: 1fr; }
+}
+
+.installPriceBox,
+.installDownBox {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: $r-2;
+    padding: $sp-4 $sp-5;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.installLabel {
+    @include font-mono(10px, $fw-bold);
+    color: var(--ink3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.installInput {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--ink);
+    @include font-mono($text-md, $fw-bold);
+    width: 100%;
+
+    &:focus {
+        outline: none;
+    }
+
+    &::placeholder {
+        color: var(--ink3);
+        opacity: 0.5;
+    }
+}
+
+.installError {
+    @include font-body($text-sm, $fw-semibold);
+    color: $color-red;
+    background: $color-red-light;
+    padding: 10px 16px;
+    border-radius: $r-3;
+    border: 1px solid rgba(229, 62, 62, 0.15);
+}
+
+.installLoan {
+    @include font-body($text-base, $fw-regular);
+    color: var(--ink2);
+    background: var(--bg3);
+    padding: 14px 18px;
+    border-radius: $r-4;
+    border: 1px solid var(--border);
+    border-left: 4px solid $color-cyan;
+
+    strong {
+        color: $color-cyan;
+        @include font-body(20px, $fw-bold);
+    }
+}
+
+.installNote {
+    @include font-body($text-xs, $fw-regular);
+    color: $color-ink3;
+}
+
+.installGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: $sp-3;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.installCard {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: $r-4;
+    padding: $sp-5 $sp-4;
+    text-align: center;
+    transition: $transition-base;
+    position: relative;
+
+    &:hover {
+        border-color: $color-cyan;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 196, 173, 0.15);
+    }
+}
+
+.installTerm {
+    @include font-body($text-xs, $fw-bold);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    color: var(--ink3);
+    margin-bottom: $sp-3;
+    padding-bottom: $sp-2;
+    border-bottom: 1px solid var(--border);
+}
+
+.installMonthly {
+    @include font-body(22px, $fw-bold);
+    color: $color-cyan;
+
+    span {
+        @include font-body($text-xs, $fw-regular);
+        color: var(--ink3);
+    }
+}
+
+.installTotal {
+    @include font-body($text-xs, $fw-medium);
+    color: var(--ink3);
+    margin-top: $sp-2;
+}
+
+.installInfo {
+    background: var(--bg2);
+    border-radius: $r-4;
+    padding: $sp-5;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    border: 1px solid var(--border);
+
+    p {
+        @include font-body($text-sm, $fw-regular);
+        color: var(--ink3);
+        line-height: $lh-relaxed;
+
+        strong { color: var(--ink); }
+    }
 }

@@ -1,34 +1,43 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, FreeMode } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/free-mode";
-import ProductCard from "@/components/product/ProductCard";
-import { ProductSwiperSkeleton, SectionHeaderSkeleton } from "@/components/ui/Skeleton";
+import Image from "next/image";
+import { motion, useScroll, useTransform, useInView, AnimatePresence, useSpring } from "framer-motion";
 import styles from "./page.module.scss";
+import ProductCard from "@/components/product/ProductCard";
+import ScrollReveal, { ScrollStagger } from "@/components/animations/ScrollReveal";
+import CustomCursor from "@/components/ui/CustomCursor";
 
-// ── INTERSECTION OBSERVER HOOK ──────────────────────────────
-function useInView(options?: IntersectionObserverInit) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
-    }, { threshold: 0.15, ...options });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return { ref, inView };
+const HeroScene = lazy(() => import("@/components/3d/HeroScene"));
+
+// ── TYPES ────────────────────────────────────────────────────
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  sku: string;
+  brand: { name: string };
+  images: string[];
+  basePrice: number;
+  salePrice?: number | null;
+  stock: number;
+  ratings: { avg: number; count: number };
+  tags?: string[];
+  category?: { _id: string; name: string } | string;
 }
 
-// ── TYPING EFFECT HOOK ──────────────────────────────────────
+interface Blog {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  image?: string;
+  tags: string[];
+  createdAt: string;
+}
+
+// ── TYPING EFFECT ────────────────────────────────────────────
 function useTyping(texts: string[], speed = 80, pause = 2000) {
   const [display, setDisplay] = useState("");
   const [idx, setIdx] = useState(0);
@@ -38,17 +47,15 @@ function useTyping(texts: string[], speed = 80, pause = 2000) {
   useEffect(() => {
     const text = texts[idx];
     const timeout = deleting ? speed / 2 : speed;
-
     if (!deleting && charIdx === text.length) {
-      setTimeout(() => setDeleting(true), pause);
-      return;
+      const t = setTimeout(() => setDeleting(true), pause);
+      return () => clearTimeout(t);
     }
     if (deleting && charIdx === 0) {
       setDeleting(false);
       setIdx((i) => (i + 1) % texts.length);
       return;
     }
-
     const timer = setTimeout(() => {
       setDisplay(text.substring(0, deleting ? charIdx - 1 : charIdx + 1));
       setCharIdx((c) => c + (deleting ? -1 : 1));
@@ -59,406 +66,491 @@ function useTyping(texts: string[], speed = 80, pause = 2000) {
   return display;
 }
 
-// ── STATIC DATA (không cần API) ──────────────────────────────
-const CATEGORIES = [
-  { id: "keyboard", label: "Bàn Phím", sub: "Cơ · Không dây · Custom", href: "/ban-phim", tag: "500+" },
-  { id: "mouse", label: "Chuột", sub: "Gaming · Wireless · Ergo", href: "/chuot", tag: "300+" },
-  { id: "headphone", label: "Tai Nghe", sub: "Over-ear · TWS · Gaming", href: "/tai-nghe", tag: "200+" },
-  { id: "speaker", label: "Loa", sub: "Bluetooth · Soundbar · Studio", href: "/loa", tag: "150+" },
-  { id: "mic", label: "Micro", sub: "Stream · Podcast · USB", href: "/micro", tag: "80+" },
-  { id: "laptop", label: "Laptop", sub: "Gaming · Ultrabook · Workstation", href: "/laptop", tag: "100+" },
-  { id: "keycap", label: "Keycap", sub: "PBT · Cherry · SA", href: "/phu-kien?type=keycap", tag: "250+" },
-  { id: "accessory", label: "Phụ Kiện", sub: "Switch · Cable · Hub", href: "/phu-kien", tag: "400+" },
+// ── ANIMATED COUNTER ─────────────────────────────────────────
+function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const dur = 2000;
+    const start = Date.now();
+    const animate = () => {
+      const p = Math.min((Date.now() - start) / dur, 1);
+      setCount(Math.round((1 - Math.pow(1 - p, 3)) * target));
+      if (p < 1) requestAnimationFrame(animate);
+    };
+    animate();
+  }, [inView, target]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
+
+// ── SECTION WRAPPER ──────────────────────────────────────────
+function Section({ children, className = "", dark = false }: { children: React.ReactNode; className?: string; dark?: boolean }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-100px" });
+  return (
+    <motion.section
+      ref={ref}
+      className={`${styles.section} ${dark ? styles.sectionDark : ""} ${className}`}
+      initial={{ opacity: 0 }}
+      animate={inView ? { opacity: 1 } : {}}
+      transition={{ duration: 0.8 }}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+// ── FADE UP BLOCK ────────────────────────────────────────────
+function FadeUp({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  return (
+    <motion.div
+      ref={ref}
+      className={className}
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ── DATA ─────────────────────────────────────────────────────
+const STORY_STEPS = [
+  { num: "01", emoji: "🎯", title: "KHÁM PHÁ", desc: "Duyệt hàng ngàn sản phẩm từ các thương hiệu hàng đầu thế giới. Bộ lọc thông minh giúp bạn tìm đúng gear trong vài giây." },
+  { num: "02", emoji: "🧠", title: "TƯ VẤN 1:1", desc: "Chưa biết chọn gì? Team NexGear sẵn sàng tư vấn chuyên sâu, giúp bạn build setup hoàn hảo theo budget." },
+  { num: "03", emoji: "🚀", title: "GIAO & SETUP", desc: "Giao tận nơi trong 2 giờ nội thành. Hỗ trợ setup tại nhà miễn phí cho đơn từ 2 triệu." },
+  { num: "04", emoji: "🏆", title: "BẢO HÀNH VIP", desc: "Bảo hành chính hãng, đổi mới 30 ngày. Thu cũ đổi mới với giá ưu đãi nhất thị trường." },
 ];
 
-// SVG icons per category (cyberpunk-style line icons)
-function CategorySvg({ id }: { id: string }) {
-  const s = { width: 32, height: 32, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.5, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
-  switch (id) {
-    case "keyboard": return <svg {...s}><rect x="2" y="8" width="20" height="10" rx="2" /><line x1="6" y1="12" x2="6" y2="12" /><line x1="10" y1="12" x2="10" y2="12" /><line x1="14" y1="12" x2="14" y2="12" /><line x1="18" y1="12" x2="18" y2="12" /><line x1="8" y1="15" x2="16" y2="15" /></svg>;
-    case "mouse": return <svg {...s}><rect x="6" y="2" width="12" height="20" rx="6" /><line x1="12" y1="6" x2="12" y2="10" /><line x1="12" y1="2" x2="12" y2="5" /></svg>;
-    case "headphone": return <svg {...s}><path d="M3 18v-6a9 9 0 0 1 18 0v6" /><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z" /><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" /></svg>;
-    case "speaker": return <svg {...s}><rect x="4" y="2" width="16" height="20" rx="2" /><circle cx="12" cy="14" r="4" /><line x1="12" y1="6" x2="12.01" y2="6" /></svg>;
-    case "mic": return <svg {...s}><rect x="9" y="2" width="6" height="11" rx="3" /><path d="M5 10a7 7 0 0 0 14 0" /><line x1="12" y1="17" x2="12" y2="22" /><line x1="8" y1="22" x2="16" y2="22" /></svg>;
-    case "laptop": return <svg {...s}><rect x="3" y="4" width="18" height="12" rx="2" /><line x1="2" y1="20" x2="22" y2="20" /><line x1="7" y1="16" x2="7" y2="20" /><line x1="17" y1="16" x2="17" y2="20" /></svg>;
-    case "keycap": return <svg {...s}><path d="M6 4h12l2 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8l2-4z" /><rect x="8" y="10" width="8" height="6" rx="1" /></svg>;
-    case "accessory": return <svg {...s}><circle cx="12" cy="12" r="3" /><path d="M12 2v4" /><path d="M12 18v4" /><path d="M4.93 4.93l2.83 2.83" /><path d="M16.24 16.24l2.83 2.83" /><path d="M2 12h4" /><path d="M18 12h4" /><path d="M4.93 19.07l2.83-2.83" /><path d="M16.24 7.76l2.83-2.83" /></svg>;
-    default: return null;
-  }
-}
+const USP = [
+  { icon: "🛡️", title: "100% Chính Hãng", desc: "Tem bảo hành đầy đủ từ nhà phân phối", value: 100, suffix: "%" },
+  { icon: "⚡", title: "Giao Hàng 2H", desc: "Nội thành ship 2h, toàn quốc 24-48h", value: 2, suffix: "H" },
+  { icon: "💬", title: "Tư Vấn 24/7", desc: "Đội ngũ chuyên nghiệp hỗ trợ mọi lúc", value: 24, suffix: "/7" },
+  { icon: "💰", title: "Giá Tốt Nhất", desc: "Hoàn tiền nếu tìm được giá rẻ hơn", value: 0, suffix: "%" },
+];
+
+const BRANDS = ["AKKO", "Logitech", "Razer", "Sony", "HyperX", "Keychron", "Corsair", "SteelSeries", "Edifier", "Bose", "Sennheiser", "Audio-Technica"];
 
 const REVIEWS = [
-  {
-    id: 1,
-    name: "Nguyễn Minh Tuấn",
-    avatar: "🧑‍💻",
-    rating: 5,
-    product: "Keychron K2 Pro",
-    text: "Bàn phím đánh rất đã, switch red linear mượt như bơ. Đóng gói cẩn thận, giao nhanh. Sẽ ủng hộ shop dài dài!",
-  },
-  {
-    id: 2,
-    name: "Trần Thanh Hương",
-    avatar: "👩‍🎨",
-    rating: 5,
-    product: "Razer DeathAdder V3",
-    text: "Chuột nhẹ, cảm biến cực nhạy. Mua cho chồng chơi game, ai mà ngờ mình xài luôn kkk. Rất hài lòng!",
-  },
-  {
-    id: 3,
-    name: "Lê Công Danh",
-    avatar: "🎮",
-    rating: 4,
-    product: "HyperX Cloud Alpha",
-    text: "Âm thanh vô cùng chất, đi làm lâu không đau tai. Giá hơi cao nhưng xứng đáng với chất lượng bỏ ra.",
-  },
+  { name: "Nguyễn Minh Tuấn", avatar: "🧑‍💻", rating: 5, product: "Keychron K2 Pro", text: "Bàn phím đánh rất đã, switch red linear mượt như bơ. Sẽ ủng hộ shop dài dài!" },
+  { name: "Trần Thanh Hương", avatar: "👩‍🎨", rating: 5, product: "Razer DeathAdder V3", text: "Chuột nhẹ, cảm biến cực nhạy. Rất hài lòng với chất lượng!" },
+  { name: "Lê Công Danh", avatar: "🎮", rating: 4, product: "HyperX Cloud Alpha", text: "Âm thanh vô cùng chất, đeo lâu không đau tai. Xứng đáng!" },
 ];
 
-const HERO_CATEGORIES = CATEGORIES.slice(0, 6);
+const FAQS = [
+  { q: "NEXGEAR có bảo hành chính hãng không?", a: "Tất cả sản phẩm tại NEXGEAR đều là hàng chính hãng 100%, được bảo hành theo đúng tiêu chuẩn của nhà sản xuất (từ 12-24 tháng)." },
+  { q: "Shop có hỗ trợ setup tại nhà không?", a: "Có! Với các đơn hàng từ 2 triệu đồng trở lên trong nội thành Cần Thơ, NEXGEAR hỗ trợ setup và tối ưu hóa hệ thống hoàn toàn miễn phí." },
+  { q: "Tôi có thể mua trả góp tại shop không?", a: "Chắc chắn rồi. NEXGEAR hỗ trợ trả góp qua thẻ tín dụng hoặc các công ty tài chính với lãi suất cực thấp, thủ tục nhanh gọn." },
+  { q: "Shop có thu cũ đổi mới không?", a: "Chúng tôi có chương trình 'Thu cũ đổi mới' cực hấp dẫn dành cho bàn phím, chuột và tai nghe gaming. Vui lòng nhắn tin để được định giá." },
+];
 
-// ── COUNTDOWN TIMER ──────────────────────────────────────────
-function useCountdown(targetHours = 6) {
-  const [time, setTime] = useState({ h: targetHours, m: 0, s: 0 });
-  useEffect(() => {
-    const end = Date.now() + targetHours * 3600 * 1000;
-    const tick = () => {
-      const diff = Math.max(0, end - Date.now());
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setTime({ h, m, s });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [targetHours]);
-  return time;
-}
+const CATEGORIES = [
+  { emoji: "⌨️", label: "Bàn Phím", count: "500+", href: "/ban-phim" },
+  { emoji: "🖱️", label: "Chuột", count: "300+", href: "/chuot" },
+  { emoji: "🎧", label: "Tai Nghe", count: "200+", href: "/tai-nghe" },
+  { emoji: "🔊", label: "Loa", count: "150+", href: "/loa" },
+  { emoji: "🎙️", label: "Micro", count: "80+", href: "/micro" },
+  { emoji: "💻", label: "Laptop", count: "100+", href: "/laptop" },
+  { emoji: "🔲", label: "Keycap", count: "250+", href: "/phu-kien?type=keycap" },
+  { emoji: "🔌", label: "Phụ Kiện", count: "400+", href: "/phu-kien" },
+];
 
-function pad(n: number) { return String(n).padStart(2, "0"); }
-
-// ── PAGE ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
 export default function HomeClient() {
-  const brandsRef = useRef<HTMLDivElement>(null);
-  const { h, m, s } = useCountdown(5);
-  const heroRef = useInView();
-  const typingText = useTyping(["NEXT LEVEL", "YOUR SETUP", "THE GAME"], 90, 2500);
+  const typingText = useTyping(["Bàn phím cơ", "Chuột gaming", "Tai nghe Hi-Fi", "Micro stream", "Laptop gaming"], 90, 2500);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const { scrollYProgress: globalScroll } = useScroll();
+  const scaleX = useSpring(globalScroll, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
-  // ── REACT QUERY — parallel data fetching (cached, no re-fetch on nav) ──
-  const { data: featuredProducts = [], isPending: featuredPending } = useQuery({
-    queryKey: ['products', 'list', { featured: true, active: true, limit: 4 }],
-    queryFn: () => fetch('/api/products?featured=true&active=true&limit=4').then(r => r.json()).then(d => d.success ? d.data : []),
-    staleTime: 1000 * 60 * 10,
-  });
-  const { data: saleProducts = [], isPending: salePending } = useQuery({
-    queryKey: ['products', 'list', { tag: 'sale', active: true, limit: 4, sort: '-createdAt' }],
-    queryFn: () => fetch('/api/products?tag=sale&active=true&limit=4&sort=-createdAt').then(r => r.json()).then(d => d.success ? d.data : []),
-    staleTime: 1000 * 60 * 10,
-  });
-  const { data: bestsellerProducts = [], isPending: bestsellerPending } = useQuery({
-    queryKey: ['products', 'list', { active: true, limit: 4, sort: '-soldCount' }],
-    queryFn: () => fetch('/api/products?active=true&limit=4&sort=-soldCount').then(r => r.json()).then(d => d.success ? d.data : []),
-    staleTime: 1000 * 60 * 10,
-  });
-  const { data: brandsData = [] } = useQuery({
-    queryKey: ['brands', 'list', { hasProducts: true, limit: 20 }],
-    queryFn: () => fetch('/api/brands?limit=20&hasProducts=true').then(r => r.json()).then(d => d.success ? d.data.map((b: any) => b.name) : []),
-    staleTime: 1000 * 60 * 30,
-  });
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
 
-  // Ensure enough brands for marquee (min 6), pad with defaults if needed
-  const defaultBrands = ["AKKO", "Logitech", "Sony", "HyperX", "Edifier", "Razer", "Keychron", "Corsair", "SteelSeries", "Bose", "Sennheiser", "Audio-Technica"];
-  const brands: string[] = brandsData as string[];
-  const displayBrands = brands.length >= 6 ? brands : (brands.length > 0 ? [...brands, ...defaultBrands.filter(b => !brands.includes(b))].slice(0, 12) : defaultBrands);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [activeFaq, setActiveFaq] = useState<number | null>(0);
+
+  useEffect(() => {
+    // Fetch featured products
+    fetch("/api/products?featured=true&limit=8")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setFeaturedProducts(data.data);
+      })
+      .catch(err => console.error("Error fetching products:", err));
+
+    // Fetch latest blogs
+    fetch("/api/blog?limit=3")
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setBlogs(data.data);
+      })
+      .catch(err => console.error("Error fetching blogs:", err));
+  }, []);
 
   return (
     <div className={styles.home}>
+      <CustomCursor />
+      {/* ═══ SCROLL PROGRESS ═══ */}
+      <motion.div className={styles.progressBar} style={{ scaleX }} />
 
-      {/* ── HERO SECTION ── */}
-      <section className={styles.hero} ref={heroRef.ref}>
-        <div className={styles.heroBg} aria-hidden />
-        <div className={styles.heroAccent} aria-hidden />
-        {/* Floating particles */}
-        <div className={styles.heroParticles} aria-hidden>
-          {Array.from({ length: 6 }).map((_, i) => (
-            <span key={i} className={styles.particle} style={{ '--i': i } as React.CSSProperties} />
-          ))}
+      {/* ═══ HERO ═══ */}
+      <motion.div ref={heroRef} className={styles.hero} style={{ opacity: heroOpacity }}>
+        <div className={styles.heroGrid} />
+        <div className={styles.hero3d}>
+          <Suspense fallback={null}><HeroScene /></Suspense>
         </div>
+        <div className={styles.heroOverlay} />
+        <div className={styles.heroBottom} />
 
-        <div className={styles.heroInner}>
-          {/* Left */}
-          <div className={`${styles.heroLeft} ${heroRef.inView ? styles.animateIn : ''}`}>
-            <div className={styles.heroEyebrow}>
-              <span className={styles.eyebrowDot} />
-              // SPRING DROPS — THÁNG 3/2026
-            </div>
+        <motion.div className={styles.heroContent} style={{ y: heroY }}>
+          <motion.div className={styles.heroBadge} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <span className={styles.heroDot} />
+            NEXGEAR — GAMING GEAR STORE
+          </motion.div>
 
-            <h1 className={styles.heroTitle}>
-              <span className={styles.heroTitleGlitch} data-text="GEAR UP">GEAR UP</span>
-              <span className={styles.heroTitleOutline}><br />NEXT</span>{" "}
-              <span className={styles.heroTitleAccent}>LEVEL</span>
-            </h1>
+          <motion.h1 className={styles.heroTitle} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
+            <span className={styles.heroGradient}>GEAR UP</span>
+            <span className={styles.heroDotSep}>·</span>
+            LEVEL UP
+          </motion.h1>
 
-            <p className={styles.heroTagline}>
-              Bàn phím cơ · Chuột gaming · Tai nghe Hi-Fi<br />
-              Micro stream · Loa studio · Phụ kiện cao cấp
-            </p>
+          <motion.p className={styles.heroSub} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+            Nâng cấp setup với <span className={styles.heroHighlight}>{typingText}</span>
+            <span className={styles.heroCursor}>|</span>
+          </motion.p>
 
-            <div className={styles.heroActions}>
-              <Link href="/products" className={styles.heroBtnPrimary}>
-                <span className={styles.btnGlow} />
-                KHÁM PHÁ NGAY →
+          <motion.div className={styles.heroCTA} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
+            <Link href="/products" className={styles.btnPrimary}>KHÁM PHÁ NGAY →</Link>
+            <Link href="/products?tag=sale" className={styles.btnOutline}>XEM DEAL 🔥</Link>
+          </motion.div>
+
+          <motion.div className={styles.heroStats} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+            {[
+              { v: "500+", l: "Sản phẩm" },
+              { v: "4.9★", l: "Đánh giá" },
+              { v: "2H", l: "Giao nhanh" },
+              { v: "0%", l: "Trả góp" },
+            ].map((s, i) => (
+              <div key={s.l} className={styles.stat}>
+                <span className={styles.statV}>{s.v}</span>
+                <span className={styles.statL}>{s.l}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div className={styles.scrollHint} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+            <span className={styles.scrollMouse}><span className={styles.scrollDot} /></span>
+            <span className={styles.scrollLabel}>SCROLL</span>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* ═══ STORY: HÀNH TRÌNH ═══ */}
+      <Section dark>
+        <div className={styles.container}>
+          <ScrollReveal>
+            <p className={styles.label}>// HÀNH TRÌNH CỦA BẠN</p>
+            <h2 className={styles.heading}>TỪ Ý TƯỞNG ĐẾN<br />SETUP HOÀN HẢO</h2>
+          </ScrollReveal>
+
+          <ScrollStagger className={styles.timeline}>
+            <div className={styles.timelineLine} />
+            {STORY_STEPS.map((step, i) => (
+              <div key={step.num} className={styles.timelineItem}>
+                <div className={styles.timelineOrb}>
+                  <span className={styles.timelineEmoji}>{step.emoji}</span>
+                </div>
+                <div className={styles.timelineNum}>{step.num}</div>
+                <h3 className={styles.timelineTitle}>{step.title}</h3>
+                <p className={styles.timelineDesc}>{step.desc}</p>
+              </div>
+            ))}
+          </ScrollStagger>
+        </div>
+      </Section>
+
+      {/* ═══ DANH MỤC ═══ */}
+      <Section>
+        <div className={styles.container}>
+          <ScrollReveal>
+            <p className={styles.label}>// DANH MỤC</p>
+            <h2 className={styles.heading}>TẤT CẢ GEAR BẠN CẦN</h2>
+          </ScrollReveal>
+
+          <ScrollStagger className={styles.catGrid}>
+            {CATEGORIES.map((cat, i) => (
+              <Link key={cat.label} href={cat.href} className={styles.catCard}>
+                <span className={styles.catEmoji}>{cat.emoji}</span>
+                <span className={styles.catName}>{cat.label}</span>
+                <span className={styles.catCount}>{cat.count}</span>
               </Link>
-              <Link href="/deals" className={styles.heroBtnOutline}>
-                XEM DEAL 🔥
-              </Link>
-            </div>
+            ))}
+          </ScrollStagger>
+        </div>
+      </Section>
 
-            <div className={styles.heroStats}>
-              <div className={styles.heroStatItem}>
-                <span className={styles.heroStatValue}>500+</span>
-                <span className={styles.heroStatLabel}>Sản phẩm</span>
+      {/* ═══ SẢN PHẨM NỔI BẬT ═══ */}
+      {featuredProducts.length > 0 && (
+        <Section dark>
+          <div className={styles.container}>
+            <ScrollReveal>
+              <div className={styles.sectionHeader}>
+                <div>
+                  <p className={styles.label}>// NEW ARRIVALS</p>
+                  <h2 className={styles.heading}>SẢN PHẨM NỔI BẬT</h2>
+                </div>
+                <Link href="/products" className={styles.viewAll}>XEM TẤT CẢ →</Link>
               </div>
-              <div className={styles.heroStatDivider} />
-              <div className={styles.heroStatItem}>
-                <span className={`${styles.heroStatValue} ${styles.statGold}`}>4.9★</span>
-                <span className={styles.heroStatLabel}>Đánh giá</span>
-              </div>
-              <div className={styles.heroStatDivider} />
-              <div className={styles.heroStatItem}>
-                <span className={`${styles.heroStatValue} ${styles.statMag}`}>2H</span>
-                <span className={styles.heroStatLabel}>Giao nhanh</span>
-              </div>
-            </div>
+            </ScrollReveal>
+
+            <ScrollStagger className={styles.featuredGrid}>
+              {featuredProducts.map((p, i) => (
+                <ProductCard key={p._id} product={p as any} />
+              ))}
+            </ScrollStagger>
           </div>
+        </Section>
+      )}
 
-          {/* Right: Category Grid */}
-          <div className={styles.heroRight}>
-            <div className={styles.heroGrid}>
-              {HERO_CATEGORIES.map((cat, i) => (
-                <Link key={cat.id} href={cat.href} className={styles.heroMiniCard} style={{ '--delay': `${i * 0.08}s` } as React.CSSProperties}>
-                  <div className={styles.heroMiniIcon}>
-                    <CategorySvg id={cat.id} />
+      {/* ═══ BLOG & TIN TỨC ═══ */}
+      {blogs.length > 0 && (
+        <Section>
+          <div className={styles.container}>
+            <ScrollReveal>
+              <div className={styles.sectionHeader}>
+                <div>
+                  <p className={styles.label}>// TIN TỨC & REVIEW</p>
+                  <h2 className={styles.heading}>CHIA SẺ KINH NGHIỆM</h2>
+                </div>
+                <Link href="/blog" className={styles.viewAll}>XEM BLOG →</Link>
+              </div>
+            </ScrollReveal>
+
+            <ScrollStagger className={styles.blogGrid}>
+              {blogs.map((blog, i) => (
+                <Link key={blog._id} href={`/blog/${blog.slug}`} className={styles.blogCard}>
+                  <div className={styles.blogImage}>
+                    {blog.image ? (
+                        <Image src={blog.image} alt={blog.title} fill className={styles.img} />
+                      ) : (
+                        <div className={styles.blogPlaceholder}>
+                          <span className={styles.blogIcon}>📰</span>
+                        </div>
+                      )}
                   </div>
-                  <div className={styles.heroMiniName}>{cat.label}</div>
-                  <div className={styles.heroMiniSub}>{cat.tag} sản phẩm</div>
-                  <div className={styles.cardGlow} aria-hidden />
+                  <div className={styles.blogContent}>
+                    <div className={styles.blogMeta}>
+                      <span className={styles.blogDate}>{new Date(blog.createdAt).toLocaleDateString('vi-VN')}</span>
+                      {blog.tags[0] && <span className={styles.blogTag}>{blog.tags[0]}</span>}
+                    </div>
+                    <h3 className={styles.blogTitle}>{blog.title}</h3>
+                    <p className={styles.blogExcerpt}>{blog.excerpt}</p>
+                  </div>
                 </Link>
               ))}
-            </div>
+            </ScrollStagger>
           </div>
-        </div>
-      </section>
+        </Section>
+      )}
 
-      {/* ── TẠI SAO CHỌN NEXGEAR ── */}
-      <section className={styles.uspSection}>
-        <div className={styles.uspInner}>
-          <div className={styles.uspHeader}>
-            <span className={styles.uspLabel}>// TẠI SAO CHỌN NEXGEAR</span>
-            <span className={styles.uspLine} />
-          </div>
-          <div className={styles.uspGrid}>
-            {[
-              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><path d="M9 12l2 2 4-4" /></svg>, title: "100% Chính Hãng", desc: "Cam kết hàng chính hãng, tem bảo hành đầy đủ từ nhà phân phối." },
-              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>, title: "Giao Hàng 2H", desc: "Giao nhanh trong 2 giờ nội thành, ship toàn quốc 24-48h." },
-              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>, title: "Tư Vấn 24/7", desc: "Đội ngũ tư vấn chuyên nghiệp, hỗ trợ online mọi lúc mọi nơi." },
-              { icon: <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M23 6l-9.5 9.5-5-5L1 18" /><path d="M17 6h6v6" /></svg>, title: "Giá Tốt Nhất", desc: "Hoàn tiền nếu bạn tìm được giá rẻ hơn ở nơi khác." },
-            ].map((item, i) => (
-              <div key={i} className={styles.uspCard}>
-                <div className={styles.uspIconWrap}>{item.icon}</div>
-                <div className={styles.uspContent}>
-                  <h3 className={styles.uspTitle}>{item.title}</h3>
-                  <p className={styles.uspDesc}>{item.desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* ═══ FAQ ═══ */}
+      <Section dark>
+        <div className={styles.container}>
+          <div className={styles.faqWrapper}>
+            <ScrollReveal className={styles.faqLeft} direction="left">
+              <p className={styles.label}>// HỎI ĐÁP</p>
+              <h2 className={styles.heading}>CÂU HỎI<br />THƯỜNG GẶP</h2>
+              <p className={styles.faqSub}>Bạn có thắc mắc khác? Đừng ngần ngại liên hệ trực tiếp với chúng tôi qua Zalo hoặc Hotline.</p>
+              <a href="https://zalo.me/0978648720" target="_blank" rel="noopener noreferrer" className={styles.btnPrimary}>LIÊN HỆ NGAY</a>
+            </ScrollReveal>
 
-      {/* ── SẢN PHẨM NỔI BẬT ── */}
-      <section className={styles.section}>
-        <div className={styles.sectionInner}>
-          <div className={styles.sectionHead}>
-            <div>
-              <div className={styles.sectionLabel}>✦ Nổi Bật</div>
-              <h2 className={styles.sectionTitle}>SẢN PHẨM NỔI BẬT</h2>
-            </div>
-            <Link href="/products?featured=true" className={styles.seeAll}>
-              Xem tất cả →
-            </Link>
-          </div>
-
-          {featuredPending ? (
-            <ProductSwiperSkeleton count={4} />
-          ) : featuredProducts.length > 0 ? (
-            <Swiper
-              modules={[Navigation, FreeMode]}
-              spaceBetween={16}
-              slidesPerView={2}
-              navigation
-              freeMode
-              breakpoints={{ 640: { slidesPerView: 3 }, 1024: { slidesPerView: 4 } }}
-              className={styles.productSwiper}
-            >
-              {featuredProducts.map((product: any) => (
-                <SwiperSlide key={product._id}>
-                  <ProductCard product={product as any} onAddToCart={() => { }} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có sản phẩm nổi bật</div>
-          )}
-        </div>
-      </section>
-
-      {/* ── FLASH SALE BANNER ── */}
-      <section className={styles.flashSale}>
-        <div className={styles.flashSaleInner}>
-          <div className={styles.flashSaleHead}>
-            <div className={styles.flashSaleLeft}>
-              <div className={styles.flashSaleLabel}>⚡ FLASH SALE</div>
-              <h2 className={styles.flashSaleTitle}>DEAL SỐC HÔM NAY</h2>
-            </div>
-            <div className={styles.flashSaleTimer}>
-              <span className={styles.timerLabel}>Kết thúc sau</span>
-              <div className={styles.timerBlocks}>
-                <div className={styles.timerBlock}>
-                  <span className={styles.timerNum}>{pad(h)}</span>
-                  <span className={styles.timerUnit}>GIỜ</span>
-                </div>
-                <span className={styles.timerSep}>:</span>
-                <div className={styles.timerBlock}>
-                  <span className={styles.timerNum}>{pad(m)}</span>
-                  <span className={styles.timerUnit}>PHÚT</span>
-                </div>
-                <span className={styles.timerSep}>:</span>
-                <div className={styles.timerBlock}>
-                  <span className={styles.timerNum}>{pad(s)}</span>
-                  <span className={styles.timerUnit}>GIÂY</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {salePending ? (
-            <ProductSwiperSkeleton count={4} />
-          ) : saleProducts.length > 0 ? (
-            <Swiper
-              modules={[Navigation, FreeMode]}
-              spaceBetween={16}
-              slidesPerView={2}
-              navigation
-              freeMode
-              breakpoints={{ 640: { slidesPerView: 3 }, 1024: { slidesPerView: 4 } }}
-              className={styles.productSwiper}
-            >
-              {saleProducts.map((product: any) => (
-                <SwiperSlide key={product._id}>
-                  <ProductCard product={product as any} onAddToCart={() => { }} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có deal hôm nay</div>
-          )}
-        </div>
-      </section>
-
-      {/* ── BÁN CHẠY NHẤT ── */}
-      <section className={styles.section}>
-        <div className={styles.sectionInner}>
-          <div className={styles.sectionHead}>
-            <div>
-              <div className={styles.sectionLabel}>🔥 Top Picks</div>
-              <h2 className={styles.sectionTitle}>BÁN CHẠY NHẤT</h2>
-            </div>
-            <Link href="/products?sort=soldCount" className={styles.seeAll}>
-              Xem tất cả →
-            </Link>
-          </div>
-
-          {bestsellerPending ? (
-            <ProductSwiperSkeleton count={4} />
-          ) : bestsellerProducts.length > 0 ? (
-            <Swiper
-              modules={[Navigation, FreeMode]}
-              spaceBetween={16}
-              slidesPerView={2}
-              navigation
-              freeMode
-              breakpoints={{ 640: { slidesPerView: 3 }, 1024: { slidesPerView: 4 } }}
-              className={styles.productSwiper}
-            >
-              {bestsellerProducts.map((product: any, i: number) => (
-                <SwiperSlide key={product._id}>
-                  <div className={styles.bestsellerWrap}>
-                    <span className={styles.bestsellerRank}>#{i + 1}</span>
-                    <ProductCard product={product as any} onAddToCart={() => { }} />
-                  </div>
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '30px', color: 'rgba(255,255,255,0.4)' }}>Chưa có sản phẩm bán chạy</div>
-          )}
-        </div>
-      </section>
-
-      {/* ── THƯƠNG HIỆU ĐỐI TÁC ── */}
-      <section className={styles.brands}>
-        <div className={styles.brandsInner}>
-          <div className={styles.sectionLabel} style={{ textAlign: "center", marginBottom: "24px" }}>
-            ✦ Đối Tác Chính Hãng
-          </div>
-          <div className={styles.brandsTrack} ref={brandsRef}>
-            <div className={styles.brandsScroll}>
-              {[...displayBrands, ...displayBrands].map((brand, i) => (
-                <div key={i} className={styles.brandLogo}>{brand}</div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── ĐÁNH GIÁ KHÁCH HÀNG ── */}
-      <section className={styles.section}>
-        <div className={styles.sectionInner}>
-          <div className={styles.sectionHead}>
-            <div>
-              <div className={styles.sectionLabel}>💬 Reviews</div>
-              <h2 className={styles.sectionTitle}>KHÁCH HÀNG NÓI GÌ</h2>
-            </div>
-          </div>
-
-          <Swiper
-            modules={[Navigation, FreeMode]}
-            spaceBetween={16}
-            slidesPerView={1.15}
-            navigation
-            freeMode
-            breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }}
-            className={styles.productSwiper}
-          >
-            {REVIEWS.map((rev) => (
-              <SwiperSlide key={rev.id}>
-                <div className={styles.reviewCard}>
-                  <div className={styles.reviewTop}>
-                    <div className={styles.reviewAvatar}>{rev.avatar}</div>
-                    <div>
-                      <div className={styles.reviewName}>{rev.name}</div>
-                      <div className={styles.reviewProduct}>đã mua {rev.product}</div>
+            <div className={styles.faqRight}>
+              {FAQS.map((faq, i) => (
+                <ScrollReveal key={i} delay={i * 0.1} direction="right">
+                  <div className={`${styles.faqItem} ${activeFaq === i ? styles.faqActive : ""}`} onClick={() => setActiveFaq(activeFaq === i ? null : i)}>
+                    <div className={styles.faqQuestion}>
+                      <span>{faq.q}</span>
+                      <span className={styles.faqToggle}>{activeFaq === i ? "−" : "+"}</span>
                     </div>
+                    <AnimatePresence>
+                      {activeFaq === i && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className={styles.faqAnswer}
+                        >
+                          <p>{faq.a}</p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
-                  <div className={styles.reviewStars}>
-                    {"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ NEWSLETTER ═══ */}
+      <Section className={styles.newsletterSection}>
+        <div className={styles.container}>
+          <div className={styles.newsletterCard}>
+            <div className={styles.newsletterGlow} />
+            <div className={styles.newsletterContent}>
+              <ScrollReveal>
+                <h2 className={styles.newsletterTitle}>ĐĂNG KÝ NHẬN ƯU ĐÃI</h2>
+                <p className={styles.newsletterDesc}>Nhận thông báo về các sản phẩm mới nhất, deal hot và mã giảm giá độc quyền dành riêng cho bạn.</p>
+              </ScrollReveal>
+              <ScrollReveal delay={0.2}>
+                <form className={styles.newsletterForm} onSubmit={(e) => e.preventDefault()}>
+                  <input type="email" placeholder="Email của bạn..." className={styles.newsletterInput} required />
+                  <button type="submit" className={styles.newsletterBtn}>ĐĂNG KÝ</button>
+                </form>
+              </ScrollReveal>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ LOCATION ═══ */}
+      <Section>
+        <div className={styles.container}>
+          <div className={styles.locationWrapper}>
+            <ScrollReveal className={styles.locationInfo} direction="left">
+              <p className={styles.label}>// SHOWROOM</p>
+              <h2 className={styles.heading}>GHÉ THĂM<br />NEXGEAR</h2>
+              <div className={styles.locationDetails}>
+                <div className={styles.locItem}>
+                  <span className={styles.locIcon}>📍</span>
+                  <div>
+                    <div className={styles.locLabel}>ĐỊA CHỈ</div>
+                    <div className={styles.locValue}>Ninh Kiều, Cần Thơ</div>
                   </div>
-                  <p className={styles.reviewText}>"{rev.text}"</p>
                 </div>
-              </SwiperSlide>
+                <div className={styles.locItem}>
+                  <span className={styles.locIcon}>📞</span>
+                  <div>
+                    <div className={styles.locLabel}>HOTLINE</div>
+                    <div className={styles.locValue}>0978.648.720</div>
+                  </div>
+                </div>
+                <div className={styles.locItem}>
+                  <span className={styles.locIcon}>⏰</span>
+                  <div>
+                    <div className={styles.locLabel}>GIỜ MỞ CỬA</div>
+                    <div className={styles.locValue}>08:00 - 21:00 (T2 - T7)<br />09:00 - 18:00 (CN)</div>
+                  </div>
+                </div>
+              </div>
+              <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className={styles.btnOutline}>CHỈ ĐƯỜNG ĐẾN SHOP</a>
+            </ScrollReveal>
+
+            <ScrollReveal delay={0.2} className={styles.locationMap} direction="right">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m105.7469!2d10.0452!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0895a51d6071b%3A0x9d90108343167180!2zTmluaCBLaeG7gXUsIEPhuqduIFRoxqEsIFZp4buHdCBOYW0!5e0!3m2!1svi!2svn!4v1710660000000!5m2!1svi!2svn"
+                width="100%"
+                height="100%"
+                style={{ border: 0, borderRadius: "16px", backgroundColor: "#1a1a1a" }}
+                allowFullScreen={true}
+                loading="lazy"
+              />
+            </ScrollReveal>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ USP ═══ */}
+      <Section dark>
+        <div className={styles.container}>
+          <ScrollReveal>
+            <p className={styles.label}>// TẠI SAO CHỌN NEXGEAR</p>
+            <h2 className={styles.heading}>CAM KẾT CỦA CHÚNG TÔI</h2>
+          </ScrollReveal>
+
+          <ScrollStagger className={styles.uspGrid}>
+            {USP.map((item, i) => (
+              <div key={item.title} className={styles.uspCard}>
+                <div className={styles.uspIcon}>{item.icon}</div>
+                <div className={styles.uspBig}><Counter target={item.value} suffix={item.suffix} /></div>
+                <h3 className={styles.uspTitle}>{item.title}</h3>
+                <p className={styles.uspDesc}>{item.desc}</p>
+              </div>
             ))}
-          </Swiper>
+          </ScrollStagger>
+        </div>
+      </Section>
+
+      {/* ═══ BRANDS ═══ */}
+      <Section>
+        <div className={styles.container}>
+          <ScrollReveal>
+            <p className={styles.label} style={{ textAlign: "center" }}>✦ ĐỐI TÁC CHÍNH HÃNG</p>
+          </ScrollReveal>
+          <div className={styles.marqueeTrack}>
+            <div className={styles.marquee}>
+              {[...BRANDS, ...BRANDS].map((b, i) => (
+                <div key={i} className={styles.brandItem}>{b}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* ═══ REVIEWS ═══ */}
+      <Section dark>
+        <div className={styles.container}>
+          <ScrollReveal>
+            <p className={styles.label}>💬 REVIEWS</p>
+            <h2 className={styles.heading}>KHÁCH HÀNG NÓI GÌ</h2>
+          </ScrollReveal>
+
+          <ScrollStagger className={styles.reviewGrid}>
+            {REVIEWS.map((rev, i) => (
+              <div key={rev.name} className={styles.reviewCard}>
+                <div className={styles.reviewTop}>
+                  <span className={styles.reviewAvatar}>{rev.avatar}</span>
+                  <div>
+                    <div className={styles.reviewName}>{rev.name}</div>
+                    <div className={styles.reviewProduct}>đã mua {rev.product}</div>
+                  </div>
+                </div>
+                <div className={styles.reviewStars}>{"★".repeat(rev.rating)}{"☆".repeat(5 - rev.rating)}</div>
+                <p className={styles.reviewText}>&ldquo;{rev.text}&rdquo;</p>
+              </div>
+            ))}
+          </ScrollStagger>
+        </div>
+      </Section>
+
+      {/* ═══ CTA ═══ */}
+      <section className={styles.cta}>
+        <div className={styles.ctaParticles}>
+          {Array.from({ length: 15 }).map((_, i) => (
+            <span key={i} className={styles.ctaDot} style={{ "--i": i } as React.CSSProperties} />
+          ))}
+        </div>
+        <div className={styles.container} style={{ position: "relative", zIndex: 1 }}>
+          <ScrollReveal>
+            <h2 className={styles.ctaTitle}>Sẵn sàng nâng cấp setup?</h2>
+          </ScrollReveal>
+          <ScrollReveal delay={0.2}>
+            <p className={styles.ctaDesc}>Hàng ngàn sản phẩm chính hãng, giao nhanh 2H, trả góp 0% — tất cả tại NEXGEAR.</p>
+          </ScrollReveal>
+          <ScrollReveal delay={0.4}>
+            <div className={styles.ctaActions}>
+              <Link href="/products" className={styles.btnPrimary}>MUA NGAY →</Link>
+              <a href="https://zalo.me/0978648720" target="_blank" rel="noopener noreferrer" className={styles.btnGhost}>CHAT ZALO TƯ VẤN</a>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 

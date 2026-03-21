@@ -58,6 +58,159 @@ function AccordionItem({
     );
 }
 
+// ── INSTALLMENT HELPERS ───────────────────────────────────
+interface InstallmentPlan { provider: string; term: number; entries: { loanAmount: number; monthly: number }[] }
+
+function findClosestEntry(price: number, entries: { loanAmount: number; monthly: number }[]) {
+    if (!entries.length || price < entries[0].loanAmount) return null;
+    let match = entries[0];
+    for (const e of entries) {
+        if (e.loanAmount <= price) match = e;
+        else break;
+    }
+    return match;
+}
+
+function fmtShort(n: number) {
+    return new Intl.NumberFormat("vi-VN").format(n) + "đ";
+}
+
+function parseVND(raw: string): number {
+    return Number(raw.replace(/\D/g, "")) || 0;
+}
+
+function InstallmentTab({ price }: { price: number }) {
+    const [plans, setPlans] = useState<InstallmentPlan[]>([]);
+    const [providers, setProviders] = useState<string[]>([]);
+    const [provider, setProvider] = useState("");
+    const [downRaw, setDownRaw] = useState("");
+    const [loaded, setLoaded] = useState(false);
+
+    useEffect(() => {
+        fetch("/api/installments?active=true")
+            .then(r => r.json())
+            .then(json => {
+                if (json.success && json.data?.length) {
+                    setPlans(json.data);
+                    const provs = [...new Set(json.data.map((p: InstallmentPlan) => p.provider))] as string[];
+                    setProviders(provs);
+                    setProvider(provs[0] || "");
+                }
+                setLoaded(true);
+            })
+            .catch(() => setLoaded(true));
+    }, []);
+
+    const downPayment = parseVND(downRaw);
+    const loanAmount = Math.max(price - downPayment, 0);
+    const downError = downPayment > 0 && downPayment >= price;
+
+    const providerPlans = plans
+        .filter(p => p.provider === provider)
+        .sort((a, b) => a.term - b.term);
+
+    const handleDownInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const num = parseVND(e.target.value);
+        setDownRaw(num ? new Intl.NumberFormat("vi-VN").format(num) : "");
+    };
+
+    if (!loaded) return <div className={styles.emptyTab}><p>Đang tải bảng trả góp...</p></div>;
+    if (providers.length === 0) return (
+        <div className={styles.emptyTab}>
+            <span>💳</span>
+            <p>Chưa có bảng trả góp nào</p>
+            <span className={styles.emptyHint}>Vui lòng liên hệ NEXGEAR để được tư vấn trả góp.</span>
+        </div>
+    );
+
+    // Find min loan for current provider
+    const allEntries = providerPlans.flatMap(p => p.entries);
+    const minLoan = allEntries.length > 0 ? Math.min(...allEntries.map(e => e.loanAmount)) : 0;
+
+    return (
+        <div className={styles.installmentTab}>
+            <div className={styles.installProviders}>
+                {providers.map(p => (
+                    <button
+                        key={p}
+                        className={`${styles.providerBtn} ${provider === p ? styles.providerActive : ""}`}
+                        onClick={() => setProvider(p)}
+                    >
+                        {p}
+                    </button>
+                ))}
+            </div>
+
+            <div className={styles.installInputRow}>
+                <div className={styles.installPriceBox}>
+                    <span className={styles.installLabel}>Giá sản phẩm</span>
+                    <strong>{fmtShort(price)}</strong>
+                </div>
+                <div className={styles.installDownBox}>
+                    <label className={styles.installLabel} htmlFor="down-payment">Trả trước (VNĐ)</label>
+                    <input
+                        id="down-payment"
+                        type="text"
+                        inputMode="numeric"
+                        className={styles.installInput}
+                        placeholder="Ví dụ: 3.000.000"
+                        value={downRaw}
+                        onChange={handleDownInput}
+                    />
+                </div>
+            </div>
+
+            {downError && (
+                <div className={styles.installError}>Số tiền trả trước phải nhỏ hơn giá sản phẩm</div>
+            )}
+
+            {loanAmount > 0 && !downError && (
+                <div className={styles.installLoan}>
+                    Số tiền cần trả góp: <strong>{fmtShort(loanAmount)}</strong>
+                </div>
+            )}
+
+            {!downError && loanAmount > 0 && providerPlans.length > 0 ? (
+                loanAmount < minLoan ? (
+                    <div className={styles.emptyTab}>
+                        <span>💳</span>
+                        <p>Số tiền trả góp chưa đủ điều kiện qua {provider}</p>
+                        <span className={styles.emptyHint}>Mức tối thiểu: {fmtShort(minLoan)}</span>
+                    </div>
+                ) : (
+                    <div className={styles.installGrid}>
+                        {providerPlans.map(plan => {
+                            const match = findClosestEntry(loanAmount, plan.entries);
+                            if (!match) return null;
+                            return (
+                                <div key={plan.term} className={styles.installCard}>
+                                    <div className={styles.installTerm}>{plan.term} tháng</div>
+                                    <div className={styles.installMonthly}>{fmtShort(match.monthly)}<span>/tháng</span></div>
+                                    <div className={styles.installTotal}>Tổng: {fmtShort(match.monthly * plan.term)}</div>
+                                    {match.loanAmount !== loanAmount && (
+                                        <div className={styles.installNote}>mức {fmtShort(match.loanAmount)}</div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )
+            ) : !downError && loanAmount <= 0 && (
+                <div className={styles.emptyTab}>
+                    <span>💳</span>
+                    <p>Nhập số tiền trả trước để xem bảng trả góp</p>
+                </div>
+            )}
+
+            <div className={styles.installInfo}>
+                <p>⚠ Bảng lãi suất chỉ có tính chất minh họa, tùy vào từng giấy tờ mà khách hàng cung cấp sẽ có lãi suất thấp hoặc cao hơn.</p>
+                <p>📋 Thủ tục: CCCD gắn chip (dưới 20 triệu). Trên 20 triệu liên hệ nhân viên tư vấn.</p>
+                <p>📞 Liên hệ: <strong>0344365847</strong> (Zalo) — Nhân viên Thái Hiền</p>
+            </div>
+        </div>
+    );
+}
+
 // ── PAGE ─────────────────────────────────────────────────
 export default function ProductDetailClient({ slug }: { slug: string }) {
     const { error, success } = useToast();
@@ -75,7 +228,16 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const [addedToCart, setAddedToCart] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
     const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews">("desc");
+    const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews" | "installment">("desc");
+    const [scrolledPast, setScrolledPast] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolledPast(window.scrollY > 800);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const imgRef = useRef<HTMLDivElement>(null);
 
@@ -206,6 +368,22 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
     return (
         <div className={styles.page}>
+            {/* ── STICKY BUY BAR (VISIBLE ON SCROLL) ── */}
+            <div className={`${styles.stickyBar} ${scrolledPast ? styles.stickyBarShow : ""}`}>
+                <div className={styles.stickyBarInner}>
+                    <div className={styles.stickyProduct}>
+                        <img src={images[0]} alt={product.name} />
+                        <div>
+                            <div className={styles.stickyName}>{product.name}</div>
+                            <div className={styles.stickyPrice}>{fmt(currentPrice)}</div>
+                        </div>
+                    </div>
+                    <div className={styles.stickyActions}>
+                        <button className={styles.buyBtn} onClick={handleBuyNow}>MUA NGAY</button>
+                    </div>
+                </div>
+            </div>
+
             {/* ── BREADCRUMB ── */}
             <div className={styles.breadcrumbBar}>
                 <div className={styles.breadcrumbInner}>
@@ -486,34 +664,34 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                             </button>
                         </div>
 
-                        {/* ── SERVICE PROMISES ── */}
+                        {/* ── SERVICE GRID ── */}
                         <div className={styles.serviceGrid}>
                             <div className={styles.serviceCard}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="3" width="15" height="13" /><polygon points="16 8 20 8 23 11 23 16 16 16 16 8" /><circle cx="5.5" cy="18.5" r="2.5" /><circle cx="18.5" cy="18.5" r="2.5" /></svg>
-                                <div>
-                                    <strong>Giao nhanh 2H</strong>
-                                    <span>Nội thành HCM / HN</span>
+                                <div className={styles.serviceIcon}>🚚</div>
+                                <div className={styles.serviceInfo}>
+                                    <span className={styles.serviceTitle}>Giao hàng nhanh</span>
+                                    <span className={styles.serviceDesc}>Miễn phí từ 2.000.000đ</span>
                                 </div>
                             </div>
                             <div className={styles.serviceCard}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" /></svg>
-                                <div>
-                                    <strong>Đổi trả 7 ngày</strong>
-                                    <span>Miễn phí, không lý do</span>
+                                <div className={styles.serviceIcon}>🛡️</div>
+                                <div className={styles.serviceInfo}>
+                                    <span className={styles.serviceTitle}>Bảo hành chính hãng</span>
+                                    <span className={styles.serviceDesc}>Từ 12 - 24 tháng</span>
                                 </div>
                             </div>
                             <div className={styles.serviceCard}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                                <div>
-                                    <strong>Bảo hành 12T</strong>
-                                    <span>Chính hãng toàn quốc</span>
+                                <div className={styles.serviceIcon}>🔄</div>
+                                <div className={styles.serviceInfo}>
+                                    <span className={styles.serviceTitle}>Đổi trả dễ dàng</span>
+                                    <span className={styles.serviceDesc}>Trong vòng 7 ngày</span>
                                 </div>
                             </div>
                             <div className={styles.serviceCard}>
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" /></svg>
-                                <div>
-                                    <strong>Trả góp 0%</strong>
-                                    <span>Visa / Mastercard</span>
+                                <div className={styles.serviceIcon}>💳</div>
+                                <div className={styles.serviceInfo}>
+                                    <span className={styles.serviceTitle}>Trả góp 0%</span>
+                                    <span className={styles.serviceDesc}>Qua thẻ tín dụng</span>
                                 </div>
                             </div>
                         </div>
@@ -521,16 +699,17 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 </div>
             </div>
 
-            {/* ── DETAIL TABS: Mô tả / Thông số / Đánh giá ── */}
-            <div className={styles.detailSection} id="detail-tabs">
+            {/* ── DETAIL TABS ── */}
+            <section id="detail-tabs" className={styles.detailSection}>
                 <div className={styles.detailInner}>
 
                     {/* Tab navigation */}
                     <div className={styles.tabNav}>
                         <div className={styles.tabNavLine} />
                         {[
-                            { id: "desc" as const, label: "Mô tả sản phẩm", icon: "📝" },
+                            { id: "desc" as const, label: "Mô tả chi tiết", icon: "📝" },
                             { id: "specs" as const, label: "Thông số kỹ thuật", icon: "⚙" },
+                            { id: "installment" as const, label: "Trả góp", icon: "💳" },
                             { id: "reviews" as const, label: `Đánh giá (${ratingCount})`, icon: "⭐" },
                         ].map(tab => (
                             <button
@@ -679,9 +858,14 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                 )}
                             </div>
                         )}
+
+                        {/* Installment Tab */}
+                        {activeTab === "installment" && (
+                            <InstallmentTab price={currentPrice} />
+                        )}
                     </div>
                 </div>
-            </div>
+            </section>
 
             {/* ── RELATED PRODUCTS ── */}
             {related.length > 0 && (

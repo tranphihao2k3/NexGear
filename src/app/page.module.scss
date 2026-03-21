@@ -1,1125 +1,1191 @@
 @use '../styles/tokens' as *;
 @use '../styles/mixins' as *;
 
-// ── BASE ─────────────────────────────────────────────────────
-// Nền grid + blob nằm ở LayoutWrapper (áp dụng toàn client)
+// ══════════════════════════════════════════════════════════════
+// VARIABLES
+// ══════════════════════════════════════════════════════════════
+$dark-bg: #050508;
+$dark-bg2: #0a0d12;
+
+// ══════════════════════════════════════════════════════════════
+// BASE
+// ══════════════════════════════════════════════════════════════
 .home {
-    min-height: 100vh;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--bg);
 }
 
-// ════════════════════════════════════════════════════════════
-// HERO SECTION
-// ════════════════════════════════════════════════════════════
+.progressBar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: $color-cyan;
+  transform-origin: 0%;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 196, 173, 0.8);
+}
+
+.container {
+  @include container;
+}
+
+// ══════════════════════════════════════════════════════════════
+// SECTIONS
+// ══════════════════════════════════════════════════════════════
+.section {
+  padding: 160px 0;
+  position: relative;
+  overflow: hidden;
+
+  @include tablet { padding: 100px 0; }
+}
+
+.sectionDark {
+  background: var(--bg2);
+  color: var(--ink);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 196, 173, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 196, 173, 0.05) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+    mask-image: radial-gradient(circle at center, black, transparent 80%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% -20%, rgba(0, 196, 173, 0.1), transparent 60%);
+    pointer-events: none;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// SHARED
+// ══════════════════════════════════════════════════════════════
+.label {
+  @include font-mono(11px, $fw-bold);
+  color: $color-cyan;
+  letter-spacing: $ls-wider;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.heading {
+  font-family: $font-display;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: $fw-bold;
+  margin: 0 0 64px;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.btnPrimary {
+  @include font-display(13px, $fw-bold);
+  background: $color-cyan;
+  color: #000;
+  padding: 14px 32px;
+  border-radius: 4px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: $ls-wide;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 0 30px rgba(0, 196, 173, 0.5);
+    transform: translateY(-2px);
+  }
+}
+
+.btnOutline {
+  @include font-display(13px, $fw-bold);
+  background: var(--bg3);
+  color: $color-cyan;
+  border: 1.5px solid rgba(0, 196, 173, 0.3);
+  padding: 13px 32px;
+  border-radius: 4px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: $ls-wide;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(0, 196, 173, 0.1);
+    border-color: $color-cyan;
+    transform: translateY(-2px);
+  }
+}
+
+.btnGhost {
+  @include font-display(13px, $fw-bold);
+  background: var(--bg2);
+  color: var(--ink2);
+  border: 1.5px solid var(--border);
+  padding: 13px 32px;
+  border-radius: 4px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: $ls-wide;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: var(--ink3);
+    color: var(--ink);
+    transform: translateY(-2px);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// HERO
+// ══════════════════════════════════════════════════════════════
 .hero {
-    position: relative;
-    overflow: hidden;
-    min-height: 480px;
-    padding: $sp-20 0 $sp-16;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, var(--bg2) 0%, var(--bg) 100%);
+  overflow: hidden;
 
-    @include tablet {
-        padding: $sp-12 0 $sp-10;
-        min-height: auto;
-    }
-}
-
-// Background grid pattern
-.heroBg {
+  &::before {
+    content: '';
     position: absolute;
     inset: 0;
-    @include grid-bg-pattern;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(0, 196, 173, 0.1) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(240, 53, 106, 0.05) 0%, transparent 40%);
     pointer-events: none;
-}
-
-// Gradient accent blob — góc phải trên
-.heroAccent {
-    position: absolute;
-    top: -120px;
-    right: -120px;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle at 60% 40%,
-            rgba(0, 196, 173, 0.14) 0%,
-            rgba(240, 53, 106, 0.08) 50%,
-            transparent 70%);
-    pointer-events: none;
-    animation: heroAccentPulse 6s ease-in-out infinite;
-
-    @include tablet {
-        width: 300px;
-        height: 300px;
-        top: -60px;
-        right: -60px;
-    }
-}
-
-@keyframes heroAccentPulse {
-
-    0%,
-    100% {
-        opacity: 0.8;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.05);
-    }
-}
-
-// ── FLOATING PARTICLES ──
-.heroParticles {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.particle {
-    position: absolute;
-    width: 3px;
-    height: 3px;
-    border-radius: 50%;
-    background: $color-cyan;
-    opacity: 0;
-    animation: particleFloat 8s ease-in-out infinite;
-    animation-delay: calc(var(--i) * 1.2s);
-
-    &:nth-child(1) { top: 20%; left: 10%; }
-    &:nth-child(2) { top: 60%; left: 85%; background: $color-magenta; }
-    &:nth-child(3) { top: 80%; left: 30%; }
-    &:nth-child(4) { top: 15%; left: 70%; background: $color-magenta; }
-    &:nth-child(5) { top: 50%; left: 50%; }
-    &:nth-child(6) { top: 40%; left: 90%; background: $color-gold; }
-}
-
-@keyframes particleFloat {
-    0%, 100% { opacity: 0; transform: translateY(0) scale(1); }
-    20% { opacity: 0.7; }
-    50% { opacity: 0.4; transform: translateY(-40px) scale(1.5); }
-    80% { opacity: 0.7; }
-}
-
-// ── SCANLINE EFFECT ──
-.heroScanline {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 196, 173, 0.015) 2px,
-        rgba(0, 196, 173, 0.015) 4px
-    );
-
-    &::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(0, 196, 173, 0.15), transparent);
-        animation: scanline 4s linear infinite;
-    }
-}
-
-@keyframes scanline {
-    0% { top: -2px; }
-    100% { top: 100%; }
-}
-
-// ── ANIMATE IN (scroll triggered) ──
-.animateIn {
-    .heroEyebrow {
-        animation: slideUp 0.6s ease-out both;
-    }
-    .heroTitle {
-        animation: slideUp 0.6s 0.15s ease-out both;
-    }
-    .heroTagline {
-        animation: slideUp 0.6s 0.3s ease-out both;
-    }
-    .heroActions {
-        animation: slideUp 0.6s 0.45s ease-out both;
-    }
-    .heroStats {
-        animation: slideUp 0.6s 0.6s ease-out both;
-    }
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-// ── "GEAR UP" — subtle glitch ──
-.heroTitleGlitch {
-    position: relative;
-    display: inline-block;
-
-    &::before,
-    &::after {
-        content: attr(data-text);
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-    }
-
-    &::before {
-        color: $color-cyan;
-        animation: glitch1 5s infinite;
-    }
-
-    &::after {
-        color: $color-magenta;
-        animation: glitch2 5s infinite;
-    }
-}
-
-@keyframes glitch1 {
-    0%, 92%, 100% { opacity: 0; transform: none; }
-    93% { opacity: 0.5; transform: translate(-2px, -1px); clip-path: inset(20% 0 60% 0); }
-    95% { opacity: 0; }
-    97% { opacity: 0.3; transform: translate(2px, 1px); clip-path: inset(50% 0 20% 0); }
-}
-
-@keyframes glitch2 {
-    0%, 93%, 100% { opacity: 0; transform: none; }
-    94% { opacity: 0.4; transform: translate(2px, 1px); clip-path: inset(40% 0 30% 0); }
-    96% { opacity: 0; }
-    98% { opacity: 0.2; transform: translate(-1px, -1px); clip-path: inset(10% 0 70% 0); }
-}
-
-// ── TYPING CURSOR ──
-.typingCursor {
-    display: inline-block;
-    font-weight: 100;
-    animation: cursorBlink 0.7s step-end infinite;
-    color: $color-cyan;
-    margin-left: 2px;
-}
-
-@keyframes cursorBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-}
-
-// ── BUTTON GLOW ──
-.btnGlow {
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    opacity: 0;
-    background: linear-gradient(45deg, $color-cyan, $color-magenta);
-    filter: blur(8px);
-    transition: opacity 0.3s;
-    z-index: -1;
-}
-
-// ── CARD HOVER GLOW ──
-.cardGlow {
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    opacity: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(0, 196, 173, 0.15), transparent 70%);
-    transition: opacity 0.3s;
-    pointer-events: none;
-    z-index: 0;
-}
-
-.heroInner {
-    @include container;
-    display: grid;
-    grid-template-columns: 6fr 6fr;
-    gap: $sp-12;
-    align-items: center;
-    position: relative;
     z-index: 1;
-
-    @include desktop-s {
-        grid-template-columns: 1fr;
-        gap: $sp-10;
-    }
+  }
 }
 
-/* ── HERO LEFT ── */
-.heroLeft {
-    display: flex;
-    flex-direction: column;
-    gap: $sp-6;
-}
-
-.heroEyebrow {
-    @include font-mono($text-sm, $fw-bold);
-    color: $color-cyan;
-    letter-spacing: $ls-wide;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: $sp-2;
-}
-
-.eyebrowDot {
-    width: 6px;
-    height: 6px;
-    border-radius: $r-full;
-    background: $color-cyan;
-    animation: blink 1.5s ease-in-out infinite;
-    flex-shrink: 0;
-}
-
-@keyframes blink {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.3;
-    }
-}
-
-.heroTitle {
-    font-family: $font-display;
-    font-size: clamp(48px, 7vw, 88px);
-    font-weight: $fw-black;
-    line-height: $lh-tight;
-    color: $color-ink;
-    text-transform: uppercase;
-    margin: 0;
-    letter-spacing: $ls-tight;
-}
-
-.heroTitleOutline {
-    color: transparent;
-    -webkit-text-stroke: 2.5px $color-ink;
-    animation: outlineShimmer 4s ease-in-out infinite;
-}
-
-@keyframes outlineShimmer {
-    0%, 100% { -webkit-text-stroke-color: $color-ink; }
-    50% { -webkit-text-stroke-color: rgba(0, 196, 173, 0.7); }
-}
-
-.heroTitleAccent {
-    color: $color-cyan;
-    position: relative;
-    animation: glowPulse 3s ease-in-out infinite;
-
-    &::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: -4px;
-        width: 100%;
-        height: 3px;
-        background: $gradient-accent;
-        border-radius: $r-full;
-        animation: lineGlow 3s ease-in-out infinite;
-    }
-}
-
-@keyframes glowPulse {
-    0%, 100% {
-        text-shadow: 0 0 0 transparent;
-    }
-    50% {
-        text-shadow: 0 0 20px rgba(0, 196, 173, 0.3), 0 0 40px rgba(0, 196, 173, 0.1);
-    }
-}
-
-@keyframes lineGlow {
-    0%, 100% {
-        box-shadow: none;
-        opacity: 0.8;
-    }
-    50% {
-        box-shadow: 0 0 12px rgba(0, 196, 173, 0.5), 0 0 24px rgba(240, 53, 106, 0.3);
-        opacity: 1;
-    }
-}
-
-.heroTagline {
-    @include font-body($text-md, $fw-regular);
-    color: $color-ink2;
-    line-height: $lh-relaxed;
-    max-width: 440px;
-    margin: 0;
-}
-
-.heroActions {
-    display: flex;
-    gap: $sp-4;
-    flex-wrap: wrap;
-
-    @include mobile {
-        flex-direction: column;
-    }
-}
-
-.heroBtnPrimary {
-    @include font-display($text-sm, $fw-bold);
-    background: $color-ink;
-    color: $color-white;
-    padding: $sp-4 $sp-8;
-    border-radius: $r-1;
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: $ls-wide;
-    transition: $transition-spring;
-    display: inline-flex;
-    align-items: center;
-    gap: $sp-2;
-    position: relative;
-    overflow: hidden;
-
-    &:hover {
-        background: $color-cyan;
-        transform: translateY(-2px);
-        box-shadow: 0 0 20px rgba(0, 196, 173, 0.4), $shadow-lg;
-
-        .btnGlow {
-            opacity: 0.6;
-        }
-    }
-}
-
-.heroBtnOutline {
-    @include font-display($text-sm, $fw-bold);
-    background: transparent;
-    color: $color-cyan;
-    border: 1.5px solid $color-cyan;
-    padding: $sp-4 $sp-8;
-    border-radius: $r-1;
-    text-decoration: none;
-    text-transform: uppercase;
-    letter-spacing: $ls-wide;
-    transition: $transition-spring;
-    display: inline-flex;
-    align-items: center;
-    gap: $sp-2;
-
-    &:hover {
-        background: $color-cyan-light;
-        transform: translateY(-2px);
-    }
-}
-
-.heroStats {
-    display: flex;
-    align-items: center;
-    gap: $sp-6;
-    margin-top: $sp-2;
-
-    @include mobile {
-        gap: $sp-4;
-    }
-}
-
-.heroStatItem {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.heroStatValue {
-    font-family: $font-display;
-    font-size: $text-xl;
-    font-weight: $fw-bold;
-    color: $color-cyan;
-    line-height: 1;
-}
-
-.statGold {
-    color: $color-gold !important;
-}
-
-.statMag {
-    color: $color-magenta !important;
-}
-
-.heroStatLabel {
-    @include font-body($text-xs, $fw-medium);
-    color: $color-ink3;
-    text-transform: uppercase;
-    letter-spacing: $ls-wide;
-}
-
-.heroStatDivider {
-    width: 1px;
-    height: 32px;
-    background: $color-border2;
-}
-
-/* ── HERO RIGHT: Category Grid ── */
-.heroRight {
-    @include desktop-s {
-        display: none;
-    }
+.hero3d {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
 }
 
 .heroGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: $sp-3;
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0, 196, 173, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 196, 173, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  transform: perspective(1000px) rotateX(60deg) scale(2);
+  transform-origin: center bottom;
+  animation: gridMove 20s linear infinite;
+  z-index: 1;
 }
 
-.heroMiniCard {
-    @include card-base;
-    @include card-hover;
-    padding: $sp-5 $sp-4;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: $sp-2;
-    text-decoration: none;
-    text-align: center;
-    position: relative;
-    cursor: pointer;
-
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2.5px;
-        background: $gradient-top-bar;
-    }
-
-    &:hover {
-        .heroMiniIcon {
-            color: #00C4AD;
-            border-color: rgba(0, 196, 173, 0.3);
-            background: rgba(0, 196, 173, 0.06);
-            transform: scale(1.1);
-        }
-
-        .cardGlow {
-            opacity: 1;
-        }
-    }
-
-    // Staggered entrance animation
-    animation: cardPop 0.5s ease-out both;
-    animation-delay: var(--delay, 0s);
+@keyframes gridMove {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 50px; }
 }
 
-@keyframes cardPop {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 50% at 50% 50%, transparent, var(--bg));
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.6;
 }
 
-.heroMiniIcon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ink2);
-    border: 1px solid var(--border);
-    border-radius: $r-full;
-    background: var(--bg2);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    margin-bottom: $sp-1;
+.heroBottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to top, var(--bg), transparent);
+  z-index: 1;
+  pointer-events: none;
 }
 
-.heroMiniName {
-    @include font-display(11px, $fw-bold);
-    color: $color-ink;
-    letter-spacing: $ls-wide;
-    text-transform: uppercase;
+.heroContent {
+  @include container;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 120px 0 80px;
 }
 
-.heroMiniSub {
-    @include font-mono(10px, $fw-regular);
-    color: $color-cyan;
-    letter-spacing: $ls-wide;
+.heroBadge {
+  @include font-mono(12px, $fw-bold);
+  color: $color-cyan;
+  letter-spacing: $ls-wider;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-// ════════════════════════════════════════════════════════════
-// USP SECTION — Why Choose NEXGEAR
-// ════════════════════════════════════════════════════════════
-.uspSection {
-    position: relative;
-    background: $color-bg;
-    padding: $sp-12 0 $sp-10;
-    overflow: hidden;
-
-    &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image:
-            linear-gradient(rgba(0, 196, 173, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 196, 173, 0.03) 1px, transparent 1px);
-        background-size: 40px 40px;
-        pointer-events: none;
-    }
-
-    @include tablet {
-        padding: $sp-8 0 $sp-6;
-    }
+.heroDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $color-cyan;
+  box-shadow: 0 0 12px rgba(0, 196, 173, 0.6);
+  animation: pulse 2s ease-in-out infinite;
 }
 
-.uspInner {
-    @include container;
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
 }
 
-.uspHeader {
-    display: flex;
-    align-items: center;
-    gap: $sp-4;
-    margin-bottom: $sp-8;
-
-    @include tablet {
-        margin-bottom: $sp-5;
-    }
+.heroTitle {
+  font-family: $font-display;
+  font-size: clamp(44px, 9vw, 96px);
+  font-weight: $fw-black;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.05;
+  text-transform: uppercase;
 }
 
-.uspLabel {
-    font-family: $font-mono;
-    font-size: 11px;
-    font-weight: $fw-bold;
-    letter-spacing: $ls-wider;
-    color: #00C4AD;
-    white-space: nowrap;
-    text-transform: uppercase;
+.heroGradient {
+  background: linear-gradient(135deg, var(--ink), rgba(0, 196, 173, 0.9));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.uspLine {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(0, 196, 173, 0.3), transparent);
+.heroDotSep {
+  color: $color-cyan;
+  text-shadow: 0 0 20px rgba(0, 196, 173, 0.5);
+  -webkit-text-fill-color: initial;
 }
 
+.heroSub {
+  @include font-body($text-lg, $fw-regular);
+  color: var(--ink2);
+  margin: 0;
+}
+
+.heroHighlight {
+  color: $color-cyan;
+  font-weight: $fw-semibold;
+}
+
+.heroCursor {
+  color: $color-cyan;
+  font-weight: 100;
+  animation: blink 0.7s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.heroCTA {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @include mobile { flex-direction: column; width: 100%; }
+}
+
+.heroStats {
+  display: flex;
+  gap: 32px;
+  padding: 16px 32px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+
+  @include mobile { gap: 16px; flex-wrap: wrap; justify-content: center; padding: 12px 16px; }
+}
+
+.statV {
+  font-family: $font-display;
+  font-size: 20px;
+  font-weight: $fw-bold;
+  color: $color-cyan;
+}
+
+.statL {
+  @include font-body(11px, $fw-medium);
+  color: var(--ink3);
+  text-transform: uppercase;
+  letter-spacing: $ls-wide;
+}
+
+.scrollHint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+
+  @include tablet { display: none; }
+}
+
+.scrollMouse {
+  width: 24px;
+  height: 38px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.scrollDot {
+  width: 3px;
+  height: 8px;
+  border-radius: 2px;
+  background: $color-cyan;
+  animation: scrollDown 2s ease-in-out infinite;
+}
+
+@keyframes scrollDown {
+  0% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(10px); opacity: 0.3; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.scrollLabel {
+  @include font-mono(9px, $fw-medium);
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: $ls-widest;
+}
+
+// ══════════════════════════════════════════════════════════════
+// STORY TIMELINE
+// ══════════════════════════════════════════════════════════════
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  position: relative;
+
+  @include tablet { grid-template-columns: repeat(2, 1fr); }
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.timelineLine {
+  display: none; // simplified for grid layout
+}
+
+.timelineItem {
+  text-align: center;
+  position: relative;
+}
+
+.timelineOrb {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: rgba(0, 196, 173, 0.08);
+  border: 2px solid rgba(0, 196, 173, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+
+  &:hover {
+    transform: scale(1.1);
+    border-color: $color-cyan;
+    box-shadow: 0 0 30px rgba(0, 196, 173, 0.3);
+  }
+}
+
+.timelineEmoji { font-size: 32px; }
+
+.timelineNum {
+  @include font-mono(11px, $fw-bold);
+  color: $color-cyan;
+  letter-spacing: $ls-wider;
+  margin-bottom: 8px;
+}
+
+.timelineTitle {
+  @include font-display(14px, $fw-bold);
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: $ls-wide;
+  margin: 0 0 8px;
+}
+
+.timelineDesc {
+  @include font-body(13px, $fw-regular);
+  color: var(--ink3);
+  line-height: $lh-relaxed;
+  margin: 0;
+}
+
+// ══════════════════════════════════════════════════════════════
+// CATEGORIES
+// ══════════════════════════════════════════════════════════════
+.catGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+
+  @include tablet { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @include mobile { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+
+.catCard {
+  @include card-base;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 1px solid var(--border);
+  background: var(--bg2);
+
+  &:hover {
+    border-color: rgba(0, 196, 173, 0.6);
+    background: var(--bg3);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0, 196, 173, 0.2);
+
+    .catEmoji { transform: scale(1.3) rotate(10deg); }
+    .catName { color: $color-cyan; }
+  }
+
+  @include mobile {
+    padding: 32px 20px;
+  }
+}
+
+.catEmoji {
+  font-size: 32px;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.catName {
+  @include font-display(13px, $fw-bold);
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: $ls-wide;
+}
+
+.catCount {
+  @include font-mono(11px, $fw-bold);
+  color: $color-cyan;
+}
+
+// ══════════════════════════════════════════════════════════════
+// USP
+// ══════════════════════════════════════════════════════════════
 .uspGrid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: $sp-4;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
 
-    @include tablet {
-        grid-template-columns: repeat(2, 1fr);
-        gap: $sp-3;
-    }
-
-    @include mobile {
-        grid-template-columns: 1fr;
-        gap: $sp-3;
-    }
+  @include tablet { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  @include mobile { grid-template-columns: 1fr; gap: 20px; }
 }
 
 .uspCard {
-    display: flex;
-    align-items: flex-start;
-    gap: $sp-4;
-    padding: $sp-6 $sp-5;
-    border-radius: $r-2;
-    border: 1px solid rgba(0, 196, 173, 0.1);
-    background: var(--card-bg);
-    backdrop-filter: blur(8px);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 48px 32px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  backdrop-filter: blur(10px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
 
-    // Top accent bar
-    &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, #00C4AD, #F0356A);
-        opacity: 0;
-        transition: opacity 0.25s ease;
-    }
+  @include mobile {
+    padding: 32px 24px;
+  }
 
-    &:hover {
-        border-color: rgba(0, 196, 173, 0.4);
-        background: var(--card-bg);
-        transform: translateY(-4px);
-        box-shadow:
-            0 8px 30px rgba(0, 196, 173, 0.1),
-            0 0 0 1px rgba(0, 196, 173, 0.15);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top right, rgba(0, 196, 173, 0.1), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
 
-        &::before {
-            opacity: 1;
-        }
-
-        .uspIconWrap {
-            color: #00C4AD;
-            border-color: rgba(0, 196, 173, 0.3);
-            background: rgba(0, 196, 173, 0.06);
-        }
-    }
+  &:hover {
+    border-color: rgba(0, 196, 173, 0.4);
+    background: rgba(255, 255, 255, 0.03);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 196, 173, 0.1);
+    
+    &::before { opacity: 1; }
+    .uspIcon { transform: scale(1.2) translateY(-5px); }
+  }
 }
 
-.uspIconWrap {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--ink2);
-    border: 1px solid var(--border);
-    border-radius: $r-full;
-    background: var(--bg2);
-    flex-shrink: 0;
-    transition: $transition-fast;
+.uspIcon { 
+  font-size: 32px; 
+  margin-bottom: 20px; 
+  transition: transform 0.4s ease;
+  display: block;
 }
 
-.uspContent {
-    display: flex;
-    flex-direction: column;
-    gap: $sp-1;
-    min-width: 0;
+.uspBig {
+  font-family: $font-display;
+  font-size: 36px;
+  font-weight: $fw-black;
+  color: $color-cyan;
+  line-height: 1;
+  margin-bottom: 8px;
 }
 
 .uspTitle {
-    @include font-display(12px, $fw-bold);
-    color: $color-ink;
-    letter-spacing: $ls-wide;
-    text-transform: uppercase;
-    margin: 0;
+  @include font-display(12px, $fw-bold);
+  color: var(--ink);
+  text-transform: uppercase;
+  letter-spacing: $ls-wide;
+  margin: 0 0 6px;
 }
 
 .uspDesc {
-    @include font-body(12px, $fw-regular);
-    color: $color-ink3;
-    line-height: $lh-relaxed;
-    margin: 0;
+  @include font-body(12px, $fw-regular);
+  color: var(--ink3);
+  line-height: $lh-relaxed;
+  margin: 0;
 }
 
-// ════════════════════════════════════════════════════════════
-// SECTION SHARED
-// ════════════════════════════════════════════════════════════
-.section {
-    padding: $sp-16 0;
-
-    @include tablet {
-        padding: $sp-10 0;
-    }
+// ══════════════════════════════════════════════════════════════
+// BRANDS MARQUEE
+// ══════════════════════════════════════════════════════════════
+.marqueeTrack {
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
+  margin-top: 24px;
 }
 
-.sectionInner {
-    @include container;
+.marquee {
+  display: flex;
+  gap: 24px;
+  animation: marqueeScroll 24s linear infinite;
+  width: max-content;
+
+  &:hover { animation-play-state: paused; }
 }
 
-.sectionHead {
-    @include flex-between;
-    margin-bottom: $sp-8;
-    align-items: flex-end;
-
-    @include mobile {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: $sp-3;
-    }
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
-.sectionLabel {
-    @include section-label;
-    margin-bottom: $sp-1;
+.brandItem {
+  @include font-display(14px, $fw-bold);
+  color: var(--ink2);
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  white-space: nowrap;
+  letter-spacing: $ls-wide;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--ink);
+    border-color: rgba(0, 196, 173, 0.3);
+    transform: translateY(-2px);
+  }
 }
 
-.sectionTitle {
-    @include font-display($text-xl, $fw-bold);
-    color: $color-ink;
-    margin: 0;
-    text-transform: uppercase;
-}
-
-.seeAll {
-    @include font-mono($text-sm, $fw-semibold);
-    color: $color-cyan;
-    text-decoration: none;
-    transition: $transition-fast;
-    white-space: nowrap;
-
-    &:hover {
-        color: $color-cyan-dark;
-        text-decoration: underline;
-    }
-}
-
-// ── PRODUCT GRIDS ─────────────────────────────────────────
-.productGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: $sp-4;
-
-    @include mobile {
-        grid-template-columns: repeat(2, 1fr);
-        gap: $sp-3;
-    }
-}
-
-.productSwiper {
-    padding-bottom: $sp-2;
-    overflow: visible;
-
-    :global(.swiper-button-prev),
-    :global(.swiper-button-next) {
-        width: 40px;
-        height: 40px;
-        background: none;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-        transition: $transition-fast;
-        top: 45%;
-
-        &::after {
-            font-size: 24px;
-            font-weight: 900;
-            color: $color-cyan;
-        }
-
-        &:hover {
-            transform: scale(1.2);
-
-            &::after {
-                filter: brightness(1.3);
-            }
-        }
-    }
-
-    :global(.swiper-button-prev) {
-        left: -12px;
-
-        @include mobile {
-            left: -4px;
-        }
-    }
-
-    :global(.swiper-button-next) {
-        right: -12px;
-
-        @include mobile {
-            right: -4px;
-        }
-    }
-
-    :global(.swiper-button-disabled) {
-        opacity: 0;
-        pointer-events: none;
-    }
-}
-
-// ── BESTSELLER RANK ──────────────────────────────────────
-.bestsellerWrap {
-    position: relative;
-    min-width: 0;
-    overflow: hidden;
-}
-
-.bestsellerRank {
-    @include font-display(11px, $fw-black);
-    position: absolute;
-    top: -4px;
-    left: -4px;
-    z-index: 20; // Highest
-    color: #000000;
-    background: #F0A500;
-    padding: 2px 8px;
-    border-radius: $r-1;
-    clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
-    box-shadow: 2px 2px 0 #000;
-}
-
-// ════════════════════════════════════════════════════════════
-// FLASH SALE BANNER
-// ════════════════════════════════════════════════════════════
-.flashSale {
-    background: $color-ink;
-    padding: $sp-12 0;
-    position: relative;
-    overflow: hidden;
-
-    // Subtle grid overlay on dark bg
-    &::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background-image:
-            linear-gradient(rgba(0, 196, 173, 0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 196, 173, 0.06) 1px, transparent 1px);
-        background-size: 40px 40px;
-        pointer-events: none;
-    }
-
-    // Accent blob
-    &::after {
-        content: '';
-        position: absolute;
-        top: -100px;
-        right: 15%;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle,
-                rgba(240, 53, 106, 0.12) 0%,
-                transparent 70%);
-        pointer-events: none;
-    }
-
-    @include tablet {
-        padding: $sp-8 0;
-    }
-}
-
-.flashSaleInner {
-    @include container;
-    position: relative;
-    z-index: 1;
-}
-
-.flashSaleHead {
-    @include flex-between;
-    align-items: center;
-    margin-bottom: $sp-8;
-    gap: $sp-6;
-    flex-wrap: wrap;
-
-    @include mobile {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-}
-
-.flashSaleLeft {
-    display: flex;
-    flex-direction: column;
-    gap: $sp-1;
-}
-
-.flashSaleLabel {
-    @include font-display($text-xs, $fw-bold);
-    letter-spacing: $ls-widest;
-    color: $color-magenta;
-    text-transform: uppercase;
-    margin-bottom: $sp-1;
-}
-
-.flashSaleTitle {
-    @include font-display($text-xl, $fw-bold);
-    color: $color-white;
-    margin: 0;
-    text-transform: uppercase;
-}
-
-/* Timer */
-.flashSaleTimer {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: $sp-2;
-
-    @include mobile {
-        align-items: flex-start;
-    }
-}
-
-.timerLabel {
-    @include font-body($text-xs, $fw-medium);
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    letter-spacing: $ls-wide;
-}
-
-.timerBlocks {
-    display: flex;
-    align-items: center;
-    gap: $sp-2;
-}
-
-.timerBlock {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: $r-2;
-    padding: $sp-2 $sp-4;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    min-width: 52px;
-}
-
-.timerNum {
-    @include font-mono($text-xl, $fw-bold);
-    color: $color-cyan;
-    line-height: 1;
-    font-size: 22px;
-}
-
-.timerUnit {
-    @include font-mono($text-xs, $fw-bold);
-    color: rgba(255, 255, 255, 0.4);
-    font-size: 8px;
-    letter-spacing: $ls-widest;
-}
-
-.timerSep {
-    @include font-mono($text-xl, $fw-bold);
-    color: $color-magenta;
-    line-height: 1;
-    animation: blink 1s step-start infinite;
-}
-
-.flashGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: $sp-4;
-
-    @include mobile {
-        grid-template-columns: repeat(2, 1fr);
-        gap: $sp-3;
-    }
-}
-
-// ════════════════════════════════════════════════════════════
-// BRANDS SECTION
-// ════════════════════════════════════════════════════════════
-.brands {
-    padding: $sp-12 0;
-    background: var(--bg2);
-    border-top: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    overflow: hidden;
-}
-
-.brandsInner {
-    @include container;
-}
-
-.brandsTrack {
-    overflow: hidden;
-    mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
-}
-
-.brandsScroll {
-    display: flex;
-    gap: $sp-6;
-    animation: brandsMarquee 24s linear infinite;
-    width: max-content;
-
-    &:hover {
-        animation-play-state: paused;
-    }
-}
-
-@keyframes brandsMarquee {
-    from {
-        transform: translateX(0);
-    }
-
-    to {
-        transform: translateX(-50%);
-    }
-}
-
-.brandLogo {
-    @include font-display($text-base, $fw-bold);
-    color: $color-ink3;
-    padding: $sp-3 $sp-6;
-    border-radius: $r-2;
-    border: 1px solid var(--border);
-    background: var(--card-bg);
-    white-space: nowrap;
-    letter-spacing: $ls-wide;
-    text-transform: uppercase;
-    transition: $transition-fast;
-    cursor: default;
-    flex-shrink: 0;
-
-    &:hover {
-        color: $color-ink;
-        border-color: $color-border2;
-        box-shadow: $shadow-sm;
-    }
-}
-
-// ════════════════════════════════════════════════════════════
-// REVIEWS SECTION
-// ════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════
+// REVIEWS
+// ══════════════════════════════════════════════════════════════
 .reviewGrid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: $sp-6;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 
-    @include tablet {
-        grid-template-columns: 1fr;
-    }
+  @include tablet { grid-template-columns: 1fr; }
 }
 
 .reviewCard {
-    @include card-base;
-    @include card-hover;
-    @include card-top-bar;
-    padding: $sp-6;
-    display: flex;
-    flex-direction: column;
-    gap: $sp-4;
+  padding: 36px 32px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: all 0.3s ease;
+
+  @include mobile {
+    padding: 24px 20px;
+  }
+
+  &:hover {
+    border-color: rgba(0, 196, 173, 0.2);
+    transform: translateY(-2px);
+  }
 }
 
 .reviewTop {
-    display: flex;
-    align-items: center;
-    gap: $sp-4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .reviewAvatar {
-    width: 44px;
-    height: 44px;
-    border-radius: $r-full;
-    background: var(--bg2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-    border: 2px solid $color-border;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
 }
 
 .reviewName {
-    @include font-body($text-base, $fw-semibold);
-    color: $color-ink;
+  @include font-body(14px, $fw-semibold);
+  color: var(--ink);
 }
 
 .reviewProduct {
-    @include font-mono($text-xs, $fw-regular);
-    color: $color-ink3;
-    font-size: 11px;
+  @include font-mono(11px, $fw-regular);
+  color: var(--ink3);
 }
 
 .reviewStars {
-    color: $color-gold;
-    font-size: 15px;
-    letter-spacing: 1px;
+  color: $color-gold;
+  font-size: 14px;
+  letter-spacing: 1px;
 }
 
 .reviewText {
-    @include font-body($text-sm, $fw-regular);
-    color: $color-ink2;
-    line-height: $lh-relaxed;
+  @include font-body(13px, $fw-regular);
+  color: var(--ink2);
+  line-height: $lh-relaxed;
+  margin: 0;
+  font-style: italic;
+}
+
+// ══════════════════════════════════════════════════════════════
+// CTA
+// ══════════════════════════════════════════════════════════════
+.cta {
+  padding: 120px 0;
+  background: radial-gradient(circle at 50% 50%, var(--bg2) 0%, var(--bg) 100%);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 196, 173, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 196, 173, 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  @include tablet { padding: 60px 0; }
+}
+
+.ctaParticles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ctaDot {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: $color-cyan;
+  opacity: 0;
+  animation: floatUp 6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.4s);
+  left: calc(var(--i) * 6.5%);
+  bottom: 0;
+
+  &:nth-child(even) { background: $color-magenta; }
+  &:nth-child(3n) { background: $color-gold; width: 3px; height: 3px; }
+}
+
+@keyframes floatUp {
+  0% { opacity: 0; transform: translateY(0); }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; transform: translateY(-350px); }
+}
+
+.ctaTitle {
+  font-family: $font-display;
+  font-size: clamp(24px, 4vw, 44px);
+  font-weight: $fw-bold;
+  color: var(--ink);
+  margin: 0 0 16px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, var(--ink), $color-cyan);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.ctaDesc {
+  @include font-body(16px, $fw-regular);
+  color: var(--ink3);
+  margin: 0 auto 32px;
+  max-width: 500px;
+}
+
+.ctaActions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+// ══════════════════════════════════════════════════════════════
+// NEW SECTIONS
+// ══════════════════════════════════════════════════════════════
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 64px;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+}
+
+.viewAll {
+  @include font-mono(12px, $fw-bold);
+  color: $color-cyan;
+  text-decoration: none;
+  letter-spacing: $ls-wider;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(0, 196, 173, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: #fff;
+    border-color: $color-cyan;
+    transform: translateX(4px);
+  }
+}
+
+// Featured Grid
+.featuredGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+
+  @include tablet { grid-template-columns: repeat(2, 1fr); }
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+// Blog Grid
+.blogGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+
+  @include tablet { grid-template-columns: repeat(2, 1fr); }
+  @include mobile { grid-template-columns: 1fr; }
+}
+
+.blogCard {
+  @include card-base;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  overflow: hidden;
+  height: 100%;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: rgba(0, 196, 173, 0.4);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+
+    .blogImage img { transform: scale(1.05); }
+    .blogTitle { color: $color-cyan; }
+  }
+}
+
+.blogImage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: $color-bg2;
+  overflow: hidden;
+
+  img {
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+  }
+}
+
+.blogPlaceholder {
+  @include flex-center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+  overflow: hidden;
+
+  &::before {
+    content: 'NEXGEAR';
+    @include font-display(48px, $fw-black);
+    color: var(--ink);
+    opacity: 0.03;
+    letter-spacing: 0.2em;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 20% 30%, rgba(0, 196, 173, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(240, 53, 106, 0.05) 0%, transparent 50%);
+  }
+
+  .blogIcon {
+    position: absolute;
+    font-size: 40px;
+    color: $color-cyan;
+    opacity: 0.8;
+    z-index: 1;
+    filter: drop-shadow(0 0 10px rgba(0, 196, 173, 0.3));
+  }
+}
+
+.blogContent {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.blogMeta {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.blogDate {
+  @include font-mono(10px, $fw-medium);
+  color: var(--ink3);
+  text-transform: uppercase;
+}
+
+.blogTag {
+  @include font-mono(10px, $fw-bold);
+  color: $color-cyan;
+  background: rgba(0, 196, 173, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.blogTitle {
+  @include font-display(18px, $fw-bold);
+  color: var(--ink);
+  margin: 0 0 12px;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+}
+
+.blogExcerpt {
+  @include font-body(14px, $fw-regular);
+  color: var(--ink3);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// FAQ Section
+.faqWrapper {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 120px;
+  padding: 80px;
+  background: var(--bg2);
+  border-radius: 32px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: 60px;
+    padding: 48px 24px;
+  }
+}
+
+.faqSub {
+  @include font-body(16px, $fw-regular);
+  color: var(--ink3);
+  margin-bottom: 48px;
+  line-height: 1.7;
+}
+
+.faqLeft .btnPrimary {
+  margin-top: 12px;
+}
+
+.faqRight {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.faqItem {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: rgba(0, 196, 173, 0.3);
+    background: var(--bg3);
+    transform: translateX(4px);
+  }
+}
+
+.faqActive {
+  border-color: rgba(0, 196, 173, 0.4);
+  background: var(--bg3);
+
+  .faqQuestion {
+    color: $color-cyan;
+  }
+}
+
+.faqQuestion {
+  padding: 28px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  @include font-body(16px, $fw-semibold);
+  color: var(--ink);
+  transition: color 0.3s ease;
+
+  @include mobile {
+    padding: 20px 24px;
+    font-size: 15px;
+  }
+}
+
+.faqToggle {
+  font-size: 20px;
+  color: $color-cyan;
+  margin-left: 16px;
+}
+
+.faqAnswer {
+  padding: 0 32px 32px;
+  @include font-body(15px, $fw-regular);
+  color: var(--ink2);
+  line-height: 1.7;
+
+  @include mobile {
+    padding: 0 24px 24px;
+    font-size: 14px;
+  }
+
+  p {
     margin: 0;
-    font-style: italic;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 196, 173, 0.1);
+  }
+}
+
+// Newsletter Section
+.newsletterSection {
+  padding: 60px 0;
+}
+
+.newsletterCard {
+  position: relative;
+  background: var(--bg2);
+  border-radius: 24px;
+  padding: 80px 60px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  text-align: center;
+
+  @include tablet { padding: 60px 24px; }
+}
+
+.newsletterGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(0, 196, 173, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.newsletterTitle {
+  @include font-display(32px, $fw-black);
+  color: var(--ink);
+  margin-bottom: 16px;
+  letter-spacing: $ls-wide;
+}
+
+.newsletterDesc {
+  @include font-body(16px, $fw-regular);
+  color: var(--ink3);
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.newsletterForm {
+  display: flex;
+  gap: 12px;
+  max-width: 500px;
+  margin: 0 auto;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.newsletterInput {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 14px 20px;
+  color: #fff;
+  @include font-body(14px, $fw-regular);
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $color-cyan;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 20px rgba(0, 196, 173, 0.1);
+  }
+}
+
+.newsletterBtn {
+  @include font-display(13px, $fw-bold);
+  background: $color-cyan;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0, 196, 173, 0.4);
+  }
+}
+
+// Location Section
+.locationWrapper {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 100px;
+  align-items: center;
+  padding: 80px;
+  background: var(--bg2);
+  border-radius: 32px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+
+  @include tablet {
+    grid-template-columns: 1fr;
+    gap: 60px;
+    padding: 48px 24px;
+  }
+}
+
+.locationDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+
+.locItem {
+  display: flex;
+  gap: 20px;
+}
+
+.locIcon {
+  font-size: 24px;
+  color: $color-cyan;
+}
+
+.locLabel {
+  @include font-mono(10px, $fw-bold);
+  color: var(--ink3);
+  margin-bottom: 4px;
+  letter-spacing: $ls-wide;
+}
+
+.locValue {
+  @include font-body(15px, $fw-semibold);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.locationMap {
+  height: 450px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid $color-border;
+  border-radius: 16px;
+  overflow: hidden;
+
+  @include mobile { height: 300px; }
 }

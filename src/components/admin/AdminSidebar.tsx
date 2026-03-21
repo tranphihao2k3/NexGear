@@ -48,6 +48,7 @@ import {
     Search,
     ChevronDown,
     ChevronRight,
+    CreditCard,
 } from 'lucide-react'
 import styles from './AdminSidebar.module.scss'
 
@@ -104,6 +105,7 @@ const MENU_GROUPS: MenuGroup[] = [
         title: 'Tài chính',
         items: [
             { label: 'Tài chính', href: '/admin/finance', icon: DollarSign },
+            { label: 'Trả góp', href: '/admin/installments', icon: CreditCard },
             { label: 'Công nợ', href: '/admin/debts', icon: Wallet },
             { label: 'Mã giảm giá', href: '/admin/coupons', icon: Gift },
             { label: 'Khuyến mãi', href: '/admin/promotions', icon: Percent },

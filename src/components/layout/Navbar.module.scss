@@ -52,7 +52,7 @@
     background: var(--nav-bg, rgba(244, 242, 237, 0.92));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    transition: background 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     overflow: visible;
 
     &.navScrolled {
@@ -60,6 +60,25 @@
         box-shadow:
             0 1px 0 rgba(0, 196, 173, 0.15),
             0 4px 20px rgba(0, 0, 0, 0.06);
+        
+        .topBarInner {
+            padding: $sp-1 $sp-8;
+        }
+
+        .logo {
+            transform: scale(0.9);
+        }
+
+        .catBar {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .searchBar {
+            padding: 6px 16px;
+            max-width: 400px;
+        }
     }
 }
 
@@ -255,6 +274,11 @@
 
 // ── CATEGORY BAR ───────────────────────────────────────────
 .catBar {
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    max-height: 100px;
+    opacity: 1;
+    overflow: visible;
+
     @include tablet { display: none; }
 }
 
@@ -285,28 +309,39 @@
     font-weight: $fw-semibold;
     color: var(--ink2);
     text-decoration: none;
-    transition: all 0.15s ease;
+    transition: all 0.3s ease;
     white-space: nowrap;
     position: relative;
 
-    &:hover { color: var(--ink); }
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: #00C4AD;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform: translateX(-50%);
+        box-shadow: 0 0 10px rgba(0, 196, 173, 0.4);
+        border-radius: 2px;
+    }
+
+    &:hover {
+        color: #00C4AD;
+        transform: translateY(-2px);
+        &::after { width: 80%; }
+    }
 
     &.catLinkActive {
         color: #00C4AD;
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 14px; right: 14px;
-            height: 2px;
-            background: #00C4AD;
-            border-radius: 2px;
-        }
+        &::after { width: 100%; }
     }
 
     &.catLinkDeal {
         color: #F0356A;
         font-weight: $fw-bold;
-        &:hover { color: #e02a5a; }
+        &:hover { color: #e02a5a; transform: translateY(-2px); }
     }
 }
 

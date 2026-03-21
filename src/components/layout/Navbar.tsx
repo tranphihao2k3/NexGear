@@ -55,11 +55,18 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
 
     const compareCount = useCompareStore(state => state.items.length)
     const [isMounted, setIsMounted] = useState(false)
-    const [categories, setCategories] = useState<NavLink[]>([])
+    const [categories, setCategories] = useState<NavLink[]>([
+        { href: '/laptop', label: 'Laptop' },
+        { href: '/chuot', label: 'Chuột' },
+        { href: '/ban-phim', label: 'Bàn phím' },
+        { href: '/tai-nghe', label: 'Tai nghe' },
+        { href: '/loa', label: 'Loa' },
+        { href: '/phu-kien', label: 'Phụ kiện' },
+    ])
 
     useEffect(() => {
         setIsMounted(true)
-        const handler = () => setScrolled(window.scrollY > 8)
+        const handler = () => setScrolled(window.scrollY > 50)
         window.addEventListener('scroll', handler, { passive: true })
 
         fetch('/api/categories?tree=true&active=true')

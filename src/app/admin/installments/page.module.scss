@@ -1,0 +1,321 @@
+.page { }
+
+.loading {
+    padding: $sp-10;
+    text-align: center;
+    color: $admin-ink3;
+}
+
+// Header
+.header {
+    @include flex-between;
+    margin-bottom: $sp-6;
+    flex-wrap: wrap;
+    gap: $sp-4;
+}
+
+.headerLeft {
+    h1 {
+        @include font-display($text-xl, $fw-bold);
+        color: $admin-ink;
+        letter-spacing: $ls-wide;
+        margin: 0;
+    }
+}
+
+.headerSub {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+}
+
+.headerActions {
+    display: flex;
+    gap: $sp-2;
+}
+
+.addBtn, .importBtn, .exportBtn {
+    @include btn-base;
+    @include btn-size-md;
+    cursor: pointer;
+}
+
+.addBtn {
+    background: $color-cyan;
+    color: $color-ink;
+    &:hover { background: $color-cyan-dark; }
+}
+
+.importBtn {
+    background: $admin-card-bg;
+    color: $admin-ink;
+    border: 1px solid $admin-border;
+    &:hover { background: $admin-hover; }
+}
+
+.exportBtn {
+    background: $admin-card-bg;
+    color: $admin-ink2;
+    border: 1px solid $admin-border;
+    @include font-body($text-xs, $fw-semibold);
+    &:hover { background: $admin-hover; }
+}
+
+// Modal
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $sp-4;
+}
+
+.modal {
+    background: $admin-card-bg;
+    border-radius: $r-4;
+    padding: $sp-6;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+
+    h2 {
+        @include font-display($text-lg, $fw-bold);
+        color: $admin-ink;
+        margin: 0 0 $sp-4;
+    }
+}
+
+.modalHint {
+    @include font-body($text-sm, $fw-regular);
+    color: $admin-ink3;
+    margin-bottom: $sp-4;
+    line-height: $lh-relaxed;
+
+    code {
+        background: $admin-surface;
+        padding: 2px 6px;
+        border-radius: $r-1;
+        font-size: $text-xs;
+    }
+}
+
+.formGroup {
+    margin-bottom: $sp-4;
+
+    label {
+        display: block;
+        @include font-body($text-sm, $fw-semibold);
+        color: $admin-ink2;
+        margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid $admin-border;
+        border-radius: $r-2;
+        background: $admin-surface;
+        color: $admin-ink;
+        @include font-body($text-sm, $fw-regular);
+        font-family: $font-body;
+
+        &:focus {
+            outline: none;
+            border-color: $color-cyan;
+        }
+    }
+
+    input[type="file"] {
+        @include font-body($text-sm, $fw-regular);
+        color: $admin-ink2;
+    }
+}
+
+.formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-3;
+}
+
+.checkLabel {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: $color-cyan;
+    }
+}
+
+.entriesArea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid $admin-border;
+    border-radius: $r-2;
+    background: $admin-surface;
+    color: $admin-ink;
+    @include font-body($text-sm, $fw-regular);
+    font-family: monospace;
+    resize: vertical;
+    line-height: 1.6;
+
+    &:focus {
+        outline: none;
+        border-color: $color-cyan;
+    }
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: $sp-2;
+    margin-top: $sp-4;
+}
+
+.cancelBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $admin-surface;
+    color: $admin-ink2;
+    border: 1px solid $admin-border;
+    cursor: pointer;
+    &:hover { background: $admin-hover; }
+}
+
+.saveBtn {
+    @include btn-base;
+    @include btn-size-md;
+    background: $color-cyan;
+    color: $color-ink;
+    cursor: pointer;
+    &:hover { background: $color-cyan-dark; }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+// Empty state
+.empty {
+    text-align: center;
+    padding: $sp-12 $sp-4;
+    color: $admin-ink3;
+
+    p:first-child {
+        @include font-body($text-lg, $fw-semibold);
+        color: $admin-ink2;
+    }
+}
+
+// Provider groups
+.providerGroup {
+    margin-bottom: $sp-8;
+}
+
+.providerHeader {
+    @include flex-between;
+    margin-bottom: $sp-4;
+
+    h2 {
+        @include font-display($text-lg, $fw-bold);
+        color: $admin-ink;
+        margin: 0;
+    }
+}
+
+.plansGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: $sp-3;
+}
+
+.planCard {
+    background: $admin-card-bg;
+    border: 1px solid $admin-border;
+    border-radius: $r-4;
+    padding: $sp-4;
+    transition: $transition-base;
+
+    &:hover {
+        border-color: $color-cyan;
+        box-shadow: $shadow-sm;
+    }
+}
+
+.inactive {
+    opacity: 0.5;
+}
+
+.planHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $sp-2;
+}
+
+.planTerm {
+    @include font-display($text-base, $fw-bold);
+    color: $color-cyan;
+}
+
+.inactiveBadge {
+    @include font-body($text-xs, $fw-bold);
+    background: $color-red-light;
+    color: $color-red;
+    padding: 2px 8px;
+    border-radius: $r-full;
+}
+
+.planCount {
+    @include font-body($text-sm, $fw-semibold);
+    color: $admin-ink2;
+    margin-bottom: $sp-1;
+}
+
+.planRange {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    margin-bottom: $sp-2;
+}
+
+.planNote {
+    @include font-body($text-xs, $fw-regular);
+    color: $admin-ink3;
+    font-style: italic;
+    margin-bottom: $sp-2;
+}
+
+.planActions {
+    display: flex;
+    gap: $sp-2;
+    margin-top: $sp-3;
+    padding-top: $sp-3;
+    border-top: 1px solid $admin-border;
+
+    button {
+        @include btn-base;
+        @include font-body($text-xs, $fw-semibold);
+        padding: 4px 12px;
+        border-radius: $r-2;
+        background: $admin-surface;
+        color: $admin-ink2;
+        border: 1px solid $admin-border;
+        cursor: pointer;
+
+        &:hover { background: $admin-hover; }
+    }
+}
+
+.deleteBtn {
+    color: $color-red !important;
+    &:hover { background: $color-red-light !important; }
+}
