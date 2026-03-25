@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import ProductCard from '@/components/product/ProductCard';
 import { CatalogPageSkeleton } from '@/components/ui/Skeleton';
 import styles from './page.module.scss';
@@ -33,11 +34,20 @@ interface Product {
     stock: number;
 }
 
+const stagger = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.06 } },
+};
+
+const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
 function CatalogContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { error } = useToast();
-
 
     // Filter States
     const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -100,7 +110,6 @@ function CatalogContent() {
     };
 
     const handleCategoryChange = (catId: string) => {
-        // toggle off if already selected
         const nextCat = selectedCategory === catId ? '' : catId;
         setSelectedCategory(nextCat);
         updateURL(1, nextCat, selectedBrands, sort);
@@ -129,32 +138,53 @@ function CatalogContent() {
 
     return (
         <div className={styles.page}>
+            {/* ── HERO BANNER ── */}
+            <section className={styles.hero}>
+                <div className={styles.heroGrid} />
+                <div className={styles.heroGlow} />
+                <motion.div
+                    className={styles.heroContent}
+                    initial="hidden"
+                    animate="show"
+                    variants={stagger}
+                >
+                    <motion.div className={styles.heroBadge} variants={fadeUp}>
+                        <span className={styles.heroDot} />
+                        DANH MỤC SẢN PHẨM
+                    </motion.div>
 
-            <div className={styles.header}>
-                <h1 className={styles.title}>
-                    {searchQuery ? `Kết quả cho "${searchQuery}"` : 'Tất cả Sản phẩm'}
-                </h1>
-                <div className={styles.subtitle}>Danh mục thiết bị ngoại vi NEXGEAR</div>
+                    <motion.h1 className={styles.heroTitle} variants={fadeUp}>
+                        {searchQuery ? (
+                            <>Kết quả cho &ldquo;<span className={styles.heroHighlight}>{searchQuery}</span>&rdquo;</>
+                        ) : (
+                            <>TẤT CẢ <span className={styles.heroGradientText}>SẢN PHẨM</span></>
+                        )}
+                    </motion.h1>
 
-                {/* Sub-category Tabs / Danh mục dạng ngang cho PC/Mobile đỡ dài */}
-                <div className={styles.catTabs}>
-                    <button
-                        className={`${styles.catTab} ${selectedCategory === '' ? styles.catTabActive : ''}`}
-                        onClick={() => handleCategoryChange('')}
-                    >
-                        Tất cả
-                    </button>
-                    {categories.map((cat: any) => (
+                    <motion.p className={styles.heroSub} variants={fadeUp}>
+                        Danh mục thiết bị ngoại vi NEXGEAR — Gaming gear chính hãng
+                    </motion.p>
+
+                    {/* Category Tabs */}
+                    <motion.div className={styles.catTabs} variants={fadeUp}>
                         <button
-                            key={cat._id}
-                            className={`${styles.catTab} ${selectedCategory === cat._id ? styles.catTabActive : ''}`}
-                            onClick={() => handleCategoryChange(cat._id === selectedCategory ? '' : cat._id)}
+                            className={`${styles.catTab} ${selectedCategory === '' ? styles.catTabActive : ''}`}
+                            onClick={() => handleCategoryChange('')}
                         >
-                            {cat.name}
+                            Tất cả
                         </button>
-                    ))}
-                </div>
-            </div>
+                        {categories.map((cat: any) => (
+                            <button
+                                key={cat._id}
+                                className={`${styles.catTab} ${selectedCategory === cat._id ? styles.catTabActive : ''}`}
+                                onClick={() => handleCategoryChange(cat._id === selectedCategory ? '' : cat._id)}
+                            >
+                                {cat.name}
+                            </button>
+                        ))}
+                    </motion.div>
+                </motion.div>
+            </section>
 
             <div className={styles.layout}>
                 {/* Nút bật/tắt Lọc trên Mobile */}
@@ -168,14 +198,24 @@ function CatalogContent() {
                     BỘ LỌC SẢN PHẨM
                 </button>
 
-                {/* Sidebar Overlay (dùng để ấn click bên ngoài tắt popup) */}
-                <div
-                    className={`${styles.sidebarOverlay} ${mobileFilterOpen ? styles.sidebarOverlayOpen : ''}`}
-                    onClick={() => setMobileFilterOpen(false)}
-                />
+                {/* Sidebar Overlay */}
+                <AnimatePresence>
+                    {mobileFilterOpen && (
+                        <motion.div
+                            className={styles.sidebarOverlay}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setMobileFilterOpen(false)}
+                        />
+                    )}
+                </AnimatePresence>
 
                 {/* Sidebar Filters */}
-                <aside className={`${styles.sidebar} ${mobileFilterOpen ? styles.sidebarOpen : ''}`}>
+                <aside
+                    className={`${styles.sidebar} ${mobileFilterOpen ? styles.sidebarOpen : ''}`}
+                >
+                    <div className={styles.sidebarAccent} />
                     <div className={styles.sidebarHead}>
                         <h2 className={styles.sidebarTitle}>BỘ LỌC TÌM KIẾM</h2>
                         <button className={styles.sidebarClose} onClick={() => setMobileFilterOpen(false)}>
@@ -186,36 +226,36 @@ function CatalogContent() {
                     <div className={styles.sidebarScroll}>
                         <div className={styles.filterGroup}>
                             <h3 className={styles.filterTitle}>Thương hiệu</h3>
-                        <div className={styles.filterList}>
-                            {brands.map((brand: any) => (
-                                <label key={brand._id} className={styles.filterItem}>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedBrands.includes(brand._id)}
-                                        onChange={() => handleBrandChange(brand._id)}
-                                    />
-                                    <span>{brand.name}</span>
-                                </label>
-                            ))}
+                            <div className={styles.filterList}>
+                                {brands.map((brand: any) => (
+                                    <label key={brand._id} className={styles.filterItem}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedBrands.includes(brand._id)}
+                                            onChange={() => handleBrandChange(brand._id)}
+                                        />
+                                        <span>{brand.name}</span>
+                                    </label>
+                                ))}
+                            </div>
                         </div>
-                    </div>
 
-                    <div className={styles.filterGroup}>
-                        <h3 className={styles.filterTitle}>Mức giá</h3>
-                        <div className={styles.filterList}>
-                            <label className={styles.filterItem}><input type="radio" name="price" /> Dưới 1 triệu</label>
-                            <label className={styles.filterItem}><input type="radio" name="price" /> Từ 1 - 2 triệu</label>
-                            <label className={styles.filterItem}><input type="radio" name="price" /> Trên 2 triệu</label>
+                        <div className={styles.filterGroup}>
+                            <h3 className={styles.filterTitle}>Mức giá</h3>
+                            <div className={styles.filterList}>
+                                <label className={styles.filterItem}><input type="radio" name="price" /> Dưới 1 triệu</label>
+                                <label className={styles.filterItem}><input type="radio" name="price" /> Từ 1 - 2 triệu</label>
+                                <label className={styles.filterItem}><input type="radio" name="price" /> Trên 2 triệu</label>
+                            </div>
                         </div>
                     </div>
-                  </div>
                 </aside>
 
                 {/* Main Content */}
                 <main className={styles.main}>
                     <div className={styles.toolbar}>
                         <span className={styles.resultCount}>
-                            Hiển thị {products.length} trên tổng {pagination.totalDocs} sản phẩm
+                            Hiển thị <strong>{products.length}</strong> trên tổng <strong>{pagination.totalDocs}</strong> sản phẩm
                         </span>
                         <select className={styles.sortSelect} value={sort} onChange={handleSortChange}>
                             <option value="-createdAt">Mới nhất</option>
@@ -226,20 +266,30 @@ function CatalogContent() {
                     </div>
 
                     {loading ? (
-                        <div className={styles.emptyState}>⏳ Đang tải sản phẩm...</div>
-                    ) : products.length > 0 ? (
-                        <div className={styles.grid}>
-                            {products.map((p: any) => (
-                                <ProductCard
-                                    key={p._id}
-                                    product={p as any}
-                                    onAddToCart={() => { }}
-                                />
-                            ))}
+                        <div className={styles.emptyState}>
+                            <div className={styles.emptyIcon}>⏳</div>
+                            <div>Đang tải sản phẩm...</div>
                         </div>
+                    ) : products.length > 0 ? (
+                        <motion.div
+                            className={styles.grid}
+                            variants={stagger}
+                            initial="hidden"
+                            animate="show"
+                            key={`${selectedCategory}-${selectedBrands.join(',')}-${sort}-${currentPage}`}
+                        >
+                            {products.map((p: any) => (
+                                <motion.div key={p._id} variants={fadeUp}>
+                                    <ProductCard
+                                        product={p as any}
+                                        onAddToCart={() => { }}
+                                    />
+                                </motion.div>
+                            ))}
+                        </motion.div>
                     ) : (
                         <div className={styles.emptyState}>
-                            <span style={{ fontSize: '48px' }}>🔍</span>
+                            <div className={styles.emptyIcon}>🔍</div>
                             <div>Không tìm thấy sản phẩm nào phù hợp.</div>
                         </div>
                     )}
@@ -252,10 +302,9 @@ function CatalogContent() {
                                 disabled={currentPage === 1}
                                 onClick={() => handlePageChange(currentPage - 1)}
                             >
-                                Trang trước
+                                ‹
                             </button>
 
-                            {/* Simplistic page numbers array */}
                             {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((pg) => (
                                 <button
                                     key={pg}
@@ -271,13 +320,12 @@ function CatalogContent() {
                                 disabled={currentPage === pagination.totalPages}
                                 onClick={() => handlePageChange(currentPage + 1)}
                             >
-                                Trang sau
+                                ›
                             </button>
                         </div>
                     )}
                 </main>
             </div>
-
         </div>
     );
 }

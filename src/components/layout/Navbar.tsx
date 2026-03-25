@@ -66,8 +66,9 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
 
     useEffect(() => {
         setIsMounted(true)
-        const handler = () => setScrolled(window.scrollY > 50)
-        window.addEventListener('scroll', handler, { passive: true })
+        // Disable scroll feature for header compression
+        // const handler = () => setScrolled(window.scrollY > 50)
+        // window.addEventListener('scroll', handler, { passive: true })
 
         fetch('/api/categories?tree=true&active=true')
             .then(r => r.json())
@@ -93,7 +94,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
             })
             .catch(() => {})
 
-        return () => window.removeEventListener('scroll', handler)
+        // return () => window.removeEventListener('scroll', handler)
     }, [])
 
     useEffect(() => { setMenuOpen(false) }, [pathname])
