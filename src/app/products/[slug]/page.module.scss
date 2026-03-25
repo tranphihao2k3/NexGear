@@ -475,7 +475,7 @@
 }
 
 .productTitle {
-    @include font-display($text-3xl, $fw-black);
+    @include font-body($text-3xl, $fw-black);
     color: var(--ink);
     margin: 0;
     line-height: 1.1;
@@ -942,7 +942,7 @@
 
 .cartBtn {
     border-width: 2px !important;
-    @include font-display(11px, $fw-bold);
+    @include font-body(11px, $fw-bold);
     letter-spacing: $ls-wide;
     position: relative;
     overflow: hidden;
@@ -956,7 +956,7 @@
 .buyBtn {
     background: #00C4AD !important;
     color: #000000 !important;
-    @include font-display($text-sm, $fw-black);
+    @include font-body($text-sm, $fw-black);
     letter-spacing: 0.08em;
     position: relative;
     overflow: hidden;
@@ -1019,7 +1019,7 @@
     border-radius: $r-1;
     background: var(--bg2);
     color: var(--ink3);
-    @include font-display($text-xs, $fw-bold);
+    @include font-body($text-xs, $fw-bold);
     letter-spacing: $ls-wide;
     text-transform: uppercase;
     cursor: pointer;
@@ -1141,7 +1141,7 @@
 
 .tabBtn {
     padding: $sp-6 $sp-10;
-    @include font-display($text-sm, $fw-bold);
+    @include font-body($text-sm, $fw-bold);
     color: var(--ink3);
     background: transparent;
     border: none;
@@ -1224,7 +1224,7 @@
 
     // ── H2: Tiêu đề chính ─────────────────────────────────
     h2 {
-        @include font-display($text-xl, $fw-bold);
+        @include font-body($text-xl, $fw-bold);
         color: $color-ink;
         margin: $sp-8 0 $sp-4;
         padding-left: $sp-4;
@@ -1238,7 +1238,7 @@
 
     // ── H3: Tiêu đề phụ ───────────────────────────────────
     h3 {
-        @include font-display($text-base, $fw-bold);
+        @include font-body($text-base, $fw-bold);
         color: $color-ink;
         margin: $sp-6 0 $sp-3;
         padding-bottom: $sp-2;

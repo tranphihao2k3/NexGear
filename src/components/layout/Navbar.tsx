@@ -56,12 +56,79 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     const compareCount = useCompareStore(state => state.items.length)
     const [isMounted, setIsMounted] = useState(false)
     const [categories, setCategories] = useState<NavLink[]>([
-        { href: '/laptop', label: 'Laptop' },
-        { href: '/chuot', label: 'Chuột' },
-        { href: '/ban-phim', label: 'Bàn phím' },
-        { href: '/tai-nghe', label: 'Tai nghe' },
-        { href: '/loa', label: 'Loa' },
-        { href: '/phu-kien', label: 'Phụ kiện' },
+        {
+            href: '/laptop',
+            label: 'Laptop',
+            sub: [
+                { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
+                { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
+                { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
+                { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
+            ]
+        },
+        {
+            href: '/ban-phim',
+            label: 'Bàn Phím',
+            sub: [
+                { href: '/ban-phim-co', label: 'Bàn Phím Cơ', desc: 'Mechanical keyboard cao cấp' },
+                { href: '/ban-phim-khong-day', label: 'Bàn Phím Không Dây', desc: 'Wireless & Bluetooth' },
+                { href: '/ban-phim-tkl', label: 'Bàn Phím TKL / 75%', desc: 'Compact, tiết kiệm không gian' },
+                { href: '/ban-phim-60', label: 'Bàn Phím 60% / 65%', desc: 'Ultra compact, tối giản' },
+                { href: '/custom-kit', label: 'Custom Kit', desc: 'Barebone & DIY kit' },
+            ]
+        },
+        {
+            href: '/chuot',
+            label: 'Chuột',
+            sub: [
+                { href: '/chuot-gaming', label: 'Chuột Gaming', desc: 'Chuột chơi game chuyên nghiệp' },
+                { href: '/chuot-wireless', label: 'Chuột Wireless', desc: 'Không dây, tự do di chuyển' },
+                { href: '/chuot-ergonomic', label: 'Chuột Ergonomic', desc: 'Thiết kế công thái học' },
+                { href: '/chuot-sieu-nhe', label: 'Chuột Siêu Nhẹ', desc: 'Dưới 60g, linh hoạt tối đa' },
+            ]
+        },
+        {
+            href: '/linh-ki-n',
+            label: 'Linh Kiện',
+            sub: [
+                { href: '/bo-nho-ram', label: 'Bộ nhớ Ram', desc: '' },
+                { href: '/day-sac-asus', label: 'Dây Sạc', desc: '' },
+                { href: '/ssd-512gb', label: 'Ổ cứng SSD', desc: '' },
+            ]
+        },
+        {
+            href: '/loa',
+            label: 'Loa',
+            sub: [
+                { href: '/soundbar', label: 'Soundbar', desc: 'Loa thanh cho bàn setup' },
+                { href: '/loa-bluetooth', label: 'Loa Bluetooth', desc: 'Di động, pin lâu' },
+                { href: '/loa-desktop', label: 'Loa Desktop', desc: '2.0 / 2.1 cho PC' },
+            ]
+        },
+        {
+            href: '/lot-chuot',
+            label: 'Lót Chuột',
+        },
+        {
+            href: '/phu-kien',
+            label: 'Phụ kiện',
+            sub: [
+                { href: '/keycap', label: 'Keycap Sets', desc: 'PBT, Cherry profile...' },
+                { href: '/switch', label: 'Switches', desc: 'Gateron, Cherry MX...' },
+                { href: '/mouse-pad', label: 'Mouse Pad', desc: 'Desk mat & gaming pad' },
+                { href: '/cable-hub', label: 'Cable & Hub', desc: 'USB-C, Dock, Hub' },
+                { href: '/wrist-rest', label: 'Wrist Rest', desc: 'Kê tay gỗ, silicone' },
+            ]
+        },
+        {
+            href: '/tai-nghe',
+            label: 'Tai Nghe',
+            sub: [
+                { href: '/tai-nghe-over-ear', label: 'Tai Nghe Over-ear', desc: 'Trùm tai, bass sâu' },
+                { href: '/tai-nghe-in-ear', label: 'Tai Nghe In-ear / TWS', desc: 'True wireless stereo' },
+                { href: '/tai-nghe-gaming', label: 'Tai Nghe Gaming', desc: 'Âm thanh vòm 7.1' },
+            ]
+        }
     ])
 
     useEffect(() => {

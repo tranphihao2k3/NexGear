@@ -101,7 +101,7 @@
 }
 
 .heroTitle {
-    font-family: $font-display;
+    font-family: $font-body;
     font-size: clamp(32px, 6vw, 56px);
     font-weight: $fw-black;
     color: var(--ink);

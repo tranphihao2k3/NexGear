@@ -41,6 +41,7 @@ $dark-bg2: #0a0d12;
   overflow: hidden;
 
   @include tablet { padding: 100px 0; }
+  @include mobile { padding: 64px 0; }
 }
 
 .sectionDark {
@@ -103,6 +104,7 @@ $dark-bg2: #0a0d12;
   letter-spacing: $ls-wide;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   transition: all 0.3s ease;
 
@@ -124,6 +126,7 @@ $dark-bg2: #0a0d12;
   letter-spacing: $ls-wide;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   transition: all 0.3s ease;
 
@@ -236,6 +239,11 @@ $dark-bg2: #0a0d12;
   align-items: center;
   gap: 28px;
   padding: 120px 0 80px;
+
+  @include mobile {
+    padding: 80px $sp-5 60px;
+    width: 100%;
+  }
 }
 
 .heroBadge {
@@ -312,7 +320,16 @@ $dark-bg2: #0a0d12;
   flex-wrap: wrap;
   justify-content: center;
 
-  @include mobile { flex-direction: column; width: 100%; }
+  @include tablet {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 $sp-6;
+  }
+
+  @include mobile {
+    padding: 0 $sp-4;
+  }
 }
 
 .heroStats {
@@ -323,8 +340,15 @@ $dark-bg2: #0a0d12;
   border: 1px solid var(--border);
   border-radius: 12px;
   backdrop-filter: blur(8px);
+  max-width: 100%;
 
-  @include mobile { gap: 16px; flex-wrap: wrap; justify-content: center; padding: 12px 16px; }
+  @include mobile {
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 12px $sp-4;
+    width: calc(100% - #{$sp-10});
+  }
 }
 
 .statV {
@@ -827,8 +851,7 @@ $dark-bg2: #0a0d12;
   grid-template-columns: repeat(3, 1fr);
   gap: 40px;
 
-  @include tablet { grid-template-columns: repeat(2, 1fr); }
-  @include mobile { grid-template-columns: 1fr; }
+  @include tablet { grid-template-columns: 1fr; gap: 24px; }
 }
 
 .blogCard {
@@ -942,6 +965,7 @@ $dark-bg2: #0a0d12;
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -961,6 +985,11 @@ $dark-bg2: #0a0d12;
     grid-template-columns: 1fr;
     gap: 60px;
     padding: 48px 24px;
+  }
+
+  @include mobile {
+    padding: 32px $sp-4;
+    gap: 32px;
   }
 }
 
@@ -1059,6 +1088,7 @@ $dark-bg2: #0a0d12;
   text-align: center;
 
   @include tablet { padding: 60px 24px; }
+  @include mobile { padding: 40px $sp-4; }
 }
 
 .newsletterGlow {
@@ -1147,6 +1177,11 @@ $dark-bg2: #0a0d12;
     grid-template-columns: 1fr;
     gap: 60px;
     padding: 48px 24px;
+  }
+
+  @include mobile {
+    padding: 32px $sp-4;
+    gap: 32px;
   }
 }
 
