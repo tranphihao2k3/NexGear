@@ -197,7 +197,7 @@ export default function HomeClient() {
 
   return (
     <div className={styles.home}>
-      <CustomCursor />
+      {/* <CustomCursor /> */}
       {/* ═══ SCROLL PROGRESS ═══ */}
       <motion.div className={styles.progressBar} style={{ scaleX }} />
 
