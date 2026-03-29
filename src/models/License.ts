@@ -16,7 +16,7 @@ export interface ILicense extends Document {
 
 const LicenseSchema = new Schema<ILicense>(
     {
-        key: { type: String, required: true, unique: true, trim: true },
+        key: { type: String, required: true, trim: true },
         hwid: { type: String, default: '', trim: true },
         software: { type: Schema.Types.ObjectId, ref: 'Software', required: true },
         expiryDate: { type: Date, required: true },
@@ -29,7 +29,7 @@ const LicenseSchema = new Schema<ILicense>(
     { timestamps: true }
 );
 
-LicenseSchema.index({ key: 1 });
+LicenseSchema.index({ key: 1 }, { unique: true });
 LicenseSchema.index({ hwid: 1 });
 LicenseSchema.index({ status: 1 });
 

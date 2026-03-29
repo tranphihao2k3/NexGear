@@ -18,7 +18,7 @@ export interface IReturn extends Document {
 
 const ReturnSchema = new Schema<IReturn>(
     {
-        returnNumber: { type: String, required: true, unique: true },
+        returnNumber: { type: String, required: true },
         order: { type: Schema.Types.ObjectId, ref: 'Order', required: true },
         customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
         returnType: { type: String, enum: ['refund', 'exchange', 'store_credit'], required: true },

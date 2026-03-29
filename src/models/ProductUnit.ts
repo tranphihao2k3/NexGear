@@ -28,7 +28,7 @@ export interface IProductUnit extends Document {
 const ProductUnitSchema = new Schema<IProductUnit>(
     {
         product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
-        serialNumber: { type: String, required: true, unique: true, uppercase: true, trim: true },
+        serialNumber: { type: String, required: true, uppercase: true, trim: true },
         barcode: { type: String, default: null, unique: true, sparse: true },
         purchasePrice: { type: Number, required: true, default: 0 },
         sellingPrice: { type: Number, required: true, default: 0 },

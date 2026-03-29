@@ -37,7 +37,7 @@ export interface IPurchaseOrder extends Document {
 
 const PurchaseOrderSchema = new Schema<IPurchaseOrder>(
     {
-        orderNumber: { type: String, required: true, unique: true },
+        orderNumber: { type: String, required: true },
         supplier: { type: Schema.Types.ObjectId, ref: 'Supplier', required: true },
         supplierName: { type: String, required: true },
         warehouse: { type: Schema.Types.ObjectId, ref: 'Warehouse', required: true },

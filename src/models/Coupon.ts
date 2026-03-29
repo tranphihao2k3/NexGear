@@ -18,7 +18,7 @@ export interface ICoupon extends Document {
 
 const CouponSchema = new Schema<ICoupon>(
     {
-        code: { type: String, required: true, unique: true, uppercase: true },
+        code: { type: String, required: true, uppercase: true },
         type: {
             type: String,
             enum: ['percent', 'fixed', 'shipping'],
@@ -37,7 +37,7 @@ const CouponSchema = new Schema<ICoupon>(
     { timestamps: true }
 );
 
-CouponSchema.index({ code: 1 });
+CouponSchema.index({ code: 1 }, { unique: true });
 CouponSchema.index({ isActive: 1, expireAt: 1 });
 
 const Coupon = models.Coupon || model<ICoupon>('Coupon', CouponSchema);

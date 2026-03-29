@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
@@ -44,12 +45,12 @@ export async function GET(req: NextRequest) {
 
         // 2. Category
         if (searchParams.get('category')) {
-            filter.category = searchParams.get('category');
+            filter.category = new mongoose.Types.ObjectId(searchParams.get('category')!);
         }
 
         // 3. Brand
         if (searchParams.get('brand')) {
-            filter.brand = searchParams.get('brand');
+            filter.brand = new mongoose.Types.ObjectId(searchParams.get('brand')!);
         }
 
         // 4. Price range
@@ -128,15 +129,23 @@ export async function GET(req: NextRequest) {
                 sortOptions = { createdAt: -1 };
         }
 
+        // Put out-of-stock products at the end, then apply user sort
+        const finalSort = { _inStock: -1 as const, ...sortOptions };
+
         const [products, total] = await Promise.all([
-            Product.find(filter)
-                .populate('category', 'name slug')
-                .populate('brand', 'name slug')
-                .sort(sortOptions)
-                .skip(skip)
-                .limit(limit)
-                .select('-description -specs') // Exclude heavy fields in list
-                .lean(),
+            Product.aggregate([
+                { $match: filter },
+                { $addFields: { _inStock: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } } },
+                { $sort: finalSort },
+                { $skip: skip },
+                { $limit: limit },
+                { $project: { description: 0, specs: 0, _inStock: 0 } },
+            ]).then(async (docs) => {
+                return Product.populate(docs, [
+                    { path: 'category', select: 'name slug' },
+                    { path: 'brand', select: 'name slug' },
+                ]);
+            }),
             Product.countDocuments(filter),
         ]);
 

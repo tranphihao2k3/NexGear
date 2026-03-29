@@ -26,7 +26,7 @@ export interface IService extends Document {
 
 const ServiceSchema = new Schema<IService>(
     {
-        serviceNumber: { type: String, required: true, unique: true },
+        serviceNumber: { type: String, required: true },
         serviceType: { type: String, enum: ['repair', 'cleaning', 'upgrade', 'warranty', 'inspection'], required: true },
         customer: { type: Schema.Types.ObjectId, ref: 'Customer', default: null },
         customerName: { type: String, required: true },

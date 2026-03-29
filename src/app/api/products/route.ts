@@ -1,9 +1,17 @@
 import { NextRequest } from 'next/server';
+import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
 import Category from '@/models/Category';
 import Brand from '@/models/Brand';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
+
+function toObjectId(id: string) {
+    return new mongoose.Types.ObjectId(id);
+}
+function toObjectIds(ids: string[]) {
+    return ids.map(id => new mongoose.Types.ObjectId(id));
+}
 
 // GET /api/products — List with filters
 export async function GET(req: NextRequest) {
@@ -28,7 +36,7 @@ export async function GET(req: NextRequest) {
         const categorySlug = searchParams.get('categorySlug');
 
         if (categoryId) {
-            filter.category = categoryId;
+            filter.category = toObjectId(categoryId);
         } else if (categorySlug) {
             const cat = await Category.findOne({ slug: categorySlug }).lean();
             if (cat) {
@@ -46,7 +54,7 @@ export async function GET(req: NextRequest) {
 
         if (searchParams.get('brand')) {
             const brands = searchParams.get('brand')?.split(',') || [];
-            if (brands.length > 0) filter.brand = { $in: brands };
+            if (brands.length > 0) filter.brand = { $in: toObjectIds(brands) };
         }
 
         const tag = searchParams.get('tag');
@@ -128,14 +136,24 @@ export async function GET(req: NextRequest) {
         const isAdmin = searchParams.get('admin') === 'true';
         const projection = isAdmin ? {} : { costPrice: 0 };
 
+        // Put out-of-stock products at the end, then apply user sort
+        const finalSort = { _inStock: -1, ...sort };
+
         const [products, total] = await Promise.all([
-            Product.find(filter, projection)
-                .populate('category', 'name slug')
-                .populate('brand', 'name slug logo')
-                .sort(sort)
-                .skip(skip)
-                .limit(limit)
-                .lean(),
+            Product.aggregate([
+                { $match: filter },
+                { $addFields: { _inStock: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } } },
+                { $sort: finalSort },
+                { $skip: skip },
+                { $limit: limit },
+                ...(isAdmin ? [] : [{ $project: { costPrice: 0 } }]),
+                { $project: { _inStock: 0 } },
+            ]).then(async (docs) => {
+                return Product.populate(docs, [
+                    { path: 'category', select: 'name slug' },
+                    { path: 'brand', select: 'name slug logo' },
+                ]);
+            }),
             Product.countDocuments(filter),
         ]);
 

@@ -22,7 +22,7 @@ export interface IWarrantyCard extends Document {
 
 const WarrantyCardSchema = new Schema<IWarrantyCard>(
     {
-        warrantyNumber: { type: String, required: true, unique: true },
+        warrantyNumber: { type: String, required: true },
         product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
         order: { type: Schema.Types.ObjectId, ref: 'Order', default: null },
         customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },

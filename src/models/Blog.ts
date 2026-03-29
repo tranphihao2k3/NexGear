@@ -20,7 +20,7 @@ export interface IBlog extends Document {
 const BlogSchema = new Schema<IBlog>(
     {
         title: { type: String, required: true },
-        slug: { type: String, required: true, unique: true },
+        slug: { type: String, required: true },
         excerpt: { type: String, default: '' },
         content: { type: String, required: true },
         featuredImage: { type: String, default: '' },
@@ -35,7 +35,7 @@ const BlogSchema = new Schema<IBlog>(
     { timestamps: true }
 );
 
-BlogSchema.index({ slug: 1 });
+BlogSchema.index({ slug: 1 }, { unique: true });
 BlogSchema.index({ status: 1, publishedAt: -1 });
 
 const Blog = models.Blog || model<IBlog>('Blog', BlogSchema);

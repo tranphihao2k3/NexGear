@@ -16,7 +16,7 @@ export interface IWarehouse extends Document {
 
 const WarehouseSchema = new Schema<IWarehouse>(
     {
-        warehouseCode: { type: String, required: true, unique: true },
+        warehouseCode: { type: String, required: true },
         name: { type: String, required: true },
         address: { type: String, default: '' },
         managerId: { type: Schema.Types.ObjectId, ref: 'Employee', default: null },

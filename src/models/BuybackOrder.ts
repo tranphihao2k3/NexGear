@@ -27,7 +27,7 @@ export interface IBuybackOrder extends Document {
 
 const BuybackOrderSchema = new Schema<IBuybackOrder>(
     {
-        buybackNumber: { type: String, required: true, unique: true },
+        buybackNumber: { type: String, required: true },
         sellerName: { type: String, required: true },
         sellerPhone: { type: String, required: true },
         sellerIdNumber: { type: String, default: '' },
