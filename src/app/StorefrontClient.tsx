@@ -6,7 +6,7 @@ import styles from "./page.module.scss";
 import ProductCard from "@/components/product/ProductCard";
 import ScrollReveal, { ScrollStagger } from "@/components/animations/ScrollReveal";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
-import { CyberpunkLoader } from "@/components/ui";
+import { CyberpunkLoader, ProductGridSkeleton } from "@/components/ui";
 
 interface Category {
   _id: string;
@@ -45,7 +45,25 @@ function CategoryRow({ category, index }: { category: Category; index: number })
       .finally(() => setLoading(false));
   }, [category.slug]);
 
-  if (loading) return null;
+  if (loading) {
+    const isDark = index % 2 === 1;
+    return (
+      <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
+        <div className={styles.container}>
+          <div className={styles.sectionHeader} style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div>
+              <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
+              <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
+                {category.name}
+              </h2>
+            </div>
+          </div>
+          <ProductGridSkeleton count={8} />
+        </div>
+      </section>
+    );
+  }
+
   if (products.length === 0) return null; // Don't show empty categories
 
   const isDark = index % 2 === 1; // Alternate background colors
@@ -110,7 +128,35 @@ export default function StorefrontClient() {
   }, []);
 
   if (loading) {
-    return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><CyberpunkLoader message="Đang tải danh mục..." /></div>;
+    return (
+       <div className={styles.home} style={{ paddingTop: "80px" }}>
+         {/* Giả lập Banner Header */}
+         <section style={{ backgroundColor: "var(--color-bg)", padding: "40px 0", borderBottom: "1px solid var(--color-border)" }}>
+            <div className={styles.container} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+               <div style={{ width: "60%", height: 48, backgroundColor: "var(--color-border)", borderRadius: 8 }} />
+               <div style={{ width: "40%", height: 20, backgroundColor: "var(--color-border)", borderRadius: 4 }} />
+            </div>
+         </section>
+         
+         {/* Giả lập các mảng Sản phẩm */}
+         <div style={{ paddingBottom: "80px" }}>
+            {[1, 2, 3].map((_, idx) => {
+               const isDark = idx % 2 === 1;
+               return (
+                  <section key={idx} className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
+                     <div className={styles.container}>
+                        <div style={{ marginBottom: "2rem" }}>
+                           <div style={{ width: 150, height: 14, backgroundColor: "var(--color-primary)", opacity: 0.5, marginBottom: 8, borderRadius: 2 }} />
+                           <div style={{ width: 300, height: 36, backgroundColor: "var(--color-border)", borderRadius: 4 }} />
+                        </div>
+                        <ProductGridSkeleton count={8} />
+                     </div>
+                  </section>
+               );
+            })}
+         </div>
+       </div>
+    );
   }
 
   return (
