@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/contexts/ThemeContext'
+import { useSiteSettings } from '@/contexts/SiteSettingsContext'
 import { useCompareStore } from '@/store/useCompareStore'
 import styles from './Navbar.module.scss'
 
@@ -44,6 +45,7 @@ interface NavbarProps {
 }
 
 export default function Navbar({ cartCount = 0 }: NavbarProps) {
+    const siteSettings = useSiteSettings()
     const { data: session } = useSession()
     const pathname = usePathname()
     const { theme, toggleTheme } = useTheme()
@@ -181,8 +183,8 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                 <div className={styles.topBar}>
                     <div className={styles.topBarInner}>
                         <Link href="/" className={styles.logo}>
-                            <span className={styles.logoGlitch} data-text="NEX">NEX</span>
-                            <span className={styles.logoAccent}>GEAR</span>
+                            <span className={styles.logoGlitch} data-text={siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}>{siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}</span>
+                            <span className={styles.logoAccent}>{siteSettings.storeName.substring(Math.ceil(siteSettings.storeName.length / 2))}</span>
                             <span className={styles.logoPulse} />
                         </Link>
 
@@ -343,8 +345,8 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                     <nav className={styles.mobileMenu} onClick={e => e.stopPropagation()} aria-label="Mobile navigation">
                         <div className={styles.mobileHeader}>
                             <span className={styles.mobileLogo}>
-                                <span className={styles.logoGlitch} data-text="NEX">NEX</span>
-                                <span className={styles.logoAccent}>GEAR</span>
+                                <span className={styles.logoGlitch} data-text={siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}>{siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}</span>
+                                <span className={styles.logoAccent}>{siteSettings.storeName.substring(Math.ceil(siteSettings.storeName.length / 2))}</span>
                             </span>
                             <button className={styles.mobileClose} onClick={() => setMenuOpen(false)}>✕</button>
                         </div>

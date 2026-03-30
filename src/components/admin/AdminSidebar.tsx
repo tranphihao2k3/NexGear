@@ -9,6 +9,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useAdminTheme } from '@/contexts/AdminThemeContext'
+import { useSiteSettings } from '@/contexts/SiteSettingsContext'
 import { useSidebar } from '@/app/admin/AdminLayoutClient'
 import {
     LayoutDashboard,
@@ -164,6 +165,7 @@ export default function AdminSidebar() {
     const pathname = usePathname()
     const { data: session } = useSession()
     const { theme, toggleTheme } = useAdminTheme()
+    const siteSettings = useSiteSettings()
     const { collapsed, setCollapsed, menuOpen: open, setMenuOpen: setOpen } = useSidebar()
 
     const user = session?.user as any
@@ -240,7 +242,7 @@ export default function AdminSidebar() {
                     <div className={styles.menuHeader}>
                         <div className={styles.headerLeft}>
                             <Link href="/admin" onClick={() => setOpen(false)} className={styles.menuLogo}>
-                                NEX<span className={styles.menuLogoAccent}>GEAR</span>
+                                {siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}<span className={styles.menuLogoAccent}>{siteSettings.storeName.substring(Math.ceil(siteSettings.storeName.length / 2))}</span>
                             </Link>
                         </div>
 
