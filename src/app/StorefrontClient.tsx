@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import styles from "./page.module.scss";
 import ProductCard from "@/components/product/ProductCard";
 import ScrollReveal, { ScrollStagger } from "@/components/animations/ScrollReveal";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
-import { CyberpunkLoader, ProductGridSkeleton } from "@/components/ui";
+import { ProductGridSkeleton } from "@/components/ui";
 
 interface Category {
   _id: string;
@@ -30,20 +31,15 @@ interface Product {
 
 // Sub-component to fetch and render products for a specific category
 function CategoryRow({ category, index }: { category: Category; index: number }) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch(`/api/products?categorySlug=${category.slug}&limit=8`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-          setProducts(data.data);
-        }
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
-  }, [category.slug]);
+  const { data: products = [], isLoading: loading } = useQuery<Product[]>({
+    queryKey: ['storefront-products', category.slug],
+    queryFn: async () => {
+      const res = await fetch(`/api/products?categorySlug=${category.slug}&limit=8`);
+      const data = await res.json();
+      return data.success ? data.data : [];
+    },
+    staleTime: 10 * 60 * 1000, // Cache trong 10 phút
+  });
 
   if (loading) {
     const isDark = index % 2 === 1;
@@ -95,35 +91,34 @@ function CategoryRow({ category, index }: { category: Category; index: number })
 
 export default function StorefrontClient() {
   const siteSettings = useSiteSettings();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch("/api/categories?active=true")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.data)) {
-          const rootCats = [...data.data];
-          // Sắp xếp: Ưu tiên mục "Laptop" (Gốc) lên đầu, sau đó đến các danh mục con (Gaming Laptop, Ultrabook)
-          rootCats.sort((a, b) => {
-            const aStr = a.name.toLowerCase() + a.slug.toLowerCase();
-            const bStr = b.name.toLowerCase() + b.slug.toLowerCase();
-            const aIsLaptop = aStr.includes('laptop') || aStr.includes('ultrabook') || aStr.includes('workstation');
-            const bIsLaptop = bStr.includes('laptop') || bStr.includes('ultrabook') || bStr.includes('workstation');
-            
-            if (a.slug === "laptop") return -1;
-            if (b.slug === "laptop") return 1;
-            if (aIsLaptop && !bIsLaptop) return -1;
-            if (!aIsLaptop && bIsLaptop) return 1;
-            
-            return 0; 
-          });
-          setCategories(rootCats);
-        }
-      })
-      .catch((err) => console.error("Error fetching categories:", err))
-      .finally(() => setLoading(false));
-  }, []);
+  
+  const { data: categories = [], isLoading: loading } = useQuery<Category[]>({
+    queryKey: ['storefront-categories'],
+    queryFn: async () => {
+      const res = await fetch("/api/categories?active=true");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        const rootCats = [...data.data];
+        // Sắp xếp: Ưu tiên mục "Laptop" (Gốc) lên đầu, sau đó đến các danh mục con (Gaming Laptop, Ultrabook)
+        rootCats.sort((a, b) => {
+          const aStr = a.name.toLowerCase() + a.slug.toLowerCase();
+          const bStr = b.name.toLowerCase() + b.slug.toLowerCase();
+          const aIsLaptop = aStr.includes('laptop') || aStr.includes('ultrabook') || aStr.includes('workstation');
+          const bIsLaptop = bStr.includes('laptop') || bStr.includes('ultrabook') || bStr.includes('workstation');
+          
+          if (a.slug === "laptop") return -1;
+          if (b.slug === "laptop") return 1;
+          if (aIsLaptop && !bIsLaptop) return -1;
+          if (!aIsLaptop && bIsLaptop) return 1;
+          
+          return 0; 
+        });
+        return rootCats;
+      }
+      return [];
+    },
+    staleTime: 15 * 60 * 1000, // Caching danh mục 15 phút (ít thay đổi)
+  });
 
   return (
     <div className={styles.home} style={{ paddingTop: "80px" }}> {/* Offset for Navbar */}
