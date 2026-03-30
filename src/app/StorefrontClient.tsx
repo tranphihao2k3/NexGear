@@ -127,19 +127,27 @@ export default function StorefrontClient() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return (
-       <div className={styles.home} style={{ paddingTop: "80px" }}>
-         {/* Giả lập Banner Header */}
-         <section style={{ backgroundColor: "var(--color-bg)", padding: "40px 0", borderBottom: "1px solid var(--color-border)" }}>
-            <div className={styles.container} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-               <div style={{ width: "60%", height: 48, backgroundColor: "var(--color-border)", borderRadius: 8 }} />
-               <div style={{ width: "40%", height: 20, backgroundColor: "var(--color-border)", borderRadius: 4 }} />
-            </div>
-         </section>
-         
-         {/* Giả lập các mảng Sản phẩm */}
-         <div style={{ paddingBottom: "80px" }}>
+  return (
+    <div className={styles.home} style={{ paddingTop: "80px" }}> {/* Offset for Navbar */}
+      
+      {/* ─── Hero Banner Siêu Gọn Nhẹ ─── */}
+      <section style={{ backgroundColor: "var(--color-bg)", padding: "40px 0", borderBottom: "1px solid var(--color-border)" }}>
+        <div className={styles.container} style={{ textAlign: "center" }}>
+          <ScrollReveal>
+            <h1 className={styles.heading} style={{ fontSize: "clamp(32px, 5vw, 48px)", margin: "0 0 16px 0", color: "var(--color-ink)", lineHeight: 1.1 }}>
+              {(siteSettings as any).bannerText || `Chào mừng đến với ${siteSettings.storeName}`}
+            </h1>
+            <p style={{ fontSize: "16px", color: "var(--color-ink2)", maxWidth: "600px", margin: "0 auto" }}>
+              {siteSettings.siteTagline} — Cung cấp các sản phẩm Laptop, PC & Phụ kiện chính hãng với giá tốt nhất thị trường.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ─── Render Category Rows ─── */}
+      <div style={{ paddingBottom: "80px" }}>
+        {loading ? (
+           <>
             {[1, 2, 3].map((_, idx) => {
                const isDark = idx % 2 === 1;
                return (
@@ -154,38 +162,19 @@ export default function StorefrontClient() {
                   </section>
                );
             })}
-         </div>
-       </div>
-    );
-  }
-
-  return (
-    <div className={styles.home} style={{ paddingTop: "80px" }}> {/* Offset for Navbar */}
-      
-      {/* ─── Hero Banner Siêu Gọn Nhẹ ─── */}
-      <section style={{ backgroundColor: "var(--color-bg)", padding: "40px 0", borderBottom: "1px solid var(--color-border)" }}>
-        <div className={styles.container} style={{ textAlign: "center" }}>
-          <ScrollReveal>
-            <h1 style={{ fontSize: "clamp(32px, 5vw, 48px)", margin: "0 0 16px 0", color: "var(--color-ink)", lineHeight: 1.1 }}>
-              {(siteSettings as any).bannerText || `Chào mừng đến với ${siteSettings.storeName}`}
-            </h1>
-            <p style={{ fontSize: "16px", color: "var(--color-ink2)", maxWidth: "600px", margin: "0 auto" }}>
-              {siteSettings.siteTagline} — Cung cấp các sản phẩm Laptop, PC & Phụ kiện chính hãng với giá tốt nhất thị trường.
-            </p>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* ─── Render Category Rows ─── */}
-      <div style={{ paddingBottom: "80px" }}>
-        {categories.map((cat, idx) => (
-          <CategoryRow key={cat._id} category={cat} index={idx} />
-        ))}
-        
-        {categories.length === 0 && (
-          <div style={{ textAlign: "center", padding: "100px 0", color: "var(--color-ink2)" }}>
-            Chưa có danh mục sản phẩm nào.
-          </div>
+           </>
+        ) : (
+          <>
+            {categories.map((cat, idx) => (
+              <CategoryRow key={cat._id} category={cat} index={idx} />
+            ))}
+            
+            {categories.length === 0 && (
+              <div style={{ textAlign: "center", padding: "100px 0", color: "var(--color-ink2)" }}>
+                Chưa có danh mục sản phẩm nào.
+              </div>
+            )}
+          </>
         )}
       </div>
       
