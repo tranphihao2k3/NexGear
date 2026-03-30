@@ -5,6 +5,8 @@ import HomeClient from './HomeClient'
 import StorefrontClient from './StorefrontClient'
 import { getSiteSettings } from '@/lib/site-config'
 
+export const dynamic = 'force-dynamic';
+
 // ── PAGE ─────────────────────────────────────────────────────
 export default async function HomePage() {
   const s = await getSiteSettings()

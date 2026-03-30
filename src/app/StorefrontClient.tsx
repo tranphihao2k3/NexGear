@@ -34,7 +34,7 @@ function CategoryRow({ category, index }: { category: Category; index: number })
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`/api/products?categorySlug=${category.slug}&limit=8&status=active`)
+    fetch(`/api/products?categorySlug=${category.slug}&limit=8`)
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -83,17 +83,24 @@ export default function StorefrontClient() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/categories?tree=true&active=true")
+    fetch("/api/categories?active=true")
       .then((res) => res.json())
       .then((data) => {
         if (data.success && Array.isArray(data.data)) {
           const rootCats = [...data.data];
-          // Sắp xếp: Ưu tiên "Laptop" lên đầu, các phần mục khác tiếp theo
-          // Đối với LaptopThanhVo, việc hiện Laptop đầu tiên là tối quan trọng
+          // Sắp xếp: Ưu tiên mục "Laptop" (Gốc) lên đầu, sau đó đến các danh mục con (Gaming Laptop, Ultrabook)
           rootCats.sort((a, b) => {
-            if (a.name.toLowerCase() === "laptop") return -1;
-            if (b.name.toLowerCase() === "laptop") return 1;
-            return 0; // Giữ nguyên thứ tự cũ cho phần còn lại
+            const aStr = a.name.toLowerCase() + a.slug.toLowerCase();
+            const bStr = b.name.toLowerCase() + b.slug.toLowerCase();
+            const aIsLaptop = aStr.includes('laptop') || aStr.includes('ultrabook') || aStr.includes('workstation');
+            const bIsLaptop = bStr.includes('laptop') || bStr.includes('ultrabook') || bStr.includes('workstation');
+            
+            if (a.slug === "laptop") return -1;
+            if (b.slug === "laptop") return 1;
+            if (aIsLaptop && !bIsLaptop) return -1;
+            if (!aIsLaptop && bIsLaptop) return 1;
+            
+            return 0; 
           });
           setCategories(rootCats);
         }
