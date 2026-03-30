@@ -5,10 +5,15 @@
 // ============================================================
 import HomeClient from './HomeClient'
 import { getSiteSettings } from '@/lib/site-config'
+import { redirect } from 'next/navigation'
 
 // ── PAGE ─────────────────────────────────────────────────────
 export default async function HomePage() {
   const s = await getSiteSettings()
+
+  if (s.showLandingPage === false) {
+    redirect('/products')
+  }
 
   // ── JSON-LD SCHEMAS ─────────────────────────────────────────
   const localBusinessSchema = {

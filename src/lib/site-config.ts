@@ -18,6 +18,7 @@ export interface SiteSettings {
     facebook: string;
     instagram: string;
     tiktok: string;
+    showLandingPage: boolean;
 }
 
 const DEFAULTS: SiteSettings = {
@@ -37,6 +38,7 @@ const DEFAULTS: SiteSettings = {
     facebook: '',
     instagram: '',
     tiktok: '',
+    showLandingPage: true,
 };
 
 let cachedSettings: SiteSettings | null = null;
@@ -82,6 +84,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
                 facebook: (settings as any).facebook || DEFAULTS.facebook,
                 instagram: (settings as any).instagram || DEFAULTS.instagram,
                 tiktok: (settings as any).tiktok || DEFAULTS.tiktok,
+                showLandingPage: (settings as any).showLandingPage ?? DEFAULTS.showLandingPage,
             };
         } else {
             cachedSettings = { ...DEFAULTS };

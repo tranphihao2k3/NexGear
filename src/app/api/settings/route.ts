@@ -53,6 +53,8 @@ export async function PUT(req: NextRequest) {
             // Shipping
             'shippingInner', 'shippingOuter', 'shippingSouth', 'shippingNorth',
             'freeShipMinOrder', 'ghtkToken', 'ghnToken',
+            // Layout Configure
+            'showLandingPage'
         ];
 
         for (const field of allowedFields) {

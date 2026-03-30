@@ -48,6 +48,9 @@ export interface ISetting extends Document {
     freeShipMinOrder: number;
     ghtkToken: string;
     ghnToken: string;
+
+    // Config Layout
+    showLandingPage: boolean;
 }
 
 const SettingSchema: Schema = new Schema(
@@ -99,6 +102,7 @@ const SettingSchema: Schema = new Schema(
         freeShipMinOrder: { type: Number, default: 500000 },
         ghtkToken: { type: String, default: '' },
         ghnToken: { type: String, default: '' },
+        showLandingPage: { type: Boolean, default: true },
     },
     {
         timestamps: true,

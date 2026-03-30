@@ -16,6 +16,7 @@ interface SettingsData {
     logoUrl: string
     faviconUrl: string
     bannerText: string
+    showLandingPage: boolean
     // General
     storeName: string
     storeEmail: string
@@ -58,6 +59,7 @@ const DEFAULTS: SettingsData = {
     logoUrl: '',
     faviconUrl: '',
     bannerText: '',
+    showLandingPage: true,
     storeName: 'NEXGEAR',
     storeEmail: 'contact@nexgzone.top',
     storePhone: '0901 234 567',
@@ -205,6 +207,7 @@ export default function AdminSettingsPage() {
         logoUrl: settings.logoUrl,
         faviconUrl: settings.faviconUrl,
         bannerText: settings.bannerText,
+        showLandingPage: settings.showLandingPage,
     })
 
     const toggleMaintenance = async () => {
@@ -579,6 +582,23 @@ export default function AdminSettingsPage() {
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Banner trang chủ</label>
                             <input className={styles.formInput} name="bannerText" value={settings.bannerText} onChange={handleChange} placeholder="Text hiển thị trên hero banner" />
+                        </div>
+                        <div className={styles.formGroup} style={{ marginTop: '20px', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>
+                            <div className={styles.toggleRow} style={{ margin: 0 }}>
+                                <div className={styles.toggleInfo}>
+                                    <div className={styles.toggleLabel}>Hiển thị Landing Page</div>
+                                    <div className={styles.toggleDesc}>
+                                        Bật: Hiển thị trang giới thiệu với 3D Hero, Stories.<br/>
+                                        Tắt: Khách vào trang chủ sẽ thấy ngay lưới Sản phẩm trực tiếp.
+                                    </div>
+                                </div>
+                                <div
+                                    className={`${styles.toggleSwitch} ${settings.showLandingPage ? styles.on : ''}`}
+                                    onClick={() => handleToggle('showLandingPage')}
+                                >
+                                    <div className={styles.toggleKnob} />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className={styles.sectionFooter}>
