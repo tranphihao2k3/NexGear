@@ -234,6 +234,11 @@ export default function AdminSidebar() {
         setOpen(false)
     }, [pathname])
 
+    const isVietnamese = /[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳýỵỷỹ]/i.test(siteSettings.storeName);
+    const splitIndex = Math.ceil(siteSettings.storeName.length / 2);
+    const namePart1 = siteSettings.storeName.substring(0, splitIndex);
+    const namePart2 = siteSettings.storeName.substring(splitIndex);
+
     return (
         <>
             {/* Full Screen Menu Modal */}
@@ -242,7 +247,8 @@ export default function AdminSidebar() {
                     <div className={styles.menuHeader}>
                         <div className={styles.headerLeft}>
                             <Link href="/admin" onClick={() => setOpen(false)} className={styles.menuLogo}>
-                                {siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}<span className={styles.menuLogoAccent}>{siteSettings.storeName.substring(Math.ceil(siteSettings.storeName.length / 2))}</span>
+                                <span style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart1}</span>
+                                <span className={styles.menuLogoAccent} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart2}</span>
                             </Link>
                         </div>
 

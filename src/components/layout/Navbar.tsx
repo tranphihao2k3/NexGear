@@ -174,6 +174,11 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
         dropdownTimeout.current = setTimeout(() => setActiveDropdown(null), 200)
     }
 
+    const isVietnamese = /[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳýỵỷỹ]/i.test(siteSettings.storeName);
+    const splitIndex = Math.ceil(siteSettings.storeName.length / 2);
+    const namePart1 = siteSettings.storeName.substring(0, splitIndex);
+    const namePart2 = siteSettings.storeName.substring(splitIndex);
+
     return (
         <>
             <header className={`${styles.nav} ${scrolled ? styles.navScrolled : ''}`}>
@@ -183,8 +188,8 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                 <div className={styles.topBar}>
                     <div className={styles.topBarInner}>
                         <Link href="/" className={styles.logo}>
-                            <span className={styles.logoGlitch} data-text={siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}>{siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}</span>
-                            <span className={styles.logoAccent}>{siteSettings.storeName.substring(Math.ceil(siteSettings.storeName.length / 2))}</span>
+                            <span className={styles.logoGlitch} data-text={namePart1} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart1}</span>
+                            <span className={styles.logoAccent} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart2}</span>
                             <span className={styles.logoPulse} />
                         </Link>
 
@@ -345,8 +350,8 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                     <nav className={styles.mobileMenu} onClick={e => e.stopPropagation()} aria-label="Mobile navigation">
                         <div className={styles.mobileHeader}>
                             <span className={styles.mobileLogo}>
-                                <span className={styles.logoGlitch} data-text={siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}>{siteSettings.storeName.substring(0, Math.ceil(siteSettings.storeName.length / 2))}</span>
-                                <span className={styles.logoAccent}>{siteSettings.storeName.substring(Math.ceil(siteSettings.storeName.length / 2))}</span>
+                                <span className={styles.logoGlitch} data-text={namePart1} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart1}</span>
+                                <span className={styles.logoAccent} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart2}</span>
                             </span>
                             <button className={styles.mobileClose} onClick={() => setMenuOpen(false)}>✕</button>
                         </div>
