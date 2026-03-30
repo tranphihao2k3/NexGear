@@ -71,19 +71,17 @@ function CategoryRow({ category, index }: { category: Category; index: number })
   return (
     <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
       <div className={styles.container}>
-        <ScrollReveal>
-          <div className={styles.sectionHeader} style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
-            <div>
-              <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
-              <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
-                {category.name}
-              </h2>
-            </div>
-            <Link href={`/${category.slug}`} className={styles.viewAll} style={{ color: "var(--color-ink)", textDecoration: "none", fontWeight: 600, borderBottom: "1px solid var(--color-border)", paddingBottom: "4px" }}>
-              XEM TẤT CẢ →
-            </Link>
+        <div className={styles.sectionHeader} style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div>
+            <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
+            <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
+              {category.name}
+            </h2>
           </div>
-        </ScrollReveal>
+          <Link href={`/${category.slug}`} prefetch={false} className={styles.viewAll} style={{ color: "var(--color-ink)", textDecoration: "none", fontWeight: 600, borderBottom: "1px solid var(--color-border)", paddingBottom: "4px" }}>
+            XEM TẤT CẢ →
+          </Link>
+        </div>
 
         <ScrollStagger className={styles.featuredGrid}>
           {products.map((p) => (
@@ -133,14 +131,12 @@ export default function StorefrontClient() {
       {/* ─── Hero Banner Siêu Gọn Nhẹ ─── */}
       <section style={{ backgroundColor: "var(--color-bg)", padding: "40px 0", borderBottom: "1px solid var(--color-border)" }}>
         <div className={styles.container} style={{ textAlign: "center" }}>
-          <ScrollReveal>
-            <h1 className={styles.heading} style={{ fontSize: "clamp(32px, 5vw, 48px)", margin: "0 0 16px 0", color: "var(--color-ink)", lineHeight: 1.1 }}>
-              {(siteSettings as any).bannerText || `Chào mừng đến với ${siteSettings.storeName}`}
-            </h1>
-            <p style={{ fontSize: "16px", color: "var(--color-ink2)", maxWidth: "600px", margin: "0 auto" }}>
-              {siteSettings.siteTagline} — Cung cấp các sản phẩm Laptop, PC & Phụ kiện chính hãng với giá tốt nhất thị trường.
-            </p>
-          </ScrollReveal>
+          <h1 className={styles.heading} style={{ fontSize: "clamp(32px, 5vw, 48px)", margin: "0 0 16px 0", color: "var(--color-ink)", lineHeight: 1.1 }}>
+            {(siteSettings as any).bannerText || `Chào mừng đến với ${siteSettings.storeName}`}
+          </h1>
+          <p style={{ fontSize: "16px", color: "var(--color-ink2)", maxWidth: "600px", margin: "0 auto" }}>
+            {siteSettings.siteTagline} — Cung cấp các sản phẩm Laptop, PC & Phụ kiện chính hãng với giá tốt nhất thị trường.
+          </p>
         </div>
       </section>
 

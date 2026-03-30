@@ -254,6 +254,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                 >
                                     <Link
                                         href={cat.href}
+                                        prefetch={false}
                                         className={`${styles.catLink} ${pathname.startsWith(cat.href) ? styles.catLinkActive : ''}`}
                                     >
                                         {cat.label}
@@ -275,6 +276,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                                         <Link
                                                             key={s.href}
                                                             href={s.href}
+                                                            prefetch={false}
                                                             className={styles.megaItem}
                                                             style={{ animationDelay: `${i * 35}ms` }}
                                                         >
@@ -282,7 +284,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                                             {s.desc && <span className={styles.megaItemDesc}>{s.desc}</span>}
                                                         </Link>
                                                     ))}
-                                                    <Link href={cat.href} className={styles.megaViewAll}>
+                                                    <Link href={cat.href} prefetch={false} className={styles.megaViewAll}>
                                                         Xem tất cả {cat.label} →
                                                     </Link>
                                                 </div>
@@ -302,6 +304,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                             >
                                 <Link
                                     href={SERVICE_MENU.href}
+                                    prefetch={false}
                                     className={`${styles.catLink} ${pathname.startsWith('/sua-chua') || pathname.startsWith('/thu-cu') ? styles.catLinkActive : ''}`}
                                 >
                                     {SERVICE_MENU.label}
@@ -317,7 +320,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                         <div className={styles.megaContent}>
                                             <div className={styles.megaList}>
                                                 {SERVICE_MENU.sub.map((s, i) => (
-                                                    <Link key={s.href} href={s.href} className={styles.megaItem} style={{ animationDelay: `${i * 35}ms` }}>
+                                                    <Link key={s.href} href={s.href} prefetch={false} className={styles.megaItem} style={{ animationDelay: `${i * 35}ms` }}>
                                                         <span className={styles.megaItemLabel}>{s.label}</span>
                                                         {s.desc && <span className={styles.megaItemDesc}>{s.desc}</span>}
                                                     </Link>
@@ -332,6 +335,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                 <Link
                                     key={link.href}
                                     href={link.href}
+                                    prefetch={false}
                                     className={`${styles.catLink} ${link.highlight ? styles.catLinkDeal : ''} ${pathname.startsWith(link.href) ? styles.catLinkActive : ''}`}
                                 >
                                     {link.label}
