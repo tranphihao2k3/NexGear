@@ -30,55 +30,52 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 // ── METADATA ────────────────────────────────────────────────
-export const metadata: Metadata = {
-  metadataBase: new URL('https://nexgzone.top/'),
-  manifest: '/manifest.json',
-  verification: {
-    google: 'bWsGu1qOKzmhUPHyZ21TF5CkMouJhBA9AO33OgLrW2I',
-  },
-  title: {
-    default: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
-    template: '%s | NexGear',
-  },
-  description:
-    'NexGear — shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.',
-  keywords: [
-    'gear máy tính Cần Thơ',
-    'bàn phím cơ Cần Thơ',
-    'chuột gaming Cần Thơ',
-    'tai nghe gaming Cần Thơ',
-    'phụ kiện PC Cần Thơ',
-    'nexgear',
-    'shop gear Cần Thơ',
-  ],
-  authors: [{ name: 'NexGear' }],
-  creator: 'NexGear',
-  openGraph: {
-    type: 'website',
-    locale: 'vi_VN',
-    url: 'https://nexgzone.top/',
-    siteName: 'NexGear',
-    title: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
-    description: 'Shop gear máy tính chính hãng #1 Cần Thơ. Giao nhanh 2H, bảo hành 12T.',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'NexGear Cần Thơ' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
-    description: 'Shop gear máy tính chính hãng #1 Cần Thơ',
-    images: ['/og-image.jpg'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+import { getSiteSettings } from '@/lib/site-config'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSiteSettings()
+  const keywords = s.siteKeywords.split(',').map(k => k.trim()).filter(Boolean)
+  return {
+    metadataBase: new URL(s.siteDomain),
+    manifest: '/manifest.webmanifest',
+    verification: {
+      google: 'bWsGu1qOKzmhUPHyZ21TF5CkMouJhBA9AO33OgLrW2I',
+    },
+    title: {
+      default: s.siteTitle,
+      template: s.siteTitleTemplate,
+    },
+    description: s.siteDescription,
+    keywords,
+    authors: [{ name: s.storeName }],
+    creator: s.storeName,
+    openGraph: {
+      type: 'website',
+      locale: 'vi_VN',
+      url: s.siteDomain,
+      siteName: s.storeName,
+      title: s.siteTitle,
+      description: s.siteDescription,
+      images: [{ url: s.ogImage, width: 1200, height: 630, alt: s.storeName }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: s.siteTitle,
+      description: s.siteDescription,
+      images: [s.ogImage],
+    },
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
+  }
 }
 
 export const viewport: Viewport = {
@@ -91,6 +88,7 @@ export const viewport: Viewport = {
 import LayoutWrapper from '@/components/layout/LayoutWrapper'
 import { AuthProvider } from '@/components/layout/AuthProvider'
 import { QueryProvider } from '@/components/layout/QueryProvider'
+import { SiteSettingsProvider } from '@/contexts/SiteSettingsContext'
 import dbConnect from '@/lib/mongodb'
 import Setting from '@/models/Setting'
 
@@ -98,13 +96,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   let settings = null;
   try {
     await dbConnect();
-    settings = await Setting.findOne().lean();
+    const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'nexgear';
+    settings = await Setting.findOne({ siteId }).lean();
+    
+    // Auto-migration fallback read for existing database
+    if (!settings && siteId === 'nexgear') {
+      settings = await Setting.findOne({ siteId: { $exists: false } }).lean();
+    }
   } catch (err) {
     console.error('Failed to load settings in layout:', err);
   }
 
   const primaryColor = settings?.primaryColor || '#00C4AD';
   const accentColor = settings?.accentColor || '#F0356A';
+
+  const siteSettings = await getSiteSettings();
 
   return (
     <html
@@ -118,11 +124,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <AuthProvider>
           <QueryProvider>
-            <ToastProvider>
-              <LayoutWrapper>
-                {children}
-              </LayoutWrapper>
-            </ToastProvider>
+            <SiteSettingsProvider settings={siteSettings}>
+              <ToastProvider>
+                <LayoutWrapper>
+                  {children}
+                </LayoutWrapper>
+              </ToastProvider>
+            </SiteSettingsProvider>
           </QueryProvider>
         </AuthProvider>
       </body>

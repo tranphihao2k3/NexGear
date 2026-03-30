@@ -4,8 +4,11 @@
 // Configure search engine crawlers directives
 // ============================================================
 import type { MetadataRoute } from 'next'
+import { getSiteSettings } from '@/lib/site-config'
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+    const { siteDomain } = await getSiteSettings()
+
     return {
         rules: [
             {
@@ -18,7 +21,7 @@ export default function robots(): MetadataRoute.Robots {
                 allow: '/_next/image*',
             },
         ],
-        sitemap: 'https://nexgzone.top/sitemap.xml',
-        host: 'https://nexgzone.top/',
+        sitemap: `${siteDomain}/sitemap.xml`,
+        host: `${siteDomain}/`,
     }
 }

@@ -10,6 +10,7 @@ import BuybackOrder from '@/models/BuybackOrder';
 import Return from '@/models/Return';
 import Coupon from '@/models/Coupon';
 import Product from '@/models/Product';
+import { getSiteSettings } from '@/lib/site-config';
 
 /**
  * Tự động chạy khi Order được giao thành công (delivered)
@@ -171,11 +172,12 @@ export async function onOrderDelivered(orderId: string) {
 
         // Notification cho khách hàng
         if (order.customer) {
+            const { storeName } = await getSiteSettings();
             await Notification.create({
                 user: order.customer,
                 type: 'order',
                 title: 'Cảm ơn bạn đã mua hàng!',
-                message: `Đơn hàng ${order._id} đã được giao thành công. Cảm ơn bạn đã tin tưởng NexGear!`,
+                message: `Đơn hàng ${order._id} đã được giao thành công. Cảm ơn bạn đã tin tưởng ${storeName}!`,
                 priority: 'normal',
             });
         }

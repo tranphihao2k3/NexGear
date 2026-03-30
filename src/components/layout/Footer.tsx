@@ -1,16 +1,21 @@
+'use client';
+
 import styles from './Footer.module.scss'
 import Link from 'next/link'
+import { useSiteSettings } from '@/contexts/SiteSettingsContext'
 
 const Footer = () => {
+    const siteSettings = useSiteSettings();
+
     return (
         <footer className={styles.footer}>
             <div className={styles.container}>
                 <div className={styles.top}>
                     <div className={styles.brand}>
                         <Link href="/" className={styles.logo}>
-                            NEX<span>GEAR</span>
+                            {siteSettings.storeName}
                         </Link>
-                        <p className={styles.tagline}>NEXT-GEN GEAR STORE</p>
+                        <p className={styles.tagline}>{siteSettings.siteTagline}</p>
 
                     </div>
 
@@ -46,8 +51,8 @@ const Footer = () => {
                         <div className={styles.col}>
                             <h3>HỆ SINH THÁI</h3>
                             <ul>
-                                <li><a href="https://nexgzone.top/" target="_blank" rel="noopener">NexGear Store</a></li>
-                                <li><a href="https://nexgzone.top" target="_blank" rel="noopener">NexGzone</a></li>
+                                <li><a href={siteSettings.siteDomain} target="_blank" rel="noopener">{siteSettings.storeName} Store</a></li>
+                                <li><a href={siteSettings.siteDomain} target="_blank" rel="noopener">{siteSettings.storeName}</a></li>
                             </ul>
                         </div>
                     </div>

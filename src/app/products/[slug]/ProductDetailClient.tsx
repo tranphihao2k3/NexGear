@@ -12,6 +12,7 @@ import Button from "@/components/ui/Button";
 import styles from "./page.module.scss";
 import { useToast } from "@/components/ui";
 import { useCart } from "@/contexts/CartContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 // ── STAR COMPONENT ────────────────────────────────────────
 function Stars({ value, max = 5, size = "md" }: { value: number; max?: number; size?: string }) {
@@ -80,6 +81,7 @@ function parseVND(raw: string): number {
 }
 
 function InstallmentTab({ price }: { price: number }) {
+    const siteSettings = useSiteSettings();
     const [plans, setPlans] = useState<InstallmentPlan[]>([]);
     const [providers, setProviders] = useState<string[]>([]);
     const [provider, setProvider] = useState("");
@@ -119,7 +121,7 @@ function InstallmentTab({ price }: { price: number }) {
         <div className={styles.emptyTab}>
             <span>💳</span>
             <p>Chưa có bảng trả góp nào</p>
-            <span className={styles.emptyHint}>Vui lòng liên hệ NEXGEAR để được tư vấn trả góp.</span>
+            <span className={styles.emptyHint}>{`Vui lòng liên hệ ${siteSettings.storeName} để được tư vấn trả góp.`}</span>
         </div>
     );
 

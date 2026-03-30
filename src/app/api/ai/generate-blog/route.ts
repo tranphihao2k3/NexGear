@@ -3,11 +3,12 @@ import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
 import dbConnect from '@/lib/mongodb';
 import { Product, Category } from '@/models';
+import { getSiteSettings } from '@/lib/site-config';
 
 // ─── Prompt builder ──────────────────────────────────────────────────────────
 
-function buildPrompt(keyword: string, tone: string, contextStr: string) {
-    return `Bạn là một chuyên gia viết blog SEO về công nghệ, laptop, gaming gear tại Việt Nam cho cửa hàng thực tế tên là NEXGEAR.
+function buildPrompt(keyword: string, tone: string, contextStr: string, storeName: string) {
+    return `Bạn là một chuyên gia viết blog SEO về công nghệ, laptop, gaming gear tại Việt Nam cho cửa hàng thực tế tên là ${storeName}.
 Hãy viết một bài blog hoàn chỉnh bằng tiếng Việt với từ khóa: "${keyword}"
 
 ${contextStr}
@@ -17,11 +18,11 @@ Yêu cầu:
 - Tiêu đề hấp dẫn, chứa từ khóa chính
 - Mô tả ngắn (excerpt) 2-3 câu tóm tắt
 - Nội dung chi tiết 800-1500 từ, chia thành các heading H2, H3
-- Cố gắng LỒNG GHÉP TỰ NHIÊN các sản phẩm có thật của NEXGEAR (được cung cấp trong THÔNG TIN CỬA HÀNG ở trên) vào bài viết, kèm theo thông tin nổi bật và mức giá của sản phẩm đó.
+- Cố gắng LỒNG GHÉP TỰ NHIÊN các sản phẩm có thật của ${storeName} (được cung cấp trong THÔNG TIN CỬA HÀNG ở trên) vào bài viết, kèm theo thông tin nổi bật và mức giá của sản phẩm đó.
 - Khi nhắc đến sản phẩm của cửa hàng, hãy sử dụng đường link thực tế lấy từ (Link tham khảo) trong phần thông tin cửa hàng cung cấp với thẻ <a>. Ví dụ: <a href="/product/abc-slug">Tên sản phẩm</a>.
 - Có danh sách bullet points khi cần
 - SEO-friendly: từ khóa xuất hiện tự nhiên trong bài
-- Kết bài có gọi hành động (Call-to-action) rõ ràng, mời khách hàng xem thêm sản phẩm hoặc dùng dịch vụ của NexGear.
+- Kết bài có gọi hành động (Call-to-action) rõ ràng, mời khách hàng xem thêm sản phẩm hoặc dùng dịch vụ của ${storeName}.
 - Tags phù hợp (3-5 tags, phân cách bằng dấu phẩy)
 - Meta title (tối đa 60 ký tự)
 - Meta description (tối đa 155 ký tự)
@@ -39,7 +40,7 @@ Trả về JSON theo schema sau (CHỈ JSON, không text khác):
 
 QUAN TRỌNG:
 - Trường "content" phải là HTML hợp lệ với các tag h2, h3, p, a, ul, li, strong, em
-- Cần khéo léo chèn link các sản phẩm có ở NEXGEAR dưới dạng thẻ <a>.
+- Cần khéo léo chèn link các sản phẩm có ở ${storeName} dưới dạng thẻ <a>.
 - Trường "imagePrompt" phải bằng tiếng Anh, mô tả chi tiết ảnh đại diện phù hợp với bài viết
 - Chỉ trả về JSON, không có text nào khác`;
 }
@@ -300,7 +301,8 @@ export async function POST(request: Request) {
   - Mô tả ngắn: ${desc}`;
         }).join('\n');
 
-        const contextStr = `THÔNG TIN CỬA HÀNG NEXGEAR (DÙNG LÀM NGỮ CẢNH):
+        const siteSettings = await getSiteSettings();
+        const contextStr = `THÔNG TIN CỬA HÀNG ${siteSettings.storeName} (DÙNG LÀM NGỮ CẢNH):
 - Từ khóa SEO người dùng nhập: "${keyword}"
 - Từ khóa sản phẩm đã trích xuất: ${searchTerms.join(', ') || '(tổng hợp)'}
 - Các danh mục nổi bật của shop: ${topCategories.map((c: any) => c.name).join(', ')}
@@ -308,7 +310,7 @@ export async function POST(request: Request) {
 ${productLines}`;
 
         // ── 5. Call AI ────────────────────────────────────────────────────
-        const prompt = buildPrompt(keyword.trim(), tone, contextStr);
+        const prompt = buildPrompt(keyword.trim(), tone, contextStr, siteSettings.storeName);
         let responseText: string | null = null;
         let usedProvider = '';
 

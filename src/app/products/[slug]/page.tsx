@@ -6,6 +6,7 @@
 import type { Metadata } from 'next'
 import dbConnect from '@/lib/mongodb'
 import Product from '@/models/Product'
+import { getSiteSettings } from '@/lib/site-config'
 import ProductDetailClient from './ProductDetailClient'
 
 // ── GENERATE METADATA ───────────────────────────────────────
@@ -15,6 +16,7 @@ export async function generateMetadata({
     params: Promise<{ slug: string }>
 }): Promise<Metadata> {
     const { slug } = await params
+    const s = await getSiteSettings()
 
     try {
         await dbConnect()
@@ -25,7 +27,7 @@ export async function generateMetadata({
 
         if (!product) {
             return {
-                title: 'Sản phẩm không tìm thấy — NexGear',
+                title: `Sản phẩm không tìm thấy — ${s.storeName}`,
                 description: 'Sản phẩm này không tồn tại hoặc đã ngừng kinh doanh.',
             }
         }
@@ -45,14 +47,14 @@ export async function generateMetadata({
         const specSnippet = specParts.length > 0 ? ` ${specParts.join(', ')}.` : ''
 
         // Fallback sang tự sinh nếu seoTitle / seoDesc rỗng
-        const title = product.seoTitle || `${product.name} Chính Hãng — Giá Tốt | NexGear`
-        const description = product.seoDesc || `Mua ${product.name}${brandName ? ` ${brandName}` : ''} chính hãng tại NexGear Cần Thơ.${specSnippet} Giá ${priceFormatted}, bảo hành 12T, giao nhanh 2H.`
+        const title = product.seoTitle || `${product.name} Chính Hãng — Giá Tốt | ${s.storeName}`
+        const description = product.seoDesc || `Mua ${product.name}${brandName ? ` ${brandName}` : ''} chính hãng tại ${s.storeName} Cần Thơ.${specSnippet} Giá ${priceFormatted}, bảo hành 12T, giao nhanh 2H.`
 
         // Build spec-based keywords
         const specKeywords = Object.entries(specs).slice(0, 5).map(([k, v]) => `${k} ${v}`)
 
         return {
-            title: title.length > 60 ? `${product.name} — NexGear Cần Thơ` : title,
+            title: title.length > 60 ? `${product.name} — ${s.storeName} Cần Thơ` : title,
             description: description.substring(0, 160),
             keywords: [
                 product.name,
@@ -66,8 +68,8 @@ export async function generateMetadata({
             openGraph: {
                 title,
                 description: description.substring(0, 160),
-                url: `https://nexgzone.top/products/${slug}`,
-                siteName: 'NexGear',
+                url: `${s.siteDomain}/products/${slug}`,
+                siteName: s.storeName,
                 locale: 'vi_VN',
                 type: 'website',
                 images: product.images?.length > 0
@@ -77,21 +79,21 @@ export async function generateMetadata({
                         height: 800,
                         alt: product.name,
                     }))
-                    : [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+                    : [{ url: s.ogImage, width: 1200, height: 630 }],
             },
             twitter: {
                 card: 'summary_large_image',
                 title,
                 description: description.substring(0, 160),
-                images: product.images?.[0] ? [product.images[0]] : ['/og-image.jpg'],
+                images: product.images?.[0] ? [product.images[0]] : [s.ogImage],
             },
             alternates: {
-                canonical: `https://nexgzone.top/products/${slug}`,
+                canonical: `${s.siteDomain}/products/${slug}`,
             },
         }
     } catch {
         return {
-            title: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
+            title: s.siteTitle,
         }
     }
 }
@@ -103,6 +105,8 @@ export default async function ProductPage({
     params: Promise<{ slug: string }>
 }) {
     const { slug } = await params
+
+    const s = await getSiteSettings()
 
     // Fetch data on server for JSON-LD schema
     let product: any = null
@@ -129,10 +133,10 @@ export default async function ProductPage({
             name: product.brand?.name || '',
         },
         category: product.category?.name || '',
-        url: `https://nexgzone.top/products/${slug}`,
+        url: `${s.siteDomain}/products/${slug}`,
         offers: {
             '@type': 'Offer',
-            url: `https://nexgzone.top/products/${slug}`,
+            url: `${s.siteDomain}/products/${slug}`,
             priceCurrency: 'VND',
             price: product.salePrice || product.basePrice,
             priceValidUntil: new Date(new Date().getFullYear(), 11, 31).toISOString().split('T')[0],
@@ -141,8 +145,8 @@ export default async function ProductPage({
                 : 'https://schema.org/OutOfStock',
             seller: {
                 '@type': 'Organization',
-                name: 'NexGear',
-                url: 'https://nexgzone.top/',
+                name: s.storeName,
+                url: `${s.siteDomain}/`,
             },
         },
         ...(product.ratings?.count > 0 ? {
@@ -161,19 +165,19 @@ export default async function ProductPage({
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: 'https://nexgzone.top/' },
-            { '@type': 'ListItem', position: 2, name: 'Sản phẩm', item: 'https://nexgzone.top/products' },
+            { '@type': 'ListItem', position: 1, name: 'Trang chủ', item: `${s.siteDomain}/` },
+            { '@type': 'ListItem', position: 2, name: 'Sản phẩm', item: `${s.siteDomain}/products` },
             ...(product?.category ? [{
                 '@type': 'ListItem',
                 position: 3,
                 name: product.category.name,
-                item: `https://nexgzone.top/products/${product.category.slug}`,
+                item: `${s.siteDomain}/products/${product.category.slug}`,
             }] : []),
             ...(product ? [{
                 '@type': 'ListItem',
                 position: product?.category ? 4 : 3,
                 name: product.name,
-                item: `https://nexgzone.top/products/${slug}`,
+                item: `${s.siteDomain}/products/${slug}`,
             }] : []),
         ],
     }

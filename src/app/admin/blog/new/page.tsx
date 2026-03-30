@@ -9,8 +9,10 @@ import ImageUploader from '@/components/admin/ImageUploader';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Button } from '@/components/ui';
 import s from '../form.module.scss';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 export default function NewBlogPage() {
+    const siteSettings = useSiteSettings();
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [aiLoading, setAiLoading] = useState(false);
@@ -23,7 +25,7 @@ export default function NewBlogPage() {
         excerpt: '',
         content: '',
         featuredImage: '',
-        author: 'NexGear Team',
+        author: `${siteSettings.storeName} Team`,
         tags: '',
         metaTitle: '',
         metaDescription: '',

@@ -5,9 +5,20 @@ import Setting from '@/models/Setting';
 export async function GET() {
     try {
         await dbConnect();
-        let setting = await Setting.findOne();
+        const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'nexgear';
+        let setting = await Setting.findOne({ siteId });
+        
+        // Auto-migration for existing database that doesn't have siteId yet
+        if (!setting && siteId === 'nexgear') {
+            setting = await Setting.findOne({ siteId: { $exists: false } });
+            if (setting) {
+                setting.siteId = 'nexgear';
+                await setting.save();
+            }
+        }
+        
         if (!setting) {
-            setting = await Setting.create({});
+            setting = await Setting.create({ siteId });
         }
         return NextResponse.json({ success: true, data: setting });
     } catch (error) {
@@ -18,10 +29,11 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
     try {
         await dbConnect();
+        const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'nexgear';
         const body = await req.json();
-        let setting = await Setting.findOne();
+        let setting = await Setting.findOne({ siteId });
         if (!setting) {
-            setting = new Setting();
+            setting = new Setting({ siteId });
         }
 
         // Update all fields that are present in the body
@@ -30,6 +42,8 @@ export async function PUT(req: NextRequest) {
             'primaryColor', 'accentColor', 'logoUrl', 'faviconUrl', 'bannerText',
             // General
             'storeName', 'storeEmail', 'storePhone', 'storeAddress', 'taxCode', 'currency',
+            // SEO & Site Identity
+            'siteTitle', 'siteTitleTemplate', 'siteDescription', 'siteTagline', 'siteDomain', 'siteKeywords', 'ogImage',
             // Social
             'facebook', 'instagram', 'tiktok',
             // Danger zone

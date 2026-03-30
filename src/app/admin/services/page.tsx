@@ -21,6 +21,7 @@ import { Button, Badge, Input } from '@/components/ui';
 import ImageUploader from '@/components/admin/ImageUploader';
 import { searchMatch } from '@/lib/normalize';
 import s from './page.module.scss';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import Link from 'next/link';
 
 // ============================================
@@ -75,6 +76,7 @@ const SERVICE_TYPES: Record<string, { label: string; variant: any }> = {
 };
 
 export default function ServicesPage() {
+  const siteSettings = useSiteSettings();
   const { success: showSuccess, error: showError } = useToast();
   const [loading, setLoading] = useState(true);
   const [services, setServices] = useState<ServiceType[]>([]);
@@ -265,7 +267,7 @@ export default function ServicesPage() {
       return;
     }
 
-    const message = `NEXGEAR xin báo giá dịch vụ: "${service.issueDescription.substring(0, 50)}..." cho thiết bị ${service.productInfo?.brand || ''} ${service.productInfo?.model || ''}. Chi phí dự kiến: ${formatPrice(quoted)}. Cảm ơn quý khách!`;
+    const message = `${siteSettings.storeName} xin báo giá dịch vụ: "${service.issueDescription.substring(0, 50)}..." cho thiết bị ${service.productInfo?.brand || ''} ${service.productInfo?.model || ''}. Chi phí dự kiến: ${formatPrice(quoted)}. Cảm ơn quý khách!`;
     const zaloUrl = `https://zalo.me/${service.customerPhone}?text=${encodeURIComponent(message)}`;
     window.open(zaloUrl, '_blank', 'noopener,noreferrer');
   };

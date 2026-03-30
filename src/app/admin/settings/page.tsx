@@ -23,6 +23,14 @@ interface SettingsData {
     storeAddress: string
     taxCode: string
     currency: string
+    // SEO & Site Identity
+    siteTitle: string
+    siteTitleTemplate: string
+    siteDescription: string
+    siteTagline: string
+    siteDomain: string
+    siteKeywords: string
+    ogImage: string
     // Social
     facebook: string
     instagram: string
@@ -56,6 +64,13 @@ const DEFAULTS: SettingsData = {
     storeAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
     taxCode: '',
     currency: 'VND',
+    siteTitle: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
+    siteTitleTemplate: '%s | NexGear',
+    siteDescription: 'NexGear — shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.',
+    siteTagline: 'NEXT-GEN GEAR STORE',
+    siteDomain: 'https://nexgzone.top',
+    siteKeywords: 'gear máy tính Cần Thơ, bàn phím cơ, chuột gaming, tai nghe gaming, phụ kiện PC, nexgear, shop gear Cần Thơ',
+    ogImage: '/og-image.jpg',
     facebook: '',
     instagram: '',
     tiktok: '',
@@ -148,6 +163,16 @@ export default function AdminSettingsPage() {
         currency: settings.currency,
     })
 
+    const saveSeo = () => saveSettings({
+        siteTitle: settings.siteTitle,
+        siteTitleTemplate: settings.siteTitleTemplate,
+        siteDescription: settings.siteDescription,
+        siteTagline: settings.siteTagline,
+        siteDomain: settings.siteDomain,
+        siteKeywords: settings.siteKeywords,
+        ogImage: settings.ogImage,
+    })
+
     const saveSocial = () => saveSettings({
         facebook: settings.facebook,
         instagram: settings.instagram,
@@ -203,7 +228,7 @@ export default function AdminSettingsPage() {
         <>
             <div className={styles.header}>
                 <h1>Cài đặt</h1>
-                <div className={styles.subtitle}>Quản lý cấu hình cửa hàng NEXGEAR</div>
+                <div className={styles.subtitle}>Quản lý cấu hình cửa hàng {settings.storeName}</div>
             </div>
 
             {/* Tab navigation */}
@@ -261,6 +286,55 @@ export default function AdminSettingsPage() {
                         <div className={styles.sectionFooter}>
                             <button className={styles.saveBtn} onClick={saveGeneral} disabled={saving}>
                                 {saving ? 'ĐANG LƯU...' : '💾 LƯU THAY ĐỔI'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* SEO & Site Identity */}
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <div className={styles.sectionTitle}>Thông tin website & SEO</div>
+                            <div className={styles.sectionDesc}>Cấu hình tiêu đề, mô tả, domain và thông tin SEO</div>
+                        </div>
+                        <div className={styles.sectionBody}>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Tiêu đề trang chủ</label>
+                                <input className={styles.formInput} name="siteTitle" value={settings.siteTitle} onChange={handleChange} placeholder="NexGear — Gear Máy Tính Chính Hãng" />
+                                <span className={styles.formHint}>Title hiển thị trên tab trình duyệt & Google</span>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Title Template (sub-pages)</label>
+                                <input className={styles.formInput} name="siteTitleTemplate" value={settings.siteTitleTemplate} onChange={handleChange} placeholder="%s | NexGear" />
+                                <span className={styles.formHint}>%s sẽ được thay bằng tên trang con. VD: &quot;Sản phẩm | NexGear&quot;</span>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Tagline</label>
+                                <input className={styles.formInput} name="siteTagline" value={settings.siteTagline} onChange={handleChange} placeholder="NEXT-GEN GEAR STORE" />
+                                <span className={styles.formHint}>Hiển thị dưới logo, hero section</span>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Mô tả SEO</label>
+                                <textarea className={styles.formTextarea} name="siteDescription" value={settings.siteDescription} onChange={handleChange} rows={3} placeholder="Mô tả ngắn gọn về cửa hàng..." />
+                            </div>
+                            <div className={styles.formRow}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Domain</label>
+                                    <input className={styles.formInput} name="siteDomain" value={settings.siteDomain} onChange={handleChange} placeholder="https://nexgzone.top" />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>OG Image URL</label>
+                                    <input className={styles.formInput} name="ogImage" value={settings.ogImage} onChange={handleChange} placeholder="/og-image.jpg" />
+                                </div>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Keywords SEO</label>
+                                <textarea className={styles.formTextarea} name="siteKeywords" value={settings.siteKeywords} onChange={handleChange} rows={2} placeholder="gear máy tính, bàn phím cơ, chuột gaming..." />
+                                <span className={styles.formHint}>Phân cách bằng dấu phẩy</span>
+                            </div>
+                        </div>
+                        <div className={styles.sectionFooter}>
+                            <button className={styles.saveBtn} onClick={saveSeo} disabled={saving}>
+                                {saving ? 'ĐANG LƯU...' : '💾 LƯU SEO'}
                             </button>
                         </div>
                     </div>

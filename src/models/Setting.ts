@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ISetting extends Document {
+    siteId: string;
     // Appearance
     primaryColor: string;
     accentColor: string;
@@ -20,6 +21,15 @@ export interface ISetting extends Document {
     facebook: string;
     instagram: string;
     tiktok: string;
+
+    // SEO & Site Identity
+    siteTitle: string;
+    siteTitleTemplate: string;
+    siteDescription: string;
+    siteTagline: string;
+    siteDomain: string;
+    siteKeywords: string;
+    ogImage: string;
 
     // General — Danger zone
     maintenanceMode: boolean;
@@ -42,6 +52,7 @@ export interface ISetting extends Document {
 
 const SettingSchema: Schema = new Schema(
     {
+        siteId: { type: String, default: 'nexgear', index: true },
         // Appearance
         primaryColor: { type: String, default: '#00C4AD' },
         accentColor: { type: String, default: '#F0356A' },
@@ -61,6 +72,15 @@ const SettingSchema: Schema = new Schema(
         facebook: { type: String, default: '' },
         instagram: { type: String, default: '' },
         tiktok: { type: String, default: '' },
+
+        // SEO & Site Identity
+        siteTitle: { type: String, default: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ' },
+        siteTitleTemplate: { type: String, default: '%s | NexGear' },
+        siteDescription: { type: String, default: 'NexGear — shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.' },
+        siteTagline: { type: String, default: 'NEXT-GEN GEAR STORE' },
+        siteDomain: { type: String, default: 'https://nexgzone.top' },
+        siteKeywords: { type: String, default: 'gear máy tính Cần Thơ, bàn phím cơ, chuột gaming, tai nghe gaming, phụ kiện PC, nexgear, shop gear Cần Thơ' },
+        ogImage: { type: String, default: '/og-image.jpg' },
 
         // Danger zone
         maintenanceMode: { type: Boolean, default: false },

@@ -4,12 +4,16 @@
 // Dark/light theme admin dashboard with sidebar
 // ============================================================
 import type { Metadata } from 'next'
+import { getSiteSettings } from '@/lib/site-config'
 import AdminLayoutClient from './AdminLayoutClient'
 
-export const metadata: Metadata = {
-    title: 'Admin Dashboard',
-    description: 'NEXGEAR — Quản lý cửa hàng',
-    robots: { index: false, follow: false },
+export async function generateMetadata(): Promise<Metadata> {
+    const s = await getSiteSettings()
+    return {
+        title: 'Admin Dashboard',
+        description: `${s.storeName} — Quản lý cửa hàng`,
+        robots: { index: false, follow: false },
+    }
 }
 
 export default function AdminLayout({

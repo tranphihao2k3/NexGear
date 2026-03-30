@@ -8,6 +8,7 @@ import ProductCard from '@/components/product/ProductCard';
 import { CatalogPageSkeleton } from '@/components/ui/Skeleton';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 // Interfaces matching our mongoose schemas
 interface Category {
@@ -48,6 +49,7 @@ function CatalogContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { error } = useToast();
+    const siteSettings = useSiteSettings();
 
     // Filter States
     const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
@@ -162,7 +164,7 @@ function CatalogContent() {
                     </motion.h1>
 
                     <motion.p className={styles.heroSub} variants={fadeUp}>
-                        Danh mục thiết bị ngoại vi NEXGEAR — Gaming gear chính hãng
+                        {`Danh mục thiết bị ngoại vi ${siteSettings.storeName} — Gaming gear chính hãng`}
                     </motion.p>
 
                     {/* Category Tabs */}

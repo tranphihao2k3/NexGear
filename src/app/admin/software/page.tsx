@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2, Eye, FileText, Download, Box, RefreshCw, Layers, Za
 import { useToast } from '@/components/ui/Toast';
 import { Button, Badge } from '@/components/ui';
 import s from './page.module.scss';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 interface Software {
     _id: string;
@@ -22,6 +23,7 @@ interface Software {
 }
 
 export default function AdminSoftwarePage() {
+    const siteSettings = useSiteSettings();
     const { success: showSuccess, error: showError } = useToast();
     const [softwareList, setSoftwareList] = useState<Software[]>([]);
     const [loading, setLoading] = useState(true);
@@ -186,7 +188,7 @@ export default function AdminSoftwarePage() {
                 <div className={s.emptyState}>
                     <div className={s.icon}><Box size={40} /></div>
                     <h3>Kho chưa có phần mềm</h3>
-                    <p>Bắt đầu xây dựng kho tài nguyên driver và phần mềm hỗ trợ hệ thống cho người dùng NexGear.</p>
+                    <p>Bắt đầu xây dựng kho tài nguyên driver và phần mềm hỗ trợ hệ thống cho người dùng {siteSettings.storeName}.</p>
                     <Link href="/admin/software/new">
                         <Button variant="primary" leftIcon={<Plus size={20} />}> THÊM PHẦN MỀM ĐẦU TIÊN </Button>
                     </Link>

@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import Button from "@/components/ui/Button";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import styles from "./page.module.scss";
 
 export default function RegisterPage() {
+    const siteSettings = useSiteSettings();
     const [form, setForm] = useState({
         name: "", email: "", password: "", confirm: "", agree: false,
     });
@@ -79,9 +81,9 @@ export default function RegisterPage() {
                 <div className={styles.heroCol}>
                     <div className={styles.heroInner}>
                         <div className={styles.heroLogo}>
-                            <span className={styles.logoNex}>NEX</span><span className={styles.logoGear}>GEAR</span>
+                            <span className={styles.logoNex}>{siteSettings.storeName}</span>
                         </div>
-                        <h1 className={styles.heroTitle}>CHÀO MỪNG ĐẾN VỚI NEXGEAR!</h1>
+                        <h1 className={styles.heroTitle}>{`CHÀO MỪNG ĐẾN VỚI ${siteSettings.storeName}!`}</h1>
                         <p className={styles.heroSub}>Tài khoản của bạn đã được tạo thành công.</p>
                     </div>
                     <div className={styles.heroBg} aria-hidden="true">
@@ -108,10 +110,9 @@ export default function RegisterPage() {
             <div className={styles.heroCol}>
                 <div className={styles.heroInner}>
                     <div className={styles.heroLogo}>
-                        <span className={styles.logoNex}>NEX</span>
-                        <span className={styles.logoGear}>GEAR</span>
+                        <span className={styles.logoNex}>{siteSettings.storeName}</span>
                     </div>
-                    <h1 className={styles.heroTitle}>JOIN THE NEXGEAR COMMUNITY</h1>
+                    <h1 className={styles.heroTitle}>{`JOIN THE ${siteSettings.storeName} COMMUNITY`}</h1>
                     <p className={styles.heroSub}>
                         Tạo tài khoản để theo dõi đơn hàng, nhận ưu đãi độc quyền và
                         tích điểm đổi quà.

@@ -8,9 +8,11 @@ import dbConnect from '@/lib/mongodb'
 import Product from '@/models/Product'
 import CommunityListing from '@/models/CommunityListing'
 import Blog from '@/models/Blog'
+import { getSiteSettings } from '@/lib/site-config'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = 'https://nexgzone.top'
+    const { siteDomain } = await getSiteSettings()
+    const baseUrl = siteDomain
 
     // Static pages
     const staticPages: MetadataRoute.Sitemap = [

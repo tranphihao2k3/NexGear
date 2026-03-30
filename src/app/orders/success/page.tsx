@@ -3,11 +3,13 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import styles from "./page.module.scss";
 
 import { useSearchParams } from 'next/navigation';
 
 function OrderSuccessPageInner() {
+    const siteSettings = useSiteSettings();
     const searchParams = useSearchParams();
     const orderIdParam = searchParams.get('orderId');
     const [mounted, setMounted] = useState(false);
@@ -56,7 +58,7 @@ function OrderSuccessPageInner() {
                 {/* Success Message */}
                 <h1 className={styles.title}>ĐẶT HÀNG THÀNH CÔNG!</h1>
                 <p className={styles.subtitle}>
-                    Cảm ơn bạn đã mua sắm tại NEXGEAR. Đơn hàng của bạn đang được xử lý.
+                    {`Cảm ơn bạn đã mua sắm tại ${siteSettings.storeName}. Đơn hàng của bạn đang được xử lý.`}
                 </p>
 
                 {/* Order Brief */}

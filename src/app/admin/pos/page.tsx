@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react
 import Image from 'next/image'
 import styles from './page.module.scss'
 import { CyberpunkLoader } from '@/components/ui'
+import { useSiteSettings } from '@/contexts/SiteSettingsContext'
 
 // ─── Types ────────────────────────────────────────────────────
 interface Product {
@@ -70,6 +71,7 @@ function genParkedId() {
 
 // ─── Component ────────────────────────────────────────────────
 export default function AdminPOSPage() {
+    const siteSettings = useSiteSettings()
     // Data
     const [products, setProducts] = useState<Product[]>([])
     const [categories, setCategories] = useState<{ _id: string; name: string }[]>([])
@@ -359,7 +361,7 @@ export default function AdminPOSPage() {
 
         const win = window.open('', '_blank', 'width=600,height=800')
         if (!win) return
-        win.document.write(`<html><head><title>Hoá đơn NEXGEAR — ${receiptOrder?.orderCode || ''}</title>
+        win.document.write(`<html><head><title>Hoá đơn ${siteSettings.storeName} — ${receiptOrder?.orderCode || ''}</title>
         <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Orbitron:wght@700;900&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet">
         <style>
             /* Reset & Base */
@@ -1011,17 +1013,17 @@ export default function AdminPOSPage() {
                             {/* ── Header with branding ── */}
                             <div className={styles.rcHeader}>
                                 <div className={styles.rcBrand}>
-                                    <div className={styles.rcLogo}>NEX<em>GEAR</em></div>
-                                    <div className={styles.rcSlogan}>NEXT-GEN GEAR STORE</div>
+                                    <div className={styles.rcLogo}>{siteSettings.storeName}</div>
+                                    <div className={styles.rcSlogan}>{siteSettings.siteTagline}</div>
                                 </div>
                                 <div className={styles.rcInvoiceLabel}>HÓA ĐƠN BÁN HÀNG</div>
                             </div>
 
                             {/* ── Store info ── */}
                             <div className={styles.rcStoreInfo}>
-                                <div>📍 123 Nguyễn Huệ, Q.1, TP. Hồ Chí Minh</div>
-                                <div>📞 1900-NEXGEAR (1900-639-4327)</div>
-                                <div>🌐 nexgzone.top · ✉ contact@nexgzone.top</div>
+                                <div>📍 {siteSettings.storeAddress}</div>
+                                <div>📞 {siteSettings.storePhone}</div>
+                                <div>🌐 {siteSettings.siteDomain.replace(/^https?:\/\//, '')} · ✉ {siteSettings.storeEmail}</div>
                             </div>
 
                             <div className={styles.rcDividerDeco} />
@@ -1135,7 +1137,7 @@ export default function AdminPOSPage() {
                                 <div className={styles.rcSigBlock}>
                                     <div className={styles.rcSigLabel}>Thu ngân</div>
                                     <div className={styles.rcSigLine} />
-                                    <div className={styles.rcSigName}>NEXGEAR POS</div>
+                                    <div className={styles.rcSigName}>{siteSettings.storeName} POS</div>
                                 </div>
                                 <div className={styles.rcSigBlock}>
                                     <div className={styles.rcSigLabel}>Khách hàng</div>
@@ -1147,17 +1149,17 @@ export default function AdminPOSPage() {
                             {/* ── Stamp ── */}
                             <div className={styles.rcStamp}>
                                 <div className={styles.rcStampCircle}>
-                                    <div className={styles.rcStampText}>NEXGEAR</div>
+                                    <div className={styles.rcStampText}>{siteSettings.storeName}</div>
                                     <div className={styles.rcStampSub}>ĐÃ THANH TOÁN</div>
                                 </div>
                             </div>
 
                             {/* ── Footer ── */}
                             <div className={styles.rcFooter}>
-                                <div className={styles.rcFooterLine}>Cảm ơn quý khách đã mua hàng tại NEXGEAR!</div>
+                                <div className={styles.rcFooterLine}>Cảm ơn quý khách đã mua hàng tại {siteSettings.storeName}!</div>
                                 <div className={styles.rcFooterLine}>Sản phẩm được bảo hành theo chính sách nhà sản xuất.</div>
-                                <div className={styles.rcFooterLine}>Hotline hỗ trợ: 1900-NEXGEAR · nexgzone.top</div>
-                                <div className={styles.rcFooterBrand}>— NEX<em>GEAR</em> —</div>
+                                <div className={styles.rcFooterLine}>Hotline hỗ trợ: {siteSettings.storePhone} · {siteSettings.siteDomain.replace(/^https?:\/\//, '')}</div>
+                                <div className={styles.rcFooterBrand}>— {siteSettings.storeName} —</div>
                             </div>
                         </div>
 

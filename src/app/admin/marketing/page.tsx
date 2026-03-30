@@ -27,6 +27,7 @@ import { useToast } from '@/components/ui/Toast';
 import { Button, Badge, Input } from '@/components/ui';
 import Link from 'next/link';
 import s from './page.module.scss';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
 const PLACEHOLDER_IMAGE = 'https://res.cloudinary.com/defhezuhn/image/upload/v1705664165/placeholder-laptop.png';
 
@@ -57,6 +58,7 @@ interface Group {
 }
 
 export default function MarketingPage() {
+    const siteSettings = useSiteSettings();
     const { success: showSuccess, error: showError, info: showInfo } = useToast();
     const [products, setProducts] = useState<Product[]>([]);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -137,9 +139,8 @@ export default function MarketingPage() {
     }, [activeTab, fetchBanner]);
 
     const generateContent = useCallback((product: Product, templateType = 'default', shouldReturn = false) => {
-        const linkNexGear = `https://nexgzone.top/products/${product.slug || product._id}`;
-        const linkNexGzone = `https://nexgzone.top/products/${product.slug || product._id}`;
-        const link = `${linkNexGear}\n${linkNexGzone}`;
+        const productLink = `${siteSettings.siteDomain}/products/${product.slug || product._id}`;
+        const link = `${productLink}\n${productLink}`;
         const price = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price);
         const originalPrice = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price * 1.15);
         const nameUpper = product.name.toUpperCase();
@@ -209,15 +210,15 @@ ${specsBlock}
 
 Máy được test kỹ từng con ốc, chạy mượt Valo, CSGO, GTA V... thoải mái. Ai cần máy chiến game mà ngân sách có hạn thì đây là lựa chọn đáng tiền nhất!
 
-🎁 Mua tại NexGear được tặng: Balo + Chuột + Lót chuột cao cấp
+🎁 Mua tại ${siteSettings.storeName} được tặng: Balo + Chuột + Lót chuột cao cấp
 ⚙️ Cài đặt game, driver FREE trọn đời
 🚚 Giao hàng nhanh — Trả góp 0% duyệt 10 phút
 
 👉 Xem ảnh thực tế & chốt: ${link}
 
-📍 NexGear — Ninh Kiều, Cần Thơ
+📍 ${siteSettings.storeName} — Ninh Kiều, Cần Thơ
 📞 0978.648.720 (Hào)
-#NexGear #GamingGear #LaptopGaming #CanTho`,
+#${siteSettings.storeName.replace(/\s+/g, '')} #GamingGear #LaptopGaming #CanTho`,
 
             () => `🔥🔥 FLASH DEAL — ${nameUpper} 🔥🔥
 
@@ -235,9 +236,9 @@ Máy này chiến game cực đã — FPS cao, không giật lag, tản nhiệt 
 
 👉 ${link}
 
-📍 NexGear — Ninh Kiều, Cần Thơ
+📍 ${siteSettings.storeName} — Ninh Kiều, Cần Thơ
 📞 Hào — 0978.648.720
-#NexGear #LaptopCanTho #GamingLaptop`,
+#${siteSettings.storeName.replace(/\s+/g, '')} #LaptopCanTho #GamingLaptop`,
 
             () => `⚡ VỪA TEST XONG CON NÀY — MÊ LUÔN!
 
@@ -254,8 +255,8 @@ Mình vừa test chạy Valorant, CSGO full setting mượt lắm. Pin vẫn t�
 💳 Trả góp 0% — Giao tận nơi
 
 👉 Chi tiết: ${link}
-📞 0978.648.720 (Hào) — NexGear, Cần Thơ
-#NexGear #GamingSetup #LaptopGaming`,
+📞 0978.648.720 (Hào) — ${siteSettings.storeName}, Cần Thơ
+#${siteSettings.storeName.replace(/\s+/g, '')} #GamingSetup #LaptopGaming`,
         ];
 
         const officeVariants = [
@@ -269,16 +270,16 @@ ${specsBlock}
 💰 Chỉ: ${price}
 📉 Thị trường: ${originalPrice}
 
-🎁 Mua tại NexGear được tặng:
+🎁 Mua tại ${siteSettings.storeName} được tặng:
 🎒 Balo + Chuột + Lót chuột + Túi chống sốc
 ⚙️ Cài Win, Office MIỄN PHÍ trọn đời
 🚚 Ship tận nơi — Trả góp 0% duyệt 10 phút
 
 👉 Xem máy: ${link}
 
-📍 NexGear — Ninh Kiều, Cần Thơ
+📍 ${siteSettings.storeName} — Ninh Kiều, Cần Thơ
 📞 0978.648.720 (Hào)
-#NexGear #LaptopSinhVien #LaptopVanPhong`,
+#${siteSettings.storeName.replace(/\s+/g, '')} #LaptopSinhVien #LaptopVanPhong`,
 
             () => `📚 SINH VIÊN ƠI — MÁY NÀY DÀNH CHO BẠN!
 
@@ -295,8 +296,8 @@ Mở 20 tab Chrome + Zoom + Word cùng lúc vẫn mượt. Pin trâu, màn đẹ
 💳 Trả góp 0% chỉ cần CCCD
 
 👉 ${link}
-📞 Hào — 0978.648.720 | NexGear, Cần Thơ
-#NexGear #LaptopSinhVien #CanTho`,
+📞 Hào — 0978.648.720 | ${siteSettings.storeName}, Cần Thơ
+#${siteSettings.storeName.replace(/\s+/g, '')} #LaptopSinhVien #CanTho`,
 
             () => `✨ GỢI Ý MÁY NGON GIÁ HỜI CHO DÂN VĂN PHÒNG
 
@@ -316,8 +317,8 @@ Máy đã được vệ sinh, thay keo tản nhiệt, cài sẵn Win + Office b�
 🚚 Giao hàng nhanh — Hỗ trợ trả góp
 
 👉 ${link}
-📍 NexGear — Ninh Kiều, Cần Thơ | 📞 0978.648.720
-#NexGear #LaptopCanTho #LaptopCu`,
+📍 ${siteSettings.storeName} — Ninh Kiều, Cần Thơ | 📞 ${siteSettings.storePhone}
+#${siteSettings.storeName.replace(/\s+/g, '')} #LaptopCanTho #LaptopCu`,
         ];
 
         const premiumVariants = [
@@ -338,9 +339,9 @@ Máy chạy Adobe, AutoCAD, Blender... phà phà. Màn hình chuẩn màu, bàn 
 💳 Trả góp 0% — Giao hàng tận nơi
 
 👉 ${link}
-📍 NexGear — Ninh Kiều, Cần Thơ
+📍 ${siteSettings.storeName} — Ninh Kiều, Cần Thơ
 📞 0978.648.720 (Hào)
-#NexGear #LaptopDoHoa #PremiumLaptop`,
+#${siteSettings.storeName.replace(/\s+/g, '')} #LaptopDoHoa #PremiumLaptop`,
 
             () => `🖥️ ĐẲNG CẤP LÀM VIỆC KHÁC BIỆT!
 
@@ -356,12 +357,12 @@ Ai đang tìm máy render, edit video, chạy nhiều phần mềm nặng thì c
 🚚 Ship nhanh — Trả góp 0%
 
 👉 Xem thêm: ${link}
-📞 0978.648.720 (Hào) — NexGear, Cần Thơ
-#NexGear #WorkstationLaptop #CanTho`,
+📞 0978.648.720 (Hào) — ${siteSettings.storeName}, Cần Thơ
+#${siteSettings.storeName.replace(/\s+/g, '')} #WorkstationLaptop #CanTho`,
         ];
 
         const defaultVariants = [
-            () => `🌟 ${nameUpper} — GIÁ CỰC TỐT TẠI NEXGEAR!
+            () => `🌟 ${nameUpper} — GIÁ CỰC TỐT TẠI ${siteSettings.storeName.toUpperCase()}!
 
 💰 Giá: ${price}
 📉 Thị trường: ${originalPrice}
@@ -377,9 +378,9 @@ Máy đã qua kiểm tra kỹ lưỡng, chạy ổn định. Phù hợp cho cả
 
 👉 ${link}
 
-📍 NexGear — Ninh Kiều, Cần Thơ
+📍 ${siteSettings.storeName} — Ninh Kiều, Cần Thơ
 📞 0978.648.720 (Hào)
-#NexGear #LaptopCanTho #LaptopGiaRe`,
+#${siteSettings.storeName.replace(/\s+/g, '')} #LaptopCanTho #LaptopGiaRe`,
 
             () => `📢 MÁY NGON GIÁ RẺ — ${nameUpper}
 
@@ -394,8 +395,8 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
 🚚 Giao hàng nhanh — Trả góp dễ dàng
 
 👉 ${link}
-📞 0978.648.720 — NexGear, Cần Thơ
-#NexGear #Laptop #CanTho`,
+📞 0978.648.720 — ${siteSettings.storeName}, Cần Thơ
+#${siteSettings.storeName.replace(/\s+/g, '')} #Laptop #CanTho`,
         ];
 
 
@@ -458,7 +459,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
 
     const copyLinkOnly = () => {
         if (!selectedProduct) return;
-        const link = `https://nexgzone.top/products/${selectedProduct.slug || selectedProduct._id}\nhttps://nexgzone.top/products/${selectedProduct.slug || selectedProduct._id}`;
+        const link = `${siteSettings.siteDomain}/products/${selectedProduct.slug || selectedProduct._id}\n${siteSettings.siteDomain}/products/${selectedProduct.slug || selectedProduct._id}`;
         navigator.clipboard.writeText(link);
         showSuccess('🔗 Đã copy link sản phẩm!');
     };
@@ -646,7 +647,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
                 </div>
                 <div className={s.version}>
                     <Facebook size={16} />
-                    <span>NexGear Marketing v3.0</span>
+                    <span>{siteSettings.storeName} Marketing v3.0</span>
                 </div>
             </div>
 

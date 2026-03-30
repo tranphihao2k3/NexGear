@@ -1,14 +1,18 @@
 import { Metadata } from 'next'
+import { getSiteSettings } from '@/lib/site-config'
 import AdminLoginClient from './AdminLoginClient'
 import { Suspense } from 'react'
 
-export const metadata: Metadata = {
-    title: 'NEXGEAR | Admin Login',
-    description: 'Đăng nhập vào hệ thống quản trị NEXGEAR',
-    robots: {
-        index: false,
-        follow: false,
-    },
+export async function generateMetadata(): Promise<Metadata> {
+    const s = await getSiteSettings()
+    return {
+        title: `${s.storeName} | Admin Login`,
+        description: `Đăng nhập vào hệ thống quản trị ${s.storeName}`,
+        robots: {
+            index: false,
+            follow: false,
+        },
+    }
 }
 
 export default function AdminLoginPage() {

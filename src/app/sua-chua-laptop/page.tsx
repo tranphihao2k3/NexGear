@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Button, useToast } from '@/components/ui';
 import ScrollReveal, { ScrollStagger } from '@/components/animations/ScrollReveal';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import s from './page.module.scss';
 
 // ── TYPING EFFECT ────────────────────────────────────────────
@@ -133,6 +134,7 @@ const SEVERITY_OPTIONS = ['Bình thường', 'Gấp', 'Rất gấp'];
 
 // ══════════════════════════════════════════════════════════════
 export default function RepairPage() {
+    const siteSettings = useSiteSettings();
     const { success: showSuccess, error: showError } = useToast();
     const typingText = useTyping(['Sửa main laptop', 'Thay màn hình', 'Nâng cấp SSD', 'Cài Win bản quyền', 'Thay pin chính hãng'], 90, 2500);
 
@@ -247,7 +249,7 @@ export default function RepairPage() {
                 <motion.div className={s.heroContent} style={{ y: heroY }}>
                     <motion.div className={s.heroBadge} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                         <span className={s.heroDot} />
-                        NEXGEAR REPAIR CENTER
+                        {siteSettings.storeName} REPAIR CENTER
                     </motion.div>
 
                     <motion.h1 className={s.heroTitle} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
@@ -368,7 +370,7 @@ export default function RepairPage() {
             <Section>
                 <div className={s.container}>
                     <ScrollReveal>
-                        <p className={s.label}>// TẠI SAO CHỌN NEXGEAR</p>
+                        <p className={s.label}>{`// TẠI SAO CHỌN ${siteSettings.storeName}`}</p>
                         <h2 className={s.heading}>CAM KẾT CỦA<br />CHÚNG TÔI</h2>
                     </ScrollReveal>
 
@@ -409,7 +411,7 @@ export default function RepairPage() {
                             <p className={s.label}>// ĐĂNG KÝ SỬA CHỮA</p>
                             <h2 className={s.heading}>GỬI YÊU CẦU<br />NGAY HÔM NAY</h2>
                             <p className={s.formLeftDesc}>
-                                Điền thông tin bên dưới, kỹ thuật viên NexGear sẽ liên hệ bạn trong vòng <strong>15 phút</strong> để tư vấn và báo giá miễn phí.
+                                Điền thông tin bên dưới, kỹ thuật viên {siteSettings.storeName} sẽ liên hệ bạn trong vòng <strong>15 phút</strong> để tư vấn và báo giá miễn phí.
                             </p>
 
                             <div className={s.formLeftFeatures}>

@@ -8,6 +8,7 @@ import styles from "./page.module.scss";
 import ProductCard from "@/components/product/ProductCard";
 import ScrollReveal, { ScrollStagger } from "@/components/animations/ScrollReveal";
 import CustomCursor from "@/components/ui/CustomCursor";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 
 const HeroScene = lazy(() => import("@/components/3d/HeroScene"));
 
@@ -122,12 +123,6 @@ function FadeUp({ children, delay = 0, className = "" }: { children: React.React
 }
 
 // ── DATA ─────────────────────────────────────────────────────
-const STORY_STEPS = [
-  { num: "01", emoji: "🎯", title: "KHÁM PHÁ", desc: "Duyệt hàng ngàn sản phẩm từ các thương hiệu hàng đầu thế giới. Bộ lọc thông minh giúp bạn tìm đúng gear trong vài giây." },
-  { num: "02", emoji: "🧠", title: "TƯ VẤN 1:1", desc: "Chưa biết chọn gì? Team NexGear sẵn sàng tư vấn chuyên sâu, giúp bạn build setup hoàn hảo theo budget." },
-  { num: "03", emoji: "🚀", title: "GIAO & SETUP", desc: "Giao tận nơi trong 2 giờ nội thành. Hỗ trợ setup tại nhà miễn phí cho đơn từ 2 triệu." },
-  { num: "04", emoji: "🏆", title: "BẢO HÀNH VIP", desc: "Bảo hành chính hãng, đổi mới 30 ngày. Thu cũ đổi mới với giá ưu đãi nhất thị trường." },
-];
 
 const USP = [
   { icon: "🛡️", title: "100% Chính Hãng", desc: "Tem bảo hành đầy đủ từ nhà phân phối", value: 100, suffix: "%" },
@@ -144,12 +139,6 @@ const REVIEWS = [
   { name: "Lê Công Danh", avatar: "🎮", rating: 4, product: "HyperX Cloud Alpha", text: "Âm thanh vô cùng chất, đeo lâu không đau tai. Xứng đáng!" },
 ];
 
-const FAQS = [
-  { q: "NEXGEAR có bảo hành chính hãng không?", a: "Tất cả sản phẩm tại NEXGEAR đều là hàng chính hãng 100%, được bảo hành theo đúng tiêu chuẩn của nhà sản xuất (từ 12-24 tháng)." },
-  { q: "Shop có hỗ trợ setup tại nhà không?", a: "Có! Với các đơn hàng từ 2 triệu đồng trở lên trong nội thành Cần Thơ, NEXGEAR hỗ trợ setup và tối ưu hóa hệ thống hoàn toàn miễn phí." },
-  { q: "Tôi có thể mua trả góp tại shop không?", a: "Chắc chắn rồi. NEXGEAR hỗ trợ trả góp qua thẻ tín dụng hoặc các công ty tài chính với lãi suất cực thấp, thủ tục nhanh gọn." },
-  { q: "Shop có thu cũ đổi mới không?", a: "Chúng tôi có chương trình 'Thu cũ đổi mới' cực hấp dẫn dành cho bàn phím, chuột và tai nghe gaming. Vui lòng nhắn tin để được định giá." },
-];
 
 const CATEGORIES = [
   { emoji: "⌨️", label: "Bàn Phím", count: "500+", href: "/ban-phim" },
@@ -164,6 +153,22 @@ const CATEGORIES = [
 
 // ══════════════════════════════════════════════════════════════
 export default function HomeClient() {
+  const siteSettings = useSiteSettings();
+
+  const STORY_STEPS = [
+    { num: "01", emoji: "🎯", title: "KHÁM PHÁ", desc: "Duyệt hàng ngàn sản phẩm từ các thương hiệu hàng đầu thế giới. Bộ lọc thông minh giúp bạn tìm đúng gear trong vài giây." },
+    { num: "02", emoji: "🧠", title: "TƯ VẤN 1:1", desc: `Chưa biết chọn gì? Team ${siteSettings.storeName} sẵn sàng tư vấn chuyên sâu, giúp bạn build setup hoàn hảo theo budget.` },
+    { num: "03", emoji: "🚀", title: "GIAO & SETUP", desc: "Giao tận nơi trong 2 giờ nội thành. Hỗ trợ setup tại nhà miễn phí cho đơn từ 2 triệu." },
+    { num: "04", emoji: "🏆", title: "BẢO HÀNH VIP", desc: "Bảo hành chính hãng, đổi mới 30 ngày. Thu cũ đổi mới với giá ưu đãi nhất thị trường." },
+  ];
+
+  const FAQS = [
+    { q: `${siteSettings.storeName} có bảo hành chính hãng không?`, a: `Tất cả sản phẩm tại ${siteSettings.storeName} đều là hàng chính hãng 100%, được bảo hành theo đúng tiêu chuẩn của nhà sản xuất (từ 12-24 tháng).` },
+    { q: "Shop có hỗ trợ setup tại nhà không?", a: `Có! Với các đơn hàng từ 2 triệu đồng trở lên trong nội thành Cần Thơ, ${siteSettings.storeName} hỗ trợ setup và tối ưu hóa hệ thống hoàn toàn miễn phí.` },
+    { q: "Tôi có thể mua trả góp tại shop không?", a: `Chắc chắn rồi. ${siteSettings.storeName} hỗ trợ trả góp qua thẻ tín dụng hoặc các công ty tài chính với lãi suất cực thấp, thủ tục nhanh gọn.` },
+    { q: "Shop có thu cũ đổi mới không?", a: "Chúng tôi có chương trình 'Thu cũ đổi mới' cực hấp dẫn dành cho bàn phím, chuột và tai nghe gaming. Vui lòng nhắn tin để được định giá." },
+  ];
+
   const typingText = useTyping(["Bàn phím cơ", "Chuột gaming", "Tai nghe Hi-Fi", "Micro stream", "Laptop gaming"], 90, 2500);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -213,7 +218,7 @@ export default function HomeClient() {
         <motion.div className={styles.heroContent} style={{ y: heroY }}>
           <motion.div className={styles.heroBadge} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <span className={styles.heroDot} />
-            NEXGEAR — GAMING GEAR STORE
+            {siteSettings.storeName} — {siteSettings.siteTagline}
           </motion.div>
 
           <motion.h1 className={styles.heroTitle} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
@@ -427,7 +432,7 @@ export default function HomeClient() {
           <div className={styles.locationWrapper}>
             <ScrollReveal className={styles.locationInfo} direction="left">
               <p className={styles.label}>// SHOWROOM</p>
-              <h2 className={styles.heading}>GHÉ THĂM<br />NEXGEAR</h2>
+              <h2 className={styles.heading}>GHÉ THĂM<br />{siteSettings.storeName}</h2>
               <div className={styles.locationDetails}>
                 <div className={styles.locItem}>
                   <span className={styles.locIcon}>📍</span>
@@ -473,7 +478,7 @@ export default function HomeClient() {
       <Section dark>
         <div className={styles.container}>
           <ScrollReveal>
-            <p className={styles.label}>// TẠI SAO CHỌN NEXGEAR</p>
+            <p className={styles.label}>{`// TẠI SAO CHỌN ${siteSettings.storeName}`}</p>
             <h2 className={styles.heading}>CAM KẾT CỦA CHÚNG TÔI</h2>
           </ScrollReveal>
 
@@ -544,7 +549,7 @@ export default function HomeClient() {
             <h2 className={styles.ctaTitle}>Sẵn sàng nâng cấp setup?</h2>
           </ScrollReveal>
           <ScrollReveal delay={0.2}>
-            <p className={styles.ctaDesc}>Hàng ngàn sản phẩm chính hãng, giao nhanh 2H, trả góp 0% — tất cả tại NEXGEAR.</p>
+            <p className={styles.ctaDesc}>{`Hàng ngàn sản phẩm chính hãng, giao nhanh 2H, trả góp 0% — tất cả tại ${siteSettings.storeName}.`}</p>
           </ScrollReveal>
           <ScrollReveal delay={0.4}>
             <div className={styles.ctaActions}>

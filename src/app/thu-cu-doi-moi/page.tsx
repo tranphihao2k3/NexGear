@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button, useToast } from '@/components/ui';
 import ScrollReveal, { ScrollStagger } from '@/components/animations/ScrollReveal';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import s from './page.module.scss';
 
 // ── TYPING EFFECT ────────────────────────────────────────────
@@ -115,18 +116,20 @@ const HEALTH_TOOLS = [
     { icon: <Battery size={28} />, title: 'Kiểm tra độ chai Pin', desc: 'Tải phần mềm BatteryMon miễn phí', link: '/software/BatteryMon.zip', linkText: 'TẢI BATTERYMON (8MB)', download: true },
 ];
 
-const FAQS = [
-    { q: 'Máy cũ bị lỗi có thu không?', a: 'Có! NexGear thu mua laptop ở mọi tình trạng, kể cả máy lỗi. Giá thu sẽ được điều chỉnh theo mức độ lỗi cụ thể.' },
-    { q: 'Thời gian định giá mất bao lâu?', a: 'Chỉ 15 phút! Bạn gửi thông tin qua form, chuyên viên sẽ liên hệ báo giá nhanh chóng qua Zalo hoặc điện thoại.' },
-    { q: 'Trợ giá lên đời áp dụng thế nào?', a: 'Khi bạn thu cũ và mua máy mới tại NexGear, bạn được hỗ trợ thêm đến 2 triệu đồng tuỳ giá trị đơn hàng mới.' },
-    { q: 'Có thu máy ngoại tỉnh không?', a: 'Có! Bạn gửi ảnh và thông tin qua form, chúng tôi báo giá online. Nếu đồng ý, gửi máy qua bưu điện, phí ship 2 chiều chỉ từ 50K.' },
-];
 
 const BRANDS = ['Dell', 'HP', 'Lenovo', 'Asus', 'Acer', 'MSI', 'Apple', 'Thinkpad', 'Samsung', 'LG', 'Razer', 'Gigabyte'];
 
 // ══════════════════════════════════════════════════════════════
 export default function TradeInPage() {
+    const siteSettings = useSiteSettings();
     const { success: showSuccess, error: showError } = useToast();
+
+    const FAQS = [
+        { q: 'Máy cũ bị lỗi có thu không?', a: `Có! ${siteSettings.storeName} thu mua laptop ở mọi tình trạng, kể cả máy lỗi. Giá thu sẽ được điều chỉnh theo mức độ lỗi cụ thể.` },
+        { q: 'Thời gian định giá mất bao lâu?', a: 'Chỉ 15 phút! Bạn gửi thông tin qua form, chuyên viên sẽ liên hệ báo giá nhanh chóng qua Zalo hoặc điện thoại.' },
+        { q: 'Trợ giá lên đời áp dụng thế nào?', a: `Khi bạn thu cũ và mua máy mới tại ${siteSettings.storeName}, bạn được hỗ trợ thêm đến 2 triệu đồng tuỳ giá trị đơn hàng mới.` },
+        { q: 'Có thu máy ngoại tỉnh không?', a: 'Có! Bạn gửi ảnh và thông tin qua form, chúng tôi báo giá online. Nếu đồng ý, gửi máy qua bưu điện, phí ship 2 chiều chỉ từ 50K.' },
+    ];
     const typingText = useTyping(['Laptop cũ đổi mới', 'Thu mua giá cao', 'Trợ giá 2 triệu', 'Giao dịch 30 phút'], 90, 2500);
 
     const heroRef = useRef<HTMLDivElement>(null);
@@ -240,7 +243,7 @@ export default function TradeInPage() {
                 <motion.div className={s.heroContent} style={{ y: heroY }}>
                     <motion.div className={s.heroBadge} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
                         <span className={s.heroDot} />
-                        NEXGEAR TRADE-IN
+                        {siteSettings.storeName} TRADE-IN
                     </motion.div>
 
                     <motion.h1 className={s.heroTitle} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
@@ -285,7 +288,7 @@ export default function TradeInPage() {
             <Section dark>
                 <div className={s.container}>
                     <ScrollReveal>
-                        <p className={s.label}>// TẠI SAO CHỌN NEXGEAR</p>
+                        <p className={s.label}>{`// TẠI SAO CHỌN ${siteSettings.storeName}`}</p>
                         <h2 className={s.heading}>CAM KẾT CỦA<br />CHÚNG TÔI</h2>
                     </ScrollReveal>
 
@@ -307,7 +310,7 @@ export default function TradeInPage() {
                 <div className={s.container}>
                     <ScrollReveal>
                         <p className={s.label}>// DANH MỤC THU MUA</p>
-                        <h2 className={s.heading}>NEXGEAR THU MUA<br />TẤT CẢ THIẾT BỊ</h2>
+                        <h2 className={s.heading}>{siteSettings.storeName} THU MUA<br />TẤT CẢ THIẾT BỊ</h2>
                     </ScrollReveal>
 
                     <ScrollStagger className={s.catGrid}>
@@ -394,7 +397,7 @@ export default function TradeInPage() {
                             <p className={s.label}>// GỬI YÊU CẦU ĐỊNH GIÁ</p>
                             <h2 className={s.heading}>NHẬN BÁO GIÁ<br />MIỄN PHÍ NGAY</h2>
                             <p className={s.formLeftDesc}>
-                                Điền thông tin máy cũ, chuyên viên NexGear sẽ liên hệ bạn trong <strong>15 phút</strong> để báo giá thu mua tốt nhất.
+                                Điền thông tin máy cũ, chuyên viên {siteSettings.storeName} sẽ liên hệ bạn trong <strong>15 phút</strong> để báo giá thu mua tốt nhất.
                             </p>
 
                             <div className={s.formLeftFeatures}>
@@ -516,7 +519,7 @@ export default function TradeInPage() {
                                     >
                                         <div className={s.successIcon}><CheckCircle size={48} /></div>
                                         <h2>Gửi yêu cầu thành công!</h2>
-                                        <p>Chuyên viên NexGear sẽ định giá và phản hồi trong 15 phút.</p>
+                                        <p>Chuyên viên {siteSettings.storeName} sẽ định giá và phản hồi trong 15 phút.</p>
                                         <div className={s.orderCode}>
                                             <div className={s.codeLabel}>Mã yêu cầu</div>
                                             <div className={s.code}>{orderCode}</div>

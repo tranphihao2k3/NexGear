@@ -25,6 +25,7 @@ import { Button, Badge, Input } from '@/components/ui';
 import ImageUploader from '@/components/admin/ImageUploader';
 import { searchMatch } from '@/lib/normalize';
 import s from './page.module.scss';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import Link from 'next/link';
 
 interface BuybackOrder {
@@ -72,6 +73,7 @@ const PAYMENT_METHODS: Record<string, { label: string; icon: any }> = {
 };
 
 export default function BuybackOrdersPage() {
+  const siteSettings = useSiteSettings();
   const { success: showSuccess, error: showError } = useToast();
   const [orders, setOrders] = useState<BuybackOrder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -243,7 +245,7 @@ export default function BuybackOrdersPage() {
       return;
     }
 
-    const message = `NEXGEAR xin báo giá máy ${selectedOrder.productInfo?.brand || ''} ${selectedOrder.productInfo?.model || ''}: ${formatPrice(quoted)}. Nếu đồng ý, bạn phản hồi giúp shop để chốt đơn nhé. Cảm ơn quý khách!`;
+    const message = `${siteSettings.storeName} xin báo giá máy ${selectedOrder.productInfo?.brand || ''} ${selectedOrder.productInfo?.model || ''}: ${formatPrice(quoted)}. Nếu đồng ý, bạn phản hồi giúp shop để chốt đơn nhé. Cảm ơn quý khách!`;
     const zaloUrl = `https://zalo.me/${selectedOrder.sellerPhone}?text=${encodeURIComponent(message)}`;
     window.open(zaloUrl, '_blank', 'noopener,noreferrer');
   };

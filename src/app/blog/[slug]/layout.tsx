@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import dbConnect from '@/lib/mongodb'
 import Blog from '@/models/Blog'
+import { getSiteSettings } from '@/lib/site-config'
 
 export async function generateMetadata({
     params,
@@ -8,6 +9,7 @@ export async function generateMetadata({
     params: Promise<{ slug: string }>
 }): Promise<Metadata> {
     const { slug } = await params
+    const s = await getSiteSettings()
 
     try {
         await dbConnect()
@@ -15,13 +17,13 @@ export async function generateMetadata({
 
         if (!blog) {
             return {
-                title: 'Bài viết không tìm thấy — NexGear',
+                title: `Bài viết không tìm thấy — ${s.storeName}`,
                 description: 'Bài viết này không tồn tại hoặc đã bị xóa.',
             }
         }
 
-        const title = blog.seoTitle || `${blog.title} — Blog Công Nghệ NexGear`
-        const description = (blog.seoDesc || blog.excerpt || 'Đọc bài viết mới nhất trên NexGear Blog. Cập nhật tin tức công nghệ và đánh giá gear.').substring(0, 160)
+        const title = blog.seoTitle || `${blog.title} — Blog Công Nghệ ${s.storeName}`
+        const description = (blog.seoDesc || blog.excerpt || `Đọc bài viết mới nhất trên ${s.storeName} Blog. Cập nhật tin tức công nghệ và đánh giá gear.`).substring(0, 160)
 
         // Build spec-based keywords
         const keywords = [
@@ -38,28 +40,28 @@ export async function generateMetadata({
             openGraph: {
                 title,
                 description,
-                url: `https://nexgzone.top/blog/${slug}`,
-                siteName: 'NexGear',
+                url: `${s.siteDomain}/blog/${slug}`,
+                siteName: s.storeName,
                 locale: 'vi_VN',
                 type: 'article',
                 publishedTime: blog.publishedAt?.toISOString(),
-                authors: [blog.author || 'NexGear'],
+                authors: [blog.author || s.storeName],
                 tags: blog.tags || [],
-                images: blog.featuredImage ? [{ url: blog.featuredImage, width: 1200, height: 630 }] : [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+                images: blog.featuredImage ? [{ url: blog.featuredImage, width: 1200, height: 630 }] : [{ url: s.ogImage, width: 1200, height: 630 }],
             },
             twitter: {
                 card: 'summary_large_image',
                 title,
                 description,
-                images: blog.featuredImage ? [blog.featuredImage] : ['/og-image.jpg'],
+                images: blog.featuredImage ? [blog.featuredImage] : [s.ogImage],
             },
             alternates: {
-                canonical: `https://nexgzone.top/blog/${slug}`,
+                canonical: `${s.siteDomain}/blog/${slug}`,
             },
         }
     } catch {
         return {
-            title: 'NexGear Blog',
+            title: `${s.storeName} Blog`,
         }
     }
 }

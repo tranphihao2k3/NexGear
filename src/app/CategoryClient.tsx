@@ -4,82 +4,82 @@
 // SEO: LocalBusiness + WebSite schema, metadata từ root layout
 // ============================================================
 import HomeClient from './HomeClient'
-
-// ── JSON-LD SCHEMAS ─────────────────────────────────────────
-const localBusinessSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'ComputerStore',
-  '@id': 'https://nexgzone.top/#organization',
-  name: 'NexGear',
-  alternateName: 'NexGear Cần Thơ',
-  description:
-    'Cửa hàng thiết bị ngoại vi và phụ kiện PC chính hãng tại Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện.',
-  url: 'https://nexgzone.top/',
-  logo: {
-    '@type': 'ImageObject',
-    url: 'https://nexgzone.top/logo.png',
-    width: 512,
-    height: 512,
-  },
-  image: 'https://nexgzone.top/og-image.jpg',
-  // TODO: Điền SĐT, địa chỉ cụ thể
-  telephone: '',
-  email: '',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: '',
-    addressLocality: 'Cần Thơ',
-    addressRegion: 'Cần Thơ',
-    postalCode: '900000',
-    addressCountry: 'VN',
-  },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: '',
-    longitude: '',
-  },
-  openingHoursSpecification: [
-    {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-      opens: '08:00',
-      closes: '21:00',
-    },
-    {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: 'Sunday',
-      opens: '09:00',
-      closes: '18:00',
-    },
-  ],
-  priceRange: '₫₫',
-  currenciesAccepted: 'VND',
-  paymentAccepted: 'Cash, Credit Card, Bank Transfer, Momo, ZaloPay',
-  areaServed: [
-    { '@type': 'City', name: 'Cần Thơ' },
-    { '@type': 'State', name: 'Đồng bằng sông Cửu Long' },
-  ],
-  sameAs: [],
-}
-
-const websiteSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  '@id': 'https://nexgzone.top/#website',
-  name: 'NexGear',
-  url: 'https://nexgzone.top/',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: 'https://nexgzone.top/search?q={search_term_string}',
-    },
-    'query-input': 'required name=search_term_string',
-  },
-}
+import { getSiteSettings } from '@/lib/site-config'
 
 // ── PAGE ─────────────────────────────────────────────────────
-export default function HomePage() {
+export default async function HomePage() {
+  const settings = await getSiteSettings()
+
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ComputerStore',
+    '@id': `${settings.siteDomain}/#organization`,
+    name: settings.storeName,
+    alternateName: `${settings.storeName} Cần Thơ`,
+    description: settings.siteDescription,
+    url: `${settings.siteDomain}/`,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${settings.siteDomain}/logo.png`,
+      width: 512,
+      height: 512,
+    },
+    image: `${settings.siteDomain}${settings.ogImage}`,
+    telephone: settings.storePhone,
+    email: settings.storeEmail,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: settings.storeAddress,
+      addressLocality: 'Cần Thơ',
+      addressRegion: 'Cần Thơ',
+      postalCode: '900000',
+      addressCountry: 'VN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: '',
+      longitude: '',
+    },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        opens: '08:00',
+        closes: '21:00',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: 'Sunday',
+        opens: '09:00',
+        closes: '18:00',
+      },
+    ],
+    priceRange: '₫₫',
+    currenciesAccepted: 'VND',
+    paymentAccepted: 'Cash, Credit Card, Bank Transfer, Momo, ZaloPay',
+    areaServed: [
+      { '@type': 'City', name: 'Cần Thơ' },
+      { '@type': 'State', name: 'Đồng bằng sông Cửu Long' },
+    ],
+    sameAs: [settings.facebook, settings.instagram, settings.tiktok].filter(Boolean),
+  }
+
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${settings.siteDomain}/#website`,
+    name: settings.storeName,
+    url: `${settings.siteDomain}/`,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${settings.siteDomain}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+
   return (
     <>
       <script

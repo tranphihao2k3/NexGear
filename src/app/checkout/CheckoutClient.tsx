@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Button from "@/components/ui/Button";
 import { useCart } from "@/contexts/CartContext";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import styles from "./page.module.scss";
 
 const TINH_LIST = ["Hà Nội", "TP. Hồ Chí Minh", "Đà Nẵng", "Hải Phòng", "Cần Thơ", "Bình Dương", "Đồng Nai"];
@@ -16,12 +17,6 @@ const SHIPPING_OPTIONS = [
     { id: "pickup", label: "Nhận tại cửa hàng", desc: "123 Lê Văn Việt, Q.9, TP.HCM", fee: 0, icon: "🏪" },
 ];
 
-const PAYMENT_OPTIONS = [
-    { id: "vnpay", label: "VNPay QR", desc: "Quét mã QR bằng app ngân hàng", icon: "📱" },
-    { id: "atm", label: "ATM / Visa", desc: "Thẻ nội địa hoặc quốc tế", icon: "💳" },
-    { id: "transfer", label: "Chuyển khoản", desc: "STK: 0123456789 · MB Bank · NEXGEAR", icon: "🏦" },
-    { id: "cod", label: "COD", desc: "Thanh toán khi nhận hàng", icon: "💵" },
-];
 
 function fmt(n: number) {
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
@@ -71,6 +66,14 @@ function CheckoutPageInner() {
     const searchParams = useSearchParams();
     const { data: session } = useSession();
     const { items, clearCart } = useCart();
+    const siteSettings = useSiteSettings();
+
+    const PAYMENT_OPTIONS = [
+        { id: "vnpay", label: "VNPay QR", desc: "Quét mã QR bằng app ngân hàng", icon: "📱" },
+        { id: "atm", label: "ATM / Visa", desc: "Thẻ nội địa hoặc quốc tế", icon: "💳" },
+        { id: "transfer", label: "Chuyển khoản", desc: `STK: 0123456789 · MB Bank · ${siteSettings.storeName}`, icon: "🏦" },
+        { id: "cod", label: "COD", desc: "Thanh toán khi nhận hàng", icon: "💵" },
+    ];
     const [step, setStep] = useState(1);
     const [form, setForm] = useState({ name: "", phone: "", email: "", tinh: "", huyen: "", xa: "", address: "", note: "" });
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -302,13 +305,13 @@ function CheckoutPageInner() {
                                     <div className={styles.transferInfo}>
                                         <div className={styles.transferRow}><span>Ngân hàng:</span><strong>MB Bank</strong></div>
                                         <div className={styles.transferRow}><span>Số tài khoản:</span><strong>0123456789</strong></div>
-                                        <div className={styles.transferRow}><span>Tên TK:</span><strong>NEXGEAR VIETNAM</strong></div>
-                                        <div className={styles.transferRow}><span>Nội dung:</span><strong>NEXGEAR + SĐT</strong></div>
+                                        <div className={styles.transferRow}><span>Tên TK:</span><strong>{siteSettings.storeName} VIETNAM</strong></div>
+                                        <div className={styles.transferRow}><span>Nội dung:</span><strong>{siteSettings.storeName} + SĐT</strong></div>
                                     </div>
                                 )}
                                 <div className={styles.termsNote}>
                                     Bằng cách đặt hàng, bạn đồng ý với{" "}
-                                    <Link href="/warranty" className={styles.termsLink}>Điều khoản dịch vụ</Link> của NEXGEAR.
+                                    <Link href="/warranty" className={styles.termsLink}>Điều khoản dịch vụ</Link> của {siteSettings.storeName}.
                                 </div>
                                 <div className={styles.formActions}>
                                     <Button variant="ghost" size="md" onClick={() => setStep(2)}>← Quay lại</Button>
