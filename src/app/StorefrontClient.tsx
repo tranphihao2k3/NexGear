@@ -1,0 +1,141 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import styles from "./page.module.scss";
+import ProductCard from "@/components/product/ProductCard";
+import ScrollReveal, { ScrollStagger } from "@/components/animations/ScrollReveal";
+import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import { CyberpunkLoader } from "@/components/ui";
+
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  children?: any[];
+}
+
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  sku: string;
+  brand: { name: string };
+  images: string[];
+  basePrice: number;
+  salePrice?: number | null;
+  stock: number;
+  ratings: { avg: number; count: number };
+}
+
+// Sub-component to fetch and render products for a specific category
+function CategoryRow({ category, index }: { category: Category; index: number }) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/products?categorySlug=${category.slug}&limit=8&status=active`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setProducts(data.data);
+        }
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [category.slug]);
+
+  if (loading) return null;
+  if (products.length === 0) return null; // Don't show empty categories
+
+  const isDark = index % 2 === 1; // Alternate background colors
+
+  return (
+    <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
+      <div className={styles.container}>
+        <ScrollReveal>
+          <div className={styles.sectionHeader} style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <div>
+              <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
+              <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
+                {category.name}
+              </h2>
+            </div>
+            <Link href={`/${category.slug}`} className={styles.viewAll} style={{ color: "var(--color-ink)", textDecoration: "none", fontWeight: 600, borderBottom: "1px solid var(--color-border)", paddingBottom: "4px" }}>
+              XEM TẤT CẢ →
+            </Link>
+          </div>
+        </ScrollReveal>
+
+        <ScrollStagger className={styles.featuredGrid}>
+          {products.map((p) => (
+            <ProductCard key={p._id} product={p as any} />
+          ))}
+        </ScrollStagger>
+      </div>
+    </section>
+  );
+}
+
+export default function StorefrontClient() {
+  const siteSettings = useSiteSettings();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/categories?tree=true&active=true")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data)) {
+          const rootCats = [...data.data];
+          // Sắp xếp: Ưu tiên "Laptop" lên đầu, các phần mục khác tiếp theo
+          // Đối với LaptopThanhVo, việc hiện Laptop đầu tiên là tối quan trọng
+          rootCats.sort((a, b) => {
+            if (a.name.toLowerCase() === "laptop") return -1;
+            if (b.name.toLowerCase() === "laptop") return 1;
+            return 0; // Giữ nguyên thứ tự cũ cho phần còn lại
+          });
+          setCategories(rootCats);
+        }
+      })
+      .catch((err) => console.error("Error fetching categories:", err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}><CyberpunkLoader message="Đang tải danh mục..." /></div>;
+  }
+
+  return (
+    <div className={styles.home} style={{ paddingTop: "80px" }}> {/* Offset for Navbar */}
+      
+      {/* ─── Hero Banner Siêu Gọn Nhẹ ─── */}
+      <section style={{ backgroundColor: "var(--color-bg)", padding: "40px 0", borderBottom: "1px solid var(--color-border)" }}>
+        <div className={styles.container} style={{ textAlign: "center" }}>
+          <ScrollReveal>
+            <h1 style={{ fontSize: "clamp(32px, 5vw, 48px)", margin: "0 0 16px 0", color: "var(--color-ink)", lineHeight: 1.1 }}>
+              {(siteSettings as any).bannerText || `Chào mừng đến với ${siteSettings.storeName}`}
+            </h1>
+            <p style={{ fontSize: "16px", color: "var(--color-ink2)", maxWidth: "600px", margin: "0 auto" }}>
+              {siteSettings.siteTagline} — Cung cấp các sản phẩm Laptop, PC & Phụ kiện chính hãng với giá tốt nhất thị trường.
+            </p>
+          </ScrollReveal>
+        </div>
+      </section>
+
+      {/* ─── Render Category Rows ─── */}
+      <div style={{ paddingBottom: "80px" }}>
+        {categories.map((cat, idx) => (
+          <CategoryRow key={cat._id} category={cat} index={idx} />
+        ))}
+        
+        {categories.length === 0 && (
+          <div style={{ textAlign: "center", padding: "100px 0", color: "var(--color-ink2)" }}>
+            Chưa có danh mục sản phẩm nào.
+          </div>
+        )}
+      </div>
+      
+    </div>
+  );
+}

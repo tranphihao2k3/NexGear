@@ -1,19 +1,13 @@
 // ============================================================
 // NEXGEAR — Trang chủ (Server Component)
 // File: app/page.tsx
-// SEO: LocalBusiness + WebSite schema, metadata từ root layout
-// ============================================================
 import HomeClient from './HomeClient'
+import StorefrontClient from './StorefrontClient'
 import { getSiteSettings } from '@/lib/site-config'
-import { redirect } from 'next/navigation'
 
 // ── PAGE ─────────────────────────────────────────────────────
 export default async function HomePage() {
   const s = await getSiteSettings()
-
-  if (s.showLandingPage === false) {
-    redirect('/products')
-  }
 
   // ── JSON-LD SCHEMAS ─────────────────────────────────────────
   const localBusinessSchema = {
@@ -103,7 +97,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
-      <HomeClient />
+      {s.showLandingPage === false ? <StorefrontClient /> : <HomeClient />}
     </>
   )
 }
