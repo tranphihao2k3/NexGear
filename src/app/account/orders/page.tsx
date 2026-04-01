@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import LazyImage from "@/components/ui/LazyImage";
 import styles from "./page.module.scss";
 
 const STATUS_MAP: Record<string, { label: string; emoji: string }> = {
@@ -167,7 +168,7 @@ export default function OrdersPage() {
                                             <div key={i} className={styles.itemRow}>
                                                 <div className={styles.itemImg}>
                                                     {item.image ? (
-                                                        <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
+                                                        <LazyImage src={item.image} alt={item.name} fill objectFit="cover" borderRadius={4} />
                                                     ) : "📷"}
                                                 </div>
                                                 <div className={styles.itemInfo}>

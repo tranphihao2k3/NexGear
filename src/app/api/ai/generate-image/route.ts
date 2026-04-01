@@ -1,11 +1,7 @@
 import { NextResponse } from 'next/server';
-import crypto from 'crypto';
 
-function generateSignature(params: Record<string, string>, apiSecret: string): string {
-    const sortedKeys = Object.keys(params).sort();
-    const str = sortedKeys.map(k => `${k}=${params[k]}`).join('&');
-    return crypto.createHash('sha1').update(str + apiSecret).digest('hex');
-}
+const IMAGE_SERVER_URL = process.env.NEXT_PUBLIC_IMAGE_SERVER_URL || 'http://hard-mauve-chihuahua.202-92-4-12.cpanel.site';
+const IMAGE_SERVER_KEY = process.env.IMAGE_SERVER_KEY || '';
 
 export async function POST(request: Request) {
     try {
@@ -15,59 +11,44 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: false, error: 'Vui lòng nhập mô tả ảnh' }, { status: 400 });
         }
 
-        // Step 1: Get a random image from picsum.photos (always works, no API key)
+        // Get a random image from picsum.photos
         const picsumRes = await fetch('https://picsum.photos/1200/630', { redirect: 'follow' });
         if (!picsumRes.ok) {
             return NextResponse.json({ success: false, error: 'Không tải được ảnh' }, { status: 500 });
         }
 
-        const imageBuffer = Buffer.from(await picsumRes.arrayBuffer());
-        const base64 = imageBuffer.toString('base64');
-        const dataUri = `data:image/jpeg;base64,${base64}`;
+        const imageBuffer = await picsumRes.arrayBuffer();
 
-        // Step 2: Upload to Cloudinary (signed upload)
-        const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-        const apiKey = process.env.CLOUDINARY_API_KEY;
-        const apiSecret = process.env.CLOUDINARY_API_SECRET;
+        // Upload via base64 JSON — key in query string (LiteSpeed strips headers on POST)
+        const base64 = Buffer.from(imageBuffer).toString('base64');
+        const url = `${IMAGE_SERVER_URL}/upload-base64?api_key=${encodeURIComponent(IMAGE_SERVER_KEY)}`;
 
-        if (cloudName && apiKey && apiSecret) {
-            try {
-                const timestamp = Math.round(Date.now() / 1000).toString();
-                const params: Record<string, string> = {
-                    folder: 'blog',
-                    timestamp,
-                };
-                const signature = generateSignature(params, apiSecret);
+        const uploadRes = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image: `data:image/jpeg;base64,${base64}`,
+                folder: 'ai-generated',
+            }),
+        });
 
-                const formData = new FormData();
-                formData.append('file', dataUri);
-                formData.append('folder', 'blog');
-                formData.append('timestamp', timestamp);
-                formData.append('api_key', apiKey);
-                formData.append('signature', signature);
-
-                const uploadRes = await fetch(
-                    `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-                    { method: 'POST', body: formData }
-                );
-
-                if (uploadRes.ok) {
-                    const uploadData = await uploadRes.json();
-                    return NextResponse.json({ success: true, url: uploadData.secure_url, provider: 'picsum+cloudinary' });
-                } else {
-                    console.error('Cloudinary error:', await uploadRes.text());
-                }
-            } catch (e) {
-                console.error('Cloudinary upload failed:', e);
-            }
+        if (!uploadRes.ok) {
+            const text = await uploadRes.text();
+            return NextResponse.json({ success: false, error: `Upload thất bại: ${text}` }, { status: 500 });
         }
 
-        // Fallback: return base64
-        return NextResponse.json({ success: true, url: dataUri, provider: 'picsum' });
-    } catch (error: any) {
+        const data = await uploadRes.json();
+        const imgUrl = data.data?.[0]?.url?.replace(IMAGE_SERVER_URL, '/cdn') || '';
+
+        if (!imgUrl) {
+            return NextResponse.json({ success: false, error: 'Không nhận được URL ảnh' }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true, url: imgUrl, provider: 'picsum' });
+    } catch (error: unknown) {
         console.error('[ai-generate-image]', error);
         return NextResponse.json(
-            { success: false, error: error.message || 'Lỗi tạo ảnh' },
+            { success: false, error: error instanceof Error ? error.message : 'Lỗi tạo ảnh' },
             { status: 500 }
         );
     }

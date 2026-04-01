@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { X, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import s from './ImageUploader.module.scss';
-import { useToast } from '@/components/ui';
+import { useToast, LazyImage } from '@/components/ui';
 
 interface ImageUploaderProps {
     value?: string[];
@@ -197,7 +197,7 @@ export default function ImageUploader({
                         const url = typeof item === 'string' ? item : URL.createObjectURL(item);
                         return (
                             <div key={`existing-${index}`} className={s.previewItem}>
-                                <img
+                                <LazyImage
                                     src={url}
                                     alt={`Preview ${index + 1}`}
                                     onLoad={() => {
@@ -221,7 +221,7 @@ export default function ImageUploader({
 
                     {pendingImages.map((item) => (
                         <div key={item.id} className={s.previewItem}>
-                            <img src={item.preview} alt="Đang upload..." style={{ opacity: 0.5 }} />
+                            <LazyImage src={item.preview} alt="Đang upload..." style={{ opacity: 0.5 }} />
                             <div className={s.pendingOverlay}>
                                 <Loader2 className={s.spinner} size={24} />
                             </div>

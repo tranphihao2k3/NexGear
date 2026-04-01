@@ -1,6 +1,7 @@
 'use client';
 import Image from 'next/image';
 import Link from 'next/link';
+import LazyImage from '@/components/ui/LazyImage';
 import styles from './ListingCard.module.scss';
 
 interface Listing {
@@ -50,13 +51,12 @@ export default function ListingCard({ listing }: { listing: Listing }) {
             <Link href={`/community/${listing.slug}`} className={styles.imageWrap}>
                 <div className={styles.image}>
                     {listing.images?.[0] ? (
-                        <Image
+                        <LazyImage
                             src={listing.images[0]}
                             alt={listing.title}
                             fill
-                            sizes="(max-width:768px) 50vw, 25vw"
+                            objectFit="cover"
                             className={styles.img}
-                            unoptimized={!listing.images[0].includes('res.cloudinary.com')}
                         />
                     ) : (
                         <div className={styles.imageFallback}>📷</div>
@@ -81,7 +81,7 @@ export default function ListingCard({ listing }: { listing: Listing }) {
                     <div className={styles.seller}>
                         <div className={styles.sellerAvatar}>
                             {listing.seller?.image ? (
-                                <Image src={listing.seller.image} alt="" width={20} height={20} className={styles.avatarImg} />
+                                <LazyImage src={listing.seller.image} alt="" className={styles.avatarImg} borderRadius={9999} />
                             ) : (
                                 <span>{listing.seller?.name?.[0] || '?'}</span>
                             )}

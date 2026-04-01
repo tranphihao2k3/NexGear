@@ -191,6 +191,7 @@
 }
 
 .gridImage {
+    position: relative;
     aspect-ratio: 1;
     background: $admin-card-bg2;
     @include flex-center;
@@ -221,6 +222,7 @@
 }
 
 .productImage {
+    position: relative;
     width: $sp-12;
     height: $sp-12;
     border-radius: $r-2;

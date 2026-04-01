@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button, Badge, Skeleton } from '@/components/ui';
+import LazyImage from '@/components/ui/LazyImage';
 import styles from './page.module.scss';
 import { IBlog } from '@/models/Blog';
 
@@ -95,7 +96,7 @@ export default function BlogPage() {
                             <div className={styles.cardTopBar}></div>
                             {blog.featuredImage ? (
                                 <div className={styles.imageWrapper}>
-                                    <img src={blog.featuredImage} alt={blog.title} className={styles.image} />
+                                    <LazyImage src={blog.featuredImage} alt={blog.title} className={styles.image} objectFit="cover" />
                                 </div>
                             ) : (
                                 <div className={styles.imagePlaceholder}>NexGzone</div>

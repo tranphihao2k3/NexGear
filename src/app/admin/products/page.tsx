@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
+import LazyImage from '@/components/ui/LazyImage';
 import SearchableSelect from '@/components/admin/SearchableSelect';
+import styles from './page.module.scss';
 import { getSpecKeysForCategory, type SpecKeyDef } from '@/lib/spec-keys';
+import { uploadImages } from '@/lib/image-server';
 
 /** Searchable combobox cho spec key */
 function SpecKeyCombobox({ value, options, customKeys, onChange, className }: {
@@ -136,9 +138,9 @@ interface Brand {
 }
 
 interface ImageItem {
-    url: string;       // blob URL (local preview) or cloudinary URL
-    file?: File;       // pending file to upload (undefined = already on cloud)
-    public_id?: string; // cloudinary public_id (for deletion)
+    url: string;       // blob URL (local preview) or server URL (/uploads/...)
+    file?: File;       // pending file to upload (undefined = already uploaded)
+    filename?: string; // server filename (for deletion)
 }
 
 interface VariantAttribute {
@@ -234,10 +236,10 @@ export default function AdminProductsPage() {
         const timer = setTimeout(() => {
             const draft = {
                 ...formData,
-                images: formData.images.filter(img => !img.file).map(img => ({ url: img.url, public_id: img.public_id })),
+                images: formData.images.filter(img => !img.file).map(img => ({ url: img.url, filename: img.filename })),
                 variants: formData.variants.map(v => ({
                     ...v,
-                    images: v.images.filter(img => !img.file).map(img => ({ url: img.url, public_id: img.public_id })),
+                    images: v.images.filter(img => !img.file).map(img => ({ url: img.url, filename: img.filename })),
                 })),
                 _savedAt: Date.now(),
             };
@@ -270,10 +272,10 @@ export default function AdminProductsPage() {
             const { _savedAt, ...data } = draft;
             setFormData({
                 ...data,
-                images: (data.images || []).map((img: any) => ({ url: img.url, public_id: img.public_id })),
+                images: (data.images || []).map((img: any) => ({ url: img.url, filename: img.filename })),
                 variants: (data.variants || []).map((v: any) => ({
                     ...v,
-                    images: (v.images || []).map((img: any) => ({ url: img.url, public_id: img.public_id })),
+                    images: (v.images || []).map((img: any) => ({ url: img.url, filename: img.filename })),
                 })),
             });
             setHasDraft(false);
@@ -311,7 +313,7 @@ export default function AdminProductsPage() {
                 const parsedBasePrice = (d.basePrice != null && d.basePrice !== 0) ? d.basePrice.toString()
                     : (d.price != null && d.price !== 0) ? d.price.toString()
                         : prev.basePrice;
-                // Keep {{IMAGE_N}} placeholders intact — they'll be replaced with real Cloudinary URLs
+                // Keep {{IMAGE_N}} placeholders intact — they'll be replaced with real uploaded URLs
                 // after images upload completes inside handleSaveItem background task
                 const rawDesc = d.description || prev.description || '';
                 const resolvedUsedGrade = d.isUsed
@@ -496,12 +498,12 @@ export default function AdminProductsPage() {
 
     const urlToImageItem = (url: string): ImageItem => ({
         url,
-        public_id: extractPublicId(url),
+        filename: extractFilename(url),
     });
 
-    const extractPublicId = (url: string): string | undefined => {
-        // Extract public_id from cloudinary URL: .../upload/v123/nexgear/products/abc.jpg
-        const match = url.match(/\/upload\/(?:v\d+\/)?(nexgear\/.+)\.\w+$/);
+    const extractFilename = (url: string): string | undefined => {
+        // Extract filename from local URL: /uploads/filename.jpg
+        const match = url.match(/\/uploads\/(.+)$/);
         return match ? match[1] : undefined;
     };
 
@@ -558,18 +560,18 @@ export default function AdminProductsPage() {
         e.target.value = '';
     };
 
-    // Remove image — if already on Cloudinary, delete from cloud too
+    // Remove image — if already on server, delete from filesystem too
     const removeImage = async (index: number) => {
         const img = formData.images[index];
-        if (img.public_id) {
+        if (img.filename) {
             try {
                 await fetch('/api/upload', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ public_id: img.public_id }),
+                    body: JSON.stringify({ filename: img.filename }),
                 });
             } catch (e) {
-                console.error('Failed to delete from Cloudinary:', e);
+                console.error('Failed to delete file:', e);
             }
         }
         // Revoke blob URL if local
@@ -615,18 +617,18 @@ export default function AdminProductsPage() {
         e.target.value = '';
     };
 
-    // Remove variant image — delete from cloud if needed
+    // Remove variant image — delete from server if needed
     const removeVariantImage = async (variantIndex: number, imgIndex: number) => {
         const img = formData.variants[variantIndex].images[imgIndex];
-        if (img.public_id) {
+        if (img.filename) {
             try {
                 await fetch('/api/upload', {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ public_id: img.public_id }),
+                    body: JSON.stringify({ filename: img.filename }),
                 });
             } catch (e) {
-                console.error('Failed to delete from Cloudinary:', e);
+                console.error('Failed to delete file:', e);
             }
         }
         if (img.file) URL.revokeObjectURL(img.url);
@@ -636,34 +638,16 @@ export default function AdminProductsPage() {
         }));
     };
 
-    // Upload a single file to Cloudinary, return URL string
-    const uploadFileToCloud = async (file: File, publicId?: string): Promise<string> => {
-        const fd = new FormData();
-        fd.append('file', file);
-        if (publicId) fd.append('public_id', publicId);
-        const res = await fetch('/api/upload', { method: 'POST', body: fd });
-        const text = await res.text();
-        if (!text) throw new Error('Cloudinary trả về rỗng');
-        const json = JSON.parse(text);
-        if (!json.success) throw new Error(json.error || 'Upload thất bại');
-        return json.data.url;
-    };
+    // Upload tất cả pending images trong 1 request duy nhất → trả về mảng URL
+    const uploadPendingImages = async (items: ImageItem[]): Promise<string[]> => {
+        const existingUrls = items.filter(img => !img.file).map(img => img.url);
+        const pendingFiles = items.filter(img => !!img.file).map(img => img.file!);
 
-    // Upload all pending images in an ImageItem array, return string[] of URLs
-    const uploadPendingImages = async (items: ImageItem[], namePrefix?: string, startIndex: number = 0): Promise<string[]> => {
-        const urls: string[] = [];
-        let num = startIndex;
-        for (const item of items) {
-            if (item.file) {
-                num++;
-                const publicId = namePrefix ? `${namePrefix}-${num}` : undefined;
-                const url = await uploadFileToCloud(item.file, publicId);
-                urls.push(url);
-            } else {
-                urls.push(item.url);
-            }
-        }
-        return urls;
+        if (pendingFiles.length === 0) return existingUrls;
+
+        // 1 request gửi tất cả files[], server trả về mảng URL
+        const uploaded = await uploadImages(pendingFiles, { folder: 'products' });
+        return [...existingUrls, ...uploaded.map((r: { url: string }) => r.url)];
     };
 
     const handleSaveItem = async () => {
@@ -746,18 +730,15 @@ export default function AdminProductsPage() {
             if (hasPendingUploads) {
                 (async () => {
                     try {
-                        const slugPrefix = formData.slug || formData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-
                         // Upload product images
-                        const uploadedProductUrls = await uploadPendingImages(pendingProductImages, slugPrefix, existingImageUrls.length);
+                        const uploadedProductUrls = await uploadPendingImages(pendingProductImages);
                         const allProductImages = [...existingImageUrls, ...uploadedProductUrls];
 
                         // Upload variant images
                         const updatedVariants = await Promise.all(variantsData.map(async (v, i) => {
                             const pending = pendingVariantImages[i];
                             if (pending.images.length === 0) return v;
-                            const variantPrefix = `${slugPrefix}-var${i + 1}`;
-                            const uploadedUrls = await uploadPendingImages(pending.images, variantPrefix, pending.existingUrls.length);
+                            const uploadedUrls = await uploadPendingImages(pending.images);
                             return { ...v, images: [...pending.existingUrls, ...uploadedUrls] };
                         }));
 
@@ -933,7 +914,7 @@ export default function AdminProductsPage() {
                                         <td>
                                             <div className={styles.productCell}>
                                                 <div className={styles.productImage}>
-                                                    {product.images?.[0] ? <img src={product.images[0]} alt="" /> : '📦'}
+                                                    {product.images?.[0] ? <LazyImage src={product.images[0]} alt="" fill objectFit="cover" /> : '📦'}
                                                 </div>
                                                 <div className={styles.productInfo}>
                                                     <div className={styles.productName}>{product.name}</div>
@@ -991,7 +972,7 @@ export default function AdminProductsPage() {
                         filtered.map((product) => (
                             <div key={product._id} className={styles.gridCard}>
                                 <div className={styles.gridImage}>
-                                    {product.images?.[0] ? <img src={product.images[0]} alt="" /> : '📦'}
+                                    {product.images?.[0] ? <LazyImage src={product.images[0]} alt="" fill objectFit="cover" /> : '📦'}
                                 </div>
                                 <div className={styles.gridInfo}>
                                     <div className={styles.productName}>{product.name}</div>
@@ -1248,7 +1229,7 @@ export default function AdminProductsPage() {
                                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
                                     {formData.images.map((img, i) => (
                                         <div key={i} style={{ position: 'relative', width: '80px', height: '80px', border: img.file ? '2px solid #F0B100' : '1px solid #333', borderRadius: '4px', overflow: 'hidden' }}>
-                                            <img src={img.url} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            <LazyImage src={img.url} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             {img.file && <span style={{ position: 'absolute', bottom: '2px', left: '2px', background: '#F0B100', color: '#000', fontSize: '8px', padding: '1px 4px', borderRadius: '2px', fontWeight: 700 }}>MỚI</span>}
                                             <button
                                                 onClick={() => removeImage(i)}
@@ -1428,7 +1409,7 @@ export default function AdminProductsPage() {
                                             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
                                                 {variant.images.map((img, ii) => (
                                                     <div key={ii} style={{ position: 'relative', width: '56px', height: '56px', border: img.file ? '2px solid #F0B100' : '1px solid #333', borderRadius: '4px', overflow: 'hidden' }}>
-                                                        <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        <LazyImage src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                                         {img.file && <span style={{ position: 'absolute', bottom: '1px', left: '1px', background: '#F0B100', color: '#000', fontSize: '7px', padding: '0 3px', borderRadius: '2px', fontWeight: 700 }}>MỚI</span>}
                                                         <button onClick={() => removeVariantImage(vi, ii)} style={{ position: 'absolute', top: '1px', right: '1px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '16px', height: '16px', cursor: 'pointer', fontSize: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
                                                     </div>

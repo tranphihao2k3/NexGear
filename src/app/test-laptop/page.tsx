@@ -6,6 +6,7 @@ import {
     Play, Square, CheckCircle, XCircle, RotateCcw, Maximize, ChevronLeft
 } from 'lucide-react';
 import s from './page.module.scss';
+import { LazyImage } from '@/components/ui';
 
 // ── Types ──
 type TestStatus = 'idle' | 'running' | 'pass' | 'fail';
@@ -195,7 +196,7 @@ function WebcamTest() {
                 <div className={s.videoContainer}>
                     <video ref={videoRef} autoPlay playsInline muted className={s.video} />
                 </div>
-                {photo && <img src={photo} alt="Captured" className={s.capturedPhoto} />}
+                {photo && <LazyImage src={photo} alt="Captured" className={s.capturedPhoto} />}
                 <div className={s.testActions}>
                     {!stream ? (
                         <button className={s.btnCyan} onClick={start}><Play size={16} /> Mở Camera</button>

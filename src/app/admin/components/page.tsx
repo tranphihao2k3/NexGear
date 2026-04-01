@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -7,7 +7,7 @@ import {
     X, CheckCircle, XCircle, Monitor, ArrowLeft,
     Layers, Settings, Info, ShoppingBag
 } from 'lucide-react';
-import { Button, Badge, Input, useToast } from '@/components/ui';
+import { Button, Badge, Input, useToast, LazyImage } from '@/components/ui';
 import PriceInput from '@/components/admin/PriceInput';
 import ImageUploader from '@/components/admin/ImageUploader';
 import s from './page.module.scss';
@@ -249,7 +249,7 @@ export default function ComponentsPage() {
                                         <div className={s.componentPreview}>
                                             <div className={s.componentImg}>
                                                 {item.images?.[0] ? (
-                                                    <img src={item.images[0]} alt={item.name} />
+                                                    <LazyImage src={item.images[0]} alt={item.name} />
                                                 ) : (
                                                     <div className={s.placeholderIcon}><Package size={24} /></div>
                                                 )}

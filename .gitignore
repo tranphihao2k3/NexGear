@@ -43,9 +43,15 @@ next-env.d.ts
 # duan_weblaplap
 /duan_weblaplap
 
+# uploaded files (keep .gitkeep)
+/public/uploads/*
+!/public/uploads/.gitkeep
+
 # env files
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+/image-server

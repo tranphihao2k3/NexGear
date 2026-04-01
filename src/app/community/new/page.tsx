@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { LazyImage } from '@/components/ui';
 import Link from 'next/link';
 import styles from './page.module.scss';
 
@@ -218,7 +218,7 @@ export default function NewListingPage() {
                     <div className={styles.imageGrid}>
                         {images.map((img, i) => (
                             <div key={i} className={styles.imagePreview}>
-                                <Image src={img.url} alt="" fill sizes="120px" className={styles.previewImg} unoptimized />
+                                <LazyImage src={img.url} alt="" fill sizes="120px" className={styles.previewImg} unoptimized />
                                 <button type="button" className={styles.removeImg} onClick={() => removeImage(i)}>✕</button>
                             </div>
                         ))}

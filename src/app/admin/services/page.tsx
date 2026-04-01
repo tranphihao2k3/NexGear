@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import {
@@ -17,7 +17,7 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
-import { Button, Badge, Input } from '@/components/ui';
+import { Button, Badge, Input, LazyImage } from '@/components/ui';
 import ImageUploader from '@/components/admin/ImageUploader';
 import { searchMatch } from '@/lib/normalize';
 import s from './page.module.scss';
@@ -564,7 +564,7 @@ export default function ServicesPage() {
                 <h3>Hình ảnh hiện trạng</h3>
                 <div className={s.imageGrid}>
                   {selectedService.images?.map((img, idx) => (
-                    <img key={idx} src={img} alt={`Device photo ${idx + 1}`} />
+                    <LazyImage key={idx} src={img} alt={`Device photo ${idx + 1}`} />
                   ))}
                   {(!selectedService.images || selectedService.images.length === 0) && (
                     <p style={{ color: 'var(--color-ink3)', fontSize: '11px' }}>Không có hình ảnh đính kèm</p>

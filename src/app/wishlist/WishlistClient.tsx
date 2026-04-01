@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import LazyImage from "@/components/ui/LazyImage";
 import styles from "./page.module.scss";
 
 interface WishlistItem {
@@ -203,7 +204,7 @@ export default function WishlistPage() {
                                             <Link href={`/products/${item.slug}`} className={styles.imgLink}>
                                                 <div className={styles.img}>
                                                     {item.image ? (
-                                                        <img src={item.image} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        <LazyImage src={item.image} alt={item.name} fill objectFit="cover" />
                                                     ) : (
                                                         <span>📷</span>
                                                     )}

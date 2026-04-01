@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import {
@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import Toast from '@/components/admin/Toast';
 import ImageUploader from '@/components/admin/ImageUploader';
-import { Button, Badge, Input } from '@/components/ui';
+import { Button, Badge, Input, LazyImage } from '@/components/ui';
 import s from './page.module.scss';
 
 interface PopupBanner {
@@ -231,7 +231,7 @@ export default function PopupBannersPage() {
                         <div key={banner._id} className={s.card}>
                             <div className={s.imageWrap}>
                                 {banner.image ? (
-                                    <img src={banner.image} alt={banner.title} loading="lazy" />
+                                    <LazyImage src={banner.image} alt={banner.title} />
                                 ) : (
                                     <div className={s.emptyImage}>
                                         <ImageIcon size={48} strokeWidth={1} />

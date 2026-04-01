@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import LazyImage from "@/components/ui/LazyImage";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "@/components/ui/Button";
 import styles from "./page.module.scss";
@@ -179,7 +180,7 @@ export default function AccountPage() {
                         <div className={styles.avatarCard}>
                             <div className={styles.avatarWrap}>
                                 {user.image ? (
-                                    <img src={user.image} alt={user.name} className={styles.avatarImg} />
+                                    <LazyImage src={user.image} alt={user.name} className={styles.avatarImg} borderRadius={9999} />
                                 ) : (
                                     <span className={styles.avatarText}>{getInitials(user.name)}</span>
                                 )}

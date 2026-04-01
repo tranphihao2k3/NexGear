@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import LazyImage from "@/components/ui/LazyImage";
 import { useCart, CartItem } from "@/contexts/CartContext";
 import styles from "./page.module.scss";
 
@@ -32,7 +33,7 @@ function CartItemRow({
             </label>
             <div className={styles.itemImg}>
                 {item.image ? (
-                    <img src={item.image} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} />
+                    <LazyImage src={item.image} alt={item.name} fill objectFit="cover" borderRadius={4} />
                 ) : (
                     <span className={styles.itemImgFallback}>📷</span>
                 )}

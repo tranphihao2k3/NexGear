@@ -2,10 +2,10 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import ProductCard from "@/components/product/ProductCard";
 import { ProductGridSkeleton } from "@/components/ui";
 import Button from "@/components/ui/Button";
+import LazyImage from "@/components/ui/LazyImage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
 import styles from "./page.module.scss";
@@ -519,13 +519,12 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                                         <div key={product._id} className={styles.listCard}>
                                             <div className={styles.listCardImage}>
                                                 {product.images?.[0] ? (
-                                                    <Image
+                                                    <LazyImage
                                                         src={product.images[0]}
                                                         alt={product.name}
                                                         fill
-                                                        sizes="(max-width:768px) 120px, 180px"
+                                                        objectFit="cover"
                                                         className={styles.listImg}
-                                                        unoptimized={!product.images[0].includes('res.cloudinary.com')}
                                                     />
                                                 ) : (
                                                     <div className={styles.listImageFallback}>📷</div>

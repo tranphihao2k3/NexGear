@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import LazyImage from "@/components/ui/LazyImage";
 import styles from "./page.module.scss";
 
 const SUGGESTIONS = ["bàn phím bluetooth", "chuột gaming không dây", "tai nghe anc", "keychron k2", "logitech g pro", "razer huntsman"];
@@ -229,7 +230,7 @@ function SearchInner() {
                                     <Link key={p._id} href={`/products/${p.slug}`} className={styles.resultCard}>
                                         <div className={styles.resultImg}>
                                             {p.images?.[0]
-                                                ? <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                ? <LazyImage src={p.images[0]} alt={p.name} fill objectFit="cover" />
                                                 : <span>📷</span>
                                             }
                                         </div>

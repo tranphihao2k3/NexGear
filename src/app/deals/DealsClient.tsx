@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
+import LazyImage from "@/components/ui/LazyImage";
 import styles from "./page.module.scss";
 
 interface DealProduct {
@@ -102,7 +103,7 @@ function DealCard({ p }: { p: DealProduct }) {
             <Link href={`/products/${p.slug}`} className={styles.dealImgWrap}>
                 <div className={styles.dealImg}>
                     {p.images?.[0]
-                        ? <img src={p.images[0]} alt={p.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ? <LazyImage src={p.images[0]} alt={p.name} fill objectFit="cover" />
                         : <span className={styles.dealImgFallback}>📷</span>
                     }
                 </div>

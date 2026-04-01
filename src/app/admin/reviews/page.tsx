@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import styles from './page.module.scss'
-import { CyberpunkLoader, useToast } from '@/components/ui'
+import { CyberpunkLoader, useToast, LazyImage } from '@/components/ui'
 
 interface ReviewUser {
     _id: string
@@ -284,7 +284,7 @@ export default function AdminReviewsPage() {
                                         <div className={styles.detailLabel}>Hình ảnh ({selectedReview.images.length})</div>
                                         <div className={styles.imageGrid}>
                                             {selectedReview.images.map((img, i) => (
-                                                <img key={i} src={img} alt={`Review ${i}`} className={styles.reviewImage} />
+                                                <LazyImage key={i} src={img} alt={`Review ${i}`} className={styles.reviewImage} />
                                             ))}
                                         </div>
                                     </div>

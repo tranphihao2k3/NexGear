@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import LazyImage from '@/components/ui/LazyImage';
 import styles from './page.module.scss';
 import { useToast } from '@/components/ui';
 
@@ -187,8 +187,7 @@ export default function AdminCommunityPage() {
                                         <div className={styles.productCell}>
                                             <div className={styles.productImage}>
                                                 {listing.images?.[0] ? (
-                                                    <Image src={listing.images[0]} alt="" width={48} height={48}
-                                                        style={{ objectFit: 'cover' }} unoptimized />
+                                                    <LazyImage src={listing.images[0]} alt="" fill objectFit="cover" />
                                                 ) : '📷'}
                                             </div>
                                             <div className={styles.productInfo}>

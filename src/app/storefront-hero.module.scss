@@ -1,0 +1,406 @@
+@use '../styles/tokens' as *;
+@use '../styles/mixins' as *;
+
+// ══════════════════════════════════════════════════════════════
+// STOREFRONT HERO — Match site theme, Vietnamese-friendly fonts
+// ══════════════════════════════════════════════════════════════
+
+.hero {
+  position: relative;
+  min-height: 440px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+
+  @include mobile { min-height: 400px; }
+}
+
+// ── ANIMATED GRADIENT BLOBS ──────────────────────────────────
+.blobs {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.35;
+  animation: blobFloat 14s ease-in-out infinite;
+}
+
+.blob1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 196, 173, 0.5), transparent 70%);
+  top: -20%;
+  left: -10%;
+  animation-delay: 0s;
+}
+
+.blob2 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(240, 53, 106, 0.4), transparent 70%);
+  top: 10%;
+  right: -10%;
+  animation-delay: -5s;
+  animation-duration: 16s;
+}
+
+.blob3 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(123, 63, 242, 0.3), transparent 70%);
+  bottom: -20%;
+  left: 35%;
+  animation-delay: -9s;
+  animation-duration: 18s;
+}
+
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.08); }
+  50% { transform: translate(-20px, 20px) scale(0.95); }
+  75% { transform: translate(15px, 10px) scale(1.04); }
+}
+
+// ── GRID ─────────────────────────────────────────────────────
+.grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(circle at center, black 20%, transparent 75%);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+// ── PARTICLES ────────────────────────────────────────────────
+.particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: particleFloat 9s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.7s);
+  left: calc(5% + var(--i) * 7.5%);
+  bottom: 0;
+
+  &:nth-child(odd) { background: $color-cyan; }
+  &:nth-child(even) { background: $color-magenta; }
+  &:nth-child(3n) { background: $color-gold; width: 5px; height: 5px; }
+  &:nth-child(4n) { background: $color-purple; }
+}
+
+@keyframes particleFloat {
+  0% { opacity: 0; transform: translateY(0); }
+  15% { opacity: 0.5; }
+  85% { opacity: 0.15; }
+  100% { opacity: 0; transform: translateY(-350px); }
+}
+
+// ── CONTENT ──────────────────────────────────────────────────
+.content {
+  @include container;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 50px 0 44px;
+
+  @include mobile { padding: 36px $sp-4 32px; }
+}
+
+// ── BADGE ────────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 18px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: $font-body;
+  font-size: 12px;
+  font-weight: $fw-bold;
+  color: $color-cyan;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.badgeDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $color-cyan;
+  box-shadow: 0 0 10px rgba(0, 196, 173, 0.6);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.badgeSep { color: var(--ink3); }
+
+.badgeTag { color: $color-gold; }
+
+// ── TITLE (DM Sans — supports Vietnamese) ────────────────────
+.title {
+  font-family: $font-body;
+  margin: 0;
+  line-height: 1.15;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.titleLine1 {
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: $fw-semibold;
+  color: var(--ink2);
+  letter-spacing: 0.5px;
+}
+
+.titleLine2 {
+  font-size: clamp(32px, 6vw, 56px);
+  font-weight: $fw-black;
+  color: var(--ink);
+}
+
+.titleGradient {
+  background: linear-gradient(135deg, #00C4AD, #7B3FF2, #F0356A);
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+// ── SUBTITLE ─────────────────────────────────────────────────
+.subtitle {
+  font-family: $font-body;
+  font-size: clamp(14px, 2vw, 17px);
+  color: var(--ink3);
+  margin: 0;
+  max-width: 550px;
+}
+
+.typing {
+  color: $color-cyan;
+  font-weight: $fw-bold;
+}
+
+.cursor {
+  color: $color-cyan;
+  font-weight: 100;
+  animation: blink 0.7s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+// ── FEATURE PILLS ────────────────────────────────────────────
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+
+  @include mobile { gap: 8px; }
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-family: $font-body;
+  font-size: 13px;
+  font-weight: $fw-semibold;
+  border: 1px solid;
+  transition: all 0.3s ease;
+  cursor: default;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  @include mobile { font-size: 12px; padding: 5px 11px; }
+}
+
+.pillCyan {
+  color: #008f7d;
+  background: rgba(0, 196, 173, 0.08);
+  border-color: rgba(0, 196, 173, 0.2);
+  &:hover { background: rgba(0, 196, 173, 0.14); border-color: rgba(0, 196, 173, 0.4); }
+}
+
+.pillGold {
+  color: #b07800;
+  background: rgba(240, 165, 0, 0.08);
+  border-color: rgba(240, 165, 0, 0.2);
+  &:hover { background: rgba(240, 165, 0, 0.14); border-color: rgba(240, 165, 0, 0.4); }
+}
+
+.pillMagenta {
+  color: #c02050;
+  background: rgba(240, 53, 106, 0.08);
+  border-color: rgba(240, 53, 106, 0.2);
+  &:hover { background: rgba(240, 53, 106, 0.14); border-color: rgba(240, 53, 106, 0.4); }
+}
+
+.pillPurple {
+  color: #5a2db8;
+  background: rgba(123, 63, 242, 0.08);
+  border-color: rgba(123, 63, 242, 0.2);
+  &:hover { background: rgba(123, 63, 242, 0.14); border-color: rgba(123, 63, 242, 0.4); }
+}
+
+// ── CTA BUTTONS ──────────────────────────────────────────────
+.cta {
+  display: flex;
+  gap: 12px;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0 $sp-4;
+  }
+}
+
+.ctaPrimary {
+  font-family: $font-body;
+  font-size: 14px;
+  font-weight: $fw-bold;
+  color: #fff;
+  background: linear-gradient(135deg, #00C4AD, #00a896);
+  padding: 13px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0, 196, 173, 0.25);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0, 196, 173, 0.4);
+  }
+
+  @include mobile { width: 100%; justify-content: center; }
+}
+
+.ctaArrow {
+  transition: transform 0.3s ease;
+  .ctaPrimary:hover & { transform: translateX(4px); }
+}
+
+.ctaDeal {
+  font-family: $font-body;
+  font-size: 14px;
+  font-weight: $fw-bold;
+  color: $color-magenta;
+  background: rgba(240, 53, 106, 0.06);
+  border: 1.5px solid rgba(240, 53, 106, 0.25);
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(240, 53, 106, 0.12);
+    border-color: rgba(240, 53, 106, 0.5);
+    transform: translateY(-2px);
+  }
+
+  @include mobile { width: 100%; justify-content: center; }
+}
+
+.ctaFire {
+  font-size: 16px;
+  animation: fireShake 2s ease-in-out infinite;
+}
+
+@keyframes fireShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg) scale(1.1); }
+  75% { transform: rotate(5deg) scale(1.1); }
+}
+
+// ── STATS ────────────────────────────────────────────────────
+.stats {
+  display: flex;
+  gap: 28px;
+  padding: 14px 28px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+
+  @include mobile {
+    gap: 16px;
+    padding: 12px 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.statValue {
+  font-family: $font-mono;
+  font-size: 20px;
+  font-weight: $fw-bold;
+
+  @include mobile { font-size: 17px; }
+}
+
+.statLabel {
+  font-family: $font-body;
+  font-size: 11px;
+  font-weight: $fw-medium;
+  color: var(--ink3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

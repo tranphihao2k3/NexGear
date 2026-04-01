@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Button from "@/components/ui/Button";
+import LazyImage from "@/components/ui/LazyImage";
 import { useCart } from "@/contexts/CartContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
 import styles from "./page.module.scss";
@@ -330,7 +331,7 @@ function CheckoutPageInner() {
                                 {items.map(item => (
                                     <div key={item.productId + (item.variant || "")} className={styles.summaryItem}>
                                         <div className={styles.summaryItemImg}>
-                                            {item.image ? <img src={item.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 4 }} /> : <span>📷</span>}
+                                            {item.image ? <LazyImage src={item.image} alt="" fill objectFit="cover" borderRadius={4} /> : <span>📷</span>}
                                             <span className={styles.summaryItemQty}>{item.qty}</span>
                                         </div>
                                         <div className={styles.summaryItemInfo}>

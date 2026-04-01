@@ -47,12 +47,29 @@ export async function PUT(req: NextRequest, { params }: Params) {
 }
 
 // DELETE /api/products/[id]
-export async function DELETE(_req: NextRequest, { params }: Params) {
+export async function DELETE(req: NextRequest, { params }: Params) {
     try {
         await dbConnect();
         const { id } = await params;
         const product = await Product.findByIdAndDelete(id);
         if (!product) return apiError('Product not found', 404);
+
+        // Collect all image URLs (product + variants)
+        const allImages: string[] = [
+            ...(product.images || []),
+            ...(product.variants || []).flatMap((v: { images?: string[] }) => v.images || []),
+        ];
+
+        // Delete images from image server in background
+        if (allImages.length > 0) {
+            const origin = req.nextUrl.origin;
+            fetch(`${origin}/api/upload`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filenames: allImages }),
+            }).catch(() => {}); // fire and forget
+        }
+
         return apiSuccess({ message: 'Product deleted' });
     } catch (error) {
         return apiError((error as Error).message, 500);

@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Image from 'next/image';
 import Link from 'next/link';
 import ListingCard from '@/components/community/ListingCard';
+import LazyImage from '@/components/ui/LazyImage';
 import styles from './page.module.scss';
 
 interface Seller {
@@ -141,13 +141,12 @@ export default function DetailClient() {
                 <div className={styles.gallery}>
                     <div className={styles.mainImage}>
                         {listing.images?.[activeImage] ? (
-                            <Image
+                            <LazyImage
                                 src={listing.images[activeImage]}
                                 alt={listing.title}
                                 fill
-                                sizes="(max-width:768px) 100vw, 50vw"
+                                objectFit="cover"
                                 className={styles.img}
-                                unoptimized={!listing.images[activeImage].includes('res.cloudinary.com')}
                             />
                         ) : (
                             <div className={styles.imageFallback}>📷 Không có hình ảnh</div>
@@ -162,8 +161,7 @@ export default function DetailClient() {
                                     className={`${styles.thumb} ${i === activeImage ? styles.thumbActive : ''}`}
                                     onClick={() => setActiveImage(i)}
                                 >
-                                    <Image src={img} alt="" fill sizes="80px" className={styles.thumbImg}
-                                        unoptimized={!img.includes('res.cloudinary.com')} />
+                                    <LazyImage src={img} alt="" fill objectFit="cover" className={styles.thumbImg} />
                                 </button>
                             ))}
                         </div>
@@ -196,7 +194,7 @@ export default function DetailClient() {
                         <div className={styles.sellerInfo}>
                             <div className={styles.sellerAvatar}>
                                 {listing.seller?.image ? (
-                                    <Image src={listing.seller.image} alt="" width={40} height={40} className={styles.avatarImg} />
+                                    <LazyImage src={listing.seller.image} alt="" width={40} height={40} className={styles.avatarImg} borderRadius={9999} />
                                 ) : (
                                     <span>{listing.seller?.name?.[0] || '?'}</span>
                                 )}

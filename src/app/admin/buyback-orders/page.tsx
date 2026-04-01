@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import {
@@ -21,7 +21,7 @@ import {
   FileText
 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
-import { Button, Badge, Input } from '@/components/ui';
+import { Button, Badge, Input, LazyImage } from '@/components/ui';
 import ImageUploader from '@/components/admin/ImageUploader';
 import { searchMatch } from '@/lib/normalize';
 import s from './page.module.scss';
@@ -562,7 +562,7 @@ export default function BuybackOrdersPage() {
                   </div>
                   <div className={s.imageGrid}>
                     {selectedOrder.images?.map((img, idx) => (
-                      <img key={idx} src={img} alt={`Device photo ${idx + 1}`} />
+                      <LazyImage key={idx} src={img} alt={`Device photo ${idx + 1}`} />
                     ))}
                   </div>
                 </div>

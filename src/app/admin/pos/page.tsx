@@ -5,7 +5,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react'
-import Image from 'next/image'
+import LazyImage from '@/components/ui/LazyImage'
 import styles from './page.module.scss'
 import { CyberpunkLoader } from '@/components/ui'
 import { useSiteSettings } from '@/contexts/SiteSettingsContext'
@@ -584,7 +584,7 @@ export default function AdminPOSPage() {
                                     <div className={styles.colImg}>
                                         <div className={styles.thumb}>
                                             {imgSrc ? (
-                                                <Image src={imgSrc} alt={product.name} fill style={{ objectFit: 'cover' }} sizes="40px" unoptimized />
+                                                <LazyImage src={imgSrc} alt={product.name} fill objectFit="cover" />
                                             ) : <span className={styles.thumbEmoji}>📦</span>}
                                             {inCart && <span className={styles.cartBadge}>{inCart.qty}</span>}
                                         </div>
@@ -777,7 +777,7 @@ export default function AdminPOSPage() {
                                             {/* Thumb */}
                                             <div className={styles.itemThumb}>
                                                 {item.product.images?.[0] ? (
-                                                    <Image src={item.product.images[0]} alt={item.product.name} fill style={{ objectFit: 'cover' }} sizes="44px" unoptimized />
+                                                    <LazyImage src={item.product.images[0]} alt={item.product.name} fill objectFit="cover" />
                                                 ) : <span>📦</span>}
                                             </div>
 

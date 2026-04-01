@@ -8,7 +8,7 @@ import {
     Zap, Star, Award, ArrowRight, ChevronDown, Laptop, Settings,
     ThumbsUp, MessageCircle, MapPin, PhoneCall, Timer
 } from 'lucide-react';
-import { Button, useToast } from '@/components/ui';
+import { Button, useToast, LazyImage } from '@/components/ui';
 import ScrollReveal, { ScrollStagger } from '@/components/animations/ScrollReveal';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import s from './page.module.scss';
@@ -506,7 +506,7 @@ export default function RepairPage() {
                                                     <div className={s.previews}>
                                                         {imagePreviews.map((src, idx) => (
                                                             <div key={idx} className={s.preview}>
-                                                                <img src={src} alt="Preview" />
+                                                                <LazyImage src={src} alt="Preview" />
                                                                 <div className={s.removeBtn} onClick={() => removeImage(idx)}><X size={12} /></div>
                                                             </div>
                                                         ))}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import LazyImage from "@/components/ui/LazyImage";
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useSpring } from "framer-motion";
 import styles from "./page.module.scss";
 import ProductCard from "@/components/product/ProductCard";
@@ -208,50 +208,92 @@ export default function HomeClient() {
 
       {/* ═══ HERO ═══ */}
       <motion.div ref={heroRef} className={styles.hero} style={{ opacity: heroOpacity }}>
-        <div className={styles.heroGrid} />
-        <div className={styles.hero3d}>
-          <Suspense fallback={null}><HeroScene /></Suspense>
+        {/* Animated background blobs */}
+        <div className={styles.heroBlobs}>
+          <div className={`${styles.heroBlob} ${styles.heroBlob1}`} />
+          <div className={`${styles.heroBlob} ${styles.heroBlob2}`} />
+          <div className={`${styles.heroBlob} ${styles.heroBlob3}`} />
+          <div className={`${styles.heroBlob} ${styles.heroBlob4}`} />
         </div>
+        <div className={styles.heroGrid} />
         <div className={styles.heroOverlay} />
         <div className={styles.heroBottom} />
 
+        {/* Floating particles */}
+        <div className={styles.heroParticles}>
+          {Array.from({ length: 20 }).map((_, i) => (
+            <span key={i} className={styles.heroParticle} style={{ "--i": i } as React.CSSProperties} />
+          ))}
+        </div>
+
         <motion.div className={styles.heroContent} style={{ y: heroY }}>
-          <motion.div className={styles.heroBadge} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <motion.div className={styles.heroBadge} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, type: "spring" }}>
             <span className={styles.heroDot} />
-            {siteSettings.storeName} — {siteSettings.siteTagline}
+            <span>{siteSettings.storeName}</span>
+            <span className={styles.heroBadgeSep}>|</span>
+            <span className={styles.heroBadgeTag}>{siteSettings.siteTagline}</span>
           </motion.div>
 
           <motion.h1 className={styles.heroTitle} initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.8 }}>
-            <span className={styles.heroGradient}>GEAR UP</span>
-            <span className={styles.heroDotSep}>·</span>
-            LEVEL UP
+            <span className={styles.heroLine1}>NÂNG CẤP</span>
+            <span className={styles.heroLine2}>
+              <span className={styles.heroGradientMulti}>SETUP</span> CỦA BẠN
+            </span>
           </motion.h1>
 
           <motion.p className={styles.heroSub} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
-            Nâng cấp setup với <span className={styles.heroHighlight}>{typingText}</span>
+            Laptop, PC & Phụ kiện chính hãng — Tìm kiếm{" "}
+            <span className={styles.heroHighlight}>{typingText}</span>
             <span className={styles.heroCursor}>|</span>
           </motion.p>
 
-          <motion.div className={styles.heroCTA} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
-            <Link href="/products" className={styles.btnPrimary}>KHÁM PHÁ NGAY →</Link>
-            <Link href="/products?tag=sale" className={styles.btnOutline}>XEM DEAL 🔥</Link>
+          {/* Hero feature pills */}
+          <motion.div className={styles.heroFeatures} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+            {[
+              { icon: "🛡️", text: "Chính hãng 100%", color: "cyan" },
+              { icon: "⚡", text: "Giao 2H nội thành", color: "gold" },
+              { icon: "💰", text: "Trả góp 0%", color: "magenta" },
+              { icon: "🔄", text: "Đổi trả 30 ngày", color: "green" },
+            ].map((f, i) => (
+              <motion.div
+                key={f.text}
+                className={`${styles.heroPill} ${styles[`heroPill${f.color}`]}`}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.9 + i * 0.1 }}
+              >
+                <span>{f.icon}</span>
+                <span>{f.text}</span>
+              </motion.div>
+            ))}
           </motion.div>
 
-          <motion.div className={styles.heroStats} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+          <motion.div className={styles.heroCTA} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}>
+            <Link href="/products" className={styles.btnHero}>
+              <span>KHÁM PHÁ NGAY</span>
+              <span className={styles.btnHeroArrow}>→</span>
+            </Link>
+            <Link href="/products?tag=sale" className={styles.btnHeroDeal}>
+              <span className={styles.btnHeroFire}>🔥</span>
+              <span>FLASH DEAL</span>
+            </Link>
+          </motion.div>
+
+          <motion.div className={styles.heroStats} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
             {[
-              { v: "500+", l: "Sản phẩm" },
-              { v: "4.9★", l: "Đánh giá" },
-              { v: "2H", l: "Giao nhanh" },
-              { v: "0%", l: "Trả góp" },
-            ].map((s, i) => (
+              { v: "500+", l: "Sản phẩm", color: "#00c4ad" },
+              { v: "4.9★", l: "Đánh giá", color: "#ffd700" },
+              { v: "2H", l: "Giao nhanh", color: "#f0356a" },
+              { v: "0%", l: "Trả góp", color: "#7c3aed" },
+            ].map((s) => (
               <div key={s.l} className={styles.stat}>
-                <span className={styles.statV}>{s.v}</span>
+                <span className={styles.statV} style={{ color: s.color }}>{s.v}</span>
                 <span className={styles.statL}>{s.l}</span>
               </div>
             ))}
           </motion.div>
 
-          <motion.div className={styles.scrollHint} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}>
+          <motion.div className={styles.scrollHint} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>
             <span className={styles.scrollMouse}><span className={styles.scrollDot} /></span>
             <span className={styles.scrollLabel}>SCROLL</span>
           </motion.div>
@@ -344,7 +386,7 @@ export default function HomeClient() {
                 <Link key={blog._id} href={`/blog/${blog.slug}`} className={styles.blogCard}>
                   <div className={styles.blogImage}>
                     {blog.image ? (
-                        <Image src={blog.image} alt={blog.title} fill className={styles.img} />
+                        <LazyImage src={blog.image} alt={blog.title} fill objectFit="cover" className={styles.img} />
                       ) : (
                         <div className={styles.blogPlaceholder}>
                           <span className={styles.blogIcon}>📰</span>

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Button, Badge, Skeleton } from '@/components/ui';
+import LazyImage from '@/components/ui/LazyImage';
 import styles from './page.module.scss';
 import { IBlog } from '@/models/Blog';
 
@@ -124,7 +125,7 @@ export default function BlogDetailPage() {
 
                 {blog.featuredImage && (
                     <div className={styles.featuredImage}>
-                        <img src={blog.featuredImage} alt={blog.title} />
+                        <LazyImage src={blog.featuredImage} alt={blog.title} fill objectFit="cover" />
                     </div>
                 )}
 

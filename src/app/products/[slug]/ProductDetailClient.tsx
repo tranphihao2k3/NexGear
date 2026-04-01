@@ -9,6 +9,7 @@ import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import "yet-another-react-lightbox/styles.css";
 import ProductCard from "@/components/product/ProductCard";
 import Button from "@/components/ui/Button";
+import LazyImage from "@/components/ui/LazyImage";
 import styles from "./page.module.scss";
 import { useToast } from "@/components/ui";
 import { useCart } from "@/contexts/CartContext";
@@ -374,7 +375,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
             <div className={`${styles.stickyBar} ${scrolledPast ? styles.stickyBarShow : ""}`}>
                 <div className={styles.stickyBarInner}>
                     <div className={styles.stickyProduct}>
-                        <img src={images[0]} alt={product.name} />
+                        <LazyImage src={images[0]} alt={product.name} width={48} height={48} objectFit="cover" borderRadius={4} />
                         <div>
                             <div className={styles.stickyName}>{product.name}</div>
                             <div className={styles.stickyPrice}>{fmt(currentPrice)}</div>
@@ -472,7 +473,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                         className={`${styles.thumb} ${i === activeImg ? styles.thumbActive : ""}`}
                                         onClick={() => setActiveImg(i)}
                                     >
-                                        <img src={img} alt={`${product.name} ${i + 1}`} />
+                                        <LazyImage src={img} alt={`${product.name} ${i + 1}`} fill objectFit="cover" />
                                     </button>
                                 ))}
                             </div>
@@ -551,7 +552,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                             disabled={v.stock === 0}
                                         >
                                             {v.images?.[0] && (
-                                                <img src={v.images[0]} alt="" className={styles.variantThumb} />
+                                                <LazyImage src={v.images[0]} alt="" width={40} height={40} objectFit="cover" borderRadius={4} className={styles.variantThumb} />
                                             )}
                                             <div className={styles.variantInfo}>
                                                 <span className={styles.variantName}>{v.name}</span>

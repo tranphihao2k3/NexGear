@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui";
+import { Button, LazyImage } from "@/components/ui";
 import styles from "./page.module.scss";
 
 import { useCompareStore, CompareProduct } from "@/store/useCompareStore";
@@ -88,8 +88,8 @@ export default function ComparePage() {
                                             <button className={styles.removeBtn} onClick={() => removeItem(item.id)}>✕</button>
                                             <Link href={`/products/${item.slug}`} className={styles.itemCardWrap}>
                                                 <div className={styles.itemImg}>
-                                                    {item.img && item.img.startsWith('http') ? (
-                                                        <img src={item.img} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                                    {item.img && (item.img.startsWith('http') || item.img.startsWith('/')) ? (
+                                                        <LazyImage src={item.img} alt={item.name} fill objectFit="contain" />
                                                     ) : (
                                                         item.img
                                                     )}

@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
+import LazyImage from '@/components/ui/LazyImage';
 import styles from './page.module.scss';
 
 interface Listing {
@@ -129,8 +129,8 @@ export default function MyListingsPage() {
                             <div key={listing._id} className={styles.card}>
                                 <Link href={`/community/${listing.slug}`} className={styles.cardImage}>
                                     {listing.images?.[0] ? (
-                                        <Image src={listing.images[0]} alt="" fill sizes="120px" className={styles.cardImg}
-                                            unoptimized={!listing.images[0].includes('res.cloudinary.com')} />
+                                        <LazyImage src={listing.images[0]} alt="" fill objectFit="cover" className={styles.cardImg}
+                                             />
                                     ) : (
                                         <span className={styles.cardImgFallback}>📷</span>
                                     )}

@@ -22,14 +22,14 @@ import {
     Zap,
     RotateCcw
 } from 'lucide-react';
-import Image from 'next/image';
+
 import { useToast } from '@/components/ui/Toast';
-import { Button, Badge, Input } from '@/components/ui';
+import { Button, Badge, Input, LazyImage } from '@/components/ui';
 import Link from 'next/link';
 import s from './page.module.scss';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 
-const PLACEHOLDER_IMAGE = 'https://res.cloudinary.com/defhezuhn/image/upload/v1705664165/placeholder-laptop.png';
+const PLACEHOLDER_IMAGE = '/uploads/placeholder-laptop.png';
 
 interface Product {
     _id: string;
@@ -686,7 +686,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
                                     onClick={() => setSelectedProduct(product)}
                                 >
                                     <div className={s.imgWrap}>
-                                        <img src={product.image || product.images?.[0] || PLACEHOLDER_IMAGE} alt={product.name} />
+                                        <LazyImage src={product.image || product.images?.[0] || PLACEHOLDER_IMAGE} alt={product.name} fill objectFit="cover" />
                                     </div>
                                     <div className={s.pInfo}>
                                         <div className={s.pName}>{product.name}</div>
@@ -821,7 +821,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
                                                 }
                                             }}
                                         >
-                                            <img src={img} alt={`Ảnh ${idx + 1}`} />
+                                            <LazyImage src={img} alt={`Ảnh ${idx + 1}`} />
                                             <div className={s.imageCopyOverlay}>
                                                 <Copy size={20} />
                                                 <span>COPY</span>
@@ -965,7 +965,7 @@ Máy còn đẹp, pin tốt, đã cài sẵn đầy đủ phần mềm. Bảo h�
                             <h2 className={s.fieldLabel}>XEM TRƯỚC HÌNH ẢNH</h2>
                             {
                                 bannerData.imageUrl ? (
-                                    <img src={bannerData.imageUrl} alt="Banner preview" />
+                                    <LazyImage src={bannerData.imageUrl} alt="Banner preview" />
                                 ) : (
                                     <div className={s.empty}>
                                         <Sparkles size={64} strokeWidth={1} />

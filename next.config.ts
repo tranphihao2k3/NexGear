@@ -15,13 +15,16 @@ const nextConfig: NextConfig = {
     `,
   },
 
-  // Image domains (Cloudinary)
+  // Images from external cPanel image server
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        pathname: '/**',
+        protocol: 'http',
+        hostname: 'hard-mauve-chihuahua.202-92-4-12.cpanel.site',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
       },
     ],
   },

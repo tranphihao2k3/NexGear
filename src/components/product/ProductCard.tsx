@@ -4,9 +4,9 @@
 // ============================================================
 'use client'
 import { useState } from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import Button from '@/components/ui/Button'
+import LazyImage from '@/components/ui/LazyImage'
 import { StockBadge } from '@/components/ui/Badge'
 import { useCart } from '@/contexts/CartContext'
 import { useCompareStore } from '@/store/useCompareStore'
@@ -56,7 +56,6 @@ function StarRating({ avg, count }: { avg: number; count: number }) {
 
 export default function ProductCard({ product, onAddToCart, className = '' }: ProductCardProps) {
   const { addItem } = useCart()
-  const [imgLoaded, setImgLoaded] = useState(false)
   const [wishlisted, setWishlisted] = useState(() => {
     if (typeof window === 'undefined') return false
     const ids: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]')
@@ -130,19 +129,13 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
       <Link href={`/products/${product.slug}`} className={styles.imageWrap}>
         <div className={styles.image}>
           {product.images?.[0] ? (
-            <>
-              {/* Shimmer placeholder while image loads */}
-              {!imgLoaded && <div className={styles.imgPlaceholder} aria-hidden="true" />}
-              <Image
-                src={product.images[0]}
-                alt={product.name}
-                fill
-                sizes="(max-width:768px) 50vw, 25vw"
-                className={`${styles.img} ${imgLoaded ? styles.imgVisible : styles.imgHidden}`}
-                unoptimized={!product.images[0].includes('res.cloudinary.com')}
-                onLoad={() => setImgLoaded(true)}
-              />
-            </>
+            <LazyImage
+              src={product.images[0]}
+              alt={product.name}
+              fill
+              objectFit="cover"
+              className={styles.img}
+            />
           ) : (
             <div className={styles.imageFallback}>📷</div>
           )}

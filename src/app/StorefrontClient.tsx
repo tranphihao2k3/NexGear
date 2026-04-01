@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import styles from "./page.module.scss";
+import sfStyles from "./storefront-hero.module.scss";
 import ProductCard from "@/components/product/ProductCard";
 import ScrollReveal, { ScrollStagger } from "@/components/animations/ScrollReveal";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
@@ -29,8 +30,30 @@ interface Product {
   ratings: { avg: number; count: number };
 }
 
-// Sub-component to fetch and render products for a specific category
-function CategoryRow({ category, index }: { category: Category; index: number }) {
+// ── Hook: chỉ return true khi element gần viewport ──────────
+function useNearViewport(rootMargin = "600px") {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { rootMargin }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [rootMargin]);
+
+  return { ref, visible };
+}
+
+// ── CategoryRow: lazy fetch khi gần viewport ─────────────────
+function CategoryRow({ category, index, eager = false }: { category: Category; index: number; eager?: boolean }) {
+  const { ref, visible } = useNearViewport("300px");
+  const shouldFetch = eager || visible; // eager = row đầu tiên, fetch ngay
+
   const { data: products = [], isLoading: loading } = useQuery<Product[]>({
     queryKey: ['storefront-products', category.slug],
     queryFn: async () => {
@@ -38,15 +61,35 @@ function CategoryRow({ category, index }: { category: Category; index: number })
       const data = await res.json();
       return data.success ? data.data : [];
     },
-    staleTime: 10 * 60 * 1000, // Cache trong 10 phút
+    staleTime: 10 * 60 * 1000,
+    enabled: shouldFetch, // Chỉ fetch khi sắp vào viewport hoặc eager
   });
 
+  const isDark = index % 2 === 1;
+
+  // Chưa visible → render sentinel placeholder nhẹ (chiếm chỗ)
+  if (!visible) {
+    return (
+      <div ref={ref} style={{ minHeight: 300 }}>
+        <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
+          <div className={styles.container}>
+            <div style={{ marginBottom: "2rem" }}>
+              <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
+              <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
+                {category.name}
+              </h2>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   if (loading) {
-    const isDark = index % 2 === 1;
     return (
       <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
         <div className={styles.container}>
-          <div className={styles.sectionHeader} style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+          <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
             <div>
               <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
               <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
@@ -60,14 +103,12 @@ function CategoryRow({ category, index }: { category: Category; index: number })
     );
   }
 
-  if (products.length === 0) return null; // Don't show empty categories
-
-  const isDark = index % 2 === 1; // Alternate background colors
+  if (products.length === 0) return null;
 
   return (
     <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
       <div className={styles.container}>
-        <div className={styles.sectionHeader} style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+        <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
           <div>
             <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
             <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
@@ -89,9 +130,39 @@ function CategoryRow({ category, index }: { category: Category; index: number })
   );
 }
 
+// ── TYPING EFFECT ────────────────────────────────────────────
+function useTyping(texts: string[], speed = 80, pause = 2000) {
+  const [display, setDisplay] = useState("");
+  const [idx, setIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const text = texts[idx];
+    const timeout = deleting ? speed / 2 : speed;
+    if (!deleting && charIdx === text.length) {
+      const t = setTimeout(() => setDeleting(true), pause);
+      return () => clearTimeout(t);
+    }
+    if (deleting && charIdx === 0) {
+      setDeleting(false);
+      setIdx((i) => (i + 1) % texts.length);
+      return;
+    }
+    const timer = setTimeout(() => {
+      setDisplay(text.substring(0, deleting ? charIdx - 1 : charIdx + 1));
+      setCharIdx((c) => c + (deleting ? -1 : 1));
+    }, timeout);
+    return () => clearTimeout(timer);
+  }, [charIdx, deleting, idx, texts, speed, pause]);
+
+  return display;
+}
+
 export default function StorefrontClient() {
   const siteSettings = useSiteSettings();
-  
+  const typingText = useTyping(["Laptop Gaming", "Ultrabook", "Linh kiện PC", "Phụ kiện chính hãng", "Màn hình", "Bàn phím cơ"], 90, 2500);
+
   const { data: categories = [], isLoading: loading } = useQuery<Category[]>({
     queryKey: ['storefront-categories'],
     queryFn: async () => {
@@ -123,15 +194,89 @@ export default function StorefrontClient() {
   return (
     <div className={styles.home} style={{ paddingTop: "80px" }}> {/* Offset for Navbar */}
       
-      {/* ─── Hero Banner Siêu Gọn Nhẹ ─── */}
-      <section style={{ backgroundColor: "var(--color-bg)", padding: "40px 0", borderBottom: "1px solid var(--color-border)" }}>
-        <div className={styles.container} style={{ textAlign: "center" }}>
-          <h1 className={styles.heading} style={{ fontSize: "clamp(32px, 5vw, 48px)", margin: "0 0 16px 0", color: "var(--color-ink)", lineHeight: 1.1 }}>
-            {(siteSettings as any).bannerText || `Chào mừng đến với ${siteSettings.storeName}`}
+      {/* ─── Hero Banner ─── */}
+      <section className={sfStyles.hero}>
+        {/* Animated gradient blobs */}
+        <div className={sfStyles.blobs}>
+          <div className={`${sfStyles.blob} ${sfStyles.blob1}`} />
+          <div className={`${sfStyles.blob} ${sfStyles.blob2}`} />
+          <div className={`${sfStyles.blob} ${sfStyles.blob3}`} />
+        </div>
+
+        {/* Grid overlay */}
+        <div className={sfStyles.grid} />
+
+        {/* Floating particles */}
+        <div className={sfStyles.particles}>
+          {Array.from({ length: 12 }).map((_, i) => (
+            <span key={i} className={sfStyles.particle} style={{ "--i": i } as React.CSSProperties} />
+          ))}
+        </div>
+
+        <div className={sfStyles.content}>
+          {/* Badge */}
+          <div className={sfStyles.badge}>
+            <span className={sfStyles.badgeDot} />
+            <span>{siteSettings.storeName}</span>
+            <span className={sfStyles.badgeSep}>•</span>
+            <span className={sfStyles.badgeTag}>Chính hãng 100%</span>
+          </div>
+
+          {/* Title */}
+          <h1 className={sfStyles.title}>
+            <span className={sfStyles.titleLine1}>Laptop, PC &</span>
+            <span className={sfStyles.titleLine2}>
+              <span className={sfStyles.titleGradient}>Phụ Kiện</span> Chính Hãng
+            </span>
           </h1>
-          <p style={{ fontSize: "16px", color: "var(--color-ink2)", maxWidth: "600px", margin: "0 auto" }}>
-            {siteSettings.siteTagline} — Cung cấp các sản phẩm Laptop, PC & Phụ kiện chính hãng với giá tốt nhất thị trường.
+
+          {/* Subtitle with typing */}
+          <p className={sfStyles.subtitle}>
+            Giá tốt nhất thị trường — Tìm kiếm{" "}
+            <span className={sfStyles.typing}>{typingText}</span>
+            <span className={sfStyles.cursor}>|</span>
           </p>
+
+          {/* Feature pills */}
+          <div className={sfStyles.features}>
+            <div className={`${sfStyles.pill} ${sfStyles.pillCyan}`}>
+              <span>⚡</span><span>Giao 2H nội thành</span>
+            </div>
+            <div className={`${sfStyles.pill} ${sfStyles.pillGold}`}>
+              <span>💰</span><span>Trả góp 0%</span>
+            </div>
+            <div className={`${sfStyles.pill} ${sfStyles.pillMagenta}`}>
+              <span>🔄</span><span>Đổi trả 7 ngày nếu có lỗi</span>
+            </div>
+            <div className={`${sfStyles.pill} ${sfStyles.pillPurple}`}>
+              <span>🛡️</span><span>Bảo hành chính hãng</span>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className={sfStyles.cta}>
+            <Link href="/products" className={sfStyles.ctaPrimary}>
+              KHÁM PHÁ NGAY <span className={sfStyles.ctaArrow}>→</span>
+            </Link>
+            <Link href="/deals" className={sfStyles.ctaDeal}>
+              <span className={sfStyles.ctaFire}>🔥</span> FLASH DEAL
+            </Link>
+          </div>
+
+          {/* Stats */}
+          <div className={sfStyles.stats}>
+            {[
+              { v: "500+", l: "Sản phẩm", c: "#00C4AD" },
+              { v: "4.9★", l: "Đánh giá", c: "#F0A500" },
+              { v: "2H", l: "Giao nhanh", c: "#F0356A" },
+              { v: "24/7", l: "Hỗ trợ", c: "#7B3FF2" },
+            ].map((s) => (
+              <div key={s.l} className={sfStyles.statItem}>
+                <span className={sfStyles.statValue} style={{ color: s.c }}>{s.v}</span>
+                <span className={sfStyles.statLabel}>{s.l}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
