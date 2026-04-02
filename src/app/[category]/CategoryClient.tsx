@@ -138,7 +138,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
 
     // UI State (not fetched)
     const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
-    const [priceRange, setPriceRange] = useState<[number, number]>([0, 10_000_000]);
+    const [priceRange, setPriceRange] = useState<[number, number]>([0, 100_000_000]);
     const [sort, setSort] = useState("-createdAt");
     const [view, setView] = useState<"grid4" | "grid3" | "list">("grid4");
     const [page, setPage] = useState(1);
@@ -231,7 +231,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
         sort,
         brands: Array.from(selectedBrands).join(','),
         minPrice: priceRange[0] > 0 ? priceRange[0] : undefined,
-        maxPrice: priceRange[1] < 10_000_000 ? priceRange[1] : undefined,
+        maxPrice: priceRange[1] < 100_000_000 ? priceRange[1] : undefined,
         specs: specParts.join(',') || undefined,
     };
 
@@ -247,7 +247,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
             });
             if (selectedBrands.size > 0) params.set('brand', Array.from(selectedBrands).join(','));
             if (priceRange[0] > 0) params.set('minPrice', String(priceRange[0]));
-            if (priceRange[1] < 10_000_000) params.set('maxPrice', String(priceRange[1]));
+            if (priceRange[1] < 100_000_000) params.set('maxPrice', String(priceRange[1]));
             if (specParts.length > 0) params.set('specs', specParts.join(','));
             const res = await fetch(`/api/products?${params}`);
             const data = await res.json();
@@ -281,7 +281,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                     });
                     if (selectedBrands.size > 0) params.set('brand', Array.from(selectedBrands).join(','));
                     if (priceRange[0] > 0) params.set('minPrice', String(priceRange[0]));
-                    if (priceRange[1] < 10_000_000) params.set('maxPrice', String(priceRange[1]));
+                    if (priceRange[1] < 100_000_000) params.set('maxPrice', String(priceRange[1]));
                     if (specParts.length > 0) params.set('specs', specParts.join(','));
                     const res = await fetch(`/api/products?${params}`);
                     const data = await res.json();
@@ -319,7 +319,7 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
     const clearAll = () => {
         setSelectedBrands(new Set());
         setSelectedSpecs({});
-        setPriceRange([0, 10_000_000]);
+        setPriceRange([0, 100_000_000]);
         setPage(1);
     };
 
@@ -412,13 +412,60 @@ export default function CategoryClient({ categorySlug, h1 }: CategoryClientProps
                                     <span className={styles.priceDash}>—</span>
                                     <span className={styles.priceVal}>{formatPrice(priceRange[1])}</span>
                                 </div>
-                                <div className={styles.rangeWrap}>
-                                    <input type="range" min={0} max={10_000_000} step={100_000} value={priceRange[0]} className={styles.rangeInput}
-                                        onChange={(e) => { setPriceRange([+e.target.value, priceRange[1]]); setPage(1); }} />
-                                    <input type="range" min={0} max={10_000_000} step={100_000} value={priceRange[1]} className={styles.rangeInput}
-                                        onChange={(e) => { setPriceRange([priceRange[0], +e.target.value]); setPage(1); }} />
+                                <div className={styles.priceInputRow}>
+                                    <div className={styles.priceInputBox}>
+                                        <label className={styles.priceInputLabel}>Từ (đ)</label>
+                                        <input
+                                            type="number"
+                                            className={styles.priceInputField}
+                                            placeholder="0"
+                                            min={0}
+                                            max={100_000_000}
+                                            step={500_000}
+                                            value={priceRange[0] || ''}
+                                            onChange={(e) => {
+                                                const v = Math.min(+e.target.value || 0, priceRange[1]);
+                                                setPriceRange([v, priceRange[1]]);
+                                                setPage(1);
+                                            }}
+                                        />
+                                    </div>
+                                    <span className={styles.priceDash}>—</span>
+                                    <div className={styles.priceInputBox}>
+                                        <label className={styles.priceInputLabel}>Đến (đ)</label>
+                                        <input
+                                            type="number"
+                                            className={styles.priceInputField}
+                                            placeholder="100.000.000"
+                                            min={0}
+                                            max={100_000_000}
+                                            step={500_000}
+                                            value={priceRange[1] === 100_000_000 ? '' : priceRange[1]}
+                                            onChange={(e) => {
+                                                const v = Math.max(+e.target.value || 100_000_000, priceRange[0]);
+                                                setPriceRange([priceRange[0], v]);
+                                                setPage(1);
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                                <div className={styles.rangeLabels}><span>0₫</span><span>10.000.000₫</span></div>
+                                <div className={styles.pricePresets}>
+                                    {[
+                                        { label: 'Dưới 1tr', min: 0, max: 1_000_000 },
+                                        { label: 'Dưới 5tr', min: 0, max: 5_000_000 },
+                                        { label: '5–10tr', min: 5_000_000, max: 10_000_000 },
+                                        { label: '10–20tr', min: 10_000_000, max: 20_000_000 },
+                                        { label: 'Trên 20tr', min: 20_000_000, max: 100_000_000 },
+                                    ].map(p => (
+                                        <button
+                                            key={p.label}
+                                            className={`${styles.pricePresetBtn} ${priceRange[0] === p.min && priceRange[1] === p.max ? styles.pricePresetActive : ''}`}
+                                            onClick={() => { setPriceRange([p.min, p.max]); setPage(1); }}
+                                        >
+                                            {p.label}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
 
                             {/* Brands from API (cached) */}

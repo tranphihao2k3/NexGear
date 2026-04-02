@@ -371,110 +371,109 @@
     transform: rotate(180deg);
 }
 
-// ── Price Range ───────────────────────────────────────────
+// ── Price Range — replaced slider with inputs + presets ────
 .priceDisplay {
+    display: none; // hidden, info now shown inside inputs
+}
+
+.priceInputRow {
     display: flex;
     align-items: center;
     gap: $sp-2;
-    margin-bottom: $sp-6; // More space for the slider
+    margin-bottom: $sp-3;
 }
 
-.priceVal {
+.priceInputBox {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.priceInputLabel {
+    @include font-mono(10px, $fw-bold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.priceInputField {
+    width: 100%;
+    padding: $sp-2 $sp-3;
+    border: 1.5px solid $color-border2;
+    border-radius: $r-2;
+    background: $color-white;
+    color: var(--ink);
     @include font-mono($text-sm, $fw-semibold);
-    color: $color-cyan;
-    background: $color-cyan-light;
-    border-radius: $r-1;
-    padding: 2px $sp-3;
-    font-size: 11px;
+    outline: none;
+    transition: $transition-fast;
+    // Hide number arrows for cleaner look
+    appearance: textfield;
+    -moz-appearance: textfield;
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    &:focus {
+        border-color: $color-cyan;
+        box-shadow: $shadow-glow-cyan;
+    }
+
+    &::placeholder {
+        color: $color-ink3;
+        opacity: 0.5;
+        font-weight: $fw-regular;
+    }
 }
 
 .priceDash {
     color: $color-ink3;
-    font-size: 11px;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 16px; // align with input
 }
 
-.rangeWrap {
-    position: relative;
-    height: 32px;
+.pricePresets {
     display: flex;
-    align-items: center;
-}
-
-.rangeInput {
-    position: absolute;
-    width: 100%;
-    height: 4px;
-    appearance: none;
-    -webkit-appearance: none;
-    background: transparent;
-    pointer-events: none;
-    outline: none;
-    margin: 0;
-
-    &::-webkit-slider-track {
-        background: var(--bg3);
-        height: 6px;
-        border-radius: $r-full;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    // Hide track on the second input to allow clicking both
-    &:last-of-type {
-        &::-webkit-slider-track {
-            background: transparent;
-            box-shadow: none;
-        }
-    }
-
-    &::-webkit-slider-thumb {
-        appearance: none;
-        -webkit-appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: $r-full;
-        background: #00C4AD;
-        border: 2px solid var(--surface);
-        box-shadow: 0 0 10px rgba(0, 196, 173, 0.4);
-        cursor: pointer;
-        pointer-events: all;
-        transition: $transition-spring;
-        margin-top: -6px; // Center thumb on track
-
-        &:hover {
-            transform: scale(1.15);
-            box-shadow: 0 0 15px rgba(0, 196, 173, 0.6);
-            background: #00E9CE;
-        }
-
-        &:active {
-            transform: scale(0.95);
-        }
-    }
-
-    &::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        border-radius: $r-full;
-        background: #00C4AD;
-        border: 2px solid var(--surface);
-        box-shadow: 0 0 10px rgba(0, 196, 173, 0.4);
-        cursor: pointer;
-        pointer-events: all;
-    }
-}
-
-.rangeLabels {
-    display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: $sp-1;
     margin-top: $sp-1;
-    opacity: 0.6;
+}
 
-    span {
-        @include font-mono($text-xs, $fw-medium);
-        color: var(--ink3);
-        font-size: 10px;
+.pricePresetBtn {
+    @include font-mono(10px, $fw-semibold);
+    padding: 4px $sp-3;
+    border-radius: $r-full;
+    border: 1px solid $color-border2;
+    background: $color-bg;
+    color: $color-ink3;
+    cursor: pointer;
+    transition: $transition-fast;
+    white-space: nowrap;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+        background: $color-cyan-light;
     }
 }
+
+.pricePresetActive {
+    background: $color-cyan;
+    color: $color-white;
+    border-color: $color-cyan;
+
+    &:hover {
+        background: $color-cyan-dark;
+        color: $color-white;
+    }
+}
+
+// Keep these for any leftover references
+.rangeWrap { display: none; }
+.rangeInput { display: none; }
+.rangeLabels { display: none; }
+.priceVal { display: none; }
+
 
 // ── Checkbox Group ────────────────────────────────────────
 .checkGroup {
