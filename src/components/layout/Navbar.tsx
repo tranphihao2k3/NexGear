@@ -221,9 +221,19 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     }
 
     const isVietnamese = /[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳýỵỷỹ]/i.test(siteSettings.storeName);
-    const splitIndex = Math.ceil(siteSettings.storeName.length / 2);
-    const namePart1 = siteSettings.storeName.substring(0, splitIndex);
-    const namePart2 = siteSettings.storeName.substring(splitIndex);
+    let namePart1: string;
+    let namePart2: string;
+    if (isVietnamese) {
+        const lastSpace = siteSettings.storeName.lastIndexOf(' ');
+        namePart1 = lastSpace > 0 ? siteSettings.storeName.substring(0, lastSpace) : siteSettings.storeName;
+        namePart2 = lastSpace > 0 ? siteSettings.storeName.substring(lastSpace + 1) : '';
+    } else {
+        const name = siteSettings.storeName;
+        const accentLen = name.length > 6 ? 4 : Math.floor(name.length / 2);
+        namePart1 = name.substring(0, name.length - accentLen);
+        namePart2 = name.substring(name.length - accentLen);
+    }
+
 
     return (
         <>

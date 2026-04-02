@@ -99,7 +99,7 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
       />
-      {s.showLandingPage === false ? <StorefrontClient /> : <HomeClient />}
+      {s.showLandingPage !== false ? <HomeClient /> : <StorefrontClient />}
     </>
   )
 }
