@@ -15,7 +15,7 @@ export default async function HomePage() {
     '@type': 'ComputerStore',
     '@id': `${settings.siteDomain}/#organization`,
     name: settings.storeName,
-    alternateName: `${settings.storeName} Cần Thơ`,
+    alternateName: `${settings.storeName} ${settings.storeAddress}`,
     description: settings.siteDescription,
     url: `${settings.siteDomain}/`,
     logo: {
@@ -30,9 +30,9 @@ export default async function HomePage() {
     address: {
       '@type': 'PostalAddress',
       streetAddress: settings.storeAddress,
-      addressLocality: 'Cần Thơ',
-      addressRegion: 'Cần Thơ',
-      postalCode: '900000',
+      addressLocality: settings.storeAddress,
+      addressRegion: settings.storeAddress,
+      postalCode: '',
       addressCountry: 'VN',
     },
     geo: {
@@ -58,8 +58,7 @@ export default async function HomePage() {
     currenciesAccepted: 'VND',
     paymentAccepted: 'Cash, Credit Card, Bank Transfer, Momo, ZaloPay',
     areaServed: [
-      { '@type': 'City', name: 'Cần Thơ' },
-      { '@type': 'State', name: 'Đồng bằng sông Cửu Long' },
+      { '@type': 'City', name: settings.storeAddress },
     ],
     sameAs: [settings.facebook, settings.instagram, settings.tiktok].filter(Boolean),
   }

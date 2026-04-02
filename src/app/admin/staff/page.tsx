@@ -4,6 +4,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
 import styles from './page.module.scss'
 import { CyberpunkLoader, useToast } from '@/components/ui'
 
@@ -13,6 +14,7 @@ interface Staff {
     email: string
     image?: string
     role: string   // admin | manager | staff | cashier | superadmin | customer
+    siteId?: string
     baseSalary?: number
     leaveQuota?: number
     createdAt: string
@@ -36,6 +38,7 @@ function formatDate(dateStr: string) {
 }
 
 export default function AdminStaffPage() {
+    const { data: session } = useSession()
     const { success, error, info } = useToast()
     const [staffList, setStaffList] = useState<Staff[]>([])
     const [loading, setLoading] = useState(true)
@@ -57,11 +60,16 @@ export default function AdminStaffPage() {
     const [resetTarget, setResetTarget] = useState<Staff | null>(null)
     const [newPassword, setNewPassword] = useState('')
 
+    const sessionUser = session?.user as any
+    const isSuperAdmin = sessionUser?.role === 'superadmin'
+    const currentSiteId = sessionUser?.siteId ?? 'nexgear'
+
     const fetchStaff = useCallback(async () => {
         setLoading(true)
         try {
-            // Lấy tất cả users, lọc bỏ customer phía client
-            const res = await fetch('/api/users?limit=200')
+            // superadmin thấy tất cả, admin thường chỉ thấy staff của shop mình
+            const siteParam = isSuperAdmin ? '' : `&siteId=${currentSiteId}`
+            const res = await fetch(`/api/users?limit=200${siteParam}`)
             const json = await res.json()
             if (json.success) {
                 setStaffList((json.data as Staff[]).filter(u => u.role !== 'customer'))
@@ -71,7 +79,7 @@ export default function AdminStaffPage() {
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [isSuperAdmin, currentSiteId])
 
     useEffect(() => { fetchStaff() }, [fetchStaff])
 
@@ -137,6 +145,7 @@ export default function AdminStaffPage() {
                         role: formRole,
                         baseSalary: formSalary ? Number(formSalary) : 0,
                         leaveQuota: formLeave ? Number(formLeave) : 2,
+                        siteId: currentSiteId, // gắn nhân viên vào shop hiện tại
                     }),
                 })
                 const json = await res.json()

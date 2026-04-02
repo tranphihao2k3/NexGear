@@ -4,6 +4,7 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/contexts/ThemeContext'
@@ -57,6 +58,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
 
     const compareCount = useCompareStore(state => state.items.length)
     const [isMounted, setIsMounted] = useState(false)
+    const [logoImgError, setLogoImgError] = useState(false)
     const [categories, setCategories] = useState<NavLink[]>([
         {
             href: '/laptop',
@@ -134,36 +136,80 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     ])
 
     useEffect(() => {
-        setIsMounted(true)
+        setIsMounted(true);
 
         fetch('/api/categories?tree=true&active=true')
             .then(r => r.json())
             .then(d => {
                 if (d.success && Array.isArray(d.data)) {
-                    const mappedCats = d.data.map((cat: ApiCategory) => ({
-                        href: `/${cat.slug}`,
-                        label: cat.name,
-                        sub: cat.children?.length
-                            ? cat.children.map(ch => ({ href: `/${ch.slug}`, label: ch.name, desc: ch.description || '' }))
-                            : undefined,
-                    }))
+                    const mappedCats = d.data.map((cat: ApiCategory) => {
+                        const baseSub = cat.children?.length
+                            ? cat.children.map(ch => ({ 
+                                href: `/${ch.slug}`, 
+                                label: ch.name, 
+                                desc: ch.description || '' 
+                              }))
+                            : undefined;
+                        
+                        if (cat.slug === 'laptop' || cat.name.toLowerCase() === 'laptop') {
+                            const defaults = [
+                                { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
+                                { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
+                                { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
+                                { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
+                            ];
+                            
+                            const currentLabels = new Set((baseSub || []).map(s => s.label.toLowerCase()));
+                            const mergedSub = [...(baseSub || [])];
+                            
+                            for (const defItem of defaults) {
+                                if (!currentLabels.has(defItem.label.toLowerCase())) {
+                                    mergedSub.push(defItem);
+                                }
+                            }
+                            
+                            return {
+                                href: `/${cat.slug}`,
+                                label: cat.name,
+                                sub: mergedSub
+                            };
+                        }
 
-                    // Đưa "Laptop" lên đầu
-                    mappedCats.sort((a: NavLink, b: NavLink) => {
+                        return {
+                            href: `/${cat.slug}`,
+                            label: cat.name,
+                            sub: baseSub,
+                        };
+                    });
+
+                    if (!mappedCats.some((c: any) => c.label.toLowerCase() === 'laptop')) {
+                        mappedCats.unshift({
+                            href: '/laptop',
+                            label: 'Laptop',
+                            sub: [
+                                { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
+                                { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
+                                { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
+                                { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
+                            ]
+                        });
+                    }
+
+                    mappedCats.sort((a: any, b: any) => {
                         if (a.label.toLowerCase() === 'laptop') return -1;
                         if (b.label.toLowerCase() === 'laptop') return 1;
                         return 0;
-                    })
+                    });
 
-                    setCategories(mappedCats)
+                    setCategories(mappedCats);
                 }
             })
-            .catch(() => {})
-
-        return () => {}
-    }, [])
+            .catch(() => {});
+    }, []);
 
     useEffect(() => { setMenuOpen(false) }, [pathname])
+    // Reset logo error khi logoUrl thay đổi
+    useEffect(() => { setLogoImgError(false) }, [siteSettings.logoUrl])
 
     function handleMouseEnter(href: string) {
         if (dropdownTimeout.current) clearTimeout(dropdownTimeout.current)
@@ -188,9 +234,25 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                 <div className={styles.topBar}>
                     <div className={styles.topBarInner}>
                         <Link href="/" className={styles.logo}>
-                            <span className={styles.logoGlitch} data-text={namePart1} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart1}</span>
-                            <span className={styles.logoAccent} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart2}</span>
-                            <span className={styles.logoPulse} />
+                            {siteSettings.logoUrl && !logoImgError ? (
+                                // ── Image logo ──
+                                <Image
+                                    src={siteSettings.logoUrl}
+                                    alt={siteSettings.storeName}
+                                    width={200}
+                                    height={56}
+                                    style={{ objectFit: 'contain', height: '52px', width: 'auto', maxWidth: '220px' }}
+                                    priority
+                                    onError={() => setLogoImgError(true)}
+                                />
+                            ) : (
+                                // ── Text logo fallback (mặc định hoặc khi ảnh lỗi) ──
+                                <>
+                                    <span className={styles.logoGlitch} data-text={namePart1} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart1}</span>
+                                    <span className={styles.logoAccent} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart2}</span>
+                                    <span className={styles.logoPulse} />
+                                </>
+                            )}
                         </Link>
 
                         <Link href="/search" className={styles.searchBar}>

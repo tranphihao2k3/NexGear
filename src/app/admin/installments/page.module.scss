@@ -1,4 +1,4 @@
-.page { }
+// Admin Installments Page
 
 .loading {
     padding: $sp-10;
@@ -140,6 +140,11 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: $sp-3;
+
+    @include mobile {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
 }
 
 .checkLabel {
@@ -234,20 +239,32 @@
 
 .plansGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: $sp-3;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: $sp-4;
+
+    @include tablet {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: $sp-3;
+    }
+
+    @include mobile {
+        grid-template-columns: 1fr;
+    }
 }
 
 .planCard {
     background: $admin-card-bg;
     border: 1px solid $admin-border;
-    border-radius: $r-4;
-    padding: $sp-4;
-    transition: $transition-base;
+    border-radius: $r-3;
+    padding: $sp-5;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
 
     &:hover {
         border-color: $color-cyan;
-        box-shadow: $shadow-sm;
+        box-shadow: $shadow-md;
+        transform: translateY(-2px);
     }
 }
 

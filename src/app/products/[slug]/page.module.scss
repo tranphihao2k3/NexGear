@@ -1132,10 +1132,17 @@
     z-index: 50;
 
     @include tablet {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        &::-webkit-scrollbar { display: none; }
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-flow: row;
+        overflow: hidden;
+        border-bottom: none;
+    }
+}
+
+.tabNavLine {
+    @include tablet {
+        display: none !important;
     }
 }
 
@@ -1151,6 +1158,18 @@
     letter-spacing: $ls-wide;
     position: relative;
     white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+
+    @include tablet {
+        padding: $sp-4 $sp-2;
+        border: 0.5px solid var(--border);
+        font-size: 11px;
+        white-space: normal;
+        text-align: center;
+    }
 
     &::after {
         content: '';
@@ -1174,6 +1193,10 @@
 .tabBtnActive {
     color: #00C4AD !important;
     background: var(--bg2);
+
+    @include tablet {
+        background: var(--bg3);
+    }
 
     &::after {
         transform: scaleX(1);
@@ -1796,11 +1819,12 @@
 }
 
 .providerActive {
-    background: linear-gradient(135deg, #0f2847, #1a3a5c);
-    color: $color-white;
+    background: linear-gradient(135deg, #0C0C0C, #1A1A1A);
+    color: $color-cyan;
     border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
-    &:hover { background: linear-gradient(135deg, #1a3a5c, #0f2847); border-color: transparent; }
+    &:hover { background: #000; border-color: transparent; }
 }
 
 .installInputRow {
@@ -1883,10 +1907,24 @@
 
 .installGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: $sp-3;
-    max-width: 100%;
-    overflow: hidden;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: $sp-4;
+    width: 100%;
+
+    @include tablet {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    @include mobile {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: $sp-3;
+        overflow-x: auto;
+        padding-bottom: $sp-3;
+        margin: 0 -$sp-4;
+        padding-left: $sp-4;
+        padding-right: $sp-4;
+        scroll-snap-type: x mandatory;
+    }
 }
 
 .installCard {
@@ -1897,6 +1935,7 @@
     text-align: center;
     transition: $transition-base;
     position: relative;
+    scroll-snap-align: start;
 
     &:hover {
         border-color: $color-cyan;
@@ -1916,12 +1955,18 @@
 }
 
 .installMonthly {
-    @include font-body(22px, $fw-bold);
+    @include font-body(20px, $fw-bold);
     color: $color-cyan;
+    white-space: nowrap;
 
     span {
-        @include font-body($text-xs, $fw-regular);
+        @include font-body(11px, $fw-regular);
         color: var(--ink3);
+        margin-left: 2px;
+    }
+
+    @include tablet {
+        font-size: 18px;
     }
 }
 

@@ -1,0 +1,122 @@
+@use '@/styles/tokens' as *;
+@use '@/styles/mixins' as *;
+
+.wrapper {
+  background-color: $color-bg;
+  min-height: 100vh;
+  padding: $sp-12 0 $sp-20;
+
+  @include mobile {
+    padding: $sp-8 0 $sp-16;
+  }
+}
+
+.container {
+  @include container;
+  max-width: 800px; // Narrower for better readability of text-heavy pages
+}
+
+.header {
+  margin-bottom: $sp-12;
+  text-align: center;
+
+  .label {
+    @include section-label;
+    display: block;
+    margin-bottom: $sp-4;
+  }
+
+  .title {
+    @include font-body($text-3xl, $fw-black);
+    color: $color-ink;
+    line-height: $lh-snug;
+    letter-spacing: -0.02em;
+
+    @include tablet {
+      font-size: $text-2xl;
+    }
+  }
+}
+
+.content {
+  @include card-base;
+  padding: $sp-10;
+  background-color: $color-white;
+  box-shadow: $shadow-md;
+
+  @include tablet {
+    padding: $sp-6;
+  }
+
+  section {
+    margin-bottom: $sp-8;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    h2 {
+      @include font-body($text-lg, $fw-bold);
+      color: $color-ink;
+      margin-bottom: $sp-4;
+      display: flex;
+      align-items: center;
+      gap: $sp-3;
+
+      &::before {
+        content: '';
+        display: block;
+        width: 4px;
+        height: 20px;
+        background: $gradient-top-bar;
+        border-radius: $r-1;
+        flex-shrink: 0;
+      }
+    }
+
+    p {
+      @include font-body($text-base, $fw-regular);
+      color: $color-ink2;
+      line-height: $lh-relaxed;
+      margin-bottom: $sp-4;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    ul {
+      list-style: none;
+      padding-left: $sp-6;
+      margin-bottom: $sp-4;
+
+      li {
+        @include font-body($text-base, $fw-regular);
+        color: $color-ink2;
+        line-height: $lh-relaxed;
+        margin-bottom: $sp-2;
+        position: relative;
+
+        &::before {
+          content: '→';
+          position: absolute;
+          left: -1.5rem;
+          color: $color-cyan;
+          font-weight: $fw-bold;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    .lastUpdate {
+      @include font-mono($text-xs, $fw-medium);
+      color: $color-ink3;
+      margin-top: $sp-10;
+      padding-top: $sp-6;
+      border-top: 1px dashed $color-border;
+    }
+  }
+}

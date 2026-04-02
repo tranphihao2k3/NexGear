@@ -13,12 +13,19 @@ export interface SiteSettings {
     storePhone: string;
     storeEmail: string;
     storeAddress: string;
+    taxCode: string;
     logoUrl: string;
     faviconUrl: string;
     facebook: string;
     instagram: string;
     tiktok: string;
+    facebookPageId: string;
+    googleMapsEmbedUrl: string;
     showLandingPage: boolean;
+    // Bank & Payment (BCT compliance)
+    bankAccountName: string;
+    bankAccountNumber: string;
+    bankName: string;
 }
 
 const DEFAULTS: SiteSettings = {
@@ -30,44 +37,87 @@ const DEFAULTS: SiteSettings = {
     siteDomain: 'https://nexgzone.top',
     siteKeywords: 'gear máy tính Cần Thơ, bàn phím cơ, chuột gaming, tai nghe gaming, phụ kiện PC, nexgear, shop gear Cần Thơ',
     ogImage: '/og-image.jpg',
-    storePhone: '0901 234 567',
-    storeEmail: 'contact@nexgzone.top',
-    storeAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
-    logoUrl: 'https://cdn.nexgzone.top/logo.svg',
-    faviconUrl: 'https://cdn.nexgzone.top/favicon.ico',
+    storePhone: '0978648720',
+    storeEmail: 'tranphihao2k3@gmail.com',
+    storeAddress: 'Cần Thơ',
+    taxCode: '',
+    logoUrl: '',
+    faviconUrl: '',
     facebook: '',
     instagram: '',
     tiktok: '',
+    facebookPageId: '',
+    googleMapsEmbedUrl: '',
     showLandingPage: true,
+    bankAccountName: '',
+    bankAccountNumber: '',
+    bankName: '',
 };
 
-let cachedSettings: SiteSettings | null = null;
-let cacheTime = 0;
+// Cache settings per siteId to support multi-tenant deployments
+let settingsCache: Record<string, { data: SiteSettings; timestamp: number }> = {};
 const CACHE_TTL = 60 * 1000; // 1 minute
 
-export async function getSiteSettings(): Promise<SiteSettings> {
+export async function getSiteSettings(idOrHost?: string): Promise<SiteSettings> {
     const now = Date.now();
-    if (cachedSettings && now - cacheTime < CACHE_TTL) {
-        return cachedSettings;
+
+    // ⚠️  MULTI-TENANT RULE:
+    // Luôn truyền `host` từ request header vào hàm này.
+    // Khi deploy production: mỗi domain → đúng shop.
+    // Khi dev localhost: dùng NEXT_PUBLIC_SITE_ID để chọn shop.
+    if (!idOrHost && process.env.NODE_ENV === 'development') {
+        console.warn(
+            '[getSiteSettings] Called without host argument. ' +
+            'This will fall back to NEXT_PUBLIC_SITE_ID or "nexgear". ' +
+            'Pass headers().get("host") for correct multi-tenant behavior.'
+        );
+    }
+
+    // Khi chạy trên localhost (dev mode), ignore host và dùng NEXT_PUBLIC_SITE_ID
+    const rawIdentifier = idOrHost || '';
+    const isLocalhost = rawIdentifier === '' || rawIdentifier.startsWith('localhost');
+    const identifier = isLocalhost
+        ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
+        : rawIdentifier;
+    
+    // Return from cache if valid
+    if (settingsCache[identifier] && now - settingsCache[identifier].timestamp < CACHE_TTL) {
+        return settingsCache[identifier].data;
     }
 
     try {
         await dbConnect();
-        const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'nexgear';
-        let settings = await Setting.findOne({ siteId }).lean();
         
-        // Auto-migration for existing database that doesn't have siteId yet
-        if (!settings && siteId === 'nexgear') {
+        let settings = null;
+        
+        // 1. Try finding by siteId first (exact match)
+        settings = await Setting.findOne({ siteId: identifier }).lean();
+        
+        // 2. If not found and identifier looks like a domain/host, try finding by siteDomain
+        if (!settings && (identifier.includes('.') || identifier.includes('localhost'))) {
+            // Clean host (remove port if exists)
+            const cleanHost = identifier.split(':')[0];
+            settings = await Setting.findOne({ 
+                $or: [
+                    { siteDomain: { $regex: cleanHost, $options: 'i' } },
+                    { siteId: identifier }
+                ] 
+            }).lean();
+        }
+        
+        // 3. Auto-migration / Fallback for 'nexgear'
+        if (!settings && identifier === 'nexgear') {
             const tempSettings = await Setting.findOne({ siteId: { $exists: false } });
             if (tempSettings) {
                 tempSettings.siteId = 'nexgear';
                 await tempSettings.save();
-                settings = tempSettings.toObject(); // Use the newly saved document
+                settings = tempSettings.toObject();
             }
         }
         
+        let result: SiteSettings;
         if (settings) {
-            cachedSettings = {
+            result = {
                 storeName: (settings as any).storeName || DEFAULTS.storeName,
                 siteTitle: (settings as any).siteTitle || DEFAULTS.siteTitle,
                 siteTitleTemplate: (settings as any).siteTitleTemplate || DEFAULTS.siteTitleTemplate,
@@ -79,21 +129,42 @@ export async function getSiteSettings(): Promise<SiteSettings> {
                 storePhone: (settings as any).storePhone || DEFAULTS.storePhone,
                 storeEmail: (settings as any).storeEmail || DEFAULTS.storeEmail,
                 storeAddress: (settings as any).storeAddress || DEFAULTS.storeAddress,
+                taxCode: (settings as any).taxCode || DEFAULTS.taxCode,
                 logoUrl: (settings as any).logoUrl || DEFAULTS.logoUrl,
                 faviconUrl: (settings as any).faviconUrl || DEFAULTS.faviconUrl,
                 facebook: (settings as any).facebook || DEFAULTS.facebook,
                 instagram: (settings as any).instagram || DEFAULTS.instagram,
                 tiktok: (settings as any).tiktok || DEFAULTS.tiktok,
+                facebookPageId: (settings as any).facebookPageId || DEFAULTS.facebookPageId,
+                googleMapsEmbedUrl: (settings as any).googleMapsEmbedUrl || DEFAULTS.googleMapsEmbedUrl,
                 showLandingPage: (settings as any).showLandingPage ?? DEFAULTS.showLandingPage,
+                bankAccountName: (settings as any).bankAccountName || DEFAULTS.bankAccountName,
+                bankAccountNumber: (settings as any).bankAccountNumber || DEFAULTS.bankAccountNumber,
+                bankName: (settings as any).bankName || DEFAULTS.bankName,
             };
         } else {
-            cachedSettings = { ...DEFAULTS };
+            result = { ...DEFAULTS };
         }
-        cacheTime = now;
-        return cachedSettings;
-    } catch {
+        
+        // Update cache for this identifier
+        settingsCache[identifier] = { data: result, timestamp: now };
+        return result;
+    } catch (error) {
+        console.error('Error fetching site settings:', error);
         return { ...DEFAULTS };
     }
 }
 
 export { DEFAULTS as SITE_DEFAULTS };
+
+/**
+ * Xóa cache settings của một hoặc tất cả shop.
+ * Gọi sau khi admin lưu cài đặt để trang phản ánh ngay.
+ */
+export function clearSiteCache(idOrHost?: string) {
+    if (idOrHost) {
+        delete settingsCache[idOrHost];
+    } else {
+        settingsCache = {};
+    }
+}

@@ -480,14 +480,14 @@ export default function HomeClient() {
                   <span className={styles.locIcon}>📍</span>
                   <div>
                     <div className={styles.locLabel}>ĐỊA CHỈ</div>
-                    <div className={styles.locValue}>Ninh Kiều, Cần Thơ</div>
+                    <div className={styles.locValue}>{siteSettings.storeAddress}</div>
                   </div>
                 </div>
                 <div className={styles.locItem}>
                   <span className={styles.locIcon}>📞</span>
                   <div>
                     <div className={styles.locLabel}>HOTLINE</div>
-                    <div className={styles.locValue}>0978.648.720</div>
+                    <div className={styles.locValue}>{siteSettings.storePhone}</div>
                   </div>
                 </div>
                 <div className={styles.locItem}>

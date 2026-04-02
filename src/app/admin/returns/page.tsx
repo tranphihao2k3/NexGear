@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { Button, Badge, Input } from '@/components/ui';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import s from './page.module.scss';
 
 interface ReturnItem {
@@ -59,6 +60,7 @@ const STATUS_MAP: Record<string, { label: string, variant: any, icon: any }> = {
 };
 
 export default function ReturnsPage() {
+  const siteSettings = useSiteSettings();
   const { success: showSuccess, error: showError } = useToast();
   const [returns, setReturns] = useState<ReturnItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -444,7 +446,7 @@ export default function ReturnsPage() {
                   >
                     <option value="cash">Tiền mặt</option>
                     <option value="bank">Chuyển khoản</option>
-                    <option value="store_credit">Số dư NexGear</option>
+                    <option value="store_credit">Số dư {siteSettings.storeName}</option>
                   </select>
                 </div>
               </div>

@@ -1,24 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Setting from '@/models/Setting';
+import { clearSiteCache } from '@/lib/site-config';
 
-export async function GET() {
+/** Xác định siteId từ request host (multi-tenant) */
+function getIdentifier(req: NextRequest): string {
+    const host = req.headers.get('host') || '';
+    const isLocalhost = host === '' || host.startsWith('localhost');
+    return isLocalhost
+        ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
+        : host.split(':')[0]; // bỏ port nếu có
+}
+
+export async function GET(req: NextRequest) {
     try {
         await dbConnect();
-        const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'nexgear';
-        let setting = await Setting.findOne({ siteId });
+        const identifier = getIdentifier(req);
+        let setting = await Setting.findOne({ siteId: identifier });
         
-        // Auto-migration for existing database that doesn't have siteId yet
-        if (!setting && siteId === 'nexgear') {
+        // Fallback: tìm theo siteDomain nếu chưa có siteId khớp
+        if (!setting) {
+            setting = await Setting.findOne({ siteDomain: { $regex: identifier, $options: 'i' } });
+        }
+        // Auto-migration
+        if (!setting && identifier === 'nexgear') {
             setting = await Setting.findOne({ siteId: { $exists: false } });
             if (setting) {
                 setting.siteId = 'nexgear';
                 await setting.save();
             }
         }
-        
         if (!setting) {
-            setting = await Setting.create({ siteId });
+            setting = await Setting.create({ siteId: identifier });
         }
         return NextResponse.json({ success: true, data: setting });
     } catch (error) {
@@ -29,31 +42,26 @@ export async function GET() {
 export async function PUT(req: NextRequest) {
     try {
         await dbConnect();
-        const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'nexgear';
+        const identifier = getIdentifier(req);
         const body = await req.json();
-        let setting = await Setting.findOne({ siteId });
+        let setting = await Setting.findOne({ siteId: identifier });
         if (!setting) {
-            setting = new Setting({ siteId });
+            // Fallback: tìm theo siteDomain
+            setting = await Setting.findOne({ siteDomain: { $regex: identifier, $options: 'i' } });
+        }
+        if (!setting) {
+            setting = new Setting({ siteId: identifier });
         }
 
-        // Update all fields that are present in the body
         const allowedFields = [
-            // Appearance
             'primaryColor', 'accentColor', 'logoUrl', 'faviconUrl', 'bannerText',
-            // General
             'storeName', 'storeEmail', 'storePhone', 'storeAddress', 'taxCode', 'currency',
-            // SEO & Site Identity
             'siteTitle', 'siteTitleTemplate', 'siteDescription', 'siteTagline', 'siteDomain', 'siteKeywords', 'ogImage',
-            // Social
-            'facebook', 'instagram', 'tiktok',
-            // Danger zone
+            'facebook', 'instagram', 'tiktok', 'facebookPageId', 'googleMapsEmbedUrl',
             'maintenanceMode',
-            // Notifications
             'emailOrderNotif', 'emailDailyReport', 'stockAlertNotif', 'smsNotif',
-            // Shipping
             'shippingInner', 'shippingOuter', 'shippingSouth', 'shippingNorth',
             'freeShipMinOrder', 'ghtkToken', 'ghnToken',
-            // Layout Configure
             'showLandingPage'
         ];
 
@@ -64,6 +72,11 @@ export async function PUT(req: NextRequest) {
         }
 
         await setting.save();
+
+        // Xóa cache để frontend phản ánh thay đổi ngay lập tức
+        clearSiteCache(identifier);
+        clearSiteCache(); // Xóa toàn bộ để chắc chắn
+
         return NextResponse.json({ success: true, data: setting });
     } catch (error) {
         return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });

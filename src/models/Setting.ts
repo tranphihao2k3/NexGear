@@ -21,6 +21,8 @@ export interface ISetting extends Document {
     facebook: string;
     instagram: string;
     tiktok: string;
+    facebookPageId: string;
+    googleMapsEmbedUrl: string;
 
     // SEO & Site Identity
     siteTitle: string;
@@ -51,6 +53,18 @@ export interface ISetting extends Document {
 
     // Config Layout
     showLandingPage: boolean;
+
+    // Multi-tenant management
+    ownerEmail: string;
+    isActive: boolean;
+    plan: string;
+    customDomain: string;
+    isCustomDomainActive: boolean;
+
+    // Bank & Payment (BCT compliance)
+    bankAccountName: string;
+    bankAccountNumber: string;
+    bankName: string;
 }
 
 const SettingSchema: Schema = new Schema(
@@ -75,6 +89,8 @@ const SettingSchema: Schema = new Schema(
         facebook: { type: String, default: '' },
         instagram: { type: String, default: '' },
         tiktok: { type: String, default: '' },
+        facebookPageId: { type: String, default: '' },
+        googleMapsEmbedUrl: { type: String, default: '' },
 
         // SEO & Site Identity
         siteTitle: { type: String, default: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ' },
@@ -103,6 +119,18 @@ const SettingSchema: Schema = new Schema(
         ghtkToken: { type: String, default: '' },
         ghnToken: { type: String, default: '' },
         showLandingPage: { type: Boolean, default: true },
+
+        // Multi-tenant
+        ownerEmail: { type: String, default: '' },
+        isActive: { type: Boolean, default: true },
+        plan: { type: String, default: 'free' },
+        customDomain: { type: String, default: '' },
+        isCustomDomainActive: { type: Boolean, default: false },
+
+        // Bank & Payment (BCT compliance)
+        bankAccountName: { type: String, default: '' },
+        bankAccountNumber: { type: String, default: '' },
+        bankName: { type: String, default: '' },
     },
     {
         timestamps: true,

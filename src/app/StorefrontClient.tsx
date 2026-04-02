@@ -103,7 +103,40 @@ function CategoryRow({ category, index, eager = false }: { category: Category; i
     );
   }
 
-  if (products.length === 0) return null;
+  const isKeyLaptop = ['gaming-laptop', 'ultrabook', 'workstation', 'laptop-sinh-vien'].includes(category.slug);
+
+  if (products.length === 0) {
+    if (isKeyLaptop) {
+      // Đối với các mục Laptop quan trọng, nếu chưa có sản phẩm vẫn hiện Row nhưng kèm thông tin "Sắp có hàng"
+      return (
+        <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
+          <div className={styles.container}>
+            <div style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div>
+                <p className={styles.label} style={{ color: "var(--color-primary)", fontWeight: "bold", letterSpacing: "2px", textTransform: "uppercase", fontSize: "14px", marginBottom: "8px" }}>// DANH MỤC NỔI BẬT</p>
+                <h2 className={styles.heading} style={{ margin: 0, fontSize: "clamp(24px, 4vw, 36px)", lineHeight: 1.1, color: "var(--color-ink)", textTransform: "uppercase" }}>
+                  {category.name}
+                </h2>
+              </div>
+            </div>
+            <div style={{ 
+              padding: "40px", 
+              borderRadius: "8px", 
+              border: "1px dashed var(--color-border)", 
+              textAlign: "center",
+              background: "rgba(0,196,173,0.02)"
+            }}>
+              <p style={{ color: "var(--color-ink2)", fontSize: "14px", margin: 0 }}>
+                 🚀 Đang cập nhật sản phẩm {category.name}... <br/>
+                 <small style={{ color: "var(--color-ink3)" }}>Vui lòng quay lại sau ít phút hoặc liên hệ hotline để được tư vấn.</small>
+              </p>
+            </div>
+          </div>
+        </section>
+      );
+    }
+    return null;
+  }
 
   return (
     <section className={`${styles.section} ${isDark ? styles.sectionDark : ""}`}>
@@ -161,7 +194,7 @@ function useTyping(texts: string[], speed = 80, pause = 2000) {
 
 export default function StorefrontClient() {
   const siteSettings = useSiteSettings();
-  const typingText = useTyping(["Laptop Gaming", "Ultrabook", "Linh kiện PC", "Phụ kiện chính hãng", "Màn hình", "Bàn phím cơ"], 90, 2500);
+  const typingText = useTyping(["Laptop Gaming", "Ultrabook", "Workstation", "Laptop Sinh Viên", "Linh kiện PC", "Phụ kiện chính hãng"], 90, 2500);
 
   const { data: categories = [], isLoading: loading } = useQuery<Category[]>({
     queryKey: ['storefront-categories'],
@@ -170,25 +203,47 @@ export default function StorefrontClient() {
       const data = await res.json();
       if (data.success && Array.isArray(data.data)) {
         const rootCats = [...data.data];
-        // Sắp xếp: Ưu tiên mục "Laptop" (Gốc) lên đầu, sau đó đến các danh mục con (Gaming Laptop, Ultrabook)
+        
+        // Luôn đảm bảo 4 danh mục Laptop quan trọng có mặt (để render các row riêng biệt)
+        const laptopSlugs = ['gaming-laptop', 'ultrabook', 'workstation', 'laptop-sinh-vien'];
+        const laptopDefaults = [
+            { _id: 'def-gaming', name: 'Gaming Laptop', slug: 'gaming-laptop' },
+            { _id: 'def-ultra', name: 'Ultrabook', slug: 'ultrabook' },
+            { _id: 'def-work', name: 'Workstation', slug: 'workstation' },
+            { _id: 'def-student', name: 'Laptop Sinh Viên', slug: 'laptop-sinh-vien' }
+        ];
+
+        // Thêm vào nếu DB chưa có
+        const existingSlugs = new Set(rootCats.map(c => c.slug));
+        for (const def of laptopDefaults) {
+            if (!existingSlugs.has(def.slug)) {
+                rootCats.push(def as any);
+            }
+        }
+
+        // Sắp xếp: Ưu tiên Laptop lên đầu, theo đúng thứ tự screenshot
         rootCats.sort((a, b) => {
-          const aStr = a.name.toLowerCase() + a.slug.toLowerCase();
-          const bStr = b.name.toLowerCase() + b.slug.toLowerCase();
-          const aIsLaptop = aStr.includes('laptop') || aStr.includes('ultrabook') || aStr.includes('workstation');
-          const bIsLaptop = bStr.includes('laptop') || bStr.includes('ultrabook') || bStr.includes('workstation');
+          const aSlug = a.slug.toLowerCase();
+          const bSlug = b.slug.toLowerCase();
           
-          if (a.slug === "laptop") return -1;
-          if (b.slug === "laptop") return 1;
-          if (aIsLaptop && !bIsLaptop) return -1;
-          if (!aIsLaptop && bIsLaptop) return 1;
+          const aIdx = laptopSlugs.indexOf(aSlug);
+          const bIdx = laptopSlugs.indexOf(bSlug);
+
+          if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+          if (aIdx !== -1) return -1;
+          if (bIdx !== -1) return 1;
           
+          // Sau đó đến Laptop (tổng quát)
+          if (aSlug === 'laptop') return -1;
+          if (bSlug === 'laptop') return 1;
+
           return 0; 
         });
         return rootCats;
       }
       return [];
     },
-    staleTime: 15 * 60 * 1000, // Caching danh mục 15 phút (ít thay đổi)
+    staleTime: 15 * 60 * 1000,
   });
 
   return (
@@ -302,7 +357,7 @@ export default function StorefrontClient() {
         ) : (
           <>
             {categories.map((cat, idx) => (
-              <CategoryRow key={cat._id} category={cat} index={idx} />
+              <CategoryRow key={cat._id} category={cat} index={idx} eager={idx < 2} />
             ))}
             
             {categories.length === 0 && (

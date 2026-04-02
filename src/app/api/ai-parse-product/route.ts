@@ -6,7 +6,7 @@ import Category from '@/models/Category';
 import Brand from '@/models/Brand';
 import { getSiteSettings } from '@/lib/site-config';
 
-function buildPrompt(text: string, categoryList: { id: string; name: string; parentName?: string }[], brandList: { id: string; name: string }[], storeName: string, siteDomain: string) {
+function buildPrompt(text: string, categoryList: { id: string; name: string; parentName?: string }[], brandList: { id: string; name: string }[], storeName: string, siteDomain: string, storeAddress: string) {
     return `
 Bạn là CHUYÊN GIA sản phẩm công nghệ kình nghiệm (laptop, chuột, bàn phím, tai nghe, loa, phụ kiện...)
 và đồng thời là CHUYÊN GIA SEO viết content bán hàng tại Việt Nam.
@@ -45,7 +45,7 @@ Trả về JSON theo schema sau (CHỈ JSON, không text khác):
   "gift": quà tặng kèm nếu có hoặc null,
   "description": PHẢI viết bài HTML SEO chuyên nghiệp dài 300-500 từ, chuỗi HTML hợp lệ, không xuống dòng \n trong JSON. Cấu trúc BẮT BUỘC:
     - <img src="{{IMAGE_0}}" alt="[tên sản phẩm]" style="max-width:100%;border-radius:8px;margin-bottom:16px">
-    - <h2>[Tên đầy đủ] — [Tình trạng/Loại] | Giá tốt tại ${storeName} Cần Thơ</h2>
+    - <h2>[Tên đầy đủ] — [Tình trạng/Loại] | Giá tốt tại ${storeName} ${storeAddress}</h2>
     - <p>Đoạn mở đầu 2-3 câu: HOOK mạnh — nêu lý do người dùng NÊN MUA máy này (hiệu năng/giá trị/phù hợp ai). VIẾT NHƯ COPYWRITER chuyên nghiệp.</p>
     - <h3>Thông số kỹ thuật chính</h3>
     - <ul>Liệt kê CÁC THÔNG SỐ THỰC TẾ từ kiến thức của bạn (CPU, GPU, RAM, SSD, màn hình, pin... đầy đủ không thiếu)</ul>
@@ -55,10 +55,10 @@ Trả về JSON theo schema sau (CHỈ JSON, không text khác):
     - <p>Mô tả ngoại hình thực tế của sản phẩm: màu sắc, chất liệu, trọng lượng, cảm giác cầm/dùng. Dùng từ ngữ hấp dẫn.</p>
     - <h3>Tình trạng máy</h3>
     - <p>Phân tích trung thực từ text của người bán: độ mới, điều gì còn tốt, điều gì cần lưu ý.</p>
-    - <h3>Chính sách ${storeName} Cần Thơ</h3>
+    - <h3>Chính sách ${storeName} ${storeAddress}</h3>
     - <p>Bảo hành [X] tháng tại shop. Đổi trả trong 7 ngày nếu lỗi phần cứng. Hỗ trợ kỹ thuật trọn đời.</p>
     - <h3>Mua sắm tại hệ sinh thái ${storeName}</h3>
-    - <p>Xem thêm sản phẩm tại <a href="${siteDomain}/">${storeName} Store</a> — hệ sinh thái gear uy tín hàng đầu Cần Thơ.</p>,
+    - <p>Xem thêm sản phẩm tại <a href="${siteDomain}/">${storeName} Store</a> — hệ sinh thái gear uy tín hàng đầu ${storeAddress}.</p>,
   "tags": ["tag1", "tag2"],
   "specs": {
     "key": "value"
@@ -201,7 +201,7 @@ export async function POST(request: Request) {
             parentName: (c.parent as any)?.name || undefined,
         }));
         const brandList = brands.map(b => ({ id: b._id.toString(), name: b.name }));
-        const prompt = buildPrompt(text, categoryList, brandList, siteSettings.storeName, siteSettings.siteDomain);
+        const prompt = buildPrompt(text, categoryList, brandList, siteSettings.storeName, siteSettings.siteDomain, siteSettings.storeAddress);
 
         // Try Gemini first, fallback to OpenAI
         let responseText: string | null = null;

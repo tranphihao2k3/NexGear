@@ -1,79 +1,210 @@
 @use '@/styles/tokens' as *;
 @use '@/styles/mixins' as *;
 
+// ── FOOTER SHELL ─────────────────────────────────────────────
 .footer {
-    padding: $sp-16 0 $sp-12;
-    border-top: 1px solid var(--border);
-    background: var(--bg);
-    transition: background-color 0.3s ease;
+    background: #111110;
+    color: rgba(255, 255, 255, 0.75);
     position: relative;
     z-index: 10;
 }
 
-.container {
-    @include container;
+// Gradient top border
+.topBar {
+    height: 3px;
+    background: $gradient-top-bar;
 }
 
-.top {
-    display: flex;
-    justify-content: space-between;
-    gap: $sp-12;
-    margin-bottom: $sp-16;
+.container {
+    @include container;
+    padding-top: $sp-12;
+    padding-bottom: 0;
 
-    @include tablet {
-        flex-direction: column;
-        gap: $sp-10;
+    @include mobile {
+        padding-top: $sp-8;
     }
 }
 
+// ── MAIN SECTION ─────────────────────────────────────────────
+.main {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: $sp-12;
+    padding-bottom: $sp-12;
+
+    @include desktop-s {
+        grid-template-columns: 260px 1fr;
+        gap: $sp-8;
+    }
+
+    @include tablet {
+        grid-template-columns: 1fr;
+        gap: $sp-8;
+        padding-bottom: $sp-8;
+    }
+
+    @include mobile {
+        gap: $sp-6;
+        padding-bottom: $sp-6;
+    }
+}
+
+// ── CỘT 1: BRAND ─────────────────────────────────────────────
 .brand {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+
+    @include mobile {
+        gap: $sp-4;
+    }
 }
 
 .logo {
-    @include font-display($text-3xl, $fw-black);
-    color: $color-ink;
+    @include font-display($text-2xl, $fw-black);
+    color: #FFFFFF;
     text-decoration: none;
-    margin-bottom: $sp-2;
-    display: block;
+    letter-spacing: $ls-tight;
+    line-height: $lh-snug;
+    transition: $transition-base;
 
-    span {
+    &:hover {
         color: $color-cyan;
     }
 }
 
 .tagline {
-    @include font-mono(11px, $fw-regular);
-    color: $color-ink3;
-    letter-spacing: 0.2em;
+    @include font-mono(10px, $fw-regular);
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: $ls-widest;
     text-transform: uppercase;
-    margin-top: $sp-2;
+    margin-top: -$sp-3;
 }
 
-.meta {
-    @include font-mono(11px, $fw-regular);
-    color: $color-ink3;
-    margin-top: $sp-1;
-}
-
-.grid {
+// Contact list
+.contactList {
     display: flex;
-    gap: $sp-16;
+    flex-direction: column;
+    gap: $sp-3;
+    margin-top: $sp-2;
 
     @include mobile {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: $sp-8;
+        gap: $sp-2;
     }
 }
 
-.col {
-    h3 {
-        @include font-display($text-xs, $fw-bold);
-        color: $color-ink;
-        letter-spacing: 0.1em;
-        margin-bottom: $sp-6;
-        text-transform: uppercase;
+.contactItem {
+    display: flex;
+    align-items: flex-start;
+    gap: $sp-2;
+    @include font-body($text-sm, $fw-regular);
+    color: rgba(255, 255, 255, 0.6);
+    line-height: $lh-normal;
+
+    // Ẩn địa chỉ và email trên mobile, chỉ giữ SĐT và MST
+    &.hideOnMobile {
+        @include mobile {
+            display: none;
+        }
+    }
+}
+
+.contactIcon {
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0.8;
+}
+
+.contactLink {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: $transition-base;
+
+    &:hover {
+        color: $color-cyan;
+    }
+}
+
+// Google Maps iframe — HIDE on mobile
+.mapWrapper {
+    border-radius: $r-2;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-top: $sp-2;
+    flex-shrink: 0;
+
+    iframe {
+        display: block;
+        filter: grayscale(20%) contrast(1.05);
+    }
+
+    @include mobile {
+        display: none; // Ẩn map trên mobile để tiết kiệm không gian
+    }
+}
+
+// Social icons row
+.socials {
+    display: flex;
+    gap: $sp-3;
+    margin-top: $sp-2;
+
+    @include mobile {
+        margin-top: 0;
+    }
+}
+
+.socialBtn {
+    width: 34px;
+    height: 34px;
+    border-radius: $r-2;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: $transition-base;
+
+    &:hover {
+        border-color: $color-cyan;
+        color: $color-cyan;
+        background: rgba(0, 196, 173, 0.1);
+        transform: translateY(-2px);
+    }
+}
+
+// ── LINK GRID ─────────────────────────────────────────────────
+.linksGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    gap: $sp-8;
+    align-items: start;
+
+    @include desktop-s {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    @include tablet {
+        grid-template-columns: repeat(2, 1fr);
+        gap: $sp-6;
+    }
+
+    @include mobile {
+        grid-template-columns: repeat(3, 1fr);
+        gap: $sp-3 $sp-2;
+    }
+}
+
+.navCol {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-4;
+
+    @include mobile {
+        gap: $sp-3;
     }
 
     ul {
@@ -83,11 +214,127 @@
         display: flex;
         flex-direction: column;
         gap: $sp-3;
+
+        @include mobile {
+            gap: $sp-2;
+        }
     }
 
     a {
-        @include font-body($text-sm, $fw-medium);
-        color: $color-ink2;
+        @include font-body($text-sm, $fw-regular);
+        color: rgba(255, 255, 255, 0.55);
+        text-decoration: none;
+        transition: $transition-base;
+        display: inline-block;
+
+        @include mobile {
+            font-size: 11px;
+            line-height: 1.4;
+        }
+
+        &:hover {
+            color: $color-cyan;
+            transform: translateX(3px);
+        }
+    }
+}
+
+.colTitle {
+    @include font-display($text-xs, $fw-bold);
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    padding-bottom: $sp-3;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    white-space: nowrap;
+
+    @include mobile {
+        font-size: 10px;
+        padding-bottom: $sp-2;
+        white-space: normal; // Cho phép wrap trên mobile vì 3 cột hẹp
+    }
+}
+
+// Hotline button nổi bật
+.hotlineBtn {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+    margin-top: $sp-2;
+    padding: $sp-2 $sp-3;
+    border-radius: $r-1;
+    background: rgba(0, 196, 173, 0.15);
+    border: 1px solid rgba(0, 196, 173, 0.3);
+    color: $color-cyan !important;
+    font-weight: $fw-medium !important;
+    transition: $transition-base;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.25) !important;
+        transform: none !important;
+    }
+}
+
+// Facebook page embed — HIDE on mobile
+.fbEmbed {
+    border-radius: $r-2;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+
+    iframe {
+        display: block;
+    }
+
+    @include mobile {
+        display: none; // Ẩn Facebook embed trên mobile
+    }
+}
+
+// ── BOTTOM BAR ────────────────────────────────────────────────
+.bottomBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $sp-5 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    @include tablet {
+        flex-direction: column;
+        gap: $sp-3;
+        align-items: flex-start;
+    }
+
+    @include mobile {
+        gap: $sp-2;
+        padding: $sp-4 0;
+    }
+}
+
+.copyright {
+    @include font-body($text-xs, $fw-regular);
+    color: rgba(255, 255, 255, 0.3);
+
+    strong {
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: $fw-medium;
+    }
+}
+
+.bottomLinks {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    flex-wrap: wrap;
+
+    @include mobile {
+        gap: $sp-2;
+    }
+
+    a {
+        @include font-body($text-xs, $fw-regular);
+        color: rgba(255, 255, 255, 0.35);
         text-decoration: none;
         transition: $transition-base;
 
@@ -97,36 +344,71 @@
     }
 }
 
-.bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: $sp-12;
-    border-top: 1px solid $color-border;
+.dot {
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 10px;
+}
 
-    @include tablet {
-        flex-direction: column;
-        gap: $sp-6;
-        align-items: flex-start;
+// ── PAYMENT METHODS SECTION ───────────────────────────────────
+.paymentSection {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: $sp-5 0;
+    margin-bottom: $sp-4;
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+
+    @include mobile {
+        padding: $sp-4 0;
+        margin-bottom: $sp-2;
+        gap: $sp-2;
     }
 }
 
-.chips {
+.paymentLabel {
+    @include font-display($text-xs, $fw-bold);
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: $ls-widest;
+}
+
+.paymentMethods {
     display: flex;
     flex-wrap: wrap;
     gap: $sp-2;
+    align-items: center;
 }
 
-.chip {
-    @include font-mono(10px, $fw-regular);
-    padding: $sp-1 $sp-3;
-    background: $color-bg2;
-    border: 1px solid $color-border;
-    border-radius: $r-1;
-    color: $color-ink3;
+.payChip {
+    display: inline-flex;
+    align-items: center;
+    gap: $sp-1;
+    padding: 5px $sp-3;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: $r-full;
+    @include font-body($text-xs, $fw-medium);
+    color: rgba(255, 255, 255, 0.6);
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.08);
+        border-color: rgba(0, 196, 173, 0.25);
+        color: $color-cyan;
+    }
 }
 
-.copyright {
+.payIcon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.payDesc {
     @include font-body($text-xs, $fw-regular);
-    color: $color-ink3;
+    color: rgba(255, 255, 255, 0.25);
+    margin: 0;
+
+    @include mobile {
+        display: none; // Ẩn mô tả thanh toán trên mobile
+    }
 }

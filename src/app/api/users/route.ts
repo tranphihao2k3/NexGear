@@ -13,6 +13,8 @@ export async function GET(req: NextRequest) {
         const filter: Record<string, unknown> = {};
         if (searchParams.get('role')) filter.role = searchParams.get('role');
         if (searchParams.get('email')) filter.email = searchParams.get('email');
+        // Filter theo siteId — admin chỉ xem staff của shop mình
+        if (searchParams.get('siteId')) filter.siteId = searchParams.get('siteId');
 
         const search = searchParams.get('q');
         if (search) {

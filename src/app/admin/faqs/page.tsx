@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Toast from '@/components/admin/Toast';
 import { Button, Badge, Input } from '@/components/ui';
+import { useSiteSettings } from '@/contexts/SiteSettingsContext';
 import s from './page.module.scss';
 
 interface FAQ {
@@ -30,6 +31,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export default function FAQsPage() {
+  const siteSettings = useSiteSettings();
   const [faqs, setFaqs] = useState<FAQ[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -341,7 +343,7 @@ export default function FAQsPage() {
                   required
                   value={formData.question}
                   onChange={(e) => setFormData({ ...formData, question: e.target.value })}
-                  placeholder="Vd: Chính sách bảo hành của NexGear như thế nào?"
+                  placeholder={`Vd: Chính sách bảo hành của ${siteSettings.storeName} như thế nào?`}
                 />
               </div>
 

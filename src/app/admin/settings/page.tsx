@@ -9,6 +9,11 @@ import { CyberpunkLoader, useToast } from '@/components/ui'
 
 type SettingsTab = 'general' | 'notifications' | 'appearance' | 'shipping'
 
+interface UploadState {
+    loading: boolean;
+    error: string;
+}
+
 interface SettingsData {
     // Appearance
     primaryColor: string
@@ -36,6 +41,8 @@ interface SettingsData {
     facebook: string
     instagram: string
     tiktok: string
+    facebookPageId: string
+    googleMapsEmbedUrl: string
     // Danger
     maintenanceMode: boolean
     // Notifications
@@ -51,6 +58,10 @@ interface SettingsData {
     freeShipMinOrder: number
     ghtkToken: string
     ghnToken: string
+    // Bank & Payment
+    bankAccountName: string
+    bankAccountNumber: string
+    bankName: string
 }
 
 const DEFAULTS: SettingsData = {
@@ -76,6 +87,8 @@ const DEFAULTS: SettingsData = {
     facebook: '',
     instagram: '',
     tiktok: '',
+    facebookPageId: '',
+    googleMapsEmbedUrl: '',
     maintenanceMode: false,
     emailOrderNotif: true,
     emailDailyReport: true,
@@ -88,6 +101,9 @@ const DEFAULTS: SettingsData = {
     freeShipMinOrder: 500000,
     ghtkToken: '',
     ghnToken: '',
+    bankAccountName: '',
+    bankAccountNumber: '',
+    bankName: '',
 }
 
 export default function AdminSettingsPage() {
@@ -96,6 +112,8 @@ export default function AdminSettingsPage() {
     const [settings, setSettings] = useState<SettingsData>(DEFAULTS)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
+    const [uploadLogo, setUploadLogo] = useState<UploadState>({ loading: false, error: '' })
+    const [uploadFavicon, setUploadFavicon] = useState<UploadState>({ loading: false, error: '' })
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -156,6 +174,43 @@ export default function AdminSettingsPage() {
         }
     }
 
+    // ── Upload logo/favicon helpers ──────────────────────────────
+    const handleImageUpload = async (
+        file: File,
+        field: 'logoUrl' | 'faviconUrl',
+        setState: (s: UploadState) => void
+    ) => {
+        if (!file) return;
+        setState({ loading: true, error: '' });
+        try {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('folder', 'logos');
+            const res = await fetch('/api/upload', { method: 'POST', body: fd });
+            const result = await res.json();
+            if (result.success && result.data?.url) {
+                setSettings(prev => ({ ...prev, [field]: result.data.url }));
+                setState({ loading: false, error: '' });
+            } else {
+                setState({ loading: false, error: result.error || 'Upload thất bại' });
+            }
+        } catch {
+            setState({ loading: false, error: 'Lỗi kết nối' });
+        }
+    }
+
+    const handleLogoFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) handleImageUpload(file, 'logoUrl', setUploadLogo);
+        e.target.value = '';
+    }
+
+    const handleFaviconFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) handleImageUpload(file, 'faviconUrl', setUploadFavicon);
+        e.target.value = '';
+    }
+
     const saveGeneral = () => saveSettings({
         storeName: settings.storeName,
         storeEmail: settings.storeEmail,
@@ -163,6 +218,9 @@ export default function AdminSettingsPage() {
         storeAddress: settings.storeAddress,
         taxCode: settings.taxCode,
         currency: settings.currency,
+        bankAccountName: settings.bankAccountName,
+        bankAccountNumber: settings.bankAccountNumber,
+        bankName: settings.bankName,
     })
 
     const saveSeo = () => saveSettings({
@@ -179,6 +237,8 @@ export default function AdminSettingsPage() {
         facebook: settings.facebook,
         instagram: settings.instagram,
         tiktok: settings.tiktok,
+        facebookPageId: settings.facebookPageId,
+        googleMapsEmbedUrl: settings.googleMapsEmbedUrl,
     })
 
     const saveNotifications = () => saveSettings({
@@ -285,6 +345,23 @@ export default function AdminSettingsPage() {
                                     </select>
                                 </div>
                             </div>
+                            {/* ── Bank info ── */}
+                            <div className={styles.sectionTitle} style={{ marginTop: '1rem', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>🏦 Thông tin tài khoản ngân hàng</div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Tên chủ tài khoản</label>
+                                <input className={styles.formInput} name="bankAccountName" value={settings.bankAccountName} onChange={handleChange} placeholder="VD: NGUYEN VAN A" />
+                                <span className={styles.formHint}>Hiển thị trên trang Chính sách thanh toán — yêu cầu BCT</span>
+                            </div>
+                            <div className={styles.formRow}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Số tài khoản</label>
+                                    <input className={styles.formInput} name="bankAccountNumber" value={settings.bankAccountNumber} onChange={handleChange} placeholder="VD: 1234567890" />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel}>Tên ngân hàng</label>
+                                    <input className={styles.formInput} name="bankName" value={settings.bankName} onChange={handleChange} placeholder="VD: Vietcombank - CN HCM" />
+                                </div>
+                            </div>
                         </div>
                         <div className={styles.sectionFooter}>
                             <button className={styles.saveBtn} onClick={saveGeneral} disabled={saving}>
@@ -359,6 +436,18 @@ export default function AdminSettingsPage() {
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>TikTok</label>
                                 <input className={styles.formInput} name="tiktok" value={settings.tiktok} onChange={handleChange} placeholder="https://tiktok.com/@nexgear" />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Facebook Page ID (Fanpage Embed)</label>
+                                <input className={styles.formInput} name="facebookPageId" value={settings.facebookPageId} onChange={handleChange} placeholder="VD: laptopthanhhvo hoặc 123456789" />
+                                <span className={styles.formHint}>ID hoặc tên trang Facebook để hiển thị widget footer. Lấy từ URL: facebook.com/<strong>page-id</strong></span>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>🗺 Google Maps Embed URL</label>
+                                <textarea className={styles.formTextarea} name="googleMapsEmbedUrl" value={settings.googleMapsEmbedUrl} onChange={handleChange} rows={3} placeholder="https://www.google.com/maps/embed?pb=..." />
+                                <span className={styles.formHint}>
+                                    Vào Google Maps → Tìm địa chỉ → Chia sẻ → Nhúng bản đồ → sao chép URL trong thẻ <code>&lt;iframe src="..."&gt;</code>
+                                </span>
                             </div>
                         </div>
                         <div className={styles.sectionFooter}>
@@ -571,13 +660,65 @@ export default function AdminSettingsPage() {
                             </div>
                         </div>
                         <div className={styles.formGroup}>
-                            <label className={styles.formLabel}>Logo (URL)</label>
-                            <input className={styles.formInput} name="logoUrl" value={settings.logoUrl} onChange={handleChange} placeholder="https://cdn.nexgzone.top/logo.svg" />
-                            <span className={styles.formHint}>Khuyến nghị SVG hoặc PNG trong suốt, tối thiểu 200x200px</span>
+                            <label className={styles.formLabel}>Logo cửa hàng</label>
+                            {/* Preview */}
+                            {settings.logoUrl && (
+                                <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={settings.logoUrl} alt="Logo preview" style={{ height: '48px', maxWidth: '180px', objectFit: 'contain', background: '#1a1a1a', borderRadius: '6px', padding: '6px' }} />
+                                    <button
+                                        type="button"
+                                        onClick={() => setSettings(prev => ({ ...prev, logoUrl: '' }))}
+                                        style={{ fontSize: '11px', color: '#E53E3E', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                    >
+                                        ✕ Xóa logo
+                                    </button>
+                                </div>
+                            )}
+                            {/* Upload button */}
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input className={styles.formInput} name="logoUrl" value={settings.logoUrl} onChange={handleChange} placeholder="https://... hoặc upload bên dưới" style={{ flex: 1 }} />
+                                <label style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                    padding: '8px 14px', background: 'var(--color-cyan, #00C4AD)', color: '#000',
+                                    borderRadius: '4px', cursor: uploadLogo.loading ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', opacity: uploadLogo.loading ? 0.6 : 1
+                                }}>
+                                    {uploadLogo.loading ? '⏳ Đang tải...' : '↑ Upload'}
+                                    <input type="file" accept="image/*" onChange={handleLogoFile} style={{ display: 'none' }} disabled={uploadLogo.loading} />
+                                </label>
+                            </div>
+                            {uploadLogo.error && <span style={{ color: '#E53E3E', fontSize: '12px' }}>{uploadLogo.error}</span>}
+                            <span className={styles.formHint}>SVG, PNG trong suốt — khuyến nghị tối thiểu 200×60px</span>
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Favicon</label>
-                            <input className={styles.formInput} name="faviconUrl" value={settings.faviconUrl} onChange={handleChange} placeholder="https://cdn.nexgzone.top/favicon.ico" />
+                            {settings.faviconUrl && (
+                                <div style={{ marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={settings.faviconUrl} alt="Favicon preview" style={{ height: '32px', width: '32px', objectFit: 'contain', background: '#1a1a1a', borderRadius: '4px', padding: '4px' }} />
+                                    <button
+                                        type="button"
+                                        onClick={() => setSettings(prev => ({ ...prev, faviconUrl: '' }))}
+                                        style={{ fontSize: '11px', color: '#E53E3E', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                                    >
+                                        ✕ Xóa favicon
+                                    </button>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <input className={styles.formInput} name="faviconUrl" value={settings.faviconUrl} onChange={handleChange} placeholder="https://... hoặc upload" style={{ flex: 1 }} />
+                                <label style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                    padding: '8px 14px', background: 'var(--color-cyan, #00C4AD)', color: '#000',
+                                    borderRadius: '4px', cursor: uploadFavicon.loading ? 'not-allowed' : 'pointer',
+                                    fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', opacity: uploadFavicon.loading ? 0.6 : 1
+                                }}>
+                                    {uploadFavicon.loading ? '⏳ Đang tải...' : '↑ Upload'}
+                                    <input type="file" accept="image/png,image/x-icon,image/svg+xml,image/webp" onChange={handleFaviconFile} style={{ display: 'none' }} disabled={uploadFavicon.loading} />
+                                </label>
+                            </div>
+                            {uploadFavicon.error && <span style={{ color: '#E53E3E', fontSize: '12px' }}>{uploadFavicon.error}</span>}
                         </div>
                         <div className={styles.formGroup}>
                             <label className={styles.formLabel}>Banner trang chủ</label>

@@ -93,24 +93,32 @@ import dbConnect from '@/lib/mongodb'
 import Setting from '@/models/Setting'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  let settings = null;
+  const { headers } = await import('next/headers');
+  const headersList = await headers();
+  const host = headersList.get('host') || '';
+
+  // Tất cả settings đều lấy theo host (multi-tenant)
+  const siteSettings = await getSiteSettings(host);
+
+  // Lấy màu thương hiệu — cùng identifier với getSiteSettings
+  let primaryColor = '#00C4AD';
+  let accentColor = '#F0356A';
   try {
     await dbConnect();
-    const siteId = process.env.NEXT_PUBLIC_SITE_ID || 'nexgear';
-    settings = await Setting.findOne({ siteId }).lean();
-    
-    // Auto-migration fallback read for existing database
-    if (!settings && siteId === 'nexgear') {
-      settings = await Setting.findOne({ siteId: { $exists: false } }).lean();
+    const rawIdentifier = host.startsWith('localhost') || host === ''
+      ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
+      : host;
+    let rawSettings = await Setting.findOne({ siteId: rawIdentifier }).lean() as any;
+    if (!rawSettings) {
+      rawSettings = await Setting.findOne({
+        siteDomain: { $regex: rawIdentifier.split(':')[0], $options: 'i' }
+      }).lean() as any;
     }
+    if (rawSettings?.primaryColor) primaryColor = rawSettings.primaryColor;
+    if (rawSettings?.accentColor) accentColor = rawSettings.accentColor;
   } catch (err) {
-    console.error('Failed to load settings in layout:', err);
+    console.error('Failed to load brand colors in layout:', err);
   }
-
-  const primaryColor = settings?.primaryColor || '#00C4AD';
-  const accentColor = settings?.accentColor || '#F0356A';
-
-  const siteSettings = await getSiteSettings();
 
   return (
     <html

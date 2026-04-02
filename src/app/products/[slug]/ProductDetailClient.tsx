@@ -63,14 +63,39 @@ function AccordionItem({
 // ── INSTALLMENT HELPERS ───────────────────────────────────
 interface InstallmentPlan { provider: string; term: number; entries: { loanAmount: number; monthly: number }[] }
 
-function findClosestEntry(price: number, entries: { loanAmount: number; monthly: number }[]) {
-    if (!entries.length || price < entries[0].loanAmount) return null;
-    let match = entries[0];
-    for (const e of entries) {
-        if (e.loanAmount <= price) match = e;
-        else break;
+function calculateMonthly(price: number, entries: { loanAmount: number; monthly: number }[]) {
+    if (!entries.length) return null;
+    
+    // Ensure entries are sorted
+    const sorted = [...entries].sort((a, b) => a.loanAmount - b.loanAmount);
+    
+    if (price < sorted[0].loanAmount) return null;
+    
+    // Find lower and upper bounds
+    let lower = sorted[0];
+    let upper = sorted[0];
+    
+    for (let i = 0; i < sorted.length; i++) {
+        if (sorted[i].loanAmount <= price) {
+            lower = sorted[i];
+            upper = sorted[i + 1] || sorted[i];
+        } else {
+            break;
+        }
     }
-    return match;
+    
+    if (lower === upper || price === lower.loanAmount) return lower;
+    
+    // Linear interpolation for "chuẩn" calculation
+    const ratio = (price - lower.loanAmount) / (upper.loanAmount - lower.loanAmount);
+    const interpolatedMonthly = lower.monthly + (upper.monthly - lower.monthly) * ratio;
+    
+    return {
+        loanAmount: price, // exact match now
+        monthly: Math.round(interpolatedMonthly),
+        isInterpolated: true,
+        baseMốc: lower.loanAmount
+    };
 }
 
 function fmtShort(n: number) {
@@ -183,15 +208,15 @@ function InstallmentTab({ price }: { price: number }) {
                 ) : (
                     <div className={styles.installGrid}>
                         {providerPlans.map(plan => {
-                            const match = findClosestEntry(loanAmount, plan.entries);
+                            const match = calculateMonthly(loanAmount, plan.entries);
                             if (!match) return null;
                             return (
                                 <div key={plan.term} className={styles.installCard}>
                                     <div className={styles.installTerm}>{plan.term} tháng</div>
                                     <div className={styles.installMonthly}>{fmtShort(match.monthly)}<span>/tháng</span></div>
                                     <div className={styles.installTotal}>Tổng: {fmtShort(match.monthly * plan.term)}</div>
-                                    {match.loanAmount !== loanAmount && (
-                                        <div className={styles.installNote}>mức {fmtShort(match.loanAmount)}</div>
+                                    {(match as any).isInterpolated && (
+                                        <div className={styles.installNote}>TB lãi suất mốc {fmtShort((match as any).baseMốc)}</div>
                                     )}
                                 </div>
                             );

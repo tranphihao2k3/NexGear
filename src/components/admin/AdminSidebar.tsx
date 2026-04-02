@@ -50,6 +50,7 @@ import {
     ChevronDown,
     ChevronRight,
     CreditCard,
+    Store,
 } from 'lucide-react'
 import styles from './AdminSidebar.module.scss'
 
@@ -152,6 +153,12 @@ const MENU_GROUPS: MenuGroup[] = [
             { label: 'Cài đặt', href: '/admin/settings', icon: Settings },
         ]
     },
+    {
+        title: 'Super Admin',
+        items: [
+            { label: 'Quản lý Shops', href: '/admin/shops', icon: Store },
+        ]
+    },
 ]
 
 const ROLE_LABELS: Record<string, string> = {
@@ -227,7 +234,11 @@ export default function AdminSidebar() {
                 item.label.toLowerCase().includes(menuSearch.toLowerCase())
             )
         })).filter(group => group.items.length > 0)
-        : MENU_GROUPS
+        : MENU_GROUPS.filter(group => {
+            // "Super Admin" group chỉ hiện với superadmin
+            if (group.title === 'Super Admin') return userRole === 'superadmin';
+            return true;
+        })
 
     // Close menu modal on route change
     useEffect(() => {

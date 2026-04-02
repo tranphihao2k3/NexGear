@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     `,
   },
 
-  // Images from external cPanel image server
+  // Images from external CDN / cPanel / any domain for logos
   images: {
     remotePatterns: [
       {
@@ -25,6 +25,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'http',
         hostname: 'localhost',
+      },
+      {
+        protocol: 'https',
+        hostname: '**', // Cho phép mọi HTTPS domain (logo, CDN)
+      },
+      {
+        protocol: 'http',
+        hostname: '**', // Cho phép mọi HTTP domain (dev / local CDN)
       },
     ],
   },

@@ -259,14 +259,14 @@ export default function RepairPage() {
                     </motion.h1>
 
                     <motion.p className={s.heroSub} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
-                        Chuyên nghiệp — Uy tín — Giá tốt nhất Cần Thơ<br />
+                        Chuyên nghiệp — Uy tín — Giá tốt nhất {siteSettings.storeAddress}<br />
                         <span className={s.heroHighlight}>{typingText}</span>
                         <span className={s.heroCursor}>|</span>
                     </motion.p>
 
                     <motion.div className={s.heroCTA} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}>
                         <a href="#repair-form" className={s.btnPrimary}><Search size={16} /> KIỂM TRA MIỄN PHÍ</a>
-                        <a href="tel:0978648720" className={s.btnOutline}><Phone size={16} /> GỌI NGAY: 0978.648.720</a>
+                        <a href={`tel:${siteSettings.storePhone.replace(/\s/g, '')}`} className={s.btnOutline}><Phone size={16} /> GỌI NGAY: {siteSettings.storePhone}</a>
                     </motion.div>
 
                     <motion.div className={s.heroStats} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
@@ -429,10 +429,10 @@ export default function RepairPage() {
                             </div>
 
                             <div className={s.formLeftContact}>
-                                <a href="tel:0978648720" className={s.contactItem}>
-                                    <PhoneCall size={18} /> 0978.648.720
+                                <a href={`tel:${siteSettings.storePhone.replace(/\s/g, '')}`} className={s.contactItem}>
+                                    <PhoneCall size={18} /> {siteSettings.storePhone}
                                 </a>
-                                <a href="https://zalo.me/0978648720" target="_blank" rel="noopener noreferrer" className={s.contactItem}>
+                                <a href={`https://zalo.me/${siteSettings.storePhone.replace(/\s/g, '')}`} target="_blank" rel="noopener noreferrer" className={s.contactItem}>
                                     <MessageCircle size={18} /> Chat Zalo
                                 </a>
                             </div>
@@ -540,7 +540,7 @@ export default function RepairPage() {
                                             <div className={s.code}>{orderCode}</div>
                                         </div>
                                         <div className={s.successActions}>
-                                            <Button variant="cyan" size="lg" onClick={() => window.open('https://zalo.me/0978648720', '_blank')}>
+                                            <Button variant="cyan" size="lg" onClick={() => window.open(`https://zalo.me/${siteSettings.storePhone.replace(/\s/g, '')}`, '_blank')}>
                                                 CHAT ZALO TƯ VẤN
                                             </Button>
                                             <Button variant="ghost" size="lg" onClick={() => setSubmitted(false)}>
@@ -589,7 +589,7 @@ export default function RepairPage() {
                             <p className={s.label}>// HỎI ĐÁP</p>
                             <h2 className={s.heading}>CÂU HỎI<br />THƯỜNG GẶP</h2>
                             <p className={s.faqSub}>Bạn có thắc mắc khác? Liên hệ trực tiếp qua Zalo hoặc Hotline để được tư vấn miễn phí.</p>
-                            <a href="https://zalo.me/0978648720" target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>LIÊN HỆ NGAY</a>
+                            <a href={`https://zalo.me/${siteSettings.storePhone.replace(/\s/g, '')}`} target="_blank" rel="noopener noreferrer" className={s.btnPrimary}>LIÊN HỆ NGAY</a>
                         </ScrollReveal>
 
                         <div className={s.faqRight}>
@@ -637,7 +637,7 @@ export default function RepairPage() {
                     <ScrollReveal delay={0.4}>
                         <div className={s.ctaActions}>
                             <a href="#repair-form" className={s.btnPrimary}>ĐĂNG KÝ SỬA CHỮA</a>
-                            <a href="https://zalo.me/0978648720" target="_blank" rel="noopener noreferrer" className={s.btnGhost}>CHAT ZALO TƯ VẤN</a>
+                            <a href={`https://zalo.me/${siteSettings.storePhone.replace(/\s/g, '')}`} target="_blank" rel="noopener noreferrer" className={s.btnGhost}>CHAT ZALO TƯ VẤN</a>
                         </div>
                     </ScrollReveal>
                 </div>
