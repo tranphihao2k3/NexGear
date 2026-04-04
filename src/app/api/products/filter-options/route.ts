@@ -9,14 +9,8 @@ import { apiSuccess, apiError } from '@/lib/api-helpers';
  * Get available product filter options
  * GET /api/products/filter-options
  *
- * Returns:
- * - categories: all active categories
- * - brands: all brands with products
- * - priceRange: { min, max }
- * - conditions: available conditions (new, like_new, used, refurbished)
- * - usedGrades: available grades (A, B, C)
- * - warrantyOptions: common warranty durations
- * - tags: all available tags
+ * Optimized: uses $facet to run all Product aggregations in a single DB round-trip,
+ * plus parallel Category + Brand queries.
  */
 
 export async function GET(req: NextRequest) {
@@ -24,10 +18,7 @@ export async function GET(req: NextRequest) {
         await dbConnect();
         const { searchParams } = new URL(req.url);
 
-        // Filter only active products
         const baseFilter: Record<string, unknown> = { isActive: true };
-
-        // Optional: apply other filters to narrow down options
         const categoryFilter: Record<string, unknown> = {};
         const category = searchParams.get('category');
         if (category) {
@@ -35,94 +26,94 @@ export async function GET(req: NextRequest) {
             baseFilter.category = category;
         }
 
-        // 1. Get all categories
-        const categories = await Category.find(categoryFilter).select('name slug').lean();
-
-        // 2. Get brands with products in filter
-        const brandsAgg = await Product.aggregate([
-            { $match: baseFilter },
-            {
-                $group: {
-                    _id: '$brand',
-                    productCount: { $sum: 1 },
+        // Single $facet aggregation combines brands, price, conditions, warranty, tags
+        const [facetResult, categories] = await Promise.all([
+            Product.aggregate([
+                { $match: baseFilter },
+                {
+                    $facet: {
+                        brands: [
+                            { $group: { _id: '$brand', productCount: { $sum: 1 } } },
+                            { $sort: { productCount: -1 } },
+                        ],
+                        priceRange: [
+                            {
+                                $group: {
+                                    _id: null,
+                                    minPrice: { $min: '$basePrice' },
+                                    maxPrice: { $max: '$basePrice' },
+                                },
+                            },
+                        ],
+                        conditionsAndGrades: [
+                            {
+                                $group: {
+                                    _id: null,
+                                    conditions: { $addToSet: '$condition' },
+                                    usedGrades: { $addToSet: '$usedGrade' },
+                                },
+                            },
+                        ],
+                        warranty: [
+                            { $group: { _id: '$warrantyMonths' } },
+                            { $sort: { _id: 1 } },
+                        ],
+                        tags: [
+                            { $unwind: '$tags' },
+                            { $group: { _id: '$tags', count: { $sum: 1 } } },
+                            { $sort: { count: -1 } },
+                            { $limit: 50 },
+                        ],
+                    },
                 },
-            },
-            { $sort: { productCount: -1 } },
+            ]),
+            Category.find(categoryFilter).select('name slug').lean(),
         ]);
 
-        const brandIds = brandsAgg.map(b => b._id);
-        const brands = await Brand.find({ _id: { $in: brandIds } })
-            .select('name slug')
-            .lean();
+        const facet = facetResult[0] || {};
 
-        // 3. Get price range
-        const priceStats = await Product.aggregate([
-            { $match: baseFilter },
-            {
-                $group: {
-                    _id: null,
-                    minPrice: { $min: '$basePrice' },
-                    maxPrice: { $max: '$basePrice' },
-                },
-            },
-        ]);
+        // Resolve brand details in one query
+        const brandIds = (facet.brands || []).map((b: { _id: string }) => b._id);
+        const brands = brandIds.length > 0
+            ? await Brand.find({ _id: { $in: brandIds } }).select('name slug').lean()
+            : [];
 
-        const { minPrice = 0, maxPrice = 100000000 } = priceStats[0] || {};
+        const priceStats = facet.priceRange?.[0] || {};
+        const { minPrice = 0, maxPrice = 100000000 } = priceStats;
 
-        // 4. Get available conditions and used grades
-        const conditionAgg = await Product.aggregate([
-            { $match: baseFilter },
-            {
-                $group: {
-                    _id: null,
-                    conditions: { $addToSet: '$condition' },
-                    usedGrades: { $addToSet: '$usedGrade' },
-                },
-            },
-        ]);
+        const condData = facet.conditionsAndGrades?.[0] || {};
+        const conditions = condData.conditions?.filter(Boolean) || ['new'];
+        const usedGrades = condData.usedGrades?.filter(Boolean) || [];
 
-        const conditions = conditionAgg[0]?.conditions?.filter(Boolean) || ['new'];
-        const usedGrades = conditionAgg[0]?.usedGrades?.filter(Boolean) || [];
-
-        // 5. Get warranty options
-        const warrantyAgg = await Product.aggregate([
-            { $match: baseFilter },
-            { $group: { _id: '$warrantyMonths' } },
-            { $sort: { _id: 1 } },
-        ]);
-
-        const warrantyOptions = warrantyAgg
-            .map(w => w._id)
+        const warrantyOptions = (facet.warranty || [])
+            .map((w: { _id: number }) => w._id)
             .filter(Boolean)
-            .sort((a, b) => a - b);
+            .sort((a: number, b: number) => a - b);
 
-        // 6. Get all tags
-        const tagAgg = await Product.aggregate([
-            { $match: baseFilter },
-            { $unwind: '$tags' },
-            { $group: { _id: '$tags', count: { $sum: 1 } } },
-            { $sort: { count: -1 } },
-            { $limit: 50 },
-        ]);
+        const tags = (facet.tags || []).map((t: { _id: string; count: number }) => ({
+            name: t._id,
+            count: t.count,
+        }));
 
-        const tags = tagAgg.map(t => ({ name: t._id, count: t.count }));
-
-        // 7. Get rating options
         const ratingOptions = [1, 2, 3, 4, 4.5];
 
-        return apiSuccess({
-            categories,
-            brands,
-            priceRange: {
-                min: Math.floor(minPrice),
-                max: Math.ceil(maxPrice),
+        return apiSuccess(
+            {
+                categories,
+                brands,
+                priceRange: {
+                    min: Math.floor(minPrice),
+                    max: Math.ceil(maxPrice),
+                },
+                conditions,
+                usedGrades,
+                warrantyOptions,
+                ratingOptions,
+                tags,
             },
-            conditions,
-            usedGrades,
-            warrantyOptions,
-            ratingOptions,
-            tags,
-        });
+            200,
+            { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' },
+        );
     } catch (error) {
         return apiError((error as Error).message, 500);
     }

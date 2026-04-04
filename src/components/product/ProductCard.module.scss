@@ -22,6 +22,33 @@
     100% { background-position: 400px 0; }
 }
 
+// ── OUT-OF-STOCK KEYFRAMES ─────────────────────────────────
+@keyframes oosGlitch {
+    0%, 100% { clip-path: inset(0 0 0 0); }
+    20% { clip-path: inset(10% 0 60% 0); transform: translate(-2px, 1px); }
+    40% { clip-path: inset(40% 0 20% 0); transform: translate(2px, -1px); }
+    60% { clip-path: inset(70% 0 5% 0); transform: translate(-1px, 2px); }
+    80% { clip-path: inset(5% 0 80% 0); transform: translate(1px, -1px); }
+}
+
+@keyframes oosScanDown {
+    0%   { top: -4px; }
+    100% { top: calc(100% + 4px); }
+}
+
+@keyframes oosFlicker {
+    0%, 90%, 100% { opacity: 1; }
+    92% { opacity: 0.4; }
+    94% { opacity: 0.9; }
+    96% { opacity: 0.3; }
+    98% { opacity: 1; }
+}
+
+@keyframes oosBarScroll {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
 // ── CARD ────────────────────────────────────────────────────
 .card {
     position: relative;
@@ -86,10 +113,173 @@
         }
     }
 
+    // ── OUT-OF-STOCK CARD — full cyber treatment ─────────────
     &.card--oos {
-        opacity: 0.5;
-        filter: grayscale(0.4);
         cursor: not-allowed;
+
+        // Top bar → red/dark gradient instead of cyan/magenta
+        &::before {
+            background: linear-gradient(90deg, #E53E3E, #ff6b6b, #E53E3E);
+            opacity: 0.8;
+            animation: oosFlicker 4s ease-in-out infinite;
+        }
+
+        // Corner accent → red tint
+        &::after {
+            border-color: rgba(229, 62, 62, 0.25);
+        }
+
+        &:hover {
+            transform: translateY(-4px) scale(1.01);
+            border-color: rgba(229, 62, 62, 0.4);
+            box-shadow:
+                0 0 25px rgba(229, 62, 62, 0.12),
+                0 10px 30px rgba(0, 0, 0, 0.15);
+
+            &::after {
+                width: 50px;
+                height: 50px;
+                border-color: rgba(229, 62, 62, 0.5);
+            }
+
+            .img {
+                transform: scale(1.02);
+                filter: grayscale(0.6) brightness(0.7);
+            }
+        }
+
+        // Desaturated image
+        .img {
+            filter: grayscale(0.5) brightness(0.8);
+            transition: filter 0.3s ease, transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        // Red-tinted scan line
+        .imageWrap::after {
+            background: linear-gradient(
+                180deg,
+                transparent 0%,
+                rgba(229, 62, 62, 0.03) 20%,
+                rgba(229, 62, 62, 0.08) 40%,
+                rgba(229, 62, 62, 0.2) 49%,
+                rgba(229, 62, 62, 0.3) 50%,
+                rgba(229, 62, 62, 0.2) 51%,
+                rgba(229, 62, 62, 0.08) 60%,
+                transparent 100%
+            ) !important;
+        }
+
+        // Body left glow → red
+        .body::before {
+            background: linear-gradient(
+                180deg,
+                transparent,
+                rgba(229, 62, 62, 0.3),
+                transparent
+            );
+        }
+
+        // Price → muted
+        .price {
+            color: var(--ink3, $color-ink3);
+        }
+    }
+}
+
+// ── OOS BADGE (full cyber redesign) ────────────────────────
+.oosOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+    overflow: hidden;
+
+    // Dark vignette
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.35) 100%);
+        z-index: 1;
+    }
+
+    // Moving scan line
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: -4px;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(229, 62, 62, 0.8), transparent);
+        z-index: 3;
+        animation: oosScanDown 3s linear infinite;
+        box-shadow: 0 0 8px rgba(229, 62, 62, 0.4);
+    }
+}
+
+.oosLabel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    pointer-events: none;
+}
+
+.oosIcon {
+    width: 44px;
+    height: 44px;
+    border: 2px solid rgba(229, 62, 62, 0.7);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(12, 12, 12, 0.75);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 20px rgba(229, 62, 62, 0.2), inset 0 0 12px rgba(229, 62, 62, 0.1);
+    animation: oosFlicker 4s ease-in-out infinite;
+
+    svg {
+        width: 20px;
+        height: 20px;
+        stroke: #ff6b6b;
+        stroke-width: 2;
+        fill: none;
+    }
+}
+
+.oosText {
+    font-family: $font-display;
+    font-size: 10px;
+    font-weight: $fw-bold;
+    letter-spacing: $ls-widest;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #ff6b6b;
+    background: rgba(12, 12, 12, 0.8);
+    backdrop-filter: blur(8px);
+    padding: 4px 16px;
+    border: 1px solid rgba(229, 62, 62, 0.35);
+    clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    text-shadow: 0 0 8px rgba(229, 62, 62, 0.5);
+    animation: oosFlicker 4s ease-in-out infinite 0.5s;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(229, 62, 62, 0.15), transparent);
+        animation: oosBarScroll 2s linear infinite;
     }
 }
 
@@ -241,7 +431,7 @@
     }
 
     &--oos {
-        background: linear-gradient(90deg, #555, #444);
+        display: none; // Replaced by .oosOverlay
     }
 }
 

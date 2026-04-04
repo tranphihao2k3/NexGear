@@ -92,12 +92,14 @@ export async function POST(req: NextRequest) {
 
         const order = await Order.create(body);
 
-        // Deduct stock for each product
-        for (const item of body.items) {
-            await Product.findByIdAndUpdate(item.product, {
-                $inc: { stock: -item.qty, soldCount: item.qty },
-            });
-        }
+        // Deduct stock for all products in a single bulk operation
+        const bulkOps = body.items.map((item: { product: string; qty: number }) => ({
+            updateOne: {
+                filter: { _id: item.product },
+                update: { $inc: { stock: -item.qty, soldCount: item.qty } },
+            },
+        }));
+        await Product.bulkWrite(bulkOps, { ordered: false });
 
         // Notify Admin panel in real-time
         try {

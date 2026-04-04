@@ -38,7 +38,9 @@ export async function GET(req: NextRequest) {
             Brand.find(filter).sort({ name: 1 }).skip(skip).limit(limit).lean(),
             Brand.countDocuments(filter),
         ]);
-        return apiPaginated(brands, total, page, limit);
+        return apiPaginated(brands, total, page, limit, {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        });
     } catch (error) {
         return apiError((error as Error).message, 500);
     }

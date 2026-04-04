@@ -60,17 +60,55 @@
     }
 }
 
+@keyframes cyberGlowFooter {
+    0%, 100% { text-shadow: 0 0 8px rgba(0, 196, 173, 0.4); }
+    50% { text-shadow: 0 0 16px rgba(0, 196, 173, 0.8), 0 0 30px rgba(0, 196, 173, 0.5); }
+}
+
+@keyframes cyberGlitchFooter {
+    0% { transform: translate(0) skewX(0); }
+    20% { transform: translate(-2px, 1px) skewX(5deg); text-shadow: 2px 0 #F0356A, -2px 0 #00C4AD; }
+    40% { transform: translate(2px, -1px) skewX(-5deg); text-shadow: -2px 0 #F0356A, 2px 0 #00C4AD; }
+    60% { transform: translate(-1px, 2px) skewX(2deg); text-shadow: 2px 0 #00C4AD, -2px 0 #F0356A; }
+    80% { transform: translate(1px, -2px) skewX(-2deg); text-shadow: -2px 0 #00C4AD, 2px 0 #F0356A; }
+    100% { transform: translate(0) skewX(0); text-shadow: none; }
+}
+
 .logo {
-    @include font-display($text-2xl, $fw-black);
-    color: #FFFFFF;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0;
     text-decoration: none;
-    letter-spacing: $ls-tight;
-    line-height: $lh-snug;
-    transition: $transition-base;
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {
-        color: $color-cyan;
+        transform: scale(1.03) skewX(-3deg);
+        .logoGlitch {
+            animation: cyberGlitchFooter 0.3s cubic-bezier(.25, .46, .45, .94) both; 
+        }
+        .logoAccent { 
+            animation: cyberGlowFooter 1.2s ease-in-out infinite;
+            color: #00E5CA;
+        }
     }
+}
+
+.logoGlitch {
+    font-family: $font-display;
+    font-size: 32px;
+    font-weight: 900;
+    color: #FFFFFF; // Trắng vì footer tối màu
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+
+.logoAccent {
+    font-family: $font-display;
+    font-size: 32px;
+    font-weight: 900;
+    color: #00C4AD;
+    line-height: 1;
 }
 
 .tagline {

@@ -84,7 +84,9 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        return apiSuccess({ filters, rawMap });
+        return apiSuccess({ filters, rawMap }, 200, {
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+        });
     } catch (error) {
         return apiError((error as Error).message, 500);
     }

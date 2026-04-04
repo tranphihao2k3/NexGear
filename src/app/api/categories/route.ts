@@ -13,6 +13,8 @@ export async function GET(req: NextRequest) {
         const activeOnly = searchParams.get('active');
         if (activeOnly === 'true') filter.isActive = true;
 
+        const cacheHeaders = { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' };
+
         // Single category by slug
         const slugParam = searchParams.get('slug');
         if (slugParam) {
@@ -20,7 +22,7 @@ export async function GET(req: NextRequest) {
                 .populate('parent', 'name slug')
                 .lean();
             if (!cat) return apiError('Category not found', 404);
-            return apiSuccess(cat);
+            return apiSuccess(cat, 200, cacheHeaders);
         }
 
         // Tree mode: return nested structure
@@ -45,7 +47,7 @@ export async function GET(req: NextRequest) {
                     roots.push(c);
                 }
             }
-            return apiSuccess(roots);
+            return apiSuccess(roots, 200, cacheHeaders);
         }
 
         // Flat list (default)
@@ -64,7 +66,7 @@ export async function GET(req: NextRequest) {
             Category.countDocuments(filter),
         ]);
 
-        return apiPaginated(categories, total, page, limit);
+        return apiPaginated(categories, total, page, limit, cacheHeaders);
     } catch (error) {
         return apiError((error as Error).message, 500);
     }

@@ -257,7 +257,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const [addedToCart, setAddedToCart] = useState(false);
     const [wishlisted, setWishlisted] = useState(false);
     const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews" | "installment">("desc");
+    const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews" | "installment">("specs");
     const [scrolledPast, setScrolledPast] = useState(false);
 
     useEffect(() => {
@@ -797,8 +797,8 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     <div className={styles.tabNav}>
                         <div className={styles.tabNavLine} />
                         {[
-                            { id: "desc" as const, label: "Mô tả chi tiết", icon: "📝" },
                             { id: "specs" as const, label: "Thông số kỹ thuật", icon: "⚙" },
+                            { id: "desc" as const, label: "Mô tả chi tiết", icon: "📝" },
                             { id: "installment" as const, label: "Trả góp", icon: "💳" },
                             { id: "reviews" as const, label: `Đánh giá (${ratingCount})`, icon: "⭐" },
                         ].map(tab => (
@@ -866,16 +866,14 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         {activeTab === "specs" && (
                             <div className={styles.specsTab}>
                                 {specEntries.length > 0 ? (
-                                    <table className={styles.specTable}>
-                                        <tbody>
-                                            {specEntries.map(([key, val], i) => (
-                                                <tr key={key} className={i % 2 === 0 ? styles.specRowEven : styles.specRowOdd}>
-                                                    <td className={styles.specKey}>{key}</td>
-                                                    <td className={styles.specVal}>{String(val)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                    <div className={styles.specsGrid}>
+                                        {specEntries.map(([key, val]) => (
+                                            <div key={key} className={styles.specItem}>
+                                                <span className={styles.specKey}>{key}</span>
+                                                <span className={styles.specValue}>{String(val)}</span>
+                                            </div>
+                                        ))}
+                                    </div>
                                 ) : (
                                     <div className={styles.emptyTab}>
                                         <span>⚙</span>

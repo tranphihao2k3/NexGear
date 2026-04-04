@@ -146,9 +146,22 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
           {hasDiscount && <span className={`${styles.badge} ${styles['badge--sale']}`}>-{discountPct}%</span>}
           {isNew && <span className={`${styles.badge} ${styles['badge--new']}`}>NEW</span>}
           {isHot && <span className={`${styles.badge} ${styles['badge--hot']}`}>🔥 HOT</span>}
-          {outOfStock && <span className={`${styles.badge} ${styles['badge--oos']}`}>HẾT HÀNG</span>}
         </div>
-        {/* Quick actions overlay — inside imageWrap */}
+
+        {/* Out-of-stock cyber overlay */}
+        {outOfStock && (
+          <div className={styles.oosOverlay}>
+            <div className={styles.oosLabel}>
+              <div className={styles.oosIcon}>
+                <svg viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="4" y1="4" x2="20" y2="20" />
+                </svg>
+              </div>
+              <span className={styles.oosText}>HẾT HÀNG</span>
+            </div>
+          </div>
+        )}
       </Link>
 
       {/* Wishlist + Compare: grouped in top-right corner of image */}
@@ -207,7 +220,7 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
           onClick={handleAddToCart}
           disabled={outOfStock}
         >
-          {outOfStock ? 'THÔNG BÁO KHI CÓ HÀNG' : added ? '✓ ĐÃ THÊM VÀO GIỎ' : '🛒 THÊM VÀO GIỎ'}
+          {outOfStock ? '⚡ THÔNG BÁO KHI CÓ HÀNG' : added ? '✓ ĐÃ THÊM VÀO GIỎ' : '🛒 THÊM VÀO GIỎ'}
         </Button>
       </div>
     </article>

@@ -61,15 +61,19 @@ export async function GET() {
                 .sort({ createdAt: -1 })
                 .limit(5)
                 .lean(),
-            // Low stock products
-            Product.find({
-                isActive: true,
-                $expr: { $lte: ['$stock', { $ifNull: ['$lowStockAlert', 10] }] },
-            })
-                .select('name sku stock lowStockAlert images')
-                .sort({ stock: 1 })
-                .limit(10)
-                .lean(),
+            // Low stock products — pre-filter with index-friendly stock <= 50,
+            // then use $expr only on the small candidate set
+            Product.aggregate([
+                { $match: { isActive: true, stock: { $lte: 50 } } },
+                {
+                    $match: {
+                        $expr: { $lte: ['$stock', { $ifNull: ['$lowStockAlert', 10] }] },
+                    },
+                },
+                { $sort: { stock: 1 } },
+                { $limit: 10 },
+                { $project: { name: 1, sku: 1, stock: 1, lowStockAlert: 1, images: 1 } },
+            ]),
             // Channel distribution
             Order.aggregate([
                 {

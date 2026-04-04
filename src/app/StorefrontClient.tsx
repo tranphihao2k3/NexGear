@@ -279,9 +279,9 @@ export default function StorefrontClient() {
 
           {/* Title */}
           <h1 className={sfStyles.title}>
-            <span className={sfStyles.titleLine1}>Laptop, PC &</span>
+            <span className={sfStyles.titleLine1}>Phụ kiện, PC &</span>
             <span className={sfStyles.titleLine2}>
-              <span className={sfStyles.titleGradient}>Phụ Kiện</span> Chính Hãng
+              <span className={sfStyles.titleGradient}>Laptop</span> Chính Hãng
             </span>
           </h1>
 

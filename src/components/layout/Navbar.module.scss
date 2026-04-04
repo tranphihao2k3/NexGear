@@ -145,49 +145,56 @@
     }
 }
 
-@keyframes logoShimmer {
-    0%   { background-position: 0% center; }
-    100% { background-position: 200% center; }
+@keyframes cyberGlow {
+    0%, 100% { text-shadow: 0 0 8px rgba(0, 196, 173, 0.4); }
+    50% { text-shadow: 0 0 16px rgba(0, 196, 173, 0.8), 0 0 30px rgba(0, 196, 173, 0.5); }
 }
 
-@keyframes cursorBlink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+@keyframes cyberGlitch {
+    0% { transform: translate(0) skewX(0); }
+    20% { transform: translate(-2px, 1px) skewX(5deg); text-shadow: 2px 0 #F0356A, -2px 0 #00C4AD; }
+    40% { transform: translate(2px, -1px) skewX(-5deg); text-shadow: -2px 0 #F0356A, 2px 0 #00C4AD; }
+    60% { transform: translate(-1px, 2px) skewX(2deg); text-shadow: 2px 0 #00C4AD, -2px 0 #F0356A; }
+    80% { transform: translate(1px, -2px) skewX(-2deg); text-shadow: -2px 0 #00C4AD, 2px 0 #F0356A; }
+    100% { transform: translate(0) skewX(0); text-shadow: none; }
 }
 
 .logo {
     display: inline-flex;
     align-items: baseline;
-    gap: $sp-2;
+    gap: 0; // Để chữ dính lại như logo chuẩn
     text-decoration: none;
     flex-shrink: 0;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {
-        transform: scale(1.03);
-        .logoAccent { animation: logoShimmer 0.8s linear; }
+        transform: scale(1.03) skewX(-3deg);
+        .logoGlitch {
+            animation: cyberGlitch 0.3s cubic-bezier(.25, .46, .45, .94) both; 
+        }
+        .logoAccent { 
+            animation: cyberGlow 1.2s ease-in-out infinite;
+            color: #00E5CA;
+        }
     }
 }
 
-// Phần đầu: nhẹ, muted — vai trò "prefix"
+// Phần đầu: NEX
 .logoGlitch {
-    font-family: $font-body;
-    font-size: 20px;
-    font-weight: $fw-medium;
-    color: $color-ink;
-    letter-spacing: 0;
+    font-family: $font-display;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--ink, #0C0C0C);
+    letter-spacing: 0.5px;
     line-height: 1;
 }
 
-// Phần sau: bold, gradient cyan → purple (không italic)
+// Phần sau: GEAR
 .logoAccent {
-    font-family: $font-body;
-    font-size: 20px;
-    font-weight: $fw-bold;
-    background: linear-gradient(90deg, #00C4AD 0%, #7B3FF2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-family: $font-display;
+    font-size: 24px;
+    font-weight: 900;
+    color: #00C4AD;
     line-height: 1;
 }
 
@@ -221,7 +228,7 @@
     text-decoration: none;
     transition: all 0.2s ease;
 
-    &:hover {
+    &:hover, &:focus-within {
         border-color: rgba(0, 196, 173, 0.3);
         background: var(--search-bg-hover, rgba(0, 196, 173, 0.04));
     }
@@ -229,6 +236,30 @@
     svg { flex-shrink: 0; opacity: 0.5; }
 
     @include tablet { display: none; }
+}
+
+.searchInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0;
+    margin: 0;
+    font-family: $font-body;
+    font-size: 13px;
+    color: var(--ink, $color-ink);
+    min-width: 0;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+        color: var(--ink3, $color-ink3);
+    }
+
+    &:focus {
+        outline: none;
+        box-shadow: none;
+    }
 }
 
 // ── ACTIONS ────────────────────────────────────────────────

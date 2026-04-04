@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 
 // Standard API response helpers
-export function apiSuccess(data: unknown, status = 200) {
-    return NextResponse.json({ success: true, data }, { status });
+export function apiSuccess(data: unknown, status = 200, headers?: Record<string, string>) {
+    return NextResponse.json({ success: true, data }, { status, headers });
 }
 
 export function apiError(message: string, status = 400) {

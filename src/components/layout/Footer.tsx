@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react'
+
 import styles from './Footer.module.scss'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -8,6 +10,23 @@ import { useSiteSettings } from '@/contexts/SiteSettingsContext'
 const Footer = () => {
     const s = useSiteSettings();
     const year = new Date().getFullYear();
+
+    const [logoImgError, setLogoImgError] = useState(false)
+    useEffect(() => { setLogoImgError(false) }, [s.logoUrl])
+
+    const isVietnamese = /[àáãạảăắằẳẵặâấầẩẫậèéẹẻẽêềếểễệđìíĩỉịòóõọỏôốồổỗộơớờởỡợùúũụủưứừửữựỳýỵỷỹ]/i.test(s.storeName);
+    let namePart1: string;
+    let namePart2: string;
+    if (isVietnamese) {
+        const lastSpace = s.storeName.lastIndexOf(' ');
+        namePart1 = lastSpace > 0 ? s.storeName.substring(0, lastSpace) : s.storeName;
+        namePart2 = lastSpace > 0 ? s.storeName.substring(lastSpace + 1) : '';
+    } else {
+        const name = s.storeName;
+        const accentLen = name.length > 6 ? 4 : Math.floor(name.length / 2);
+        namePart1 = name.substring(0, name.length - accentLen);
+        namePart2 = name.substring(name.length - accentLen);
+    }
 
     return (
         <footer className={styles.footer}>
@@ -22,16 +41,20 @@ const Footer = () => {
                     {/* ── CỘT 1: BRAND + THÔNG TIN + MAP ── */}
                     <div className={styles.brand}>
                         <Link href="/" className={styles.logo}>
-                            {s.logoUrl ? (
+                            {s.logoUrl && !logoImgError ? (
                                 <Image
                                     src={s.logoUrl}
                                     alt={s.storeName}
                                     width={200}
                                     height={72}
                                     style={{ objectFit: 'contain', maxHeight: '72px', width: 'auto', maxWidth: '220px' }}
+                                    onError={() => setLogoImgError(true)}
                                 />
                             ) : (
-                                s.storeName
+                                <>
+                                    <span className={styles.logoGlitch}>{namePart1}</span>
+                                    <span className={styles.logoAccent}>{namePart2}</span>
+                                </>
                             )}
                         </Link>
                         <p className={styles.tagline}>{s.siteTagline}</p>

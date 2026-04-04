@@ -13,14 +13,18 @@ export async function GET(_req: NextRequest, { params }: Params) {
         await dbConnect();
         const { id } = await params;
 
-        // Try ObjectId first, then slug
+        // Try ObjectId first, then slug — single query with chained populate + lean
         const isObjectId = /^[a-f\d]{24}$/i.test(id);
-        const product = isObjectId
-            ? await Product.findById(id).populate('category', 'name slug').populate('brand', 'name slug logo').lean()
-            : await Product.findOne({ slug: id }).populate('category', 'name slug').populate('brand', 'name slug logo').lean();
+        const query = isObjectId ? Product.findById(id) : Product.findOne({ slug: id });
+        const product = await query
+            .populate('category', 'name slug')
+            .populate('brand', 'name slug logo')
+            .lean();
 
         if (!product) return apiError('Product not found', 404);
-        return apiSuccess(product);
+        return apiSuccess(product, 200, {
+            'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+        });
     } catch (error) {
         return apiError((error as Error).message, 500);
     }

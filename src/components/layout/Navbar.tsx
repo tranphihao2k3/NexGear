@@ -5,7 +5,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useSiteSettings } from '@/contexts/SiteSettingsContext'
@@ -49,8 +49,10 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     const siteSettings = useSiteSettings()
     const { data: session } = useSession()
     const pathname = usePathname()
+    const router = useRouter()
     const { theme, toggleTheme } = useTheme()
     const [menuOpen, setMenuOpen] = useState(false)
+    const [searchQuery, setSearchQuery] = useState('')
     const [scrolled, setScrolled] = useState(false)
     const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
     const [mobileExpanded, setMobileExpanded] = useState<string | null>(null)
@@ -225,7 +227,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     let namePart2: string;
     if (isVietnamese) {
         const lastSpace = siteSettings.storeName.lastIndexOf(' ');
-        namePart1 = lastSpace > 0 ? siteSettings.storeName.substring(0, lastSpace) : siteSettings.storeName;
+        namePart1 = lastSpace > 0 ? siteSettings.storeName.substring(0, lastSpace) + ' ' : siteSettings.storeName;
         namePart2 = lastSpace > 0 ? siteSettings.storeName.substring(lastSpace + 1) : '';
     } else {
         const name = siteSettings.storeName;
@@ -258,17 +260,29 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                             ) : (
                                 // ── Text logo fallback (mặc định hoặc khi ảnh lỗi) ──
                                 <>
-                                    <span className={styles.logoGlitch} data-text={namePart1} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart1}</span>
-                                    <span className={styles.logoAccent} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart2}</span>
-                                    <span className={styles.logoPulse} />
+                                    <span className={styles.logoGlitch}>{namePart1}</span>
+                                    <span className={styles.logoAccent}>{namePart2}</span>
                                 </>
                             )}
                         </Link>
 
-                        <Link href="/search" className={styles.searchBar}>
+                        <form
+                            className={styles.searchBar}
+                            onSubmit={(e) => {
+                                e.preventDefault()
+                                const q = searchQuery.trim()
+                                if (q) router.push(`/search?q=${encodeURIComponent(q)}`)
+                            }}
+                        >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-                            <span>Tìm kiếm sản phẩm...</span>
-                        </Link>
+                            <input
+                                type="text"
+                                className={styles.searchInput}
+                                placeholder="Tìm kiếm sản phẩm..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </form>
 
                         <div className={styles.actions}>
                             <button className={styles.actionBtn} onClick={toggleTheme} aria-label="Toggle theme">
@@ -426,8 +440,8 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                     <nav className={styles.mobileMenu} onClick={e => e.stopPropagation()} aria-label="Mobile navigation">
                         <div className={styles.mobileHeader}>
                             <span className={styles.mobileLogo}>
-                                <span className={styles.logoGlitch} data-text={namePart1} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart1}</span>
-                                <span className={styles.logoAccent} style={{ fontFamily: isVietnamese ? 'var(--font-body)' : 'var(--font-display)', fontWeight: isVietnamese ? '700' : undefined }}>{namePart2}</span>
+                                <span className={styles.logoGlitch}>{namePart1}</span>
+                                <span className={styles.logoAccent}>{namePart2}</span>
                             </span>
                             <button className={styles.mobileClose} onClick={() => setMenuOpen(false)}>✕</button>
                         </div>

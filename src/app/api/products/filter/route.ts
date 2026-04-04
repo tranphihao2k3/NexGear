@@ -139,13 +139,32 @@ export async function GET(req: NextRequest) {
                 { $sort: finalSort },
                 { $skip: skip },
                 { $limit: limit },
-                { $project: { description: 0, specs: 0, _inStock: 0 } },
-            ]).then(async (docs) => {
-                return Product.populate(docs, [
-                    { path: 'category', select: 'name slug' },
-                    { path: 'brand', select: 'name slug' },
-                ]);
-            }),
+                {
+                    $lookup: {
+                        from: 'categories',
+                        localField: 'category',
+                        foreignField: '_id',
+                        pipeline: [{ $project: { name: 1, slug: 1 } }],
+                        as: '_cat',
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'brands',
+                        localField: 'brand',
+                        foreignField: '_id',
+                        pipeline: [{ $project: { name: 1, slug: 1 } }],
+                        as: '_brand',
+                    },
+                },
+                {
+                    $addFields: {
+                        category: { $arrayElemAt: ['$_cat', 0] },
+                        brand: { $arrayElemAt: ['$_brand', 0] },
+                    },
+                },
+                { $project: { _cat: 0, _brand: 0, description: 0, specs: 0, _inStock: 0 } },
+            ]),
             Product.countDocuments(filter),
         ]);
 
