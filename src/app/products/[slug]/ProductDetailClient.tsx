@@ -247,8 +247,9 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const router = useRouter();
 
     const [product, setProduct] = useState<any>(null);
-    const [loading, setLoading] = useState(true);
+    const [loadingProduct, setLoadingProduct] = useState(true);
     const [related, setRelated] = useState<any[]>([]);
+    const [loadingRelated, setLoadingRelated] = useState(false);
 
     const [activeImg, setActiveImg] = useState(0);
     const [lightboxOpen, setLightboxOpen] = useState(false);
@@ -269,6 +270,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
     const imgRef = useRef<HTMLDivElement>(null);
 
+    // Fetch product data — không block bởi related
     useEffect(() => {
         if (!slug) return;
         const fetchProduct = async () => {
@@ -277,24 +279,32 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 const data = await res.json();
                 if (data.success) {
                     setProduct(data.data);
-                    if (data.data.category?._id) {
-                        const relRes = await fetch(`/api/products?category=${data.data.category._id}&limit=4&active=true`);
-                        const relData = await relRes.json();
-                        if (relData.success) {
-                            setRelated(relData.data.filter((p: any) => p._id !== data.data._id));
-                        }
-                    }
                 } else {
                     error("Không tìm thấy sản phẩm");
                 }
             } catch (e: any) {
                 error(e.message || "Lỗi tải sản phẩm");
             } finally {
-                setLoading(false);
+                setLoadingProduct(false);
             }
         };
         fetchProduct();
     }, [slug, error]);
+
+    // Fetch related products — chạy độc lập sau khi có product
+    useEffect(() => {
+        if (!product?.category?._id) return;
+        setLoadingRelated(true);
+        fetch(`/api/products?category=${product.category._id}&limit=4&active=true`)
+            .then(r => r.json())
+            .then(relData => {
+                if (relData.success) {
+                    setRelated(relData.data.filter((p: any) => p._id !== product._id));
+                }
+            })
+            .catch(() => {})
+            .finally(() => setLoadingRelated(false));
+    }, [product?._id, product?.category?._id]);
 
     // Check wishlist
     useEffect(() => {
@@ -305,12 +315,64 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
         } catch { }
     }, [product]);
 
-    if (loading) {
+    // ── SKELETON UI ──────────────────────────────────────────
+    if (loadingProduct) {
         return (
             <div className={styles.page}>
-                <div className={styles.loadingWrap}>
-                    <div className={styles.loadingPulse} />
-                    <span className={styles.loadingText}>// ĐANG TẢI SẢN PHẨM...</span>
+                {/* Breadcrumb skeleton */}
+                <div className={styles.breadcrumbBar}>
+                    <div className={styles.breadcrumbInner}>
+                        <div className={styles.skeletonBreadcrumb}>
+                            <span className={styles.skeletonPill} style={{ width: 60 }} />
+                            <span className={styles.skeletonDot} />
+                            <span className={styles.skeletonPill} style={{ width: 80 }} />
+                            <span className={styles.skeletonDot} />
+                            <span className={styles.skeletonPill} style={{ width: 200 }} />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Main skeleton — gallery + info */}
+                <div className={styles.productMain}>
+                    <div className={styles.productMainInner}>
+                        {/* Gallery skeleton */}
+                        <div className={styles.galleryCol}>
+                            <div className={styles.gallerySticky}>
+                                <div className={styles.skeletonMainImg} />
+                                <div className={styles.skeletonThumbRow}>
+                                    {[0,1,2,3].map(i => (
+                                        <div key={i} className={styles.skeletonThumb} />
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Info skeleton */}
+                        <div className={styles.infoCol}>
+                            <div className={styles.skeletonBrandRow}>
+                                <div className={styles.skeletonBlock} style={{ width: 80, height: 24, borderRadius: 9999 }} />
+                                <div className={styles.skeletonBlock} style={{ width: 48, height: 20 }} />
+                            </div>
+                            <div className={styles.skeletonBlock} style={{ width: '90%', height: 40 }} />
+                            <div className={styles.skeletonBlock} style={{ width: '60%', height: 28 }} />
+                            <div className={styles.skeletonInfoRow}>
+                                <div className={styles.skeletonBlock} style={{ width: 80, height: 16 }} />
+                                <div className={styles.skeletonBlock} style={{ width: 120, height: 16 }} />
+                                <div className={styles.skeletonBlock} style={{ width: 100, height: 16 }} />
+                            </div>
+                            <div className={styles.skeletonPriceCard}>
+                                <div className={styles.skeletonBlock} style={{ width: 200, height: 44 }} />
+                            </div>
+                            <div className={styles.skeletonDivider} />
+                            <div className={styles.skeletonBlock} style={{ width: '100%', height: 48 }} />
+                            <div className={styles.skeletonBlock} style={{ width: '100%', height: 48 }} />
+                            <div className={styles.skeletonServiceGrid}>
+                                {[0,1,2,3].map(i => (
+                                    <div key={i} className={styles.skeletonServiceCard} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -896,36 +958,44 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
             </section>
 
             {/* ── RELATED PRODUCTS ── */}
-            {related.length > 0 && (
+            {(loadingRelated || related.length > 0) && (
                 <section className={styles.relatedSection}>
                     <div className={styles.relatedInner}>
                         <div className={styles.relatedHeader}>
                             <span className={styles.relatedLabel}>// SẢN PHẨM LIÊN QUAN</span>
                             <span className={styles.relatedLine} />
                         </div>
-                        <div className={styles.relatedGrid}>
-                            {related.map((prod) => (
-                                <ProductCard
-                                    key={prod._id}
-                                    product={{
-                                        _id: prod._id,
-                                        name: prod.name,
-                                        slug: prod.slug,
-                                        sku: prod.sku || '',
-                                        brand: prod.brand || { name: '' },
-                                        images: prod.images || [],
-                                        basePrice: Number(prod.basePrice) || 0,
-                                        salePrice: prod.salePrice ? Number(prod.salePrice) : null,
-                                        stock: prod.stock ?? 0,
-                                        ratings: prod.ratings || { avg: 0, count: 0 },
-                                        tags: prod.tags || [],
-                                        category: prod.category,
-                                        specs: prod.specs || {},
-                                    }}
-                                    onAddToCart={() => { }}
-                                />
-                            ))}
-                        </div>
+                        {loadingRelated ? (
+                            <div className={styles.relatedGrid}>
+                                {[0,1,2,3].map(i => (
+                                    <div key={i} className={styles.skeletonRelatedCard} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={styles.relatedGrid}>
+                                {related.map((prod) => (
+                                    <ProductCard
+                                        key={prod._id}
+                                        product={{
+                                            _id: prod._id,
+                                            name: prod.name,
+                                            slug: prod.slug,
+                                            sku: prod.sku || '',
+                                            brand: prod.brand || { name: '' },
+                                            images: prod.images || [],
+                                            basePrice: Number(prod.basePrice) || 0,
+                                            salePrice: prod.salePrice ? Number(prod.salePrice) : null,
+                                            stock: prod.stock ?? 0,
+                                            ratings: prod.ratings || { avg: 0, count: 0 },
+                                            tags: prod.tags || [],
+                                            category: prod.category,
+                                            specs: prod.specs || {},
+                                        }}
+                                        onAddToCart={() => { }}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </section>
             )}

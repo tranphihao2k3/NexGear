@@ -49,6 +49,12 @@ async function dbConnect() {
     if (!cached.promise) {
         const opts = {
             bufferCommands: false,
+            // Tối ưu cho Vercel Serverless + MongoDB Atlas
+            maxPoolSize: 10,          // Giới hạn connection pool (serverless)
+            serverSelectionTimeoutMS: 5000,  // Fail fast thay vì treo 30s
+            socketTimeoutMS: 45000,   // Timeout socket
+            connectTimeoutMS: 10000,  // Timeout kết nối ban đầu
+            heartbeatFrequencyMS: 10000, // Giữ connection alive
         };
 
         cached.promise = mongoose.connect(MONGODB_URI!, opts);

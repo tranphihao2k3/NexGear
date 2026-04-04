@@ -138,7 +138,7 @@
 
 
 
-// Loading
+// Loading fallback (giữ lại cho not-found)
 .loadingWrap {
     display: flex;
     flex-direction: column;
@@ -171,6 +171,139 @@
     &:hover {
         text-decoration: underline;
     }
+}
+
+// ════════════════════════════════════════════════════════════
+// SKELETON UI
+// ════════════════════════════════════════════════════════════
+@keyframes shimmer {
+    0% { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+}
+
+%skeleton-base {
+    background: linear-gradient(
+        90deg,
+        var(--bg2, #ECEAE3) 25%,
+        var(--bg3, #E2DFD6) 50%,
+        var(--bg2, #ECEAE3) 75%
+    );
+    background-size: 1200px 100%;
+    animation: shimmer 1.6s infinite linear;
+    border-radius: $r-2;
+}
+
+.skeletonBlock {
+    @extend %skeleton-base;
+    display: block;
+}
+
+.skeletonBreadcrumb {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+}
+
+.skeletonPill {
+    @extend %skeleton-base;
+    display: inline-block;
+    height: 14px;
+}
+
+.skeletonDot {
+    @extend %skeleton-base;
+    width: 6px;
+    height: 6px;
+    border-radius: $r-full;
+    flex-shrink: 0;
+}
+
+.skeletonMainImg {
+    @extend %skeleton-base;
+    width: 100%;
+    height: 480px;
+    border-radius: $r-3;
+
+    @include tablet { height: 360px; }
+    @include mobile { height: 280px; }
+}
+
+.skeletonThumbRow {
+    display: flex;
+    gap: $sp-2;
+    margin-top: $sp-3;
+}
+
+.skeletonThumb {
+    @extend %skeleton-base;
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    border-radius: $r-2;
+}
+
+.skeletonBrandRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    margin-bottom: $sp-2;
+}
+
+.skeletonInfoRow {
+    display: flex;
+    align-items: center;
+    gap: $sp-4;
+    flex-wrap: wrap;
+    padding-bottom: $sp-2;
+    border-bottom: 1px solid var(--border);
+}
+
+.skeletonPriceCard {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: $r-3;
+    padding: $sp-6 $sp-8;
+    display: flex;
+    align-items: center;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #00C4AD, #F0356A);
+    }
+
+    @include mobile { padding: $sp-5 $sp-6; }
+}
+
+.skeletonDivider {
+    height: 1px;
+    background: var(--border);
+}
+
+.skeletonServiceGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $sp-3;
+
+    @include mobile { grid-template-columns: 1fr; }
+}
+
+.skeletonServiceCard {
+    @extend %skeleton-base;
+    height: 68px;
+    border-radius: $r-2;
+}
+
+.skeletonRelatedCard {
+    @extend %skeleton-base;
+    height: 320px;
+    border-radius: $r-2;
+
+    @include mobile { height: 260px; }
 }
 
 // ════════════════════════════════════════════════════════════
