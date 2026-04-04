@@ -75,6 +75,20 @@ export async function generateMetadata(): Promise<Metadata> {
         'max-snippet': -1,
       },
     },
+    icons: s.faviconUrl
+      ? {
+          icon: [
+            { url: s.faviconUrl, type: 'image/x-icon' },
+            { url: s.faviconUrl, sizes: '32x32' },
+            { url: s.faviconUrl, sizes: '192x192' },
+          ],
+          apple: [{ url: s.faviconUrl }],
+          shortcut: s.faviconUrl,
+        }
+      : {
+          icon: '/favicon.ico',
+          shortcut: '/favicon.ico',
+        },
   }
 }
 
