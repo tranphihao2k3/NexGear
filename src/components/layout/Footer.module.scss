@@ -3,8 +3,8 @@
 
 // ── FOOTER SHELL ─────────────────────────────────────────────
 .footer {
-    background: #111110;
-    color: rgba(255, 255, 255, 0.75);
+    background: var(--bg2);
+    color: var(--ink2);
     position: relative;
     z-index: 10;
 }
@@ -53,10 +53,15 @@
 .brand {
     display: flex;
     flex-direction: column;
-    gap: $sp-5;
+    gap: $sp-4;
+    padding: $sp-5;
+    background: rgba(var(--ink-rgb), 0.03);
+    border: 1px solid var(--border);
+    border-radius: $r-3;
 
     @include mobile {
-        gap: $sp-4;
+        gap: $sp-3;
+        padding: $sp-4;
     }
 }
 
@@ -77,17 +82,18 @@
 .logo {
     display: inline-flex;
     align-items: baseline;
-    gap: 0;
+    gap: 4px;
     text-decoration: none;
     flex-shrink: 0;
+    white-space: nowrap;
     transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 
     &:hover {
         transform: scale(1.03) skewX(-3deg);
         .logoGlitch {
-            animation: cyberGlitchFooter 0.3s cubic-bezier(.25, .46, .45, .94) both; 
+            animation: cyberGlitchFooter 0.3s cubic-bezier(.25, .46, .45, .94) both;
         }
-        .logoAccent { 
+        .logoAccent {
             animation: cyberGlowFooter 1.2s ease-in-out infinite;
             color: #00E5CA;
         }
@@ -96,24 +102,32 @@
 
 .logoGlitch {
     font-family: $font-display;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 900;
-    color: #FFFFFF; // Trắng vì footer tối màu
+    color: var(--ink);
     letter-spacing: 0.5px;
     line-height: 1;
+
+    @include mobile {
+        font-size: 22px;
+    }
 }
 
 .logoAccent {
     font-family: $font-display;
-    font-size: 32px;
+    font-size: 26px;
     font-weight: 900;
     color: #00C4AD;
     line-height: 1;
+
+    @include mobile {
+        font-size: 22px;
+    }
 }
 
 .tagline {
     @include font-mono(10px, $fw-regular);
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--ink3);
     letter-spacing: $ls-widest;
     text-transform: uppercase;
     margin-top: -$sp-3;
@@ -123,23 +137,26 @@
 .contactList {
     display: flex;
     flex-direction: column;
-    gap: $sp-3;
+    gap: 0;
     margin-top: $sp-2;
-
-    @include mobile {
-        gap: $sp-2;
-    }
+    border-top: 1px solid var(--border);
+    padding-top: $sp-3;
 }
 
 .contactItem {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: $sp-2;
     @include font-body($text-sm, $fw-regular);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--ink2);
     line-height: $lh-normal;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
 
-    // Ẩn địa chỉ và email trên mobile, chỉ giữ SĐT và MST
+    &:last-child {
+        border-bottom: none;
+    }
+
     &.hideOnMobile {
         @include mobile {
             display: none;
@@ -148,14 +165,14 @@
 }
 
 .contactIcon {
-    font-size: 12px;
+    font-size: 13px;
     flex-shrink: 0;
-    margin-top: 2px;
-    opacity: 0.8;
+    width: 20px;
+    text-align: center;
 }
 
 .contactLink {
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--ink2);
     text-decoration: none;
     transition: $transition-base;
 
@@ -168,7 +185,7 @@
 .mapWrapper {
     border-radius: $r-2;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
     margin-top: $sp-2;
     flex-shrink: 0;
 
@@ -178,7 +195,7 @@
     }
 
     @include mobile {
-        display: none; // Ẩn map trên mobile để tiết kiệm không gian
+        display: none;
     }
 }
 
@@ -197,9 +214,9 @@
     width: 34px;
     height: 34px;
     border-radius: $r-2;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--border2);
+    background: rgba(var(--ink-rgb), 0.04);
+    color: var(--ink3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -260,7 +277,7 @@
 
     a {
         @include font-body($text-sm, $fw-regular);
-        color: rgba(255, 255, 255, 0.55);
+        color: var(--ink3);
         text-decoration: none;
         transition: $transition-base;
         display: inline-block;
@@ -279,17 +296,17 @@
 
 .colTitle {
     @include font-display($text-xs, $fw-bold);
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--ink);
     letter-spacing: $ls-wide;
     text-transform: uppercase;
     padding-bottom: $sp-3;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--border);
     white-space: nowrap;
 
     @include mobile {
         font-size: 10px;
         padding-bottom: $sp-2;
-        white-space: normal; // Cho phép wrap trên mobile vì 3 cột hẹp
+        white-space: normal;
     }
 }
 
@@ -318,15 +335,15 @@
 .fbEmbed {
     border-radius: $r-2;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border);
+    background: rgba(var(--ink-rgb), 0.03);
 
     iframe {
         display: block;
     }
 
     @include mobile {
-        display: none; // Ẩn Facebook embed trên mobile
+        display: none;
     }
 }
 
@@ -336,7 +353,7 @@
     justify-content: space-between;
     align-items: center;
     padding: $sp-5 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--border);
 
     @include tablet {
         flex-direction: column;
@@ -352,10 +369,10 @@
 
 .copyright {
     @include font-body($text-xs, $fw-regular);
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--ink3);
 
     strong {
-        color: rgba(255, 255, 255, 0.5);
+        color: var(--ink2);
         font-weight: $fw-medium;
     }
 }
@@ -372,7 +389,7 @@
 
     a {
         @include font-body($text-xs, $fw-regular);
-        color: rgba(255, 255, 255, 0.35);
+        color: var(--ink3);
         text-decoration: none;
         transition: $transition-base;
 
@@ -383,14 +400,15 @@
 }
 
 .dot {
-    color: rgba(255, 255, 255, 0.2);
+    color: var(--ink3);
     font-size: 10px;
+    opacity: 0.5;
 }
 
 // ── PAYMENT METHODS SECTION ───────────────────────────────────
 .paymentSection {
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
     padding: $sp-5 0;
     margin-bottom: $sp-4;
     display: flex;
@@ -406,7 +424,7 @@
 
 .paymentLabel {
     @include font-display($text-xs, $fw-bold);
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--ink3);
     letter-spacing: $ls-widest;
 }
 
@@ -422,11 +440,11 @@
     align-items: center;
     gap: $sp-1;
     padding: 5px $sp-3;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(var(--ink-rgb), 0.04);
+    border: 1px solid var(--border);
     border-radius: $r-full;
     @include font-body($text-xs, $fw-medium);
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--ink2);
     transition: $transition-fast;
 
     &:hover {
@@ -443,10 +461,87 @@
 
 .payDesc {
     @include font-body($text-xs, $fw-regular);
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--ink3);
     margin: 0;
 
     @include mobile {
-        display: none; // Ẩn mô tả thanh toán trên mobile
+        display: none;
     }
+}
+
+// ── VISITOR STATS ──────────────────────────────────────────────
+.visitorStats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-4;
+    padding: $sp-5 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+
+    @include mobile {
+        gap: $sp-2;
+        padding: $sp-4 0;
+    }
+}
+
+.statCard {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(var(--ink-rgb), 0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    transition: $transition-fast;
+
+    &:hover {
+        background: rgba(var(--ink-rgb), 0.07);
+        border-color: var(--border2);
+    }
+
+    @include mobile {
+        gap: 5px;
+        padding: 6px 10px;
+    }
+}
+
+.statDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.6);
+    animation: pulse-dot 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(34, 197, 94, 0.6); }
+    50% { opacity: 0.5; box-shadow: 0 0 14px rgba(34, 197, 94, 1); }
+}
+
+.statNumber {
+    @include font-body($text-sm, $fw-bold);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+
+    @include mobile {
+        font-size: $text-xs;
+    }
+}
+
+.statText {
+    @include font-body($text-xs, $fw-regular);
+    color: var(--ink3);
+
+    @include mobile {
+        display: none;
+    }
+}
+
+.statSvg {
+    color: var(--ink3);
+    flex-shrink: 0;
 }

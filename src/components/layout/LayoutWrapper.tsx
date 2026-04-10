@@ -7,6 +7,7 @@
 import { usePathname } from 'next/navigation'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
+import ScrollButtons from '@/components/layout/ScrollButtons'
 import { CartProvider, useCart } from '@/contexts/CartContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 import styles from './LayoutWrapper.module.scss'
@@ -22,6 +23,7 @@ function InnerLayout({ children }: { children: React.ReactNode }) {
                     {children}
                 </main>
                 <Footer />
+                <ScrollButtons />
             </div>
         </div>
     )

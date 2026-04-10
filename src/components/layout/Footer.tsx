@@ -6,6 +6,7 @@ import styles from './Footer.module.scss'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSiteSettings } from '@/contexts/SiteSettingsContext'
+import VisitorStats from './VisitorStats'
 
 const Footer = () => {
     const s = useSiteSettings();
@@ -226,6 +227,9 @@ const Footer = () => {
                         Thanh toán tiền mặt, chuyển khoản ngân hàng hoặc COD — Giao dịch nhanh &amp; bảo mật
                     </p>
                 </div>
+
+                {/* ════════ VISITOR STATS ════════ */}
+                <VisitorStats />
 
                 {/* ════════ BOTTOM BAR ════════ */}
                 <div className={styles.bottomBar}>
