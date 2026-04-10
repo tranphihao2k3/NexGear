@@ -103,36 +103,57 @@ import LayoutWrapper from '@/components/layout/LayoutWrapper'
 import { AuthProvider } from '@/components/layout/AuthProvider'
 import { QueryProvider } from '@/components/layout/QueryProvider'
 import { SiteSettingsProvider } from '@/contexts/SiteSettingsContext'
+import { CategoriesProvider } from '@/contexts/CategoriesContext'
+import { getRawSiteSettings } from '@/lib/site-config'
 import dbConnect from '@/lib/mongodb'
-import Setting from '@/models/Setting'
+import Category from '@/models/Category'
+
+async function getNavCategories() {
+  try {
+    await dbConnect();
+    const all = await Category.find({ isActive: true })
+      .sort({ order: 1, name: 1 })
+      .lean();
+
+    const map = new Map<string, any>();
+    for (const c of all) {
+      map.set(c._id.toString(), { ...c, _id: c._id.toString(), children: [] });
+    }
+
+    const roots: any[] = [];
+    for (const c of map.values()) {
+      if (c.parent) {
+        const p = map.get(c.parent.toString());
+        if (p) p.children.push(c);
+        else roots.push(c);
+      } else {
+        roots.push(c);
+      }
+    }
+
+    // Laptop first
+    roots.sort((a: any, b: any) => {
+      if (a.slug === 'laptop' || a.name.toLowerCase() === 'laptop') return -1;
+      if (b.slug === 'laptop' || b.name.toLowerCase() === 'laptop') return 1;
+      return 0;
+    });
+
+    return JSON.parse(JSON.stringify(roots));
+  } catch {
+    return [];
+  }
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { headers } = await import('next/headers');
   const headersList = await headers();
   const host = headersList.get('host') || '';
 
-  // Tất cả settings đều lấy theo host (multi-tenant)
-  const siteSettings = await getSiteSettings(host);
-
-  // Lấy màu thương hiệu — cùng identifier với getSiteSettings
-  let primaryColor = '#00C4AD';
-  let accentColor = '#F0356A';
-  try {
-    await dbConnect();
-    const rawIdentifier = host.startsWith('localhost') || host === ''
-      ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
-      : host;
-    let rawSettings = await Setting.findOne({ siteId: rawIdentifier }).lean() as any;
-    if (!rawSettings) {
-      rawSettings = await Setting.findOne({
-        siteDomain: { $regex: rawIdentifier.split(':')[0], $options: 'i' }
-      }).lean() as any;
-    }
-    if (rawSettings?.primaryColor) primaryColor = rawSettings.primaryColor;
-    if (rawSettings?.accentColor) accentColor = rawSettings.accentColor;
-  } catch (err) {
-    console.error('Failed to load brand colors in layout:', err);
-  }
+  // Single call: lấy cả settings + brand colors cùng lúc
+  const [{ siteSettings, primaryColor, accentColor }, navCategories] = await Promise.all([
+    getRawSiteSettings(host),
+    getNavCategories(),
+  ]);
 
   return (
     <html
@@ -147,11 +168,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <AuthProvider>
           <QueryProvider>
             <SiteSettingsProvider settings={siteSettings}>
-              <ToastProvider>
-                <LayoutWrapper>
-                  {children}
-                </LayoutWrapper>
-              </ToastProvider>
+              <CategoriesProvider categories={navCategories}>
+                <ToastProvider>
+                  <LayoutWrapper>
+                    {children}
+                  </LayoutWrapper>
+                </ToastProvider>
+              </CategoriesProvider>
             </SiteSettingsProvider>
           </QueryProvider>
         </AuthProvider>

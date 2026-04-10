@@ -158,6 +158,81 @@ export async function getSiteSettings(idOrHost?: string): Promise<SiteSettings> 
 export { DEFAULTS as SITE_DEFAULTS };
 
 /**
+ * Single call for layout: returns siteSettings + brand colors.
+ * Avoids duplicate dbConnect + Setting.findOne in layout.tsx.
+ */
+export async function getRawSiteSettings(idOrHost?: string): Promise<{
+    siteSettings: SiteSettings;
+    primaryColor: string;
+    accentColor: string;
+}> {
+    const rawIdentifier = idOrHost || '';
+    const isLocalhost = rawIdentifier === '' || rawIdentifier.startsWith('localhost');
+    const identifier = isLocalhost
+        ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
+        : rawIdentifier;
+
+    let primaryColor = '#00C4AD';
+    let accentColor = '#F0356A';
+
+    try {
+        await dbConnect();
+        let rawSettings = await Setting.findOne({ siteId: identifier }).lean() as any;
+        if (!rawSettings && (identifier.includes('.') || identifier.includes('localhost'))) {
+            const cleanHost = identifier.split(':')[0];
+            rawSettings = await Setting.findOne({
+                $or: [
+                    { siteDomain: { $regex: cleanHost, $options: 'i' } },
+                    { siteId: identifier }
+                ]
+            }).lean() as any;
+        }
+        if (!rawSettings && identifier === 'nexgear') {
+            rawSettings = await Setting.findOne({ siteId: { $exists: false } }).lean() as any;
+        }
+
+        if (rawSettings?.primaryColor) primaryColor = rawSettings.primaryColor;
+        if (rawSettings?.accentColor) accentColor = rawSettings.accentColor;
+
+        // Build siteSettings from same rawSettings — no second DB call
+        const s = rawSettings || {};
+        const siteSettings: SiteSettings = {
+            storeName: s.storeName || DEFAULTS.storeName,
+            siteTitle: s.siteTitle || DEFAULTS.siteTitle,
+            siteTitleTemplate: s.siteTitleTemplate || DEFAULTS.siteTitleTemplate,
+            siteDescription: s.siteDescription || DEFAULTS.siteDescription,
+            siteTagline: s.siteTagline || DEFAULTS.siteTagline,
+            siteDomain: s.siteDomain || DEFAULTS.siteDomain,
+            siteKeywords: s.siteKeywords || DEFAULTS.siteKeywords,
+            ogImage: s.ogImage || DEFAULTS.ogImage,
+            storePhone: s.storePhone || DEFAULTS.storePhone,
+            storeEmail: s.storeEmail || DEFAULTS.storeEmail,
+            storeAddress: s.storeAddress || DEFAULTS.storeAddress,
+            taxCode: s.taxCode || DEFAULTS.taxCode,
+            logoUrl: s.logoUrl || DEFAULTS.logoUrl,
+            faviconUrl: s.faviconUrl || DEFAULTS.faviconUrl,
+            facebook: s.facebook || DEFAULTS.facebook,
+            instagram: s.instagram || DEFAULTS.instagram,
+            tiktok: s.tiktok || DEFAULTS.tiktok,
+            facebookPageId: s.facebookPageId || DEFAULTS.facebookPageId,
+            googleMapsEmbedUrl: s.googleMapsEmbedUrl || DEFAULTS.googleMapsEmbedUrl,
+            showLandingPage: s.showLandingPage ?? DEFAULTS.showLandingPage,
+            bankAccountName: s.bankAccountName || DEFAULTS.bankAccountName,
+            bankAccountNumber: s.bankAccountNumber || DEFAULTS.bankAccountNumber,
+            bankName: s.bankName || DEFAULTS.bankName,
+        };
+
+        // Update cache so getSiteSettings() won't re-query
+        settingsCache[identifier] = { data: siteSettings, timestamp: Date.now() };
+
+        return { siteSettings, primaryColor, accentColor };
+    } catch (error) {
+        console.error('Error fetching raw site settings:', error);
+        return { siteSettings: { ...DEFAULTS }, primaryColor, accentColor };
+    }
+}
+
+/**
  * Xóa cache settings của một hoặc tất cả shop.
  * Gọi sau khi admin lưu cài đặt để trang phản ánh ngay.
  */

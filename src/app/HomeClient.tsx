@@ -151,8 +151,13 @@ const CATEGORIES = [
   { emoji: "🔌", label: "Phụ Kiện", count: "400+", href: "/phu-kien" },
 ];
 
+interface HomeClientProps {
+  initialProducts?: Product[];
+  initialBlogs?: Blog[];
+}
+
 // ══════════════════════════════════════════════════════════════
-export default function HomeClient() {
+export default function HomeClient({ initialProducts = [], initialBlogs = [] }: HomeClientProps) {
   const siteSettings = useSiteSettings();
 
   const STORY_STEPS = [
@@ -178,27 +183,10 @@ export default function HomeClient() {
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
 
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
+  // Data passed from server component — no client-side fetch needed
+  const featuredProducts = initialProducts;
+  const blogs = initialBlogs;
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
-
-  useEffect(() => {
-    // Fetch featured products
-    fetch("/api/products?featured=true&limit=8")
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setFeaturedProducts(data.data);
-      })
-      .catch(err => console.error("Error fetching products:", err));
-
-    // Fetch latest blogs
-    fetch("/api/blog?limit=3")
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setBlogs(data.data);
-      })
-      .catch(err => console.error("Error fetching blogs:", err));
-  }, []);
 
   return (
     <div className={styles.home}>

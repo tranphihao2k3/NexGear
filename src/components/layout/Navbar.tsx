@@ -2,13 +2,14 @@
 // NEXGEAR — Navbar Component (Clean + Mega Menu)
 // ============================================================
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useSiteSettings } from '@/contexts/SiteSettingsContext'
+import { useCategories } from '@/contexts/CategoriesContext'
 import { useCompareStore } from '@/store/useCompareStore'
 import styles from './Navbar.module.scss'
 
@@ -61,152 +62,67 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
     const compareCount = useCompareStore(state => state.items.length)
     const [isMounted, setIsMounted] = useState(false)
     const [logoImgError, setLogoImgError] = useState(false)
-    const [categories, setCategories] = useState<NavLink[]>([
-        {
-            href: '/laptop',
-            label: 'Laptop',
-            sub: [
-                { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
-                { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
-                { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
-                { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
-            ]
-        },
-        {
-            href: '/ban-phim',
-            label: 'Bàn Phím',
-            sub: [
-                { href: '/ban-phim-co', label: 'Bàn Phím Cơ', desc: 'Mechanical keyboard cao cấp' },
-                { href: '/ban-phim-khong-day', label: 'Bàn Phím Không Dây', desc: 'Wireless & Bluetooth' },
-                { href: '/ban-phim-tkl', label: 'Bàn Phím TKL / 75%', desc: 'Compact, tiết kiệm không gian' },
-                { href: '/ban-phim-60', label: 'Bàn Phím 60% / 65%', desc: 'Ultra compact, tối giản' },
-                { href: '/custom-kit', label: 'Custom Kit', desc: 'Barebone & DIY kit' },
-            ]
-        },
-        {
-            href: '/chuot',
-            label: 'Chuột',
-            sub: [
-                { href: '/chuot-gaming', label: 'Chuột Gaming', desc: 'Chuột chơi game chuyên nghiệp' },
-                { href: '/chuot-wireless', label: 'Chuột Wireless', desc: 'Không dây, tự do di chuyển' },
-                { href: '/chuot-ergonomic', label: 'Chuột Ergonomic', desc: 'Thiết kế công thái học' },
-                { href: '/chuot-sieu-nhe', label: 'Chuột Siêu Nhẹ', desc: 'Dưới 60g, linh hoạt tối đa' },
-            ]
-        },
-        {
-            href: '/linh-ki-n',
-            label: 'Linh Kiện',
-            sub: [
-                { href: '/bo-nho-ram', label: 'Bộ nhớ Ram', desc: '' },
-                { href: '/day-sac-asus', label: 'Dây Sạc', desc: '' },
-                { href: '/ssd-512gb', label: 'Ổ cứng SSD', desc: '' },
-            ]
-        },
-        {
-            href: '/loa',
-            label: 'Loa',
-            sub: [
-                { href: '/soundbar', label: 'Soundbar', desc: 'Loa thanh cho bàn setup' },
-                { href: '/loa-bluetooth', label: 'Loa Bluetooth', desc: 'Di động, pin lâu' },
-                { href: '/loa-desktop', label: 'Loa Desktop', desc: '2.0 / 2.1 cho PC' },
-            ]
-        },
-        {
-            href: '/lot-chuot',
-            label: 'Lót Chuột',
-        },
-        {
-            href: '/phu-kien',
-            label: 'Phụ kiện',
-            sub: [
-                { href: '/keycap', label: 'Keycap Sets', desc: 'PBT, Cherry profile...' },
-                { href: '/switch', label: 'Switches', desc: 'Gateron, Cherry MX...' },
-                { href: '/mouse-pad', label: 'Mouse Pad', desc: 'Desk mat & gaming pad' },
-                { href: '/cable-hub', label: 'Cable & Hub', desc: 'USB-C, Dock, Hub' },
-                { href: '/wrist-rest', label: 'Wrist Rest', desc: 'Kê tay gỗ, silicone' },
-            ]
-        },
-        {
-            href: '/tai-nghe',
-            label: 'Tai Nghe',
-            sub: [
-                { href: '/tai-nghe-over-ear', label: 'Tai Nghe Over-ear', desc: 'Trùm tai, bass sâu' },
-                { href: '/tai-nghe-in-ear', label: 'Tai Nghe In-ear / TWS', desc: 'True wireless stereo' },
-                { href: '/tai-nghe-gaming', label: 'Tai Nghe Gaming', desc: 'Âm thanh vòm 7.1' },
-            ]
+
+    // Categories from server context — no client-side fetch needed
+    const serverCategories = useCategories();
+    const categories = useMemo<NavLink[]>(() => {
+        if (serverCategories.length === 0) {
+            // Fallback defaults if context is empty
+            return [
+                { href: '/laptop', label: 'Laptop', sub: [
+                    { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
+                    { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
+                    { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
+                    { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
+                ]},
+            ];
         }
-    ])
+
+        const mapped = serverCategories.map((cat) => {
+            const baseSub = cat.children?.length
+                ? cat.children.map(ch => ({
+                    href: `/${ch.slug}`,
+                    label: ch.name,
+                    desc: ch.description || ''
+                  }))
+                : undefined;
+
+            if (cat.slug === 'laptop' || cat.name.toLowerCase() === 'laptop') {
+                const defaults = [
+                    { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
+                    { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
+                    { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
+                    { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
+                ];
+                const currentLabels = new Set((baseSub || []).map(s => s.label.toLowerCase()));
+                const mergedSub = [...(baseSub || [])];
+                for (const defItem of defaults) {
+                    if (!currentLabels.has(defItem.label.toLowerCase())) {
+                        mergedSub.push(defItem);
+                    }
+                }
+                return { href: `/${cat.slug}`, label: cat.name, sub: mergedSub };
+            }
+
+            return { href: `/${cat.slug}`, label: cat.name, sub: baseSub };
+        });
+
+        if (!mapped.some(c => c.label.toLowerCase() === 'laptop')) {
+            mapped.unshift({
+                href: '/laptop', label: 'Laptop', sub: [
+                    { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
+                    { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
+                    { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
+                    { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
+                ]
+            });
+        }
+
+        return mapped;
+    }, [serverCategories]);
 
     useEffect(() => {
         setIsMounted(true);
-
-        fetch('/api/categories?tree=true&active=true')
-            .then(r => r.json())
-            .then(d => {
-                if (d.success && Array.isArray(d.data)) {
-                    const mappedCats = d.data.map((cat: ApiCategory) => {
-                        const baseSub = cat.children?.length
-                            ? cat.children.map(ch => ({ 
-                                href: `/${ch.slug}`, 
-                                label: ch.name, 
-                                desc: ch.description || '' 
-                              }))
-                            : undefined;
-                        
-                        if (cat.slug === 'laptop' || cat.name.toLowerCase() === 'laptop') {
-                            const defaults = [
-                                { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
-                                { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
-                                { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
-                                { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
-                            ];
-                            
-                            const currentLabels = new Set((baseSub || []).map(s => s.label.toLowerCase()));
-                            const mergedSub = [...(baseSub || [])];
-                            
-                            for (const defItem of defaults) {
-                                if (!currentLabels.has(defItem.label.toLowerCase())) {
-                                    mergedSub.push(defItem);
-                                }
-                            }
-                            
-                            return {
-                                href: `/${cat.slug}`,
-                                label: cat.name,
-                                sub: mergedSub
-                            };
-                        }
-
-                        return {
-                            href: `/${cat.slug}`,
-                            label: cat.name,
-                            sub: baseSub,
-                        };
-                    });
-
-                    if (!mappedCats.some((c: any) => c.label.toLowerCase() === 'laptop')) {
-                        mappedCats.unshift({
-                            href: '/laptop',
-                            label: 'Laptop',
-                            sub: [
-                                { href: '/gaming-laptop', label: 'Gaming Laptop', desc: 'Laptop hiệu năng cao cho game' },
-                                { href: '/ultrabook', label: 'Ultrabook', desc: 'Mỏng nhẹ, thời trang' },
-                                { href: '/workstation', label: 'Workstation', desc: 'Đồ họa, lập trình chuyên nghiệp' },
-                                { href: '/laptop-sinh-vien', label: 'Laptop Sinh Viên', desc: 'Giá tốt, phù hợp học tập' },
-                            ]
-                        });
-                    }
-
-                    mappedCats.sort((a: any, b: any) => {
-                        if (a.label.toLowerCase() === 'laptop') return -1;
-                        if (b.label.toLowerCase() === 'laptop') return 1;
-                        return 0;
-                    });
-
-                    setCategories(mappedCats);
-                }
-            })
-            .catch(() => {});
     }, []);
 
     useEffect(() => { setMenuOpen(false) }, [pathname])
