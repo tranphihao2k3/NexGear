@@ -57,57 +57,33 @@ export async function DELETE(req: NextRequest) {
 }
 
 // POST /api/upload — proxy upload to external image server via base64
-// API key sent via query string to bypass LiteSpeed stripping X-API-Key on POST
+// Handles SINGLE file only to stay within Vercel's 4.5MB body limit.
+// For multiple files, the client should send separate requests per file.
 export async function POST(req: NextRequest) {
     try {
         const formData = await req.formData();
         const file = formData.get('file') as File | null;
         const folder = formData.get('folder') as string | null;
 
-        // Support single file or multiple files
-        const files: File[] = [];
-        if (file) {
-            files.push(file);
-        }
-        // Check both "files" and "files[]" (client sends files[])
-        for (const key of ['files', 'files[]']) {
-            for (const f of formData.getAll(key)) {
-                if (f instanceof File) files.push(f);
-            }
-        }
-
-        if (files.length === 0) {
+        if (!file) {
             return apiError('No file uploaded', 400);
         }
 
-        // Validate all files
+        // Validate file
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-        const maxSize = 10 * 1024 * 1024;
+        const maxSize = 5 * 1024 * 1024; // 5MB per file (base64 adds ~33% → ~6.7MB, safe for Vercel)
 
-        for (const f of files) {
-            if (!allowedTypes.includes(f.type)) {
-                return apiError(`Chỉ chấp nhận file ảnh (JPEG, PNG, WebP, GIF): ${f.name}`, 400);
-            }
-            if (f.size > maxSize) {
-                return apiError(`File quá lớn (tối đa 10MB): ${f.name}`, 400);
-            }
+        if (!allowedTypes.includes(file.type)) {
+            return apiError(`Chỉ chấp nhận file ảnh (JPEG, PNG, WebP, GIF): ${file.name}`, 400);
+        }
+        if (file.size > maxSize) {
+            return apiError(`File quá lớn (tối đa 5MB): ${file.name}`, 400);
         }
 
-        // Convert files to base64
-        const images = await Promise.all(
-            files.map(async (f) => {
-                const bytes = await f.arrayBuffer();
-                const base64 = Buffer.from(bytes).toString('base64');
-                return {
-                    data: `data:${f.type || 'image/jpeg'};base64,${base64}`,
-                    folder: folder || '',
-                };
-            })
-        );
-
-        const jsonBody = images.length === 1
-            ? { image: images[0].data, folder: images[0].folder }
-            : { images };
+        // Convert to base64
+        const bytes = await file.arrayBuffer();
+        const base64 = Buffer.from(bytes).toString('base64');
+        const dataUri = `data:${file.type || 'image/jpeg'};base64,${base64}`;
 
         // Key via query string — LiteSpeed strips headers on POST but query params pass through
         const url = `${IMAGE_SERVER_URL}/upload-base64?api_key=${encodeURIComponent(IMAGE_SERVER_KEY)}`;
@@ -115,7 +91,7 @@ export async function POST(req: NextRequest) {
         const res = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(jsonBody),
+            body: JSON.stringify({ image: dataUri, folder: folder || '' }),
         });
 
         if (!res.ok) {
@@ -126,13 +102,7 @@ export async function POST(req: NextRequest) {
         const data = await res.json();
 
         if (data.data && data.data.length > 0) {
-            if (files.length === 1) {
-                return apiSuccess({ url: toCdnUrl(data.data[0].url), filename: data.data[0].name });
-            }
-            return apiSuccess({
-                urls: data.data.map((d: { url: string }) => toCdnUrl(d.url)),
-                files: data.data.map((d: { url: string; name: string }) => ({ ...d, url: toCdnUrl(d.url) })),
-            });
+            return apiSuccess({ url: toCdnUrl(data.data[0].url), filename: data.data[0].name });
         }
 
         return apiError(data.failed?.[0]?.error || 'Upload thất bại', 422);

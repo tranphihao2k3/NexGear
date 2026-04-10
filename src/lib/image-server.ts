@@ -47,31 +47,8 @@ export async function uploadImage(
   file: File,
   options: UploadOptions = {}
 ): Promise<UploadResult> {
-  const [result] = await uploadImages([file], options);
-  return result;
-}
-
-/**
- * Upload nhiều ảnh trong 1 request duy nhất → trả về mảng URL.
- * Server nhận files[] và xử lý tất cả cùng lúc.
- * @throws Error nếu upload thất bại
- */
-export async function uploadImages(
-  files: File[],
-  options: UploadOptions = {}
-): Promise<UploadResult[]> {
-  if (files.length === 0) return [];
-
   const formData = new FormData();
-
-  if (files.length === 1) {
-    // Single file: dùng field "file"
-    formData.append('file', files[0]);
-  } else {
-    // Multi file: dùng field "files[]" — 1 request, server xử lý hết
-    files.forEach(f => formData.append('files[]', f));
-  }
-
+  formData.append('file', file);
   if (options.folder) formData.append('folder', options.folder);
 
   const res = await fetch('/api/upload', {
@@ -85,22 +62,36 @@ export async function uploadImages(
     throw new Error(json.error || `Upload thất bại (HTTP ${res.status})`);
   }
 
-  // Single file → data là { url, filename }
-  // Multi file  → data là { urls: [...], files: [...] }
-  if (files.length === 1) {
-    return [{ url: json.data.url, filename: json.data.filename }];
-  }
-
-  // Multi: server trả về data.files = [{ url, name }, ...]
-  return (json.data.files as Array<{ url: string; name: string }>).map(f => ({
-    url: f.url,
-    filename: f.name,
-  }));
+  return { url: json.data.url, filename: json.data.filename };
 }
 
 /**
- * Upload nhiều ảnh song song (nhanh hơn nhưng có thể quá tải server).
- * Dùng khi cần tốc độ và file ít (< 5 ảnh).
+ * Upload nhiều ảnh — gửi từng file riêng lẻ song song.
+ * Mỗi request chỉ chứa 1 file để tránh vượt body size limit của Vercel (4.5MB).
+ * @throws Error nếu upload thất bại
+ */
+export async function uploadImages(
+  files: File[],
+  options: UploadOptions = {}
+): Promise<UploadResult[]> {
+  if (files.length === 0) return [];
+
+  // Upload từng file riêng, song song tối đa 3 cùng lúc để không quá tải
+  const results: UploadResult[] = [];
+  const concurrency = 3;
+
+  for (let i = 0; i < files.length; i += concurrency) {
+    const batch = files.slice(i, i + concurrency);
+    const batchResults = await Promise.all(batch.map(file => uploadImage(file, options)));
+    results.push(...batchResults);
+  }
+
+  return results;
+}
+
+/**
+ * Upload nhiều ảnh song song (không giới hạn concurrency).
+ * Dùng khi cần tốc độ và file ít (< 3 ảnh).
  */
 export async function uploadImagesParallel(
   files: File[],

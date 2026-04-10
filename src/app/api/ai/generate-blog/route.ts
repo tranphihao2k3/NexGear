@@ -50,9 +50,14 @@ QUAN TRỌNG:
 function getGeminiKeys(): string[] {
     const keys: string[] = [];
     if (process.env.GEMINI_API_KEY) keys.push(process.env.GEMINI_API_KEY);
-    if (process.env.GEMINI_API_KEY_2) keys.push(process.env.GEMINI_API_KEY_2);
+    for (let i = 2; i <= 10; i++) {
+        const key = process.env[`GEMINI_API_KEY_${i}`];
+        if (key) keys.push(key);
+    }
     return keys;
 }
+
+let geminiKeyIndex = 0;
 
 async function tryGemini(prompt: string): Promise<string | null> {
     const keys = getGeminiKeys();
@@ -60,8 +65,14 @@ async function tryGemini(prompt: string): Promise<string | null> {
 
     const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
 
-    for (const key of keys) {
-        const client = new GoogleGenAI({ apiKey: key });
+    const startIdx = geminiKeyIndex;
+    geminiKeyIndex = (geminiKeyIndex + 1) % keys.length;
+
+    for (let k = 0; k < keys.length; k++) {
+        const keyIdx = (startIdx + k) % keys.length;
+        const apiKey = keys[keyIdx];
+        const client = new GoogleGenAI({ apiKey });
+
         for (const model of models) {
             try {
                 const response = await client.models.generateContent({
@@ -72,7 +83,10 @@ async function tryGemini(prompt: string): Promise<string | null> {
                 const text = response.text || '';
                 if (text) return text;
             } catch (err: any) {
-                console.warn(`[ai-blog] key=${key.slice(-6)} ${model} failed:`, err.message);
+                const isRateLimit = err.message?.includes('429') || err.message?.includes('RESOURCE_EXHAUSTED') || err.message?.includes('quota');
+                console.warn(`[ai-blog] Gemini ${model} (key ${keyIdx + 1}/${keys.length}) failed:`, err.message);
+                if (isRateLimit) break;
+                continue;
             }
         }
     }
@@ -265,7 +279,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const hasGemini = !!process.env.GEMINI_API_KEY;
+        const hasGemini = getGeminiKeys().length > 0;
         const hasOpenAI = !!process.env.OPENAI_API_KEY;
         if (!hasGemini && !hasOpenAI) {
             return NextResponse.json(

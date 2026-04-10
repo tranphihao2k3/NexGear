@@ -114,26 +114,56 @@ QUY TẮC LÀM TRÒN GIÁ:
 `;
 }
 
-/** Try Gemini models first */
-async function tryGemini(prompt: string): Promise<string | null> {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) return null;
+/**
+ * Collect all Gemini API keys from env.
+ * Supports: GEMINI_API_KEY, GEMINI_API_KEY_2, GEMINI_API_KEY_3, ...
+ */
+function getGeminiKeys(): string[] {
+    const keys: string[] = [];
+    if (process.env.GEMINI_API_KEY) keys.push(process.env.GEMINI_API_KEY);
+    // Scan GEMINI_API_KEY_2 .. GEMINI_API_KEY_10
+    for (let i = 2; i <= 10; i++) {
+        const key = process.env[`GEMINI_API_KEY_${i}`];
+        if (key) keys.push(key);
+    }
+    return keys;
+}
 
-    const client = new GoogleGenAI({ apiKey });
+// Round-robin counter for Gemini keys (distributes load across keys)
+let geminiKeyIndex = 0;
+
+/** Try Gemini models with multiple API keys rotation */
+async function tryGemini(prompt: string): Promise<string | null> {
+    const keys = getGeminiKeys();
+    if (keys.length === 0) return null;
+
     const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite'];
 
-    for (const model of models) {
-        try {
-            const response = await client.models.generateContent({
-                model,
-                contents: prompt,
-                config: { responseMimeType: 'application/json', temperature: 0.1 },
-            });
-            const text = response.text || '';
-            if (text) return text;
-        } catch (err: any) {
-            console.warn(`[ai-parse] Gemini ${model} failed:`, err.message);
-            continue; // try next model, any error
+    // Start from the next key in round-robin order
+    const startIdx = geminiKeyIndex;
+    geminiKeyIndex = (geminiKeyIndex + 1) % keys.length;
+
+    for (let k = 0; k < keys.length; k++) {
+        const keyIdx = (startIdx + k) % keys.length;
+        const apiKey = keys[keyIdx];
+        const client = new GoogleGenAI({ apiKey });
+
+        for (const model of models) {
+            try {
+                const response = await client.models.generateContent({
+                    model,
+                    contents: prompt,
+                    config: { responseMimeType: 'application/json', temperature: 0.1 },
+                });
+                const text = response.text || '';
+                if (text) return text;
+            } catch (err: any) {
+                const isRateLimit = err.message?.includes('429') || err.message?.includes('RESOURCE_EXHAUSTED') || err.message?.includes('quota');
+                console.warn(`[ai-parse] Gemini ${model} (key ${keyIdx + 1}/${keys.length}) failed:`, err.message);
+                // If rate limited, skip remaining models for this key and try next key
+                if (isRateLimit) break;
+                continue; // other errors → try next model with same key
+            }
         }
     }
     return null;
@@ -179,7 +209,7 @@ export async function POST(request: Request) {
             );
         }
 
-        const hasGemini = !!process.env.GEMINI_API_KEY;
+        const hasGemini = getGeminiKeys().length > 0;
         const hasOpenAI = !!process.env.OPENAI_API_KEY;
         if (!hasGemini && !hasOpenAI) {
             return NextResponse.json(
