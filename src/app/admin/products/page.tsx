@@ -216,7 +216,7 @@ export default function AdminProductsPage() {
         variants: [] as Variant[],
         // LapLap fields
         warrantyMonths: '12',
-        warrantyItems: ['Bảo hành 12 tháng chính hãng', 'Hỗ trợ kỹ thuật trọn đời', 'Đổi mới trong 7 ngày đầu'],
+        warrantyItems: ['Bảo hành 3 tháng chính hãng', 'Hỗ trợ phần mềm 3 năm', 'Đổi mới trong 7 ngày đầu nếu lỗi phần cứng'],
         gift: '',
         isUsed: false,
         condition: 'new',
@@ -486,7 +486,7 @@ export default function AdminProductsPage() {
             basePrice: '', salePrice: '', costPrice: '', stock: '0', description: '', images: [], tags: '',
             isFeatured: false, specs: [], variants: [],
             warrantyMonths: '12',
-            warrantyItems: ['Bảo hành 12 tháng chính hãng', 'Hỗ trợ kỹ thuật trọn đời', 'Đổi mới trong 7 ngày đầu'],
+            warrantyItems: ['Bảo hành 3 tháng chính hãng', 'Hỗ trợ phần mềm 3 năm', 'Đổi mới trong 7 ngày đầu nếu lỗi phần cứng'],
             gift: '',
             isUsed: false,
             condition: 'new',
@@ -536,7 +536,7 @@ export default function AdminProductsPage() {
             })),
             // LapLap fields
             warrantyMonths: (product.warrantyMonths || lWarranty.duration || 12).toString(),
-            warrantyItems: lWarranty.items.length > 0 ? lWarranty.items : ['Bảo hành 12 tháng chính hãng', 'Hỗ trợ kỹ thuật trọn đời', 'Đổi mới trong 7 ngày đầu'],
+            warrantyItems: lWarranty.items.length > 0 ? lWarranty.items : ['Bảo hành 3 tháng chính hãng', 'Hỗ trợ phần mềm 3 năm', 'Đổi mới trong 7 ngày đầu nếu lỗi phần cứng'],
             gift: product.gift || '',
             isUsed: product.isUsed || false,
             condition: product.condition || 'new',
@@ -546,10 +546,11 @@ export default function AdminProductsPage() {
         setShowModal(true);
     };
 
-    // Add image as local preview (no upload yet)
-    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || e.target.files.length === 0) return;
-        const newImages = Array.from(e.target.files).map(file => ({
+    // Add images from File[] array (shared by both select and drop)
+    const addImageFiles = (files: File[]) => {
+        const imageFiles = files.filter(f => f.type.startsWith('image/'));
+        if (imageFiles.length === 0) return;
+        const newImages = imageFiles.map(file => ({
             url: URL.createObjectURL(file),
             file
         }));
@@ -557,7 +558,23 @@ export default function AdminProductsPage() {
             ...prev,
             images: [...prev.images, ...newImages]
         }));
+    };
+
+    // Add image as local preview (no upload yet)
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        addImageFiles(Array.from(e.target.files));
         e.target.value = '';
+    };
+
+    // Drag & drop handler
+    const [dragOver, setDragOver] = useState(false);
+    const handleImageDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setDragOver(false);
+        if (e.dataTransfer.files?.length) {
+            addImageFiles(Array.from(e.dataTransfer.files));
+        }
     };
 
     // Remove image — if already on server, delete from filesystem too
@@ -1226,23 +1243,36 @@ export default function AdminProductsPage() {
                             {/* Section 5: Hình ảnh & Mô tả */}
                             <div className={styles.formGroup} style={{ borderTop: '1px solid rgba(12,12,12,0.1)', paddingTop: '16px' }}>
                                 <label className={styles.formLabel}>Hình ảnh sản phẩm</label>
-                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                                    {formData.images.map((img, i) => (
-                                        <div key={i} style={{ position: 'relative', width: '80px', height: '80px', border: img.file ? '2px solid #F0B100' : '1px solid #333', borderRadius: '4px', overflow: 'hidden' }}>
-                                            <LazyImage src={img.url} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            {img.file && <span style={{ position: 'absolute', bottom: '2px', left: '2px', background: '#F0B100', color: '#000', fontSize: '8px', padding: '1px 4px', borderRadius: '2px', fontWeight: 700 }}>MỚI</span>}
-                                            <button
-                                                onClick={() => removeImage(i)}
-                                                style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}
-                                            >✕</button>
-                                        </div>
-                                    ))}
+                                <div
+                                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                                    onDragLeave={() => setDragOver(false)}
+                                    onDrop={handleImageDrop}
+                                    style={{
+                                        border: dragOver ? '2px dashed #00C4AD' : '2px dashed transparent',
+                                        borderRadius: '8px',
+                                        padding: '8px',
+                                        background: dragOver ? 'rgba(0,196,173,0.05)' : 'transparent',
+                                        transition: 'all 0.2s',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                                        {formData.images.map((img, i) => (
+                                            <div key={i} style={{ position: 'relative', width: '80px', height: '80px', border: img.file ? '2px solid #F0B100' : '1px solid #333', borderRadius: '4px', overflow: 'hidden' }}>
+                                                <LazyImage src={img.url} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                {img.file && <span style={{ position: 'absolute', bottom: '2px', left: '2px', background: '#F0B100', color: '#000', fontSize: '8px', padding: '1px 4px', borderRadius: '2px', fontWeight: 700 }}>MỚI</span>}
+                                                <button
+                                                    onClick={() => removeImage(i)}
+                                                    style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.5)', color: '#fff', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}
+                                                >✕</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <label className={styles.imageUpload}>
+                                        <input type="file" style={{ display: 'none' }} onChange={handleImageSelect} accept="image/*" multiple />
+                                        <span className={styles.uploadIcon}>📷</span>
+                                        <span className={styles.uploadText}>{dragOver ? 'Thả ảnh vào đây...' : 'Chọn hoặc kéo thả ảnh vào đây'}</span>
+                                    </label>
                                 </div>
-                                <label className={styles.imageUpload}>
-                                    <input type="file" style={{ display: 'none' }} onChange={handleImageSelect} accept="image/*" multiple />
-                                    <span className={styles.uploadIcon}>📷</span>
-                                    <span className={styles.uploadText}>Chọn ảnh (Tải lên nhiều ảnh)</span>
-                                </label>
                             </div>
 
                             <div className={styles.formGroup}>
