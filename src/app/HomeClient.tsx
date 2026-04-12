@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, Suspense, lazy } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import LazyImage from "@/components/ui/LazyImage";
 import { motion, useScroll, useTransform, useInView, AnimatePresence, useSpring } from "framer-motion";
@@ -156,6 +157,43 @@ interface HomeClientProps {
   initialBlogs?: Blog[];
 }
 
+// ── HomeStatsBar: React Query with placeholder data ─────────
+const PLACEHOLDER_STATS = { total: 500, avgRating: 4.9, totalReviews: 0 };
+
+function HomeStatsBar() {
+  const { data: stats } = useQuery({
+    queryKey: ["product-stats"],
+    queryFn: async () => {
+      const r = await fetch("/api/products/stats");
+      const j = await r.json();
+      if (!j.success) throw new Error(j.error);
+      return j.data as { total: number; avgRating: number; totalReviews: number };
+    },
+    placeholderData: PLACEHOLDER_STATS,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const items = [
+    { v: `${stats?.total ?? 500}+`, l: "Sản phẩm", color: "#00c4ad" },
+    { v: `${stats?.avgRating ?? 4.9}★`, l: "Đánh giá", color: "#ffd700" },
+    { v: "2H", l: "Giao nhanh", color: "#f0356a" },
+    { v: "0%", l: "Trả góp", color: "#7c3aed" },
+  ];
+
+  return (
+    <>
+      {items.map((s) => (
+        <div key={s.l} className={styles.stat}>
+          <span className={styles.statV} style={{ color: s.color }}>{s.v}</span>
+          <span className={styles.statL}>{s.l}</span>
+        </div>
+      ))}
+    </>
+  );
+}
+
 // ══════════════════════════════════════════════════════════════
 export default function HomeClient({ initialProducts = [], initialBlogs = [] }: HomeClientProps) {
   const siteSettings = useSiteSettings();
@@ -268,17 +306,7 @@ export default function HomeClient({ initialProducts = [], initialBlogs = [] }: 
           </motion.div>
 
           <motion.div className={styles.heroStats} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
-            {[
-              { v: "500+", l: "Sản phẩm", color: "#00c4ad" },
-              { v: "4.9★", l: "Đánh giá", color: "#ffd700" },
-              { v: "2H", l: "Giao nhanh", color: "#f0356a" },
-              { v: "0%", l: "Trả góp", color: "#7c3aed" },
-            ].map((s) => (
-              <div key={s.l} className={styles.stat}>
-                <span className={styles.statV} style={{ color: s.color }}>{s.v}</span>
-                <span className={styles.statL}>{s.l}</span>
-              </div>
-            ))}
+            <HomeStatsBar />
           </motion.div>
 
           <motion.div className={styles.scrollHint} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.6 }}>

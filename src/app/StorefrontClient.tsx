@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import styles from "./page.module.scss";
 import sfStyles from "./storefront-hero.module.scss";
@@ -129,6 +130,43 @@ function useTyping(texts: string[], speed = 80, pause = 2000) {
   return display;
 }
 
+// ── StatsBar: React Query with placeholder data ──────────
+const PLACEHOLDER_STATS = { total: 500, avgRating: 4.9, totalReviews: 0 };
+
+function StatsBar({ styles: s }: { styles: Record<string, string> }) {
+  const { data: stats } = useQuery({
+    queryKey: ["product-stats"],
+    queryFn: async () => {
+      const r = await fetch("/api/products/stats");
+      const j = await r.json();
+      if (!j.success) throw new Error(j.error);
+      return j.data as { total: number; avgRating: number; totalReviews: number };
+    },
+    placeholderData: PLACEHOLDER_STATS,
+    staleTime: 5 * 60 * 1000, // 5 min
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+  });
+
+  const items = [
+    { v: `${stats?.total ?? 500}+`, l: "SẢN PHẨM", c: "#00C4AD" },
+    { v: `${stats?.avgRating ?? 4.9}★`, l: "ĐÁNH GIÁ", c: "#F0A500" },
+    { v: "2H", l: "GIAO NHANH", c: "#F0356A" },
+    { v: "24/7", l: "HỖ TRỢ", c: "#7B3FF2" },
+  ];
+
+  return (
+    <div className={s.stats}>
+      {items.map((st) => (
+        <div key={st.l} className={s.statItem}>
+          <span className={s.statValue} style={{ color: st.c }}>{st.v}</span>
+          <span className={s.statLabel}>{st.l}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function StorefrontClient({ initialSections }: StorefrontClientProps) {
   const siteSettings = useSiteSettings();
   const typingText = useTyping(["Laptop Gaming", "Ultrabook", "Workstation", "Laptop Sinh Viên", "Linh kiện PC", "Phụ kiện chính hãng"], 90, 2500);
@@ -205,20 +243,8 @@ export default function StorefrontClient({ initialSections }: StorefrontClientPr
             </Link>
           </div>
 
-          {/* Stats */}
-          <div className={sfStyles.stats}>
-            {[
-              { v: "500+", l: "Sản phẩm", c: "#00C4AD" },
-              { v: "4.9★", l: "Đánh giá", c: "#F0A500" },
-              { v: "2H", l: "Giao nhanh", c: "#F0356A" },
-              { v: "24/7", l: "Hỗ trợ", c: "#7B3FF2" },
-            ].map((s) => (
-              <div key={s.l} className={sfStyles.statItem}>
-                <span className={sfStyles.statValue} style={{ color: s.c }}>{s.v}</span>
-                <span className={sfStyles.statLabel}>{s.l}</span>
-              </div>
-            ))}
-          </div>
+          {/* Stats — lazy loaded */}
+          <StatsBar styles={sfStyles} />
         </div>
       </section>
 

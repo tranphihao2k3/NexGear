@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Button, LazyImage } from "@/components/ui";
 import styles from "./page.module.scss";
@@ -18,6 +18,121 @@ const getSpecKeys = (list: CompareProduct[]) => {
     });
     return Array.from(keys);
 };
+
+/* ── Search dropdown to add product to compare ── */
+function AddProductSlot() {
+    const { items, addItem } = useCompareStore();
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const [results, setResults] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const timerRef = useRef<ReturnType<typeof setTimeout>>();
+    const wrapRef = useRef<HTMLDivElement>(null);
+
+    // Close on outside click
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    // Debounced search
+    useEffect(() => {
+        if (!query.trim()) { setResults([]); return; }
+        clearTimeout(timerRef.current);
+        timerRef.current = setTimeout(async () => {
+            setLoading(true);
+            try {
+                // If there are items, filter by same category
+                const catParam = items.length > 0 ? `&category=${items[0].categoryId}` : "";
+                const res = await fetch(`/api/products?q=${encodeURIComponent(query)}${catParam}&limit=8&admin=true`);
+                const json = await res.json();
+                if (json.success) {
+                    // Exclude already-added products
+                    const ids = new Set(items.map(i => i.id));
+                    setResults((json.data || []).filter((p: any) => !ids.has(p._id)));
+                }
+            } catch { /* ignore */ }
+            finally { setLoading(false); }
+        }, 350);
+    }, [query, items]);
+
+    const handleSelect = async (product: any) => {
+        // Fetch full product with specs
+        try {
+            const res = await fetch(`/api/products/${product._id}`);
+            const json = await res.json();
+            const p = json.success ? json.data : product;
+
+            const catId = typeof p.category === "object" && p.category !== null
+                ? (p.category._id || p.category)
+                : String(p.category || "unknown");
+
+            addItem({
+                id: p._id,
+                slug: p.slug,
+                name: p.name,
+                categoryId: catId,
+                brand: typeof p.brand === "object" ? p.brand?.name || "" : String(p.brand || ""),
+                price: p.salePrice ?? p.basePrice,
+                original: p.basePrice,
+                rating: p.ratings?.avg || 0,
+                img: p.images?.[0] || "",
+                specs: p.specs || {},
+            });
+        } catch { /* ignore */ }
+
+        setOpen(false);
+        setQuery("");
+        setResults([]);
+    };
+
+    return (
+        <div className={styles.addSlotWrap} ref={wrapRef}>
+            {!open ? (
+                <div className={styles.addSlot} onClick={() => setOpen(true)}>
+                    <div className={styles.addSlotIcon}>+</div>
+                    <span className={styles.addSlotText}>Thêm sản phẩm</span>
+                </div>
+            ) : (
+                <div className={styles.searchDropdown}>
+                    <input
+                        autoFocus
+                        className={styles.searchInput}
+                        placeholder="Tìm sản phẩm..."
+                        value={query}
+                        onChange={e => setQuery(e.target.value)}
+                    />
+                    {loading && <div className={styles.searchLoading}>Đang tìm...</div>}
+                    {!loading && query && results.length === 0 && (
+                        <div className={styles.searchEmpty}>Không tìm thấy sản phẩm</div>
+                    )}
+                    <ul className={styles.searchResults}>
+                        {results.map((p: any) => (
+                            <li key={p._id} className={styles.searchItem} onClick={() => handleSelect(p)}>
+                                <div className={styles.searchItemImg}>
+                                    {p.images?.[0] ? (
+                                        <LazyImage src={p.images[0]} alt={p.name} width={40} height={40} objectFit="contain" />
+                                    ) : (
+                                        <span>📷</span>
+                                    )}
+                                </div>
+                                <div className={styles.searchItemInfo}>
+                                    <div className={styles.searchItemName}>{p.name}</div>
+                                    <div className={styles.searchItemPrice}>{fmt(p.salePrice ?? p.basePrice)}</div>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function ComparePage() {
     const { items, removeItem, clearAll } = useCompareStore();
@@ -106,13 +221,10 @@ export default function ComparePage() {
                                             <Button variant="cyan" size="sm" fullWidth>THÊM VÀO GIỎ</Button>
                                         </th>
                                     ))}
-                                    {/* Empty slot if less than 3 */}
+                                    {/* Empty slot with search */}
                                     {items.length < 3 && (
                                         <th className={styles.emptyCol}>
-                                            <div className={styles.addSlot}>
-                                                <div className={styles.addSlotIcon}>+</div>
-                                                <span className={styles.addSlotText}>Thêm sản phẩm</span>
-                                            </div>
+                                            <AddProductSlot />
                                         </th>
                                     )}
                                 </tr>

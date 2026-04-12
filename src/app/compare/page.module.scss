@@ -282,6 +282,100 @@
     color: $color-cyan;
 }
 
+.addSlotWrap {
+    height: 100%;
+    min-height: 280px;
+}
+
+// Search dropdown inside the "+" slot
+.searchDropdown {
+    height: 100%;
+    min-height: 280px;
+    border: 2px solid $color-cyan;
+    border-radius: $r-2;
+    background: $color-white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.searchInput {
+    width: 100%;
+    padding: $sp-3 $sp-4;
+    border: none;
+    border-bottom: 1px solid $color-border;
+    @include font-body($text-sm, $fw-regular);
+    outline: none;
+    background: $color-bg;
+
+    &::placeholder {
+        color: $color-ink3;
+    }
+}
+
+.searchLoading,
+.searchEmpty {
+    padding: $sp-4;
+    text-align: center;
+    @include font-body($text-sm, $fw-regular);
+    color: $color-ink3;
+}
+
+.searchResults {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 240px;
+}
+
+.searchItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-2 $sp-3;
+    cursor: pointer;
+    transition: $transition-fast;
+
+    &:hover {
+        background: $color-cyan-light;
+    }
+
+    & + & {
+        border-top: 1px solid $color-border;
+    }
+}
+
+.searchItemImg {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: $r-1;
+    overflow: hidden;
+    background: $color-bg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.searchItemInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.searchItemName {
+    @include font-body($text-xs, $fw-medium);
+    color: $color-ink;
+    @include truncate(2);
+    line-height: $lh-snug;
+}
+
+.searchItemPrice {
+    @include font-mono($text-xs, $fw-bold);
+    color: $color-cyan;
+}
+
 .itemCell {
     @include font-body($text-sm, $fw-regular);
     color: $color-ink2;

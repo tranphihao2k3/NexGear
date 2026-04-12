@@ -67,33 +67,49 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
   const { items: compareItems, addItem: addCompare, removeItem: removeCompare } = useCompareStore()
   const isCompared = compareItems.some(i => i.id === product._id)
 
-  const toggleCompare = (e: React.MouseEvent) => {
+  const [loadingCompare, setLoadingCompare] = useState(false)
+
+  const toggleCompare = async (e: React.MouseEvent) => {
     e.preventDefault()
     if (isCompared) {
       removeCompare(product._id)
-    } else {
-      if (compareItems.length >= 3) {
-        alert("Bạn chỉ có thể so sánh tối đa 3 sản phẩm cùng lúc. Vui lòng xoá bớt sản phẩm trong trang So Sánh.")
-        return
-      }
-
-      const catId = typeof product.category === 'object' && product.category !== null
-        ? product.category._id
-        : String(product.category || 'unknown')
-
-      addCompare({
-        id: product._id,
-        slug: product.slug,
-        name: product.name,
-        categoryId: catId,
-        brand: typeof product.brand === 'string' ? product.brand : product.brand?.name || 'NexGear',
-        price: product.salePrice ?? product.basePrice,
-        original: product.basePrice,
-        rating: product.ratings?.avg || 5,
-        img: product.images?.[0] || '⌨',
-        specs: product.specs || {}
-      })
+      return
     }
+    if (compareItems.length >= 3) {
+      alert("Bạn chỉ có thể so sánh tối đa 3 sản phẩm cùng lúc. Vui lòng xoá bớt sản phẩm trong trang So Sánh.")
+      return
+    }
+
+    const catId = typeof product.category === 'object' && product.category !== null
+      ? product.category._id
+      : String(product.category || 'unknown')
+
+    // Fetch full specs if missing (list API strips specs for performance)
+    let specs = product.specs || {}
+    if (!specs || Object.keys(specs).length === 0) {
+      try {
+        setLoadingCompare(true)
+        const res = await fetch(`/api/products/${product._id}`)
+        const json = await res.json()
+        if (json.success && json.data?.specs) {
+          specs = json.data.specs
+        }
+      } catch { /* use empty specs as fallback */ }
+      finally { setLoadingCompare(false) }
+    }
+
+    addCompare({
+      id: product._id,
+      slug: product.slug,
+      name: product.name,
+      categoryId: catId,
+      brand: typeof product.brand === 'string' ? product.brand : product.brand?.name || 'NexGear',
+      price: product.salePrice ?? product.basePrice,
+      original: product.basePrice,
+      rating: product.ratings?.avg || 5,
+      img: product.images?.[0] || '⌨',
+      specs,
+    })
   }
 
   const hasDiscount = product.salePrice && product.salePrice < product.basePrice
@@ -181,10 +197,11 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
         <button
           className={`${styles.compareBtn} ${isCompared ? styles['compare--active'] : ''}`}
           onClick={toggleCompare}
+          disabled={loadingCompare}
           aria-label={isCompared ? 'Xóa khỏi so sánh' : 'Thêm vào so sánh'}
           title="So sánh"
         >
-          ⚖️
+          {loadingCompare ? '⏳' : '⚖️'}
         </button>
       </div>
 
