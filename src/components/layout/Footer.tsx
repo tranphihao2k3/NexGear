@@ -257,13 +257,20 @@ const Footer = () => {
                         >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                                src={s.bctType === 'registered'
-                                    ? "http://online.gov.vn/PublicImages/2015/08/27/11/20150827110756-dadangky.png"
-                                    : "http://online.gov.vn/PublicImages/2015/08/27/11/20150827110756-dathongbao.png"}
+                                src={s.bctType === 'registered' ? "/bct-registered.png" : "/bct-notified.png"}
                                 alt={s.bctType === 'registered' ? "Đã đăng ký Bộ Công Thương" : "Đã thông báo Bộ Công Thương"}
                                 width={180}
                                 height={68}
                                 style={{ objectFit: 'contain' }}
+                                onError={(e) => {
+                                    const img = e.target as HTMLImageElement;
+                                    if (!img.dataset.fallback) {
+                                        img.dataset.fallback = '1';
+                                        img.src = s.bctType === 'registered'
+                                            ? 'http://online.gov.vn/PublicImages/2015/08/27/11/20150827110756-dadangky.png'
+                                            : 'http://online.gov.vn/PublicImages/2015/08/27/11/20150827110756-dathongbao.png';
+                                    }
+                                }}
                             />
                         </a>
                     )}
