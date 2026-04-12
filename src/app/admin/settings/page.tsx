@@ -62,6 +62,9 @@ interface SettingsData {
     bankAccountName: string
     bankAccountNumber: string
     bankName: string
+    // Bộ Công Thương
+    bctLink: string
+    bctType: 'notified' | 'registered'
 }
 
 const DEFAULTS: SettingsData = {
@@ -104,6 +107,8 @@ const DEFAULTS: SettingsData = {
     bankAccountName: '',
     bankAccountNumber: '',
     bankName: '',
+    bctLink: '',
+    bctType: 'notified',
 }
 
 export default function AdminSettingsPage() {
@@ -221,6 +226,8 @@ export default function AdminSettingsPage() {
         bankAccountName: settings.bankAccountName,
         bankAccountNumber: settings.bankAccountNumber,
         bankName: settings.bankName,
+        bctLink: settings.bctLink,
+        bctType: settings.bctType,
     })
 
     const saveSeo = () => saveSettings({
@@ -360,6 +367,39 @@ export default function AdminSettingsPage() {
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Tên ngân hàng</label>
                                     <input className={styles.formInput} name="bankName" value={settings.bankName} onChange={handleChange} placeholder="VD: Vietcombank - CN HCM" />
+                                </div>
+                            </div>
+
+                            {/* ── Bộ Công Thương ── */}
+                            <div className={styles.sectionTitle} style={{ marginTop: '1.5rem', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>🏛️ Thông báo Bộ Công Thương</div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Link đăng ký (online.gov.vn)</label>
+                                <input className={styles.formInput} name="bctLink" value={settings.bctLink} onChange={handleChange} placeholder="VD: http://online.gov.vn/Home/WebDetails/..." />
+                                <span className={styles.formHint}>Link dẫn tới trang chi tiết đăng ký của website bạn trên cổng BCT</span>
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label className={styles.formLabel}>Loại phù hiệu</label>
+                                <div style={{ display: 'flex', gap: '20px', marginTop: '8px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input 
+                                            type="radio" 
+                                            name="bctType" 
+                                            value="notified" 
+                                            checked={settings.bctType === 'notified'} 
+                                            onChange={handleChange} 
+                                        />
+                                        <span>🔵 Đã thông báo (Xanh)</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input 
+                                            type="radio" 
+                                            name="bctType" 
+                                            value="registered" 
+                                            checked={settings.bctType === 'registered'} 
+                                            onChange={handleChange} 
+                                        />
+                                        <span>🔴 Đã đăng ký (Đỏ)</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>

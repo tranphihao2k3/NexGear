@@ -14,7 +14,8 @@
       "Bash(npm install:*)",
       "Bash(git:*)",
       "Bash(source:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(rm:*)"
     ]
   }
 }

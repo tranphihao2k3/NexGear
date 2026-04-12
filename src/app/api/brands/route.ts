@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Brand from '@/models/Brand';
 import Product from '@/models/Product';
-import Category from '@/models/Category';
+import { getCategoryWithChildren } from '@/lib/category-cache';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 
 export async function GET(req: NextRequest) {
@@ -22,9 +22,11 @@ export async function GET(req: NextRequest) {
             if (categoryId) {
                 productFilter.category = categoryId;
             } else if (categorySlug) {
-                const cat = await Category.findOne({ slug: categorySlug }).lean();
-                if (cat) {
-                    productFilter.category = cat._id;
+                const result = await getCategoryWithChildren(categorySlug);
+                if (result) {
+                    productFilter.category = result.allIds.length > 1
+                        ? { $in: result.allIds }
+                        : result.allIds[0];
                 } else {
                     return apiPaginated([], 0, page, limit);
                 }

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Category from '@/models/Category';
+import { invalidateCategoryCache } from '@/lib/category-cache';
 import { apiSuccess, apiError } from '@/lib/api-helpers';
 
 interface Params {

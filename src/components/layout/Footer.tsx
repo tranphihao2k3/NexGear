@@ -190,9 +190,9 @@ const Footer = () => {
                                 <h4 className={styles.colTitle}>FANPAGE</h4>
                                 <div className={styles.fbEmbed}>
                                     <iframe
-                                        src={`https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F${encodeURIComponent(s.facebookPageId)}&tabs&width=240&height=150&small_header=true&adapt_container_width=true&hide_cover=false&show_facepile=true`}
-                                        width="240"
-                                        height="150"
+                                        src={`https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2F${encodeURIComponent(s.facebookPageId)}&tabs&width=280&height=180&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true`}
+                                        width="280"
+                                        height="180"
                                         style={{ border: 'none', overflow: 'hidden' }}
                                         scrolling="no"
                                         frameBorder={0}
@@ -246,24 +246,27 @@ const Footer = () => {
                         <span className={styles.dot}>·</span>
                         <Link href="/contact">Liên hệ</Link>
                     </div>
-                    {/* BCT Badge — điền link sau khi đăng ký tại online.gov.vn */}
-                    <a
-                        href="http://online.gov.vn"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Đã thông báo với Bộ Công Thương"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginTop: '8px', opacity: 0.7 }}
-                    >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                            src="/bct-badge.png"
-                            alt="Đã đăng ký với Bộ Công Thương"
-                            width={120}
-                            height={40}
-                            style={{ objectFit: 'contain' }}
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-                        />
-                    </a>
+                    {/* BCT Badge — logo thong bao Bo Cong Thuong */}
+                    {s.bctLink && (
+                        <a
+                            href={s.bctLink}
+                            target="_blank"
+                            rel="noopener"
+                            title={s.bctType === 'registered' ? "Đã đăng ký với Bộ Công Thương" : "Đã thông báo Bộ Công Thương"}
+                            style={{ display: 'inline-flex', alignItems: 'center', marginTop: '8px' }}
+                        >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={s.bctType === 'registered'
+                                    ? "http://online.gov.vn/PublicImages/2015/08/27/11/20150827110756-dadangky.png"
+                                    : "http://online.gov.vn/PublicImages/2015/08/27/11/20150827110756-dathongbao.png"}
+                                alt={s.bctType === 'registered' ? "Đã đăng ký Bộ Công Thương" : "Đã thông báo Bộ Công Thương"}
+                                width={180}
+                                height={68}
+                                style={{ objectFit: 'contain' }}
+                            />
+                        </a>
+                    )}
                 </div>
             </div>
         </footer>

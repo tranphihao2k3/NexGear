@@ -62,7 +62,9 @@ export async function PUT(req: NextRequest) {
             'emailOrderNotif', 'emailDailyReport', 'stockAlertNotif', 'smsNotif',
             'shippingInner', 'shippingOuter', 'shippingSouth', 'shippingNorth',
             'freeShipMinOrder', 'ghtkToken', 'ghnToken',
-            'showLandingPage'
+            'showLandingPage',
+            'bankAccountName', 'bankAccountNumber', 'bankName',
+            'bctLink', 'bctType'
         ];
 
         for (const field of allowedFields) {

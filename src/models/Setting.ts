@@ -65,6 +65,10 @@ export interface ISetting extends Document {
     bankAccountName: string;
     bankAccountNumber: string;
     bankName: string;
+
+    // Bộ Công Thương
+    bctLink: string;
+    bctType: 'notified' | 'registered';
 }
 
 const SettingSchema: Schema = new Schema(
@@ -131,6 +135,10 @@ const SettingSchema: Schema = new Schema(
         bankAccountName: { type: String, default: '' },
         bankAccountNumber: { type: String, default: '' },
         bankName: { type: String, default: '' },
+
+        // Bộ Công Thương
+        bctLink: { type: String, default: '' },
+        bctType: { type: String, default: 'notified', enum: ['notified', 'registered'] },
     },
     {
         timestamps: true,

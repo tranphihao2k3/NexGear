@@ -139,6 +139,8 @@ export async function GET(req: NextRequest) {
                 { $sort: finalSort },
                 { $skip: skip },
                 { $limit: limit },
+                // Project early: drop heavy fields BEFORE $lookup
+                { $project: { description: 0, specs: 0, seoTitle: 0, seoDesc: 0, conditionNote: 0, variants: 0, costPrice: 0, gift: 0, barcode: 0 } },
                 {
                     $lookup: {
                         from: 'categories',
@@ -163,7 +165,7 @@ export async function GET(req: NextRequest) {
                         brand: { $arrayElemAt: ['$_brand', 0] },
                     },
                 },
-                { $project: { _cat: 0, _brand: 0, description: 0, specs: 0, _inStock: 0 } },
+                { $project: { _cat: 0, _brand: 0, _inStock: 0 } },
             ]),
             Product.countDocuments(filter),
         ]);

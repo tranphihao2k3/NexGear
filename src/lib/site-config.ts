@@ -26,6 +26,9 @@ export interface SiteSettings {
     bankAccountName: string;
     bankAccountNumber: string;
     bankName: string;
+    // Bộ Công Thương
+    bctLink: string;
+    bctType: 'notified' | 'registered';
 }
 
 const DEFAULTS: SiteSettings = {
@@ -52,6 +55,8 @@ const DEFAULTS: SiteSettings = {
     bankAccountName: '',
     bankAccountNumber: '',
     bankName: '',
+    bctLink: '',
+    bctType: 'notified',
 };
 
 // Cache settings per siteId to support multi-tenant deployments
@@ -141,6 +146,8 @@ export async function getSiteSettings(idOrHost?: string): Promise<SiteSettings> 
                 bankAccountName: (settings as any).bankAccountName || DEFAULTS.bankAccountName,
                 bankAccountNumber: (settings as any).bankAccountNumber || DEFAULTS.bankAccountNumber,
                 bankName: (settings as any).bankName || DEFAULTS.bankName,
+                bctLink: (settings as any).bctLink || DEFAULTS.bctLink,
+                bctType: (settings as any).bctType || DEFAULTS.bctType,
             };
         } else {
             result = { ...DEFAULTS };
@@ -220,6 +227,8 @@ export async function getRawSiteSettings(idOrHost?: string): Promise<{
             bankAccountName: s.bankAccountName || DEFAULTS.bankAccountName,
             bankAccountNumber: s.bankAccountNumber || DEFAULTS.bankAccountNumber,
             bankName: s.bankName || DEFAULTS.bankName,
+            bctLink: s.bctLink || DEFAULTS.bctLink,
+            bctType: s.bctType || DEFAULTS.bctType,
         };
 
         // Update cache so getSiteSettings() won't re-query

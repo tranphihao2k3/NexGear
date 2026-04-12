@@ -136,12 +136,14 @@ ProductSchema.index({ source: 1 });
 ProductSchema.index({ productType: 1, componentType: 1 });
 
 // Compound indexes for common query patterns
+ProductSchema.index({ isActive: 1, category: 1, stock: -1, createdAt: -1 }); // category + in-stock first + newest (most common storefront query)
 ProductSchema.index({ isActive: 1, category: 1, createdAt: -1 }); // category + newest
 ProductSchema.index({ isActive: 1, category: 1, basePrice: 1 });  // category + price asc
 ProductSchema.index({ isActive: 1, category: 1, soldCount: -1 }); // category + bestselling
 ProductSchema.index({ isActive: 1, createdAt: -1 });              // all products newest
 ProductSchema.index({ isActive: 1, soldCount: -1 });              // all products bestselling
 ProductSchema.index({ isActive: 1, brand: 1, createdAt: -1 });   // brand filter
+ProductSchema.index({ category: 1, stock: -1, createdAt: -1 });  // category products (no active filter)
 
 const Product = models.Product || model<IProduct>('Product', ProductSchema);
 export default Product;

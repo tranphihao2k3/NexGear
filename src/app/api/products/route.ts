@@ -2,8 +2,7 @@ import { NextRequest } from 'next/server';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import Product from '@/models/Product';
-import Category from '@/models/Category';
-import Brand from '@/models/Brand';
+import { getCategoryWithChildren } from '@/lib/category-cache';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 
 function toObjectId(id: string) {
@@ -12,6 +11,19 @@ function toObjectId(id: string) {
 function toObjectIds(ids: string[]) {
     return ids.map(id => new mongoose.Types.ObjectId(id));
 }
+
+// Minimal projection for list views — skip heavy fields
+const LIST_PROJECTION = {
+    description: 0,
+    specs: 0,
+    seoTitle: 0,
+    seoDesc: 0,
+    conditionNote: 0,
+    variants: 0,
+    costPrice: 0,
+    gift: 0,
+    barcode: 0,
+};
 
 // GET /api/products — List with filters
 export async function GET(req: NextRequest) {
@@ -38,18 +50,14 @@ export async function GET(req: NextRequest) {
         if (categoryId) {
             filter.category = toObjectId(categoryId);
         } else if (categorySlug) {
-            const cat = await Category.findOne({ slug: categorySlug }).lean();
-            if (cat) {
-                // Include products from child sub-categories too
-                const children = await Category.find({ parent: (cat as any)._id }).lean();
-                if (children.length > 0) {
-                    filter.category = { $in: [(cat as any)._id, ...children.map((c: any) => c._id)] };
-                } else {
-                    filter.category = (cat as any)._id;
-                }
-            } else {
+            // Use cached category lookup instead of 2 separate DB queries
+            const result = await getCategoryWithChildren(categorySlug);
+            if (!result) {
                 return apiPaginated([], 0, page, limit);
             }
+            filter.category = result.allIds.length > 1
+                ? { $in: result.allIds }
+                : result.allIds[0];
         }
 
         if (searchParams.get('brand')) {
@@ -64,7 +72,6 @@ export async function GET(req: NextRequest) {
         if (search) filter.$text = { $search: search };
 
         // Specs filter: specs=Switch:Cherry MX Red,Layout:65%|75%
-        // Alias map: canonical filter key → các DB key tương đương
         const FILTER_KEY_ALIASES: Record<string, string[]> = {
             'GPU': ['GPU', 'Card đồ họa'],
             'Ổ cứng': ['Ổ cứng', 'SSD', 'HDD'],
@@ -84,16 +91,13 @@ export async function GET(req: NextRequest) {
 
                 const dbKeys = FILTER_KEY_ALIASES[key] ?? [key];
                 if (dbKeys.length === 1) {
-                    // Không có alias, query trực tiếp
                     filter[`specs.${dbKeys[0]}`] = valueQuery;
                 } else {
-                    // Có alias → dùng $or để match cả 2 key
                     const orParts = dbKeys.map(k => ({ [`specs.${k}`]: valueQuery }));
                     orConditions.push(...orParts);
                 }
             }
             if (orConditions.length > 0) {
-                // Merge với filter.$or có sẵn nếu có
                 if (filter.$or) {
                     filter.$and = [{ $or: filter.$or as Record<string, unknown>[] }, { $or: orConditions }];
                     delete filter.$or;
@@ -132,47 +136,57 @@ export async function GET(req: NextRequest) {
         };
         const sort = sortMap[sortBy] || { createdAt: -1 };
 
-        // Projection — hide costPrice from public
+        // Admin gets all fields; public gets minimal projection
         const isAdmin = searchParams.get('admin') === 'true';
-        const projection = isAdmin ? {} : { costPrice: 0 };
 
         // Put out-of-stock products at the end, then apply user sort
         const finalSort = { _inStock: -1, ...sort };
 
+        // Optimized pipeline: project early to reduce data through pipeline
+        const pipeline: any[] = [
+            { $match: filter },
+            { $addFields: { _inStock: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } } },
+            { $sort: finalSort },
+            { $skip: skip },
+            { $limit: limit },
+        ];
+
+        // Project BEFORE $lookup to reduce data size
+        if (!isAdmin) {
+            pipeline.push({ $project: LIST_PROJECTION });
+        }
+
+        // $lookup for brand and category
+        pipeline.push(
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    pipeline: [{ $project: { name: 1, slug: 1 } }],
+                    as: '_cat',
+                },
+            },
+            {
+                $lookup: {
+                    from: 'brands',
+                    localField: 'brand',
+                    foreignField: '_id',
+                    pipeline: [{ $project: { name: 1, slug: 1, logo: 1 } }],
+                    as: '_brand',
+                },
+            },
+            {
+                $addFields: {
+                    category: { $arrayElemAt: ['$_cat', 0] },
+                    brand: { $arrayElemAt: ['$_brand', 0] },
+                },
+            },
+            { $project: { _cat: 0, _brand: 0, _inStock: 0 } },
+        );
+
         const [products, total] = await Promise.all([
-            Product.aggregate([
-                { $match: filter },
-                { $addFields: { _inStock: { $cond: [{ $gt: ['$stock', 0] }, 1, 0] } } },
-                { $sort: finalSort },
-                { $skip: skip },
-                { $limit: limit },
-                // $lookup replaces post-query populate — runs inside the pipeline
-                {
-                    $lookup: {
-                        from: 'categories',
-                        localField: 'category',
-                        foreignField: '_id',
-                        pipeline: [{ $project: { name: 1, slug: 1 } }],
-                        as: '_cat',
-                    },
-                },
-                {
-                    $lookup: {
-                        from: 'brands',
-                        localField: 'brand',
-                        foreignField: '_id',
-                        pipeline: [{ $project: { name: 1, slug: 1, logo: 1 } }],
-                        as: '_brand',
-                    },
-                },
-                {
-                    $addFields: {
-                        category: { $arrayElemAt: ['$_cat', 0] },
-                        brand: { $arrayElemAt: ['$_brand', 0] },
-                    },
-                },
-                { $project: { _cat: 0, _brand: 0, _inStock: 0, ...(isAdmin ? {} : { costPrice: 0 }) } },
-            ]),
+            Product.aggregate(pipeline),
             Product.countDocuments(filter),
         ]);
 
@@ -198,9 +212,23 @@ export async function POST(req: NextRequest) {
             return apiError('category and brand are required for products');
         }
 
-        // Check uniqueness
-        const existingSlug = await Product.findOne({ slug: body.slug });
-        if (existingSlug) return apiError('Product slug already exists');
+        // Auto-deduplicate slug: append -2, -3, ... if taken
+        let slug = body.slug;
+        const existingSlugs = await Product.find(
+            { slug: { $regex: `^${slug.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(-\\d+)?$` } },
+            { slug: 1 }
+        ).lean();
+        if (existingSlugs.length > 0) {
+            let max = 1;
+            for (const doc of existingSlugs) {
+                const match = (doc as any).slug.match(/-(\d+)$/);
+                if (match) max = Math.max(max, Number(match[1]));
+            }
+            slug = existingSlugs.some((d: any) => d.slug === slug)
+                ? `${slug}-${max + 1}`
+                : slug;
+        }
+        body.slug = slug;
 
         const existingSku = await Product.findOne({ sku: body.sku });
         if (existingSku) return apiError('Product SKU already exists');

@@ -31,8 +31,10 @@ const CategorySchema = new Schema<ICategory>(
     { timestamps: true }
 );
 
-// Removed duplicate slug index
+// Indexes for performance
 CategorySchema.index({ parent: 1 });
+CategorySchema.index({ isActive: 1, parent: 1 });
+CategorySchema.index({ slug: 1, isActive: 1 });
 
 const Category = models.Category || model<ICategory>('Category', CategorySchema);
 export default Category;

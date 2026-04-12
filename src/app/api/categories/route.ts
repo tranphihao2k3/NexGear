@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Category from '@/models/Category';
+import { invalidateCategoryCache } from '@/lib/category-cache';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 
 // GET /api/categories — List all categories
@@ -88,6 +89,7 @@ export async function POST(req: NextRequest) {
         }
 
         const category = await Category.create(body);
+        invalidateCategoryCache();
         return apiSuccess(category, 201);
     } catch (error) {
         return apiError((error as Error).message, 500);
