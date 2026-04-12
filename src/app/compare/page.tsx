@@ -26,7 +26,7 @@ function AddProductSlot() {
     const [query, setQuery] = useState("");
     const [results, setResults] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const timerRef = useRef<ReturnType<typeof setTimeout>>();
+    const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     const wrapRef = useRef<HTMLDivElement>(null);
 
     // Close on outside click
