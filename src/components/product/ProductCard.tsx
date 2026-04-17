@@ -3,7 +3,7 @@
 // File: components/product/ProductCard.tsx
 // ============================================================
 'use client'
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import Link from 'next/link'
 import Button from '@/components/ui/Button'
 import LazyImage from '@/components/ui/LazyImage'
@@ -54,7 +54,7 @@ function StarRating({ avg, count }: { avg: number; count: number }) {
   )
 }
 
-export default function ProductCard({ product, onAddToCart, className = '' }: ProductCardProps) {
+const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps) => {
   const { addItem } = useCart()
   const [wishlisted, setWishlisted] = useState(() => {
     if (typeof window === 'undefined') return false
@@ -142,7 +142,7 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
   return (
     <article className={`${styles.card} ${outOfStock ? styles['card--oos'] : ''} ${className}`}>
       {/* ── IMAGE ── */}
-      <Link href={`/products/${product.slug}`} className={styles.imageWrap}>
+      <Link href={`/products/${product.slug}`} className={styles.imageWrap} prefetch={true}>
         <div className={styles.image}>
           {product.images?.[0] ? (
             <LazyImage
@@ -207,7 +207,7 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
 
       {/* ── BODY ── */}
       <div className={styles.body}>
-        <Link href={`/products/${product.slug}`} className={styles.bodyLink}>
+        <Link href={`/products/${product.slug}`} className={styles.bodyLink} prefetch={true}>
           <div className={styles.brand}>{typeof product.brand === 'string' ? product.brand : product.brand?.name || ''}</div>
           <h3 className={styles.name}>{product.name}</h3>
 
@@ -243,3 +243,5 @@ export default function ProductCard({ product, onAddToCart, className = '' }: Pr
     </article>
   )
 }
+
+export default memo(ProductCard)

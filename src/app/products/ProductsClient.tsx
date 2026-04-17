@@ -281,9 +281,13 @@ function CatalogContent() {
                             key={`${selectedCategory}-${selectedBrands.join(',')}-${sort}-${currentPage}`}
                         >
                             {products.map((p: any) => (
-                                <motion.div key={p._id} variants={fadeUp}>
+                                <motion.div
+                                    initial="hidden"
+                                    animate="show"
+                                    key={p._id}
+                                >
                                     <ProductCard
-                                        product={p as any}
+                                        product={p}
                                         onAddToCart={() => { }}
                                     />
                                 </motion.div>
