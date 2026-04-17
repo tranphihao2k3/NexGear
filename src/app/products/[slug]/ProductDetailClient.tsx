@@ -14,6 +14,7 @@ import styles from "./page.module.scss";
 import { useToast } from "@/components/ui";
 import { useCart } from "@/contexts/CartContext";
 import { useSiteSettings } from "@/contexts/SiteSettingsContext";
+import html2canvas from "html2canvas-pro";
 
 // ── STAR COMPONENT ────────────────────────────────────────
 function Stars({ value, max = 5, size = "md" }: { value: number; max?: number; size?: string }) {
@@ -245,6 +246,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const { data: session } = useSession();
     const { addItem } = useCart();
     const router = useRouter();
+    const settings = useSiteSettings();
 
     const [product, setProduct] = useState<any>(null);
     const [loadingProduct, setLoadingProduct] = useState(true);
@@ -259,6 +261,9 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const [selectedVariant, setSelectedVariant] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"desc" | "specs" | "reviews" | "installment">("specs");
     const [scrolledPast, setScrolledPast] = useState(false);
+    const [showShareMenu, setShowShareMenu] = useState(false);
+    const [generatingPromo, setGeneratingPromo] = useState(false);
+    const promoCardRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -451,10 +456,139 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
         } catch { }
     }
 
+    function buildShareText() {
+        const link = `${window.location.origin}/products/${product.slug}`;
+        const specs = product.specs || {};
+        const lines: string[] = [];
+
+        // Tên sản phẩm
+        lines.push(`💻 ${product.name}`);
+
+        // Specs - mỗi spec 1 dòng riêng
+        const specKeys = [
+            { key: "CPU", label: "Cpu" },
+            { key: "Ram", label: "Ram" },
+            { key: "Ổ cứng", label: "Ssd" },
+            { key: "SSD", label: "Ssd" },
+            { key: "Màn hình", label: "Màn" },
+            { key: "Pin", label: "Pin" },
+            { key: "Card đồ hoạ", label: "VGA" },
+            { key: "Bàn phím", label: "Phím" },
+        ];
+        for (const { key, label } of specKeys) {
+            const val = specs[key];
+            if (val) lines.push(`⚡️ ${label}: ${val}`);
+        }
+
+        // Giá
+        const price = effectiveSalePrice && effectiveSalePrice < effectiveBasePrice
+            ? effectiveSalePrice : effectiveBasePrice;
+        const priceStr = new Intl.NumberFormat("vi-VN").format(price);
+        lines.push(`💵 Chỉ ${priceStr}đ`);
+
+        // Quà tặng
+        lines.push("🎁 Balo + túi chống sốc + chuột + lót chuột + sạc Zin");
+
+        // Bảo hành
+        const warrantyMonths = product.warrantyMonths || product.warranty?.duration || 0;
+        if (warrantyMonths > 0) {
+            lines.push(`⏰ Bảo hành ${warrantyMonths} tháng`);
+        }
+
+        // Trả góp
+        lines.push("🔥 Góp 0% qua thẻ tín dụng và góp hồ sơ lãi suất thấp chỉ cần CCCD");
+
+        // Tags - mỗi dòng tối đa 3 tags
+        const productTags = (product.tags || []).map((t: string) => `#${t.replace(/\s+/g, "_")}`);
+        if (productTags.length > 0) {
+            for (let i = 0; i < productTags.length; i += 3) {
+                lines.push(productTags.slice(i, i + 3).join(" "));
+            }
+        }
+
+        // Link
+        lines.push(`🔗 ${link}`);
+
+        return lines.join("\n");
+    }
+
+    function handleShare(type: "copy" | "facebook" | "messenger" | "zalo") {
+        const text = buildShareText();
+        const url = `${window.location.origin}/products/${product.slug}`;
+        setShowShareMenu(false);
+
+        switch (type) {
+            case "copy":
+                navigator.clipboard.writeText(text).then(() => {
+                    success("Đã copy nội dung chia sẻ!");
+                }).catch(() => {
+                    error("Không thể copy, vui lòng thử lại");
+                });
+                break;
+            case "facebook":
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`, "_blank", "width=600,height=400");
+                break;
+            case "messenger":
+                window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(url)}&app_id=966242223397117&redirect_uri=${encodeURIComponent(url)}`, "_blank", "width=600,height=400");
+                break;
+            case "zalo":
+                window.open(`https://zalo.me/share?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`, "_blank", "width=600,height=400");
+                break;
+        }
+    }
+
+    async function handleDownloadPromo() {
+        if (!promoCardRef.current || generatingPromo) return;
+        setShowShareMenu(false);
+        setGeneratingPromo(true);
+        try {
+            promoCardRef.current.style.display = "block";
+            await new Promise(r => setTimeout(r, 100));
+            const canvas = await html2canvas(promoCardRef.current, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: "#0C0C0C",
+            });
+            promoCardRef.current.style.display = "none";
+            const link = document.createElement("a");
+            link.download = `${product.slug}-promo.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            const text = buildShareText();
+            await navigator.clipboard.writeText(text);
+            success("Đã tải ảnh & copy nội dung đăng bài!");
+        } catch {
+            error("Không thể tạo ảnh, vui lòng thử lại");
+        } finally {
+            if (promoCardRef.current) promoCardRef.current.style.display = "none";
+            setGeneratingPromo(false);
+        }
+    }
+
     const tags = product.tags || [];
     const ratingAvg = product.ratings?.avg || 0;
     const ratingCount = product.ratings?.count || 0;
     const soldCount = product.soldCount || 0;
+
+    const promoSpecs = (() => {
+        const s = product.specs || {};
+        const lines: { icon: string; text: string }[] = [];
+        const mapping = [
+            { key: "CPU", icon: "⚡️" },
+            { key: "Ram", icon: "⚡️" },
+            { key: "Ổ cứng", icon: "⚡️" },
+            { key: "SSD", icon: "⚡️" },
+            { key: "Màn hình", icon: "⚡️" },
+            { key: "Card đồ hoạ", icon: "⚡️" },
+            { key: "Pin", icon: "⚡️" },
+            { key: "Bàn phím", icon: "⚡️" },
+        ];
+        for (const { key, icon } of mapping) {
+            if (s[key]) lines.push({ icon, text: `${key}: ${s[key]}` });
+        }
+        return lines;
+    })();
 
     return (
         <div className={styles.page}>
@@ -748,10 +882,50 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                 </Button>
                             </div>
 
-                            <button className={styles.wishlistBtn} onClick={toggleWishlist}>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-                                {wishlisted ? "Đã yêu thích" : "Thêm vào yêu thích"}
-                            </button>
+                            <div className={styles.ctaSecondary}>
+                                <button className={styles.wishlistBtn} onClick={toggleWishlist}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+                                    {wishlisted ? "Đã yêu thích" : "Thêm vào yêu thích"}
+                                </button>
+
+                                <div className={styles.shareWrapper}>
+                                    <button className={styles.shareBtn} onClick={() => setShowShareMenu(!showShareMenu)}>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+                                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                        </svg>
+                                        Chia sẻ
+                                    </button>
+                                    {showShareMenu && (
+                                        <>
+                                            <div className={styles.shareMenuOverlay} onClick={() => setShowShareMenu(false)} />
+                                            <div className={styles.shareMenu}>
+                                                <button className={styles.shareMenuItem} onClick={() => handleShare("copy")}>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+                                                    Copy nội dung
+                                                </button>
+                                                <button className={styles.shareMenuItem} onClick={() => handleShare("facebook")}>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                                                    Facebook
+                                                </button>
+                                                <button className={styles.shareMenuItem} onClick={() => handleShare("messenger")}>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8.2l3.131 3.26 5.886-3.26-6.558 6.763z" /></svg>
+                                                    Messenger
+                                                </button>
+                                                <button className={styles.shareMenuItem} onClick={() => handleShare("zalo")}>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.568 8.16c-.18-.424-.75-.636-1.464-.636h-2.22c-.156 0-.3.048-.42.132l-4.632 3.228c-.18.12-.288.324-.288.54v.588c0 .372.3.672.672.672h1.872l-2.508 3.36c-.132.18-.204.396-.204.624 0 .372.192.696.48.876.168.108.36.168.564.168.3 0 .588-.144.768-.384l4.752-6.36c.156-.204.24-.456.24-.72 0-.348-.156-.672-.42-.876l-.192-.132h2.076c.624 0 1.14-.276 1.32-.684.06-.132.084-.276.084-.42 0-.144-.024-.288-.084-.42l.804.444z" /></svg>
+                                                    Zalo
+                                                </button>
+                                                <div className={styles.shareMenuDivider} />
+                                                <button className={`${styles.shareMenuItem} ${styles.shareMenuPromo}`} onClick={handleDownloadPromo} disabled={generatingPromo}>
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                                    {generatingPromo ? "Đang tạo..." : "Tải ảnh quảng cáo"}
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
                         </div>
 
                         {/* ── SERVICE GRID ── */}
@@ -997,6 +1171,51 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     </div>
                 </section>
             )}
+
+            {/* ── HIDDEN PROMO CARD (for html2canvas capture) ── */}
+            <div ref={promoCardRef} className={styles.promoCard} style={{ display: "none" }}>
+                <div className={styles.promoHeader}>
+                    <div className={styles.promoStoreName}>{settings.storeName || "NEXGEAR"}</div>
+                    <div className={styles.promoStoreTagline}>{settings.storePhone}</div>
+                </div>
+                <div className={styles.promoBody}>
+                    <div className={styles.promoImageWrap}>
+                        <img src={images[0]} alt={product.name} className={styles.promoImage} crossOrigin="anonymous" />
+                    </div>
+                    <div className={styles.promoInfo}>
+                        <h2 className={styles.promoName}>💻 {product.name}</h2>
+                        <div className={styles.promoSpecs}>
+                            {promoSpecs.map((s, i) => (
+                                <div key={i} className={styles.promoSpecLine}>{s.icon} {s.text}</div>
+                            ))}
+                        </div>
+                        <div className={styles.promoPrice}>
+                            💵 Chỉ {new Intl.NumberFormat("vi-VN").format(currentPrice)}đ
+                        </div>
+                        <div className={styles.promoGift}>
+                            🎁 Balo + túi chống sốc + chuột + lót chuột + sạc Zin
+                        </div>
+                        {(product.warrantyMonths || product.warranty?.duration) > 0 && (
+                            <div className={styles.promoWarranty}>
+                                ⏰ Bảo hành {product.warrantyMonths || product.warranty?.duration} tháng
+                            </div>
+                        )}
+                        <div className={styles.promoInstallment}>
+                            🔥 Góp 0% qua thẻ tín dụng
+                        </div>
+                    </div>
+                </div>
+                <div className={styles.promoFooter}>
+                    <div className={styles.promoTags}>
+                        {(product.tags || []).map((t: string, i: number) => (
+                            <span key={i} className={styles.promoTag}>#{t.replace(/\s+/g, "_")}</span>
+                        ))}
+                    </div>
+                    <div className={styles.promoContact}>
+                        📍 {settings.storeAddress || "Cần Thơ"} &nbsp;|&nbsp; 📞 {settings.storePhone}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

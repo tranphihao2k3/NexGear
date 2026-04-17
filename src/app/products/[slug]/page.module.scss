@@ -1175,6 +1175,311 @@
     }
 }
 
+// ── CTA SECONDARY ROW (wishlist + share) ──
+.ctaSecondary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $sp-3;
+
+    @include mobile {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+// ── SHARE BUTTON & MENU ──
+.shareWrapper {
+    position: relative;
+}
+
+.shareBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $sp-2;
+    width: 100%;
+    padding: $sp-3 $sp-4;
+    border: 1px solid var(--border);
+    border-radius: $r-1;
+    background: var(--bg2);
+    color: var(--ink3);
+    @include font-body($text-xs, $fw-bold);
+    letter-spacing: $ls-wide;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    &:hover {
+        border-color: #00C4AD;
+        color: #00C4AD;
+        background: rgba(0, 196, 173, 0.05);
+        box-shadow: 0 0 15px rgba(0, 196, 173, 0.1);
+
+        svg {
+            color: #00C4AD;
+            transform: scale(1.1);
+        }
+    }
+
+    svg {
+        transition: transform 0.2s ease;
+    }
+}
+
+.shareMenuOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}
+
+.shareMenu {
+    position: absolute;
+    bottom: calc(100% + $sp-2);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 180px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: $r-2;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1);
+    backdrop-filter: none;
+    padding: $sp-2;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    animation: shareMenuIn 0.15s ease-out;
+}
+
+@keyframes shareMenuIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.shareMenuItem {
+    display: flex;
+    align-items: center;
+    gap: $sp-3;
+    padding: $sp-2 $sp-3;
+    border: none;
+    border-radius: $r-1;
+    background: transparent;
+    color: var(--ink2);
+    @include font-body($text-xs, $fw-medium);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+
+    svg {
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.08);
+        color: #00C4AD;
+    }
+
+    &:first-child:hover {
+        color: #00C4AD;
+    }
+
+    &:nth-child(2) svg {
+        color: #1877F2;
+    }
+
+    &:nth-child(3) svg {
+        color: #0099FF;
+    }
+
+    &:nth-child(4) svg {
+        color: #0068FF;
+    }
+}
+
+.shareMenuDivider {
+    height: 1px;
+    background: #e0e0e0;
+    margin: 4px 0;
+}
+
+.shareMenuPromo {
+    color: #00C4AD !important;
+    font-weight: 600;
+
+    svg {
+        color: #00C4AD;
+    }
+
+    &:hover {
+        background: rgba(0, 196, 173, 0.12);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: wait;
+    }
+}
+
+// ════════════════════════════════════════════════════════════
+// PROMO CARD (hidden — captured by html2canvas)
+// ════════════════════════════════════════════════════════════
+.promoCard {
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    width: 800px;
+    background: #0C0C0C;
+    color: #F4F2ED;
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+    border-radius: 0;
+}
+
+.promoHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px 32px;
+    background: linear-gradient(135deg, #00C4AD, #00A896);
+}
+
+.promoLogo {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #fff;
+    padding: 4px;
+}
+
+.promoStoreName {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: #0C0C0C;
+    letter-spacing: 0.05em;
+}
+
+.promoStoreTagline {
+    margin-left: auto;
+    font-size: 16px;
+    font-weight: 600;
+    color: #0C0C0C;
+}
+
+.promoBody {
+    display: flex;
+    gap: 28px;
+    padding: 28px 32px;
+}
+
+.promoImageWrap {
+    flex-shrink: 0;
+    width: 300px;
+    height: 300px;
+    background: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #2a2a2a;
+}
+
+.promoImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.promoInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.promoName {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 4px;
+    line-height: 1.3;
+}
+
+.promoSpecs {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.promoSpecLine {
+    font-size: 15px;
+    color: #d0d0d0;
+    line-height: 1.5;
+}
+
+.promoPrice {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: #00C4AD;
+    margin-top: 8px;
+    padding: 10px 16px;
+    background: rgba(0, 196, 173, 0.1);
+    border: 1px solid rgba(0, 196, 173, 0.3);
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.promoGift {
+    font-size: 14px;
+    color: #F0A500;
+    margin-top: 4px;
+}
+
+.promoWarranty {
+    font-size: 14px;
+    color: #d0d0d0;
+}
+
+.promoInstallment {
+    font-size: 14px;
+    color: #F0356A;
+    font-weight: 600;
+}
+
+.promoFooter {
+    padding: 20px 32px;
+    background: #141414;
+    border-top: 1px solid #2a2a2a;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.promoTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.promoTag {
+    font-size: 13px;
+    color: #00C4AD;
+    background: rgba(0, 196, 173, 0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.promoContact {
+    font-size: 13px;
+    color: #888;
+}
+
 // ════════════════════════════════════════════════════════════
 // SERVICE GRID
 // ════════════════════════════════════════════════════════════
