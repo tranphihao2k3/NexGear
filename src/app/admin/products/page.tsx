@@ -224,6 +224,7 @@ export default function AdminProductsPage() {
         conditionNote: '',
     });
     const [saving, setSaving] = useState(false);
+    const [uploadingImages, setUploadingImages] = useState(false);
     const [aiText, setAiText] = useState('');
     const [aiParsing, setAiParsing] = useState(false);
     const [hasDraft, setHasDraft] = useState(false);
@@ -679,7 +680,7 @@ export default function AdminProductsPage() {
             const existingImageUrls = formData.images.filter(img => !img.file).map(img => img.url);
             const pendingProductImages = formData.images.filter(img => img.file);
 
-            // Build variants data with existing images only (pending will be uploaded in background)
+            // Build variants data with existing images only
             const variantsData = formData.variants.map(v => ({
                 name: v.name,
                 sku: v.sku,
@@ -700,6 +701,7 @@ export default function AdminProductsPage() {
                 return acc;
             }, {} as Record<string, string>);
 
+            // ── PHASE 1: Lưu thông tin sản phẩm (không có ảnh pending) ──
             const url = editingId ? `/api/products/${editingId}` : '/api/products';
             const method = editingId ? 'PUT' : 'POST';
 
@@ -737,63 +739,66 @@ export default function AdminProductsPage() {
             const savedProductId = editingId || data.data._id;
             const hasPendingUploads = pendingProductImages.length > 0 || pendingVariantImages.some(v => v.images.length > 0);
 
-            // Close modal immediately so user can continue working
+
+            // ── PHASE 2: Upload ảnh — ĐỢI XONG mới đóng modal ──
+            if (hasPendingUploads) {
+                setSaving(false);
+                setUploadingImages(true);
+                try {
+                    // Upload product images
+                    const uploadedProductUrls = await uploadPendingImages(pendingProductImages);
+                    const allProductImages = [...existingImageUrls, ...uploadedProductUrls];
+
+                    // Upload variant images
+                    const updatedVariants = await Promise.all(variantsData.map(async (v, i) => {
+                        const pending = pendingVariantImages[i];
+                        if (pending.images.length === 0) return v;
+                        const uploadedUrls = await uploadPendingImages(pending.images);
+                        return { ...v, images: [...pending.existingUrls, ...uploadedUrls] };
+                    }));
+
+                    // Replace {{IMAGE_N}} placeholders in description with real URLs
+                    const descWithImages = formData.description.replace(/\{\{IMAGE_(\d+)\}\}/g, (_: string, idx: string) => {
+                        return allProductImages[parseInt(idx)] || '';
+                    });
+
+                    // PATCH sản phẩm với URLs thật
+                    await fetch(`/api/products/${savedProductId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            images: allProductImages,
+                            variants: updatedVariants,
+                            ...(descWithImages !== formData.description ? { description: descWithImages } : {}),
+                        }),
+                    });
+
+                    // Cleanup blob URLs
+                    pendingProductImages.forEach(img => URL.revokeObjectURL(img.url));
+                    pendingVariantImages.forEach(v => v.images.forEach(img => URL.revokeObjectURL(img.url)));
+
+                    success(editingId ? 'Cập nhật sản phẩm & upload ảnh thành công' : 'Thêm sản phẩm & upload ảnh thành công');
+                } catch (uploadErr: any) {
+                    error(`Upload ảnh thất bại: ${uploadErr.message} — sản phẩm đã lưu nhưng thiếu ảnh`);
+                } finally {
+                    setUploadingImages(false);
+                }
+            } else {
+                // Không có ảnh pending
+                formData.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); });
+                formData.variants.forEach(v => v.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); }));
+                success(editingId ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm');
+            }
+
+            // ── Đóng modal SAU KHI upload hoàn tất ──
             clearDraft();
             setShowModal(false);
             qc.invalidateQueries({ queryKey: ['products', 'admin'] });
-            success(editingId ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm' + (hasPendingUploads ? ' — đang upload ảnh...' : ''));
-
-            // Upload pending images in background
-            if (hasPendingUploads) {
-                (async () => {
-                    try {
-                        // Upload product images
-                        const uploadedProductUrls = await uploadPendingImages(pendingProductImages);
-                        const allProductImages = [...existingImageUrls, ...uploadedProductUrls];
-
-                        // Upload variant images
-                        const updatedVariants = await Promise.all(variantsData.map(async (v, i) => {
-                            const pending = pendingVariantImages[i];
-                            if (pending.images.length === 0) return v;
-                            const uploadedUrls = await uploadPendingImages(pending.images);
-                            return { ...v, images: [...pending.existingUrls, ...uploadedUrls] };
-                        }));
-
-                        // Replace {{IMAGE_N}} placeholders in description with real uploaded URLs
-                        const descWithImages = formData.description.replace(/\{\{IMAGE_(\d+)\}\}/g, (_: string, idx: string) => {
-                            return allProductImages[parseInt(idx)] || '';
-                        });
-
-                        // Update product with uploaded image URLs + resolved description
-                        await fetch(`/api/products/${savedProductId}`, {
-                            method: 'PUT',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                images: allProductImages,
-                                variants: updatedVariants,
-                                ...(descWithImages !== formData.description ? { description: descWithImages } : {}),
-                            }),
-                        });
-
-                        // Cleanup blob URLs
-                        pendingProductImages.forEach(img => URL.revokeObjectURL(img.url));
-                        pendingVariantImages.forEach(v => v.images.forEach(img => URL.revokeObjectURL(img.url)));
-
-                        success(`Ảnh sản phẩm "${formData.name}" đã upload xong`);
-                        qc.invalidateQueries({ queryKey: ['products', 'admin'] });
-                    } catch (e: any) {
-                        error(`Upload ảnh cho "${formData.name}" thất bại: ${e.message}`);
-                    }
-                })();
-            } else {
-                // No pending uploads, just cleanup
-                formData.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); });
-                formData.variants.forEach(v => v.images.forEach(img => { if (img.file) URL.revokeObjectURL(img.url); }));
-            }
         } catch (e: any) {
             error(e.message);
         } finally {
             setSaving(false);
+            setUploadingImages(false);
         }
     };
 
@@ -1456,9 +1461,14 @@ export default function AdminProductsPage() {
 
                         </div>
                         <div className={styles.modalFooter}>
-                            <button className={styles.cancelBtn} onClick={() => setShowModal(false)} disabled={saving}>HỦY</button>
-                            <button className={styles.saveBtn} onClick={handleSaveItem} disabled={saving}>
-                                {saving ? '⏳ Đang tải ảnh & lưu...' : `💾 ${editingId ? 'CẬP NHẬT' : 'LƯU SẢN PHẨM'}`}
+                            <button className={styles.cancelBtn} onClick={() => setShowModal(false)} disabled={saving || uploadingImages}>HỦY</button>
+                            <button className={styles.saveBtn} onClick={handleSaveItem} disabled={saving || uploadingImages}>
+                                {uploadingImages
+                                    ? '⬆️ Đang upload ảnh...'
+                                    : saving
+                                        ? '⏳ Đang lưu...'
+                                        : `💾 ${editingId ? 'CẬP NHẬT' : 'LƯU SẢN PHẨM'}`
+                                }
                             </button>
                         </div>
                     </div>

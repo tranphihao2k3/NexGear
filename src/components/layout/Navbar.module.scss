@@ -396,9 +396,48 @@
         font-weight: $fw-bold;
         &:hover { color: #e02a5a; transform: translateY(-2px); }
     }
+
+    &.catLinkTest {
+        color: $color-white;
+        font-weight: $fw-bold;
+        padding: 4px 12px;
+        background: linear-gradient(135deg, #00C4AD, #009E8B);
+        border-radius: $r-full;
+        font-family: $font-display;
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        animation: test-glow-pulse 2.2s ease-in-out infinite;
+        box-shadow: 0 0 12px rgba(0, 196, 173, 0.35);
+        margin: auto 8px;
+
+        &::after { display: none; }
+
+        &:hover {
+            color: $color-white;
+            transform: translateY(-2px) scale(1.04);
+            background: linear-gradient(135deg, #00E5CA, #00C4AD);
+            box-shadow: 0 0 20px rgba(0, 196, 173, 0.55);
+        }
+    }
 }
 
 .catLinkEmoji { font-size: 12px; }
+
+// ── TEST LAPTOP BADGE ──────────────────────────────────────
+@keyframes test-glow-pulse {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(0, 196, 173, 0.3), 0 0 0 0 rgba(0, 196, 173, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 18px rgba(0, 196, 173, 0.6), 0 0 0 4px rgba(0, 196, 173, 0.08);
+    }
+}
+
+.testBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
 
 .catChevron {
     font-size: 9px;
@@ -698,6 +737,24 @@
 
     &:hover, &.mobileLinkActive { color: #00C4AD; background: rgba(0, 196, 173, 0.06); }
     &.mobileLinkHighlight { color: #F0356A; &:hover { background: rgba(240, 53, 106, 0.06); } }
+    &.mobileLinkTest {
+        color: $color-white;
+        background: linear-gradient(135deg, #00C4AD, #009E8B);
+        font-family: $font-display;
+        font-size: 13px;
+        font-weight: $fw-bold;
+        letter-spacing: 0.05em;
+        border-radius: $r-1;
+        box-shadow: 0 0 12px rgba(0, 196, 173, 0.3);
+        animation: test-glow-pulse 2.2s ease-in-out infinite;
+        margin: $sp-1 0;
+
+        &:hover {
+            color: $color-white;
+            background: linear-gradient(135deg, #00E5CA, #00C4AD);
+            box-shadow: 0 0 20px rgba(0, 196, 173, 0.5);
+        }
+    }
 }
 
 .mobileLinkBtn {

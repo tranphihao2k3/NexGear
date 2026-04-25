@@ -37,9 +37,10 @@ const SERVICE_MENU: NavLink = {
     ],
 }
 
-const MORE_LINKS: { href: string; label: string; highlight?: boolean }[] = [
+const MORE_LINKS: { href: string; label: string; highlight?: boolean; testLink?: boolean }[] = [
     { href: '/blog', label: 'Blog' },
     { href: '/deals', label: 'Flash Deal', highlight: true },
+    { href: '/test-laptop', label: '🧪 Test Laptop', testLink: true },
 ]
 
 interface NavbarProps {
@@ -338,9 +339,11 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                     key={link.href}
                                     href={link.href}
                                     prefetch={false}
-                                    className={`${styles.catLink} ${link.highlight ? styles.catLinkDeal : ''} ${pathname.startsWith(link.href) ? styles.catLinkActive : ''}`}
+                                    className={`${styles.catLink} ${link.highlight ? styles.catLinkDeal : ''} ${link.testLink ? styles.catLinkTest : ''} ${pathname.startsWith(link.href) ? styles.catLinkActive : ''}`}
                                 >
-                                    {link.label}
+                                    {link.testLink ? (
+                                        <span className={styles.testBadge}>{link.label}</span>
+                                    ) : link.label}
                                 </Link>
                             ))}
                         </nav>
@@ -392,7 +395,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                         <Link href="/sua-chua-laptop" className={styles.mobileLink}>🔧 Sửa chữa Laptop</Link>
                         <Link href="/thu-cu-doi-moi" className={styles.mobileLink}>🔄 Thu cũ đổi mới</Link>
                         {MORE_LINKS.map(link => (
-                            <Link key={link.href} href={link.href} className={`${styles.mobileLink} ${link.highlight ? styles.mobileLinkHighlight : ''}`}>
+                            <Link key={link.href} href={link.href} className={`${styles.mobileLink} ${link.highlight ? styles.mobileLinkHighlight : ''} ${link.testLink ? styles.mobileLinkTest : ''}`}>
                                 {link.label}
                             </Link>
                         ))}
