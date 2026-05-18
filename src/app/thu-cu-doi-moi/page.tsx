@@ -7,11 +7,12 @@ import {
     RefreshCcw, CheckCircle, Send, X,
     Monitor, Battery, Cpu, ArrowRight, Shield, Clock, Zap, Star,
     Phone, MessageCircle, PhoneCall, ThumbsUp, Timer,
-    TrendingUp, Gift, Banknote, Laptop, ArrowUpRight, HardDrive
+    TrendingUp, Gift, Banknote, Laptop, ArrowUpRight, HardDrive, Download, Loader2
 } from 'lucide-react';
 import { Button, useToast, LazyImage } from '@/components/ui';
 import ScrollReveal, { ScrollStagger } from '@/components/animations/ScrollReveal';
 import { useSiteSettings } from '@/contexts/SiteSettingsContext';
+import Pusher from 'pusher-js';
 import s from './page.module.scss';
 
 // ── TYPING EFFECT ────────────────────────────────────────────
@@ -149,10 +150,90 @@ export default function TradeInPage() {
     const [submitted, setSubmitted] = useState(false);
     const [orderCode, setOrderCode] = useState('');
     const [activeFaq, setActiveFaq] = useState<number | null>(0);
+    const [scanning, setScanning] = useState(false);
+    const [scanStatus, setScanStatus] = useState<'idle'|'downloading'|'scanning'|'complete'>('idle');
+    const pusherRef = useRef<Pusher | null>(null);
+    const scanChannelRef = useRef<any>(null);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
+    const handleScanClick = async () => {
+        try {
+            setScanning(true);
+            setScanStatus('downloading');
+
+            const res = await fetch('/api/scan/create-session', { method: 'POST' });
+            const { data } = await res.json();
+            if (!data?.token) throw new Error('Không thể tạo phiên quét');
+
+            const { token, downloadUrl } = data;
+
+            await navigator.clipboard.writeText(token);
+
+            const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+                cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+            });
+            pusherRef.current = pusher;
+
+            const channel = pusher.subscribe(`scan-${token}`);
+            scanChannelRef.current = channel;
+            setScanStatus('scanning');
+
+            channel.bind('scan-complete', (data: any) => {
+                const hw = data.hardware;
+                setFormData(prev => ({
+                    ...prev,
+                    model: hw.system?.manufacturer ? `${hw.system.manufacturer} ${hw.system.model || ''}`.trim() : prev.model,
+                    cpu: hw.cpu?.name || prev.cpu,
+                    ram: hw.ram?.total ? `${hw.ram.total} RAM` : prev.ram,
+                    gpu: hw.gpu?.name || prev.gpu,
+                    ssd: hw.storage?.drives?.[0]?.size
+                        ? `${hw.storage.drives[0].size} ${hw.storage.drives[0].type || ''}`.trim()
+                        : prev.ssd,
+                }));
+                setScanStatus('complete');
+                setScanning(false);
+                showSuccess('Quét cấu hình thành công! Vui lòng kiểm tra lại thông tin.');
+                channel.unbind_all();
+                pusher.unsubscribe(`scan-${token}`);
+                pusherRef.current = null;
+            });
+
+            const timeoutId = setTimeout(() => {
+                if (scanStatus === 'scanning') {
+                    channel.unbind_all();
+                    pusher.unsubscribe(`scan-${token}`);
+                    pusherRef.current = null;
+                    setScanning(false);
+                    setScanStatus('idle');
+                    showError('Hết thời gian chờ. Vui lòng thử lại.');
+                }
+            }, 10 * 60 * 1000);
+
+            channel.bind('pusher:subscription_error', () => {
+                clearTimeout(timeoutId);
+                setScanning(false);
+                setScanStatus('idle');
+                showError('Lỗi kết nối realtime');
+            });
+
+            window.location.href = downloadUrl;
+        } catch {
+            setScanning(false);
+            setScanStatus('idle');
+            showError('Không thể bắt đầu quét cấu hình');
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (pusherRef.current) {
+                pusherRef.current.disconnect();
+            }
+        };
+    }, []);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -483,23 +564,55 @@ export default function TradeInPage() {
                                                 />
                                             </div>
 
-                                            <div className={s.fieldGroup}>
-                                                <label>Ảnh máy (Tối đa 5)</label>
-                                                <input type="file" multiple accept="image/*" onChange={handleImageChange} className={s.fileInput} />
+                                             <div className={s.fieldGroup}>
+                                                 <label>Ảnh máy (Tối đa 5)</label>
+                                                 <input type="file" multiple accept="image/*" onChange={handleImageChange} className={s.fileInput} />
 
-                                                {imagePreviews.length > 0 && (
-                                                    <div className={s.previews}>
-                                                        {imagePreviews.map((src, idx) => (
-                                                            <div key={idx} className={s.preview}>
-                                                                <LazyImage src={src} alt="Preview" />
-                                                                <div className={s.removeBtn} onClick={() => removeImage(idx)}><X size={12} /></div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
+                                                 {imagePreviews.length > 0 && (
+                                                     <div className={s.previews}>
+                                                         {imagePreviews.map((src, idx) => (
+                                                             <div key={idx} className={s.preview}>
+                                                                 <LazyImage src={src} alt="Preview" />
+                                                                 <div className={s.removeBtn} onClick={() => removeImage(idx)}><X size={12} /></div>
+                                                             </div>
+                                                         ))}
+                                                     </div>
+                                                 )}
+                                             </div>
 
-                                            <button type="submit" className={s.submitBtn} disabled={loading}>
+                                             <button
+                                                 type="button"
+                                                 className={`${s.scanBtn} ${scanning ? s.scanning : ''}`}
+                                                 onClick={handleScanClick}
+                                                 disabled={scanning}
+                                             >
+                                                 {scanning ? (
+                                                     <>
+                                                         <Loader2 size={18} className={s.spin} />
+                                                         {scanStatus === 'downloading'
+                                                             ? 'Đang chuẩn bị file tải xuống...'
+                                                             : 'Đang chờ kết quả từ máy bạn...'}
+                                                     </>
+                                                 ) : (
+                                                     <>
+                                                         <Cpu size={18} />
+                                                         Tự Động Điền Cấu Hình (Chạy file quét)
+                                                     </>
+                                                 )}
+                                             </button>
+
+                                             {scanning && (
+                                                 <div className={s.scanInstructions}>
+                                                     <p>💡 <strong>Hướng dẫn nhanh:</strong></p>
+                                                     <ol>
+                                                         <li>Mở file <strong>scan-agent.exe</strong> vừa tải về.</li>
+                                                         <li>Nhấn nút <strong>Quét cấu hình</strong> trên phần mềm.</li>
+                                                         <li>Hệ thống sẽ tự động gửi thông số và điền vào form này ngay lập tức!</li>
+                                                     </ol>
+                                                 </div>
+                                             )}
+
+                                             <button type="submit" className={s.submitBtn} disabled={loading}>
                                                 {loading ? (
                                                     <><Timer size={18} /> Đang gửi...</>
                                                 ) : (

@@ -1125,3 +1125,86 @@
     justify-content: center;
     flex-wrap: wrap;
 }
+
+// ══════════════════════════════════════════════════════════════
+// SCAN BUTTON
+// ══════════════════════════════════════════════════════════════
+.scanBtn {
+    @include font-body(14px, $fw-bold);
+    width: 100%;
+    background: linear-gradient(135deg, rgba(0, 196, 173, 0.15), rgba(0, 196, 173, 0.05));
+    color: $color-cyan;
+    border: 2px dashed rgba(0, 196, 173, 0.4);
+    border-radius: 12px;
+    padding: 16px 32px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    margin-bottom: 16px;
+
+    &:hover:not(:disabled) {
+        background: linear-gradient(135deg, rgba(0, 196, 173, 0.25), rgba(0, 196, 173, 0.1));
+        border-color: $color-cyan;
+        transform: translateY(-2px);
+        box-shadow: 0 0 20px rgba(0, 196, 173, 0.3);
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    &.scanning {
+        border-style: solid;
+        animation: scanPulse 2s ease-in-out infinite;
+    }
+}
+
+@keyframes scanPulse {
+    0%, 100% { border-color: rgba(0, 196, 173, 0.4); box-shadow: 0 0 0 rgba(0, 196, 173, 0.3); }
+    50% { border-color: $color-cyan; box-shadow: 0 0 20px rgba(0, 196, 173, 0.5); }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.scanInstructions {
+    background: rgba(0, 196, 173, 0.05);
+    border: 1px solid rgba(0, 196, 173, 0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    @include font-body(13px, $fw-regular);
+    color: var(--ink2);
+    line-height: 1.6;
+
+    p {
+        margin: 0 0 8px;
+        color: $color-cyan;
+    }
+
+    ol {
+        margin: 0;
+        padding-left: 20px;
+        li {
+            margin-bottom: 6px;
+            &:last-child { margin-bottom: 0; }
+        }
+    }
+
+    strong {
+        color: var(--ink);
+        font-weight: $fw-semibold;
+    }
+}

@@ -671,4 +671,396 @@
     box-shadow: $shadow-glow-cyan;
 }
 
+// ══════════════════════════════════════════════
+// SCAN TEST
+// ══════════════════════════════════════════════
+.scanStatus {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-4;
+    padding: $sp-8 $sp-4;
+    text-align: center;
+
+    h3 {
+        @include font-display($text-lg, $fw-bold);
+        color: $color-ink;
+        margin: 0;
+    }
+
+    p {
+        @include font-body($text-sm);
+        color: $color-ink3;
+        margin: 0;
+
+        strong {
+            color: $color-cyan;
+            font-weight: $fw-bold;
+        }
+
+        code {
+            @include font-mono($text-sm, $fw-bold);
+            background: $color-cyan-light;
+            color: $color-cyan;
+            padding: 2px 8px;
+            border-radius: $r-1;
+        }
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+    color: $color-cyan;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.syncAnimation {
+    display: flex;
+    gap: 12px;
+    margin-bottom: $sp-2;
+}
+
+.syncDot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: $color-cyan;
+    animation: syncPulse 1.5s ease-in-out infinite;
+
+    &:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+}
+
+@keyframes syncPulse {
+    0%, 100% { transform: scale(1); opacity: 0.3; }
+    50% { transform: scale(1.3); opacity: 1; }
+}
+
+.instructions {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-3;
+    background: $color-bg;
+    padding: $sp-4;
+    border-radius: $r-3;
+    border: 1px solid $color-border;
+    text-align: left;
+    max-width: 480px;
+}
+
+.instructionStep {
+    display: flex;
+    align-items: flex-start;
+    gap: $sp-3;
+    @include font-body($text-sm);
+    color: $color-ink2;
+}
+
+.stepNum {
+    @include font-display($text-sm, $fw-bold);
+    @include flex-center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: $color-cyan-light;
+    color: $color-cyan;
+}
+
+.scanningAnimation {
+    position: relative;
+    @include flex-center;
+    margin-bottom: $sp-2;
+}
+
+.scanPulse {
+    color: $color-cyan;
+    animation: scanPulseAnim 2s ease-in-out infinite;
+}
+
+@keyframes scanPulseAnim {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.6; }
+}
+
+.connected {
+    color: $color-green !important;
+}
+
+.scanProgress {
+    width: 100%;
+    max-width: 320px;
+    height: 6px;
+    background: $color-bg2;
+    border-radius: $r-full;
+    overflow: hidden;
+}
+
+.scanBar {
+    height: 100%;
+    background: $gradient-accent;
+    animation: scanBarAnim 2s ease-in-out infinite;
+}
+
+@keyframes scanBarAnim {
+    0% { width: 0%; }
+    50% { width: 70%; }
+    100% { width: 100%; }
+}
+
+.hardwareResult {
+    display: flex;
+    flex-direction: column;
+    gap: $sp-5;
+}
+
+.resultHeader {
+    @include flex-center;
+    flex-direction: column;
+    gap: $sp-2;
+    padding: $sp-4;
+    background: $color-green-light;
+    border-radius: $r-3;
+
+    h3 {
+        @include font-display($text-lg, $fw-bold);
+        color: $color-green;
+        margin: 0;
+    }
+}
+
+.successIcon {
+    color: $color-green;
+}
+
+.hwGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $sp-4;
+}
+
+.hwCard {
+    display: flex;
+    gap: $sp-3;
+    padding: $sp-4;
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    transition: $transition-fast;
+
+    &:hover {
+        border-color: $color-cyan;
+        box-shadow: $shadow-sm;
+    }
+}
+
+.hwCardFull {
+    grid-column: 1 / -1;
+}
+
+.hwSubMeta {
+    display: block;
+    margin-top: 4px;
+    @include font-body(11px);
+    color: $color-ink3;
+    font-weight: $fw-medium;
+}
+
+.wifiList {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $color-border;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.wifiTitle {
+    @include font-display(10px, $fw-bold);
+    color: $color-cyan;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.wifiGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+}
+
+.wifiItem {
+    padding: 8px 12px;
+    background: $color-bg2;
+    border-radius: $r-2;
+    border: 1px solid $color-border;
+}
+
+.wifiSsid {
+    @include font-body(12px);
+    color: $color-ink;
+    margin-bottom: 2px;
+}
+
+.wifiMeta {
+    @include font-mono(9px);
+    color: $color-ink3;
+}
+
+// ══════════════════════════════════════════════
+// WARRANTY BLOCK
+// ══════════════════════════════════════════════
+.warrantyBlock {
+    background: $color-bg;
+    border: 1px solid $color-border;
+    border-radius: $r-3;
+    overflow: hidden;
+}
+
+.warrantyHeader {
+    display: flex;
+    align-items: center;
+    gap: $sp-2;
+    padding: $sp-3 $sp-4;
+    background: $color-cyan-light;
+    border-bottom: 1px solid rgba($color-cyan, 0.2);
+    @include font-display($text-sm, $fw-bold);
+    color: $color-cyan;
+}
+
+.warrantySerial {
+    margin-left: auto;
+    @include font-mono(11px);
+    color: $color-ink2;
+
+    strong {
+        color: $color-ink;
+        font-weight: $fw-bold;
+    }
+}
+
+.warrantyGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1px;
+    background: $color-border;
+
+    @include mobile {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.warrantyBtn {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: $sp-3 $sp-4;
+    background: $color-white;
+    text-decoration: none;
+    transition: $transition-fast;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+
+    &:hover {
+        background: $color-bg;
+        border-left-color: var(--brand-color, $color-cyan);
+
+        .warrantyHint {
+            opacity: 1;
+            color: var(--brand-color, $color-cyan);
+        }
+
+        .warrantyBrand {
+            color: var(--brand-color, $color-ink);
+        }
+    }
+}
+
+.warrantyBrand {
+    @include font-display($text-sm, $fw-bold);
+    color: $color-ink;
+    transition: color 0.2s;
+}
+
+.warrantyHint {
+    @include font-body(10px);
+    color: $color-ink3;
+    opacity: 0.6;
+    transition: all 0.2s;
+    letter-spacing: $ls-wide;
+}
+
+.hwIcon {
+    @include flex-center;
+    min-width: 48px;
+    height: 48px;
+    border-radius: $r-2;
+    background: $color-cyan-light;
+    color: $color-cyan;
+    font-size: 24px;
+}
+
+.hwInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.hwLabel {
+    @include font-display(11px, $fw-bold);
+    color: $color-ink3;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.hwValue {
+    @include font-body($text-lg, $fw-bold);
+    color: $color-ink;
+    line-height: 1.3;
+}
+
+.hwMeta {
+    @include font-mono(12px);
+    color: $color-ink3;
+    font-weight: $fw-medium;
+}
+
+.ramSlots {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid $color-border;
+}
+
+.ramSlot {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 8px;
+    background: $color-bg2;
+    border-radius: $r-1;
+}
+
+.slotLabel {
+    @include font-display(9px, $fw-bold);
+    color: $color-cyan;
+    text-transform: uppercase;
+    letter-spacing: $ls-wide;
+}
+
+.slotValue {
+    @include font-mono(11px);
+    color: $color-ink2;
+    font-weight: $fw-medium;
+}
 

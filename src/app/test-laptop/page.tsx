@@ -3,10 +3,12 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import {
     Camera, Mic, Volume2, Monitor, Keyboard,
-    Play, Square, CheckCircle, XCircle, RotateCcw, Maximize, ChevronLeft
+    Play, Square, CheckCircle, XCircle, RotateCcw, Maximize, ChevronLeft,
+    Cpu, Download, Loader2, Zap, Shield
 } from 'lucide-react';
+import Pusher from 'pusher-js';
 import s from './page.module.scss';
-import { LazyImage } from '@/components/ui';
+import { LazyImage, useToast } from '@/components/ui';
 
 // ── Types ──
 type TestStatus = 'idle' | 'running' | 'pass' | 'fail';
@@ -19,6 +21,7 @@ interface TestCard {
 }
 
 const TESTS: TestCard[] = [
+    { id: 'scan', title: 'Quét Cấu Hình', desc: 'Tự động quét CPU, RAM, GPU, Storage qua phần mềm', icon: <Cpu size={28} /> },
     { id: 'webcam', title: 'Webcam', desc: 'Mở camera, preview & chụp ảnh test', icon: <Camera size={28} /> },
     { id: 'mic', title: 'Microphone', desc: 'Thu âm, VU meter realtime, phát lại', icon: <Mic size={28} /> },
     { id: 'audio', title: 'Loa / Audio', desc: 'Test âm thanh trái/phải, bass, stereo', icon: <Volume2 size={28} /> },
@@ -133,6 +136,7 @@ export default function TestLaptopPage() {
 // ── Test Runner ──
 function TestRunner({ testId }: { testId: string }) {
     switch (testId) {
+        case 'scan': return <ScanTest />;
         case 'webcam': return <WebcamTest />;
         case 'mic': return <MicTest />;
         case 'audio': return <AudioTest />;
@@ -147,6 +151,329 @@ function StatusBadge({ status }: { status: TestStatus }) {
     if (status === 'running') return <span className={s.badge + ' ' + s.badgeRunning}>⏳ Đang test...</span>;
     if (status === 'pass') return <span className={s.badge + ' ' + s.badgePass}><CheckCircle size={14} /> PASS</span>;
     return <span className={s.badge + ' ' + s.badgeFail}><XCircle size={14} /> FAIL</span>;
+}
+
+// ══════════════════════════════════════════════
+// 0. SCAN SYSTEM (Hardware Detection)
+// ══════════════════════════════════════════════
+function ScanTest() {
+    const { success: showSuccess, error: showError } = useToast();
+    const [status, setStatus] = useState<'idle' | 'downloading' | 'waiting-exe' | 'scanning' | 'complete'>('idle');
+    const [hardware, setHardware] = useState<any>(null);
+    const [token, setToken] = useState<string>('');
+    const pusherRef = useRef<Pusher | null>(null);
+
+    const startScan = async () => {
+        try {
+            setStatus('downloading');
+            
+            const res = await fetch('/api/scan/create-session', { method: 'POST' });
+            const { data } = await res.json();
+            if (!data?.token) throw new Error('Không thể tạo phiên quét');
+
+            const sessionToken = data.token;
+            setToken(sessionToken);
+
+            await navigator.clipboard.writeText(sessionToken);
+
+            const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
+                cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+            });
+            pusherRef.current = pusher;
+
+            const channel = pusher.subscribe(`scan-${sessionToken}`);
+            
+            channel.bind('exe-opened', () => {
+                setStatus('scanning');
+                showSuccess('Phần mềm đã kết nối! Đang quét...');
+            });
+
+            channel.bind('scan-complete', (data: any) => {
+                const hw = data.hardware;
+                setHardware(hw);
+                setStatus('complete');
+                showSuccess('Quét hoàn tất!');
+                channel.unbind_all();
+                pusher.unsubscribe(`scan-${sessionToken}`);
+                pusherRef.current = null;
+            });
+
+            setStatus('waiting-exe');
+            window.location.href = data.downloadUrl;
+
+            setTimeout(() => {
+                if (status === 'waiting-exe') {
+                    channel.unbind_all();
+                    pusher.unsubscribe(`scan-${sessionToken}`);
+                    pusherRef.current = null;
+                    setStatus('idle');
+                    showError('Hết thời gian chờ. Vui lòng thử lại.');
+                }
+            }, 10 * 60 * 1000);
+
+        } catch (err) {
+            setStatus('idle');
+            showError('Không thể bắt đầu quét cấu hình');
+        }
+    };
+
+    const reset = () => {
+        if (pusherRef.current) {
+            pusherRef.current.disconnect();
+            pusherRef.current = null;
+        }
+        setStatus('idle');
+        setHardware(null);
+        setToken('');
+    };
+
+    useEffect(() => {
+        return () => {
+            if (pusherRef.current) {
+                pusherRef.current.disconnect();
+            }
+        };
+    }, []);
+
+    return (
+        <div className={s.testPanel}>
+            <div className={s.testHeader}>
+                <h2><Cpu size={24} /> Quét Cấu Hình Tự Động</h2>
+                {status === 'complete' && <StatusBadge status="pass" />}
+            </div>
+            <div className={s.testBody}>
+                {status === 'idle' && (
+                    <>
+                        <p className={s.testHint}>
+                            Tải phần mềm quét về máy, chạy để tự động phát hiện CPU, RAM, GPU, Storage và thông tin hệ thống.
+                        </p>
+                        <button className={s.btnCyan} onClick={startScan}>
+                            <Download size={16} /> Tải Phần Mềm & Bắt Đầu Quét
+                        </button>
+                    </>
+                )}
+
+                {status === 'downloading' && (
+                    <div className={s.scanStatus}>
+                        <Loader2 size={48} className={s.spin} />
+                        <h3>Đang chuẩn bị tải xuống...</h3>
+                        <p>File scan-agent.exe sẽ tự động tải về</p>
+                    </div>
+                )}
+
+                {status === 'waiting-exe' && (
+                    <div className={s.scanStatus}>
+                        <div className={s.syncAnimation}>
+                            <div className={s.syncDot} />
+                            <div className={s.syncDot} />
+                            <div className={s.syncDot} />
+                        </div>
+                        <h3>ĐANG CHỜ MỞ PHẦN MỀM...</h3>
+                        <p>Vui lòng mở file <strong>scan-agent.exe</strong> vừa tải về</p>
+                        <div className={s.instructions}>
+                            <div className={s.instructionStep}>
+                                <span className={s.stepNum}>1</span>
+                                <span>Mở file <code>scan-agent.exe</code> trong thư mục Downloads</span>
+                            </div>
+                            <div className={s.instructionStep}>
+                                <span className={s.stepNum}>2</span>
+                                <span>Phần mềm sẽ tự động kết nối với trang web này</span>
+                            </div>
+                            <div className={s.instructionStep}>
+                                <span className={s.stepNum}>3</span>
+                                <span>Chờ quá trình quét hoàn tất</span>
+                            </div>
+                        </div>
+                        <button className={s.btnGhost} onClick={reset}>
+                            <XCircle size={14} /> Hủy
+                        </button>
+                    </div>
+                )}
+
+                {status === 'scanning' && (
+                    <div className={s.scanStatus}>
+                        <div className={s.scanningAnimation}>
+                            <Zap size={64} className={s.scanPulse} />
+                        </div>
+                        <h3 className={s.connected}>✓ PHẦN MỀM ĐÃ KẾT NỐI</h3>
+                        <p>Đang quét cấu hình phần cứng...</p>
+                        <div className={s.scanProgress}>
+                            <div className={s.scanBar} />
+                        </div>
+                    </div>
+                )}
+
+                {status === 'complete' && hardware && (
+                    <div className={s.hardwareResult}>
+                        <div className={s.resultHeader}>
+                            <CheckCircle size={32} className={s.successIcon} />
+                            <h3>Quét Hoàn Tất!</h3>
+                        </div>
+
+                        <div className={s.hwGrid}>
+                            {/* CPU */}
+                            <div className={s.hwCard}>
+                                <div className={s.hwIcon}><Cpu size={24} /></div>
+                                <div className={s.hwInfo}>
+                                    <span className={s.hwLabel}>CPU</span>
+                                    <strong className={s.hwValue}>{hardware.cpu?.name || 'N/A'}</strong>
+                                    <span className={s.hwMeta}>
+                                        {hardware.cpu?.cores} Nhân • {hardware.cpu?.threads} Luồng • {hardware.cpu?.speed} MHz
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* RAM */}
+                            <div className={s.hwCard}>
+                                <div className={s.hwIcon}>💾</div>
+                                <div className={s.hwInfo}>
+                                    <span className={s.hwLabel}>RAM</span>
+                                    <strong className={s.hwValue}>{hardware.ram?.total} {hardware.ram?.type}</strong>
+                                    <span className={s.hwMeta}>
+                                        {hardware.ram?.activeSlots}/{hardware.ram?.maxSlots} khe
+                                    </span>
+                                    {hardware.ram?.slots && hardware.ram.slots.length > 0 && (
+                                        <div className={s.ramSlots}>
+                                            {hardware.ram.slots.map((slot, idx) => (
+                                                <div key={idx} className={s.ramSlot}>
+                                                    <span className={s.slotLabel}>{slot.bank}</span>
+                                                    <span className={s.slotValue}>{slot.capacity} • {slot.speed} • {slot.manufacturer}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* GPU */}
+                            {hardware.gpu?.devices && hardware.gpu.devices.map((gpu, idx) => (
+                                <div key={idx} className={s.hwCard}>
+                                    <div className={s.hwIcon}>🎮</div>
+                                    <div className={s.hwInfo}>
+                                        <span className={s.hwLabel}>GPU ({gpu.type})</span>
+                                        <strong className={s.hwValue}>{gpu.name || 'N/A'}</strong>
+                                        <span className={s.hwMeta}>{gpu.vram}</span>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Storage */}
+                            {hardware.storage?.drives && hardware.storage.drives.map((drive, idx) => (
+                                <div key={idx} className={s.hwCard}>
+                                    <div className={s.hwIcon}>💿</div>
+                                    <div className={s.hwInfo}>
+                                        <span className={s.hwLabel}>Ổ cứng #{idx + 1}</span>
+                                        <strong className={s.hwValue}>{drive.size}</strong>
+                                        <span className={s.hwMeta}>
+                                            {drive.busType} {drive.mediaType} • {drive.model}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Monitor */}
+                            {hardware.monitor && (
+                                <div className={s.hwCard}>
+                                    <div className={s.hwIcon}>🖥️</div>
+                                    <div className={s.hwInfo}>
+                                        <span className={s.hwLabel}>Màn hình</span>
+                                        <strong className={s.hwValue}>{hardware.monitor.resolution}</strong>
+                                        <span className={s.hwMeta}>{hardware.monitor.refreshRate} Hz</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* System */}
+                            <div className={s.hwCard}>
+                                <div className={s.hwIcon}>⚙️</div>
+                                <div className={s.hwInfo}>
+                                    <span className={s.hwLabel}>Hệ thống</span>
+                                    <strong className={s.hwValue}>{hardware.system?.manufacturer} {hardware.system?.model}</strong>
+                                    {hardware.system?.serialNumber && (
+                                        <span className={s.hwMeta}>Serial: {hardware.system.serialNumber}</span>
+                                    )}
+                                    <span className={s.hwSubMeta}>{hardware.system?.os}</span>
+                                </div>
+                            </div>
+
+                            {/* Battery */}
+                            {hardware.battery && (
+                                <div className={s.hwCard}>
+                                    <div className={s.hwIcon}>🔋</div>
+                                    <div className={s.hwInfo}>
+                                        <span className={s.hwLabel}>Kiểm tra Pin</span>
+                                        <strong className={s.hwValue}>Độ chai: {hardware.battery.wearLevel}</strong>
+                                        <span className={s.hwMeta}>
+                                            Thiết kế: {hardware.battery.designCapacity} • Hiện tại: {hardware.battery.currentCapacity}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Wifi */}
+                            {hardware.wifi && hardware.wifi.currentSsid && hardware.wifi.currentSsid !== 'Disconnected' && (
+                                <div className={s.hwCard}>
+                                    <div className={s.hwIcon}>📶</div>
+                                    <div className={s.hwInfo}>
+                                        <span className={s.hwLabel}>Mạng Không Dây</span>
+                                        <strong className={s.hwValue}>{hardware.wifi.currentSsid}</strong>
+                                        <span className={s.hwMeta}>
+                                            Adapter: {hardware.wifi.adapterName} • Cường độ: {hardware.wifi.currentSignal}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* WARRANTY BLOCK */}
+                        {hardware.system?.serialNumber && (
+                            <div className={s.warrantyBlock}>
+                                <div className={s.warrantyHeader}>
+                                    <Shield size={18} />
+                                    <span>Kiểm tra bảo hành</span>
+                                    <span className={s.warrantySerial}>Serial: <strong>{hardware.system.serialNumber}</strong></span>
+                                </div>
+                                <div className={s.warrantyGrid}>
+                                    {[
+                                        { brand: 'FPT Shop', url: 'https://fptshop.com.vn/kiem-tra-bao-hanh?tab=thong-tin-bao-hanh', color: '#0066FF' },
+                                        { brand: 'Thế Giới Di Động', url: 'https://www.thegioididong.com/bao-hanh', color: '#F5A623' },
+                                        { brand: 'HP', url: 'https://support.hp.com/vn-en/check-warranty', color: '#0096D6' },
+                                        { brand: 'Dell', url: 'https://www.dell.com/support/contractservices/en-vn', color: '#007DB8' },
+                                        { brand: 'GearVN', url: 'https://gearvn.com/pages/bao-hanh', color: '#E2231A' },
+                                        { brand: 'Lenovo', url: 'https://pcsupport.lenovo.com/vn/en/warranty-lookup#/', color: '#E2231A' },
+                                    ].map(item => (
+                                        <a
+                                            key={item.brand}
+                                            href={item.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={s.warrantyBtn}
+                                            style={{ '--brand-color': item.color } as React.CSSProperties}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (hardware.system?.serialNumber) {
+                                                    navigator.clipboard.writeText(hardware.system.serialNumber);
+                                                    showSuccess(`Đã copy serial: ${hardware.system.serialNumber}`);
+                                                    window.open(item.url, '_blank', 'noopener,noreferrer');
+                                                }
+                                            }}
+                                        >
+                                            <span className={s.warrantyBrand}>{item.brand}</span>
+                                            <span className={s.warrantyHint}>Copy serial & mở →</span>
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <button className={s.btnGhost} onClick={reset}>
+                            <RotateCcw size={14} /> Quét Lại
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 }
 
 // ══════════════════════════════════════════════
