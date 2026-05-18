@@ -346,7 +346,7 @@ function ScanTest() {
                             </div>
 
                             {/* GPU */}
-                            {hardware.gpu?.devices && hardware.gpu.devices.map((gpu, idx) => (
+                            {hardware.gpu?.devices && hardware.gpu.devices.map((gpu: any, idx: number) => (
                                 <div key={idx} className={s.hwCard}>
                                     <div className={s.hwIcon}>🎮</div>
                                     <div className={s.hwInfo}>
@@ -358,7 +358,7 @@ function ScanTest() {
                             ))}
 
                             {/* Storage */}
-                            {hardware.storage?.drives && hardware.storage.drives.map((drive, idx) => (
+                            {hardware.storage?.drives && hardware.storage.drives.map((drive: any, idx: number) => (
                                 <div key={idx} className={s.hwCard}>
                                     <div className={s.hwIcon}>💿</div>
                                     <div className={s.hwInfo}>
