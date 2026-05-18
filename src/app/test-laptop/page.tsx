@@ -334,7 +334,7 @@ function ScanTest() {
                                     </span>
                                     {hardware.ram?.slots && hardware.ram.slots.length > 0 && (
                                         <div className={s.ramSlots}>
-                                            {hardware.ram.slots.map((slot, idx) => (
+                                            {hardware.ram.slots.map((slot: any, idx: number) => (
                                                 <div key={idx} className={s.ramSlot}>
                                                     <span className={s.slotLabel}>{slot.bank}</span>
                                                     <span className={s.slotValue}>{slot.capacity} • {slot.speed} • {slot.manufacturer}</span>
