@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
   return response
 }
 
-// Apply middleware to API routes
 export const config = {
   matcher: '/api/:path*',
+  runtime: 'nodejs',
 }

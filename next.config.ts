@@ -58,6 +58,9 @@ const nextConfig: NextConfig = {
     ]
   },
 
+  // Bắt buộc Next.js tạo đầy đủ file trace (.nft.json)
+  outputFileTracing: true,
+
 }
 
 
