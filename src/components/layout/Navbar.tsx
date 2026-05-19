@@ -210,6 +210,12 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                                 )}
                             </button>
 
+                            <Link href="/warranty-policy" className={styles.actionBtn} aria-label="Tra cứu bảo hành" title="Tra cứu bảo hành">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                </svg>
+                            </Link>
+
                             <Link href="/compare" className={styles.actionBtn} aria-label="So sánh">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 20h9" /><path d="M16.5 15.5L21 20l-4.5 4.5" /><path d="M12 4H3" /><path d="M7.5 8.5L3 4l4.5-4.5" /></svg>
                                 {isMounted && compareCount > 0 && <span className={styles.badge}>{compareCount}</span>}
@@ -374,6 +380,7 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                         ) : (
                             <Link href="/login" className={styles.mobileLink}>⏻ Đăng nhập</Link>
                         )}
+                        <Link href="/warranty-policy" className={styles.mobileLink}>🛡️ Tra cứu bảo hành</Link>
                         <Link href="/compare" className={styles.mobileLink}>⚖️ So sánh {isMounted && compareCount > 0 && `(${compareCount})`}</Link>
                         <Link href="/cart" className={styles.mobileLink}>🛒 Giỏ hàng {isMounted && cartCount > 0 && `(${cartCount})`}</Link>
                         <div className={styles.mobileNeon} />

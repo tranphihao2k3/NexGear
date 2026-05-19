@@ -71,17 +71,51 @@ export async function POST(req: NextRequest) {
         const email = body.customerInfo?.email || '';
 
         if (phone) {
-            let customer = await Customer.findOne({ phone: phone.trim() });
+            const rawPhone = String(phone).trim();
+            const normalizedPhone = rawPhone.replace(/\D/g, '');
+
+            let customer = await Customer.findOne({
+                $or: [{ phone: rawPhone }, ...(normalizedPhone ? [{ phone: normalizedPhone }] : [])],
+            });
+
             if (!customer) {
                 customer = await Customer.create({
                     name: name.trim(),
-                    phone: phone.trim(),
+                    phone: normalizedPhone || rawPhone,
                     email: email.trim() || undefined,
                     customerType: 'regular',
                     status: 'active',
                     source: body.channel || 'pos',
                 });
+            } else {
+                const nextName = name.trim();
+                const nextEmail = email.trim();
+                const shouldUpdateName = nextName && nextName.toLowerCase() !== 'khách lẻ' && customer.name !== nextName;
+                const shouldUpdateEmail = nextEmail && !customer.email;
+                const shouldNormalizePhone = normalizedPhone && customer.phone !== normalizedPhone;
+
+                if (shouldUpdateName) customer.name = nextName;
+                if (shouldUpdateEmail) customer.email = nextEmail;
+                if (shouldNormalizePhone) customer.phone = normalizedPhone;
+
+                if (shouldUpdateName || shouldUpdateEmail || shouldNormalizePhone) {
+                    await customer.save();
+                }
             }
+
+            customerId = customer._id;
+            body.user = customerId;
+        } else if (body.channel === 'pos' && name?.trim() && name.trim().toLowerCase() !== 'khách lẻ') {
+            // POS manual customer without phone: still keep a basic customer profile for later editing
+            const fallbackPhone = `POS-${Date.now()}`;
+            const customer = await Customer.create({
+                name: name.trim(),
+                phone: fallbackPhone,
+                email: email.trim() || undefined,
+                customerType: 'regular',
+                status: 'active',
+                source: 'pos',
+            });
             customerId = customer._id;
             body.user = customerId;
         }

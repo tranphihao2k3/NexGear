@@ -74,8 +74,9 @@ const DEFAULTS: SiteSettings = {
             { id: '3-2', label: 'Thu cũ đổi mới', href: '/thu-cu-doi-moi', desc: 'Lên đời laptop, trợ giá tốt' }
         ]},
         { id: '4', label: 'Blog', href: '/blog', isMegaMenu: false, highlight: false },
-        { id: '5', label: 'Flash Deal', href: '/deals', isMegaMenu: false, highlight: true },
-        { id: '6', label: '🧪 Test Laptop', href: '/test-laptop', isMegaMenu: false, highlight: false }
+        { id: '5', label: 'Tra cứu bảo hành', href: '/warranty-policy', isMegaMenu: false, highlight: false },
+        { id: '6', label: 'Flash Deal', href: '/deals', isMegaMenu: false, highlight: true },
+        { id: '7', label: '🧪 Test Laptop', href: '/test-laptop', isMegaMenu: false, highlight: false }
     ]
 };
 
