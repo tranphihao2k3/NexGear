@@ -37,6 +37,7 @@ interface ProductCardProps {
 
 // ── Format price VNĐ ────────────────────────────────────────
 function formatPrice(price: number): string {
+  if (!price || price === 0) return 'Liên hệ'
   return new Intl.NumberFormat('vi-VN', {
     style: 'currency', currency: 'VND',
   }).format(price)
@@ -112,7 +113,7 @@ const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps)
     })
   }
 
-  const hasDiscount = product.salePrice && product.salePrice < product.basePrice
+  const hasDiscount = product.basePrice > 0 && product.salePrice && product.salePrice < product.basePrice
   const discountPct = hasDiscount
     ? Math.round((1 - product.salePrice! / product.basePrice) * 100)
     : 0

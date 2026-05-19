@@ -86,9 +86,12 @@ export default function AdminPOSPage() {
     const [rightWidth, setRightWidth] = useState(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('pos-right-width')
-            if (saved) return parseInt(saved, 10)
+            if (saved) {
+                const parsed = parseInt(saved, 10)
+                return parsed < 450 ? 500 : parsed
+            }
         }
-        return 400
+        return 500
     })
     const layoutRef = useRef<HTMLDivElement>(null)
     const dragging = useRef(false)
@@ -298,8 +301,8 @@ export default function AdminPOSPage() {
     }
     const totalDiscount = computeOrderDiscount() + computeCouponDiscount()
     const grandTotal = Math.max(0, subtotal - totalDiscount)
-    const cashAmount = parseFloat(cashInput) || 0
-    const change = Math.max(0, cashAmount - grandTotal)
+    const cashAmount = payment === 'cash' ? grandTotal : 0
+    const change = 0
     const totalItems = cart.reduce((s, i) => s + i.qty, 0)
 
     // ── Coupon
@@ -486,7 +489,7 @@ export default function AdminPOSPage() {
                     orderCode: json.data.orderCode,
                     items: [...cart], grandTotal, discount: totalDiscount,
                     coupon: appliedCoupon, payment,
-                    cashAmount, change: Math.max(0, cashAmount - grandTotal),
+                    cashAmount, change,
                     customer: selectedCustomer?.name || custName || 'Khách lẻ',
                     phone: selectedCustomer?.phone || custPhone || '—',
                 })
@@ -508,22 +511,22 @@ export default function AdminPOSPage() {
                 className={`${styles.mobileTab} ${mobileView === 'products' ? styles.mobileTabActive : ''}`}
                 onClick={() => setMobileView('products')}
             >
-                🛍️ Sản phẩm
+                🛒 Đơn hàng {cart.length > 0 && <span className={styles.mobileCartBadge}>{cart.length}</span>}
             </button>
             <button
                 className={`${styles.mobileTab} ${mobileView === 'cart' ? styles.mobileTabActive : ''}`}
                 onClick={() => setMobileView('cart')}
             >
-                🛒 Giỏ hàng {cart.length > 0 && <span className={styles.mobileCartBadge}>{cart.length}</span>}
+                💳 Thanh toán
             </button>
         </div>
 
         <div className={styles.posLayout} ref={layoutRef} style={{ gridTemplateColumns: `1fr 6px ${rightWidth}px` }}>
 
-            {/* ══════ LEFT: PRODUCT BROWSER ══════ */}
+            {/* ══════ LEFT: PRODUCT BROWSER (NOW SELECTED PRODUCTS + SEARCH OVERLAY) ══════ */}
             <div className={`${styles.leftPanel} ${mobileView !== 'products' ? styles.mobileHidden : ''}`}>
 
-                {/* Search + Category bar */}
+                {/* Search Bar Wrapper */}
                 <div className={styles.leftToolbar}>
                     <div className={styles.searchBar}>
                         <span className={styles.searchIcon}>🔍</span>
@@ -539,101 +542,183 @@ export default function AdminPOSPage() {
                             <button className={styles.clearBtn} onClick={() => setSearch('')}>✕</button>
                         )}
                     </div>
-                    <div className={styles.catBar}>
-                        <button
-                            className={`${styles.catChip} ${category === 'all' ? styles.active : ''}`}
-                            onClick={() => setCategory('all')}
-                        >Tất cả</button>
-                        {categories.map(cat => (
-                            <button
-                                key={cat._id}
-                                className={`${styles.catChip} ${category === cat._id ? styles.active : ''}`}
-                                onClick={() => setCategory(cat._id)}
-                            >{cat.name}</button>
-                        ))}
-                    </div>
+
+                    {/* Autocomplete Search Dropdown */}
+                    {search.trim() !== '' && (
+                        <div className={styles.searchDropdown}>
+                            {loading ? (
+                                <div className={styles.emptyState}>Đang tìm kiếm...</div>
+                            ) : (
+                                <>
+                                    {filtered.map(product => {
+                                        const price = product.salePrice || product.basePrice
+                                        const inCart = cart.find(i => i.product._id === product._id)
+                                        const imgSrc = product.images?.[0] || ''
+                                        const outOfStock = product.stock === 0
+
+                                        return (
+                                            <div
+                                                key={product._id}
+                                                className={`${styles.searchResultRow} ${outOfStock ? styles.rowOos : ''}`}
+                                                onClick={() => {
+                                                    if (!outOfStock) {
+                                                        addToCart(product)
+                                                        setSearch('') // Clear search query to close dropdown
+                                                    }
+                                                }}
+                                            >
+                                                {/* Thumbnail */}
+                                                <div className={styles.searchColImg}>
+                                                    <div className={styles.thumb}>
+                                                        {imgSrc ? (
+                                                            <LazyImage src={imgSrc} alt={product.name} fill objectFit="cover" />
+                                                        ) : <span className={styles.thumbEmoji}>📦</span>}
+                                                        {inCart && <span className={styles.cartBadge}>{inCart.qty}</span>}
+                                                    </div>
+                                                </div>
+
+                                                {/* Name + SKU */}
+                                                <div className={styles.searchColName}>
+                                                    <div className={styles.prodName}>{product.name}</div>
+                                                    <div className={styles.prodMeta}>
+                                                        <span>SKU: {product.sku}</span>
+                                                        {product.category && typeof product.category === 'object' && (
+                                                            <span className={styles.catTag}>{product.category.name}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Price */}
+                                                <div className={styles.searchColPrice}>
+                                                    <div className={styles.prodPrice}>{formatVND(price)}</div>
+                                                    {product.salePrice && product.salePrice < product.basePrice && (
+                                                        <div className={styles.prodOriginal}>{formatVND(product.basePrice)}</div>
+                                                    )}
+                                                </div>
+
+                                                {/* Stock */}
+                                                <div className={styles.searchColStock}>
+                                                    <span className={`${styles.stockBadge} ${product.stock === 0 ? styles.oos : product.stock <= 5 ? styles.low : styles.ok}`}>
+                                                        {product.stock === 0 ? 'Hết' : product.stock <= 5 ? `⚠ ${product.stock}` : product.stock}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+
+                                    {filtered.length === 0 && (
+                                        <div className={styles.emptyState}>
+                                            <span>🔍</span>
+                                            <span>Không tìm thấy sản phẩm</span>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    )}
                 </div>
 
-                {/* Product list */}
-                {loading ? (
-                    <CyberpunkLoader message="Đang tải sản phẩm..." />
-                ) : (
-                    <div className={styles.productList}>
-                        {/* Header row */}
-                        <div className={styles.listHeader}>
-                            <span className={styles.colImg} />
-                            <span className={styles.colName}>Sản phẩm</span>
-                            <span className={styles.colPrice}>Giá</span>
-                            <span className={styles.colStock}>Kho</span>
-                            <span className={styles.colAdd} />
-                        </div>
+                {/* Cart header */}
+                <div className={styles.cartHeader}>
+                    <div className={styles.cartHeaderLeft}>
+                        <span className={styles.cartTitle}>Sản phẩm đã chọn</span>
+                        {totalItems > 0 && <span className={styles.cartCount}>{totalItems} sp</span>}
+                    </div>
+                    {cart.length > 0 && (
+                        <button className={styles.clearCartBtn} onClick={() => setCart([])}>🗑 Xóa tất cả</button>
+                    )}
+                </div>
 
-                        {filtered.map(product => {
-                            const price = product.salePrice || product.basePrice
-                            const inCart = cart.find(i => i.product._id === product._id)
-                            const imgSrc = product.images?.[0] || ''
-                            const outOfStock = product.stock === 0
+                {/* Cart items */}
+                {cart.length === 0 ? (
+                    <div className={styles.emptyCart}>
+                        <span>🛒</span>
+                        <span>Chưa có sản phẩm nào được chọn. Nhập tên sản phẩm ở ô tìm kiếm phía trên để thêm.</span>
+                        <span className={styles.kbHint}>Phím / để di chuyển nhanh lên ô tìm kiếm</span>
+                    </div>
+                ) : (
+                    <div className={styles.cartItems}>
+                        {cart.map(item => {
+                            const unitPrice = item.product.salePrice || item.product.basePrice
+                            const lineTotal = Math.max(0, unitPrice * item.qty - item.itemDiscount)
+                            const isEditDiscount = editItemDiscount === item.product._id
 
                             return (
-                                <div
-                                    key={product._id}
-                                    className={`${styles.productRow} ${outOfStock ? styles.rowOos : ''} ${inCart ? styles.rowInCart : ''}`}
-                                    onClick={() => addToCart(product)}
-                                >
-                                    {/* Thumbnail */}
-                                    <div className={styles.colImg}>
-                                        <div className={styles.thumb}>
-                                            {imgSrc ? (
-                                                <LazyImage src={imgSrc} alt={product.name} fill objectFit="cover" />
-                                            ) : <span className={styles.thumbEmoji}>📦</span>}
-                                            {inCart && <span className={styles.cartBadge}>{inCart.qty}</span>}
-                                        </div>
+                                <div key={item.product._id} className={styles.cartItem}>
+                                    {/* Thumb */}
+                                    <div className={styles.itemThumb}>
+                                        {item.product.images?.[0] ? (
+                                            <LazyImage src={item.product.images[0]} alt={item.product.name} fill objectFit="cover" />
+                                        ) : <span>📦</span>}
                                     </div>
 
-                                    {/* Name + SKU + category */}
-                                    <div className={styles.colName}>
-                                        <div className={styles.prodName}>{product.name}</div>
-                                        <div className={styles.prodMeta}>
-                                            {product.sku}
-                                            {product.category && typeof product.category === 'object' && (
-                                                <span className={styles.catTag}>{product.category.name}</span>
-                                            )}
+                                    <div className={styles.itemBody}>
+                                        <div className={styles.itemRow1}>
+                                            <span className={styles.itemName}>{item.product.name}</span>
+                                            <button className={styles.itemRemove} onClick={() => removeFromCart(item.product._id)}>✕</button>
                                         </div>
-                                    </div>
+                                        <div className={styles.itemRow2}>
+                                            <div className={styles.qtyCtrl}>
+                                                <button className={styles.qBtn} onClick={() => updateQty(item.product._id, -1)}>−</button>
+                                                {editQtyId === item.product._id ? (
+                                                    <input
+                                                        className={styles.qInput}
+                                                        type="number" value={editQtyVal} autoFocus
+                                                        min={1} max={item.product.stock}
+                                                        onChange={e => setEditQtyVal(e.target.value)}
+                                                        onBlur={() => commitQtyEdit(item.product._id)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter') commitQtyEdit(item.product._id)
+                                                            if (e.key === 'Escape') { setEditQtyId(null); setEditQtyVal('') }
+                                                        }}
+                                                    />
+                                                ) : (
+                                                    <span
+                                                        className={styles.qVal}
+                                                        title="Bấm để nhập số lượng"
+                                                        onClick={() => { setEditQtyId(item.product._id); setEditQtyVal(String(item.qty)) }}
+                                                    >{item.qty}</span>
+                                                )}
+                                                <button className={styles.qBtn} onClick={() => updateQty(item.product._id, 1)} disabled={item.qty >= item.product.stock}>+</button>
+                                            </div>
+                                            <div className={styles.itemPriceStack}>
+                                                <span className={styles.itemUnit}>{formatVND(unitPrice)} × {item.qty}</span>
+                                                <span className={styles.itemTotal}>{formatVND(lineTotal)}</span>
+                                            </div>
+                                        </div>
 
-                                    {/* Price */}
-                                    <div className={styles.colPrice}>
-                                        <div className={styles.prodPrice}>{formatVND(price)}</div>
-                                        {product.salePrice && product.salePrice < product.basePrice && (
-                                            <div className={styles.prodOriginal}>{formatVND(product.basePrice)}</div>
+                                        {/* Per-item discount */}
+                                        <div className={styles.itemRow3}>
+                                            <button
+                                                className={`${styles.discToggle} ${item.itemDiscount > 0 ? styles.active : ''}`}
+                                                onClick={() => setEditItemDiscount(isEditDiscount ? null : item.product._id)}
+                                            >
+                                                {item.itemDiscount > 0 ? `−${formatVND(item.itemDiscount)}` : '🏷 Giảm'}
+                                            </button>
+                                            <input
+                                                className={styles.itemNote}
+                                                placeholder="Ghi chú..."
+                                                value={item.note}
+                                                onChange={e => setItemNote(item.product._id, e.target.value)}
+                                            />
+                                        </div>
+                                        {isEditDiscount && (
+                                            <div className={styles.discEditor}>
+                                                <span>Giảm (VNĐ):</span>
+                                                <input
+                                                    type="number" className={styles.discInput}
+                                                    value={item.itemDiscount || ''}
+                                                    min={0} max={unitPrice * item.qty}
+                                                    onChange={e => setItemDiscount(item.product._id, parseFloat(e.target.value) || 0)}
+                                                    autoFocus
+                                                />
+                                                <button className={styles.discConfirm} onClick={() => setEditItemDiscount(null)}>✓</button>
+                                            </div>
                                         )}
-                                    </div>
-
-                                    {/* Stock */}
-                                    <div className={styles.colStock}>
-                                        <span className={`${styles.stockBadge} ${product.stock === 0 ? styles.oos : product.stock <= 5 ? styles.low : styles.ok}`}>
-                                            {product.stock === 0 ? 'Hết' : product.stock <= 5 ? `⚠ ${product.stock}` : product.stock}
-                                        </span>
-                                    </div>
-
-                                    {/* Add button */}
-                                    <div className={styles.colAdd}>
-                                        <button
-                                            className={styles.addBtn}
-                                            disabled={outOfStock}
-                                            onClick={e => { e.stopPropagation(); addToCart(product) }}
-                                        >+</button>
                                     </div>
                                 </div>
                             )
                         })}
-
-                        {filtered.length === 0 && (
-                            <div className={styles.emptyState}>
-                                <span>🔍</span>
-                                <span>Không tìm thấy sản phẩm</span>
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
@@ -641,7 +726,7 @@ export default function AdminPOSPage() {
             {/* ══════ RESIZER ══════ */}
             <div className={styles.resizer} onMouseDown={onResizeStart} />
 
-            {/* ══════ RIGHT: CART + CHECKOUT ══════ */}
+            {/* ══════ RIGHT: CHECKOUT & PARKED ══════ */}
             <div className={`${styles.rightPanel} ${mobileView !== 'cart' ? styles.mobileHidden : ''}`}>
 
                 {/* Tab switcher */}
@@ -650,8 +735,7 @@ export default function AdminPOSPage() {
                         className={`${styles.panelTab} ${activePanel === 'cart' ? styles.tabActive : ''}`}
                         onClick={() => setActivePanel('cart')}
                     >
-                        🛒 Giỏ hàng
-                        {totalItems > 0 && <span className={styles.tabBadge}>{totalItems}</span>}
+                        💳 Thanh toán
                     </button>
                     <button
                         className={`${styles.panelTab} ${activePanel === 'parked' ? styles.tabActive : ''}`}
@@ -688,20 +772,9 @@ export default function AdminPOSPage() {
                     </div>
                 )}
 
-                {/* ── CART PANEL ── */}
+                {/* ── CHECKOUT PANEL ── */}
                 {activePanel === 'cart' && (
-                    <>
-                        {/* Cart header */}
-                        <div className={styles.cartHeader}>
-                            <div className={styles.cartHeaderLeft}>
-                                <span className={styles.cartTitle}>Giỏ hàng</span>
-                                {totalItems > 0 && <span className={styles.cartCount}>{totalItems} sp</span>}
-                            </div>
-                            {cart.length > 0 && (
-                                <button className={styles.clearCartBtn} onClick={() => setCart([])}>🗑 Xóa tất cả</button>
-                            )}
-                        </div>
-
+                    <div className={styles.checkoutPanel}>
                         {/* Customer — compact bar */}
                         <div className={styles.customerSection} ref={custRef}>
                             <div className={styles.custCompactBar} onClick={() => !selectedCustomer && setShowCustForm(v => !v)}>
@@ -758,251 +831,130 @@ export default function AdminPOSPage() {
                             )}
                         </div>
 
-                        {/* Cart items */}
-                        {cart.length === 0 ? (
-                            <div className={styles.emptyCart}>
-                                <span>🛒</span>
-                                <span>Bấm vào sản phẩm để thêm</span>
-                                <span className={styles.kbHint}>Phím / để tìm kiếm nhanh</span>
-                            </div>
-                        ) : (
-                            <div className={styles.cartItems}>
-                                {cart.map(item => {
-                                    const unitPrice = item.product.salePrice || item.product.basePrice
-                                    const lineTotal = Math.max(0, unitPrice * item.qty - item.itemDiscount)
-                                    const isEditDiscount = editItemDiscount === item.product._id
+                        {/* Quick Action buttons */}
+                        <div className={styles.quickActions}>
+                            <button
+                                className={`${styles.quickBtn} ${showDiscount ? styles.active : ''} ${(discountValue || appliedCoupon) ? styles.hasValue : ''}`}
+                                onClick={() => { setShowDiscount(v => !v); setShowNote(false) }}
+                            >
+                                🏷 Giảm giá {discountValue ? (discountType === 'percent' ? `(${discountValue}%)` : `(${formatVND(Number(discountValue))})`) : ''}{appliedCoupon ? ` · ${appliedCoupon.code}` : ''}
+                            </button>
+                            <button
+                                className={`${styles.quickBtn} ${showNote ? styles.active : ''} ${orderNote ? styles.hasValue : ''}`}
+                                onClick={() => { setShowNote(v => !v); setShowDiscount(false) }}
+                            >
+                                📝 Ghi chú {orderNote ? '·' : ''}
+                            </button>
+                            <button className={styles.quickBtn} onClick={handleParkOrder} disabled={cart.length === 0}>⏸ Giữ đơn</button>
+                        </div>
 
-                                    return (
-                                        <div key={item.product._id} className={styles.cartItem}>
-                                            {/* Thumb */}
-                                            <div className={styles.itemThumb}>
-                                                {item.product.images?.[0] ? (
-                                                    <LazyImage src={item.product.images[0]} alt={item.product.name} fill objectFit="cover" />
-                                                ) : <span>📦</span>}
-                                            </div>
-
-                                            <div className={styles.itemBody}>
-                                                <div className={styles.itemRow1}>
-                                                    <span className={styles.itemName}>{item.product.name}</span>
-                                                    <button className={styles.itemRemove} onClick={() => removeFromCart(item.product._id)}>✕</button>
-                                                </div>
-                                                <div className={styles.itemRow2}>
-                                                    <div className={styles.qtyCtrl}>
-                                                        <button className={styles.qBtn} onClick={() => updateQty(item.product._id, -1)}>−</button>
-                                                        {editQtyId === item.product._id ? (
-                                                            <input
-                                                                className={styles.qInput}
-                                                                type="number" value={editQtyVal} autoFocus
-                                                                min={1} max={item.product.stock}
-                                                                onChange={e => setEditQtyVal(e.target.value)}
-                                                                onBlur={() => commitQtyEdit(item.product._id)}
-                                                                onKeyDown={e => {
-                                                                    if (e.key === 'Enter') commitQtyEdit(item.product._id)
-                                                                    if (e.key === 'Escape') { setEditQtyId(null); setEditQtyVal('') }
-                                                                }}
-                                                            />
-                                                        ) : (
-                                                            <span
-                                                                className={styles.qVal}
-                                                                title="Bấm để nhập số lượng"
-                                                                onClick={() => { setEditQtyId(item.product._id); setEditQtyVal(String(item.qty)) }}
-                                                            >{item.qty}</span>
-                                                        )}
-                                                        <button className={styles.qBtn} onClick={() => updateQty(item.product._id, 1)} disabled={item.qty >= item.product.stock}>+</button>
-                                                    </div>
-                                                    <div className={styles.itemPriceStack}>
-                                                        <span className={styles.itemUnit}>{formatVND(unitPrice)} × {item.qty}</span>
-                                                        <span className={styles.itemTotal}>{formatVND(lineTotal)}</span>
-                                                    </div>
-                                                </div>
-
-                                                {/* Per-item discount */}
-                                                <div className={styles.itemRow3}>
-                                                    <button
-                                                        className={`${styles.discToggle} ${item.itemDiscount > 0 ? styles.active : ''}`}
-                                                        onClick={() => setEditItemDiscount(isEditDiscount ? null : item.product._id)}
-                                                    >
-                                                        {item.itemDiscount > 0 ? `−${formatVND(item.itemDiscount)}` : '🏷 Giảm'}
-                                                    </button>
-                                                    <input
-                                                        className={styles.itemNote}
-                                                        placeholder="Ghi chú..."
-                                                        value={item.note}
-                                                        onChange={e => setItemNote(item.product._id, e.target.value)}
-                                                    />
-                                                </div>
-                                                {isEditDiscount && (
-                                                    <div className={styles.discEditor}>
-                                                        <span>Giảm (VNĐ):</span>
-                                                        <input
-                                                            type="number" className={styles.discInput}
-                                                            value={item.itemDiscount || ''}
-                                                            min={0} max={unitPrice * item.qty}
-                                                            onChange={e => setItemDiscount(item.product._id, parseFloat(e.target.value) || 0)}
-                                                            autoFocus
-                                                        />
-                                                        <button className={styles.discConfirm} onClick={() => setEditItemDiscount(null)}>✓</button>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )
-                                })}
+                        {/* Expandable discount panel */}
+                        {showDiscount && (
+                            <div className={styles.expandPanel}>
+                                <div className={styles.discRow}>
+                                    <div className={styles.discTypeSw}>
+                                        <button className={`${styles.discTypeBtn} ${discountType === 'percent' ? styles.active : ''}`} onClick={() => setDiscountType('percent')}>%</button>
+                                        <button className={`${styles.discTypeBtn} ${discountType === 'fixed' ? styles.active : ''}`} onClick={() => setDiscountType('fixed')}>VNĐ</button>
+                                    </div>
+                                    <input
+                                        type="number" className={styles.discValInput}
+                                        placeholder={discountType === 'percent' ? 'VD: 10 (%)' : 'VD: 50000'}
+                                        value={discountValue} min={0}
+                                        max={discountType === 'percent' ? 100 : subtotal}
+                                        onChange={e => setDiscountValue(e.target.value)}
+                                        autoFocus
+                                    />
+                                </div>
+                                <div className={styles.couponRow}>
+                                    <input
+                                        className={styles.couponInput}
+                                        placeholder="Mã coupon..."
+                                        value={couponCode}
+                                        onChange={e => { setCouponCode(e.target.value.toUpperCase()); setAppliedCoupon(null); setCouponError('') }}
+                                        onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
+                                    />
+                                    <button className={styles.couponBtn} onClick={handleApplyCoupon} disabled={!couponCode.trim() || couponLoading}>
+                                        {couponLoading ? '...' : 'Áp dụng'}
+                                    </button>
+                                </div>
+                                {couponError && <div className={styles.couponErr}>{couponError}</div>}
+                                {appliedCoupon && (
+                                    <div className={styles.couponOk}>
+                                        ✅ {appliedCoupon.code} — giảm {appliedCoupon.type === 'percent' ? `${appliedCoupon.value}%` : formatVND(appliedCoupon.value)}
+                                        <button onClick={() => { setAppliedCoupon(null); setCouponCode('') }}>✕</button>
+                                    </div>
+                                )}
                             </div>
                         )}
 
-                        {/* Footer — only when cart has items */}
-                        {cart.length > 0 && (
-                            <div className={styles.cartFooter}>
-                                {/* Quick action buttons */}
-                                <div className={styles.quickActions}>
-                                    <button
-                                        className={`${styles.quickBtn} ${showDiscount ? styles.active : ''} ${(discountValue || appliedCoupon) ? styles.hasValue : ''}`}
-                                        onClick={() => { setShowDiscount(v => !v); setShowNote(false) }}
-                                    >
-                                        🏷 Giảm giá {discountValue ? (discountType === 'percent' ? `(${discountValue}%)` : `(${formatVND(Number(discountValue))})`) : ''}{appliedCoupon ? ` · ${appliedCoupon.code}` : ''}
-                                    </button>
-                                    <button
-                                        className={`${styles.quickBtn} ${showNote ? styles.active : ''} ${orderNote ? styles.hasValue : ''}`}
-                                        onClick={() => { setShowNote(v => !v); setShowDiscount(false) }}
-                                    >
-                                        📝 Ghi chú {orderNote ? '·' : ''}
-                                    </button>
-                                    <button className={styles.quickBtn} onClick={handleParkOrder}>⏸ Giữ đơn</button>
-                                </div>
-
-                                {/* Expandable discount panel */}
-                                {showDiscount && (
-                                    <div className={styles.expandPanel}>
-                                        <div className={styles.discRow}>
-                                            <div className={styles.discTypeSw}>
-                                                <button className={`${styles.discTypeBtn} ${discountType === 'percent' ? styles.active : ''}`} onClick={() => setDiscountType('percent')}>%</button>
-                                                <button className={`${styles.discTypeBtn} ${discountType === 'fixed' ? styles.active : ''}`} onClick={() => setDiscountType('fixed')}>VNĐ</button>
-                                            </div>
-                                            <input
-                                                type="number" className={styles.discValInput}
-                                                placeholder={discountType === 'percent' ? 'VD: 10 (%)' : 'VD: 50000'}
-                                                value={discountValue} min={0}
-                                                max={discountType === 'percent' ? 100 : subtotal}
-                                                onChange={e => setDiscountValue(e.target.value)}
-                                                autoFocus
-                                            />
-                                        </div>
-                                        <div className={styles.couponRow}>
-                                            <input
-                                                className={styles.couponInput}
-                                                placeholder="Mã coupon..."
-                                                value={couponCode}
-                                                onChange={e => { setCouponCode(e.target.value.toUpperCase()); setAppliedCoupon(null); setCouponError('') }}
-                                                onKeyDown={e => e.key === 'Enter' && handleApplyCoupon()}
-                                            />
-                                            <button className={styles.couponBtn} onClick={handleApplyCoupon} disabled={!couponCode.trim() || couponLoading}>
-                                                {couponLoading ? '...' : 'Áp dụng'}
-                                            </button>
-                                        </div>
-                                        {couponError && <div className={styles.couponErr}>{couponError}</div>}
-                                        {appliedCoupon && (
-                                            <div className={styles.couponOk}>
-                                                ✅ {appliedCoupon.code} — giảm {appliedCoupon.type === 'percent' ? `${appliedCoupon.value}%` : formatVND(appliedCoupon.value)}
-                                                <button onClick={() => { setAppliedCoupon(null); setCouponCode('') }}>✕</button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Expandable note panel */}
-                                {showNote && (
-                                    <div className={styles.expandPanel}>
-                                        <textarea className={styles.noteInput} placeholder="Ghi chú đơn hàng..." value={orderNote} onChange={e => setOrderNote(e.target.value)} rows={2} autoFocus />
-                                    </div>
-                                )}
-
-                                {/* Price summary */}
-                                <div className={styles.priceSummary}>
-                                    <div className={styles.priceRow}>
-                                        <span>Tạm tính</span>
-                                        <span>{formatVND(subtotal)}</span>
-                                    </div>
-                                    {computeOrderDiscount() > 0 && (
-                                        <div className={`${styles.priceRow} ${styles.discLine}`}>
-                                            <span>Giảm đơn ({discountType === 'percent' ? `${discountValue}%` : 'VNĐ'})</span>
-                                            <span>−{formatVND(computeOrderDiscount())}</span>
-                                        </div>
-                                    )}
-                                    {computeCouponDiscount() > 0 && (
-                                        <div className={`${styles.priceRow} ${styles.discLine}`}>
-                                            <span>Coupon ({appliedCoupon?.code})</span>
-                                            <span>−{formatVND(computeCouponDiscount())}</span>
-                                        </div>
-                                    )}
-                                    <div className={`${styles.priceRow} ${styles.grandRow}`}>
-                                        <span>TỔNG CỘNG</span>
-                                        <span>{formatVND(grandTotal)}</span>
-                                    </div>
-                                </div>
-
-                                {/* Payment */}
-                                <div className={styles.footerSection}>
-                                    <div className={styles.sectionLabel}>💳 THANH TOÁN</div>
-                                    <div className={styles.pmGrid}>
-                                        {[
-                                            { key: 'cash', label: 'Tiền mặt', icon: '💵', kb: 'F1' },
-                                            { key: 'card', label: 'Thẻ', icon: '💳', kb: 'F3' },
-                                            { key: 'transfer', label: 'Chuyển khoản', icon: '🏦', kb: 'F4' },
-                                        ].map(m => (
-                                            <button key={m.key}
-                                                className={`${styles.pmBtn} ${payment === m.key ? styles.pmActive : ''}`}
-                                                onClick={() => setPayment(m.key)}
-                                            >
-                                                <span>{m.icon}</span>
-                                                <span>{m.label}</span>
-                                                <span className={styles.pmKb}>{m.kb}</span>
-                                            </button>
-                                        ))}
-                                    </div>
-                                    {payment === 'cash' && (
-                                        <div className={styles.cashBox}>
-                                            <input
-                                                className={styles.cashInput}
-                                                type="number" placeholder="Khách đưa (VNĐ)"
-                                                value={cashInput}
-                                                onChange={e => setCashInput(e.target.value)}
-                                            />
-                                            <div className={styles.quickAmts}>
-                                                {[50000, 100000, 200000, 500000, 1000000].map(amt => (
-                                                    <button key={amt} className={styles.qAmt} onClick={() => setCashInput(String(amt))}>
-                                                        {formatVND(amt).replace('₫', '')}
-                                                    </button>
-                                                ))}
-                                                <button className={`${styles.qAmt} ${styles.exactAmt}`} onClick={() => setCashInput(String(grandTotal))}>Đúng số</button>
-                                            </div>
-                                            {cashInput && cashAmount >= grandTotal && (
-                                                <div className={styles.changeOk}>Tiền thối: <strong>{formatVND(change)}</strong></div>
-                                            )}
-                                            {cashInput && cashAmount < grandTotal && (
-                                                <div className={styles.changeShort}>Còn thiếu: <strong>{formatVND(grandTotal - cashAmount)}</strong></div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Checkout button */}
-                                <button
-                                    className={styles.checkoutBtn}
-                                    disabled={cart.length === 0 || checkingOut || (payment === 'cash' && cashInput !== '' && cashAmount < grandTotal)}
-                                    onClick={handleCheckout}
-                                >
-                                    {checkingOut ? '⏳ ĐANG XỬ LÝ...' : `✅ THANH TOÁN — ${formatVND(grandTotal)}`}
-                                </button>
-
-                                <div className={styles.kbBar}>
-                                    <span>/ Tìm</span><span>F1 Tiền mặt</span><span>F3 Thẻ</span><span>F4 Chuyển khoản</span>
-                                </div>
+                        {/* Expandable note panel */}
+                        {showNote && (
+                            <div className={styles.expandPanel}>
+                                <textarea className={styles.noteInput} placeholder="Ghi chú đơn hàng..." value={orderNote} onChange={e => setOrderNote(e.target.value)} rows={2} autoFocus />
                             </div>
                         )}
-                    </>
+
+                        {/* Price summary */}
+                        <div className={styles.priceSummary}>
+                            <div className={styles.priceRow}>
+                                <span>Tạm tính</span>
+                                <span>{formatVND(subtotal)}</span>
+                            </div>
+                            {computeOrderDiscount() > 0 && (
+                                <div className={`${styles.priceRow} ${styles.discLine}`}>
+                                    <span>Giảm đơn ({discountType === 'percent' ? `${discountValue}%` : 'VNĐ'})</span>
+                                    <span>−{formatVND(computeOrderDiscount())}</span>
+                                </div>
+                            )}
+                            {computeCouponDiscount() > 0 && (
+                                <div className={`${styles.priceRow} ${styles.discLine}`}>
+                                    <span>Coupon ({appliedCoupon?.code})</span>
+                                    <span>−{formatVND(computeCouponDiscount())}</span>
+                                </div>
+                            )}
+                            <div className={`${styles.priceRow} ${styles.grandRow}`}>
+                                <span>TỔNG CỘNG</span>
+                                <span>{formatVND(grandTotal)}</span>
+                            </div>
+                        </div>
+
+                        {/* Payment */}
+                        <div className={styles.footerSection}>
+                            <div className={styles.sectionLabel}>💳 THANH TOÁN</div>
+                            <div className={styles.pmGrid}>
+                                {[
+                                    { key: 'cash', label: 'Tiền mặt', icon: '💵', kb: 'F1' },
+                                    { key: 'card', label: 'Thẻ', icon: '💳', kb: 'F3' },
+                                    { key: 'transfer', label: 'Chuyển khoản', icon: '🏦', kb: 'F4' },
+                                ].map(m => (
+                                    <button key={m.key}
+                                        className={`${styles.pmBtn} ${payment === m.key ? styles.pmActive : ''}`}
+                                        onClick={() => setPayment(m.key)}
+                                    >
+                                        <span>{m.icon}</span>
+                                        <span>{m.label}</span>
+                                        <span className={styles.pmKb}>{m.kb}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Checkout button */}
+                        <button
+                            className={styles.checkoutBtn}
+                            disabled={cart.length === 0 || checkingOut}
+                            onClick={handleCheckout}
+                        >
+                            {checkingOut ? '⏳ ĐANG XỬ LÝ...' : `✅ THANH TOÁN — ${formatVND(grandTotal)}`}
+                        </button>
+
+                        <div className={styles.kbBar}>
+                            <span>/ Tìm</span><span>F1 Tiền mặt</span><span>F3 Thẻ</span><span>F4 Chuyển khoản</span>
+                        </div>
+                    </div>
                 )}
             </div>
+
 
             {/* ══════ RECEIPT / INVOICE MODAL ══════ */}
             {receiptOrder && (
@@ -1174,5 +1126,5 @@ export default function AdminPOSPage() {
             )}
         </div>
         </>
-    )
+    );
 }

@@ -78,7 +78,7 @@ const ProductSchema = new Schema<IProduct>(
         category: { type: Schema.Types.ObjectId, ref: 'Category', default: null },
         brand: { type: Schema.Types.ObjectId, ref: 'Brand', default: null },
         variants: [VariantSchema],
-        basePrice: { type: Number, required: true },
+        basePrice: { type: Number, default: 0 },
         salePrice: { type: Number, default: null },
         costPrice: { type: Number, default: 0 },
         stock: { type: Number, default: 0 },

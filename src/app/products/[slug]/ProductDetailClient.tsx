@@ -603,7 +603,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         </div>
                     </div>
                     <div className={styles.stickyActions}>
-                        <button className={styles.buyBtn} onClick={handleBuyNow}>MUA NGAY</button>
+                        {effectiveBasePrice > 0 ? (
+                            <button className={styles.buyBtn} onClick={handleBuyNow}>MUA NGAY</button>
+                        ) : (
+                            <button className={styles.buyBtn} onClick={() => window.open(`https://zalo.me/${settings.storePhone.replace(/\s+/g, '')}`, '_blank')}>LIÊN HỆ</button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -859,27 +863,43 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                     Vui lòng chọn phân loại
                                 </p>
                             )}
-                            <div className={styles.ctaRow}>
-                                <Button
-                                    variant="outline-cyan"
-                                    size="lg"
-                                    fullWidth
-                                    onClick={handleAddToCart}
-                                    disabled={effectiveStock === 0 || (variants.length > 0 && selectedVariant === null)}
-                                    className={styles.cartBtn}
-                                >
-                                    {addedToCart ? "✓ ĐÃ THÊM" : "🛒 THÊM VÀO GIỎ"}
-                                </Button>
-                                <Button
-                                    variant="primary"
-                                    size="lg"
-                                    fullWidth
-                                    disabled={effectiveStock === 0 || (variants.length > 0 && selectedVariant === null)}
-                                    onClick={handleBuyNow}
-                                    className={styles.buyBtn}
-                                >
-                                    MUA NGAY →
-                                </Button>
+                             <div className={styles.ctaRow}>
+                                {effectiveBasePrice > 0 ? (
+                                    <>
+                                        <Button
+                                            variant="outline-cyan"
+                                            size="lg"
+                                            fullWidth
+                                            onClick={handleAddToCart}
+                                            disabled={effectiveStock === 0 || (variants.length > 0 && selectedVariant === null)}
+                                            className={styles.cartBtn}
+                                        >
+                                            {addedToCart ? "✓ ĐÃ THÊM" : "🛒 THÊM VÀO GIỎ"}
+                                        </Button>
+                                        <Button
+                                            variant="primary"
+                                            size="lg"
+                                            fullWidth
+                                            disabled={effectiveStock === 0 || (variants.length > 0 && selectedVariant === null)}
+                                            onClick={handleBuyNow}
+                                            className={styles.buyBtn}
+                                        >
+                                            MUA NGAY →
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button
+                                        variant="primary"
+                                        size="lg"
+                                        fullWidth
+                                        onClick={() => {
+                                            window.open(`https://zalo.me/${settings.storePhone.replace(/\s+/g, '')}`, '_blank');
+                                        }}
+                                        className={styles.buyBtn}
+                                    >
+                                        📞 LIÊN HỆ ĐẶT HÀNG: {settings.storePhone}
+                                    </Button>
+                                )}
                             </div>
 
                             <div className={styles.ctaSecondary}>

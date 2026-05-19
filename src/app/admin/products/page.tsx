@@ -669,8 +669,8 @@ export default function AdminProductsPage() {
     };
 
     const handleSaveItem = async () => {
-        if (!formData.name || !formData.slug || !formData.sku || !formData.category || !formData.brand || !formData.basePrice) {
-            error('Vui lòng điền đủ các trường bắt buộc');
+        if (!formData.name || !formData.slug || !formData.sku || !formData.category || !formData.brand) {
+            error('Vui lòng điền đầy đủ các trường bắt buộc (Tên, Slug, SKU, Danh mục, Thương hiệu)');
             return;
         }
 
@@ -710,7 +710,7 @@ export default function AdminProductsPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...formData,
-                    basePrice: Number(formData.basePrice),
+                    basePrice: formData.basePrice ? Number(formData.basePrice) : 0,
                     salePrice: formData.salePrice ? Number(formData.salePrice) : null,
                     costPrice: formData.costPrice ? Number(formData.costPrice) : 0,
                     stock: Number(formData.stock),
@@ -951,7 +951,7 @@ export default function AdminProductsPage() {
                                         </td>
                                         <td>
                                             <span className={styles.price}>
-                                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice)}
+                                                {product.basePrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice) : 'Liên hệ'}
                                             </span>
                                         </td>
                                         <td>
@@ -1001,9 +1001,9 @@ export default function AdminProductsPage() {
                                     <div className={styles.productSku}>
                                         {product.brand?.name ? `${product.brand.name} — ` : ''}{product.sku}
                                     </div>
-                                    <div className={styles.price}>
-                                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice)}
-                                    </div>
+                                     <div className={styles.price}>
+                                         {product.basePrice ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.basePrice) : 'Liên hệ'}
+                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
                                         <span className={`${styles.stock} ${product.stock === 0 ? styles.outOfStock : product.stock <= 5 ? styles.low : styles.inStock}`}>
                                             {product.stock === 0 ? 'Hết hàng' : `Kho: ${product.stock}`}
