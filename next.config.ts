@@ -5,6 +5,18 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Fix lỗi Vercel build: ENOENT middleware.js.nft.json
+  // Known issue với Next.js 16 + Vercel middleware file tracing
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': [
+        'node_modules/@swc/core-linux-x64-gnu',
+        'node_modules/@swc/core-linux-x64-musl',
+        'node_modules/@esbuild/linux-x64',
+      ],
+    },
+  },
+
   // Bật SCSS modules
   sassOptions: {
     // Tự động inject @use vào mọi module.scss
