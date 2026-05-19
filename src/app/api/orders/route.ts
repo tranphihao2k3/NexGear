@@ -70,17 +70,29 @@ export async function POST(req: NextRequest) {
         const name = body.customerInfo?.name || 'Khách vãng lai';
         const email = body.customerInfo?.email || '';
 
+        const normalizePhone = (input: string) => {
+            let p = String(input || '').trim().replace(/\D/g, '');
+            if (!p) return '';
+            if (p.startsWith('84')) p = `0${p.slice(2)}`;
+            if (!p.startsWith('0') && p.length === 9) p = `0${p}`;
+            return p;
+        };
+
         if (phone) {
             const rawPhone = String(phone).trim();
-            const normalizedPhone = rawPhone.replace(/\D/g, '');
+            const normalizedPhone = normalizePhone(rawPhone);
 
             let customer = await Customer.findOne({
-                $or: [{ phone: rawPhone }, ...(normalizedPhone ? [{ phone: normalizedPhone }] : [])],
+                $or: [
+                    { phone: rawPhone },
+                    ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
+                    ...(normalizedPhone ? [{ phone: normalizedPhone.replace(/^0/, '84') }] : []),
+                ],
             });
 
             if (!customer) {
                 customer = await Customer.create({
-                    name: name.trim(),
+                    name: name.trim() || 'Khách hàng POS',
                     phone: normalizedPhone || rawPhone,
                     email: email.trim() || undefined,
                     customerType: 'regular',

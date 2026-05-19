@@ -194,6 +194,7 @@ export default function AdminProductsPage() {
     const [filterCategory, setFilterCategory] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+    const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
 
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -848,6 +849,127 @@ export default function AdminProductsPage() {
         return matchSearch && matchCategory && matchStatus;
     });
 
+    const selectedProducts = filtered.filter(p => selectedProductIds.includes(p._id));
+    const allFilteredSelected = filtered.length > 0 && filtered.every(p => selectedProductIds.includes(p._id));
+
+    const toggleSelectProduct = (id: string) => {
+        setSelectedProductIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    };
+
+    const toggleSelectAllFiltered = () => {
+        if (allFilteredSelected) {
+            setSelectedProductIds(prev => prev.filter(id => !filtered.some(p => p._id === id)));
+            return;
+        }
+        const union = new Set([...selectedProductIds, ...filtered.map(p => p._id)]);
+        setSelectedProductIds(Array.from(union));
+    };
+
+    const getSpecsLines = (specs?: Record<string, any>) => {
+        const s = specs || {};
+        const preferredKeys = ['CPU', 'Ram', 'Ổ cứng', 'SSD', 'Màn hình', 'Card đồ hoạ', 'Pin'];
+        const lines: string[] = [];
+        for (const key of preferredKeys) {
+            if (s[key]) lines.push(`${key}: ${s[key]}`);
+            if (lines.length >= 5) break;
+        }
+        if (lines.length === 0) {
+            for (const [k, v] of Object.entries(s)) {
+                if (v !== null && v !== undefined && String(v).trim() !== '') {
+                    lines.push(`${k}: ${String(v)}`);
+                    if (lines.length >= 5) break;
+                }
+            }
+        }
+        return lines;
+    };
+
+    const openBulkPrintLabels = () => {
+        if (selectedProducts.length === 0) {
+            info('Vui lòng chọn ít nhất 1 sản phẩm để in tem');
+            return;
+        }
+
+        const formatPriceForLabel = (n: number) => n > 0 ? new Intl.NumberFormat('vi-VN').format(n) + 'đ' : 'Liên hệ';
+        const safeText = (v: any) => String(v ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] as string));
+
+        const cardsHtml = selectedProducts.map((p) => {
+            const specsLines = getSpecsLines(p.specs);
+            const warranty = p.warrantyMonths ? `${p.warrantyMonths} tháng` : 'Theo chính sách cửa hàng';
+            const gift = p.gift?.trim() ? p.gift : 'Balo + túi chống sốc + chuột + lót chuột';
+            const price = p.salePrice && p.salePrice > 0 ? p.salePrice : p.basePrice;
+
+            return `
+                <div class="label-card">
+                    <div class="store-name">NEXGEAR</div>
+                    <div class="product-name">${safeText(p.name)}</div>
+                    <div class="sku">SKU: ${safeText(p.sku)}</div>
+                    <div class="specs">
+                        ${specsLines.map(line => `<div>• ${safeText(line)}</div>`).join('')}
+                    </div>
+                    <div class="price">Giá: ${safeText(formatPriceForLabel(price || 0))}</div>
+                    <div class="warranty">Bảo hành: ${safeText(warranty)}</div>
+                    <div class="gift">Quà tặng: ${safeText(gift)}</div>
+                </div>
+            `;
+        }).join('');
+
+        const win = window.open('', '_blank', 'width=900,height=700');
+        if (!win) return;
+
+        win.document.write(`
+            <html>
+            <head>
+                <title>In tem laptop - A5 (6 tem)</title>
+                <style>
+                    @page { size: A5 portrait; margin: 20mm; }
+                    * { box-sizing: border-box; }
+                    body { margin: 0; font-family: Arial, sans-serif; color: #000; }
+                    .sheet {
+                        width: 100%;
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        grid-auto-rows: 1fr;
+                        gap: 5mm;
+                    }
+                    .label-card {
+                        border: 1.2px solid #000;
+                        border-radius: 2mm;
+                        padding: 4.2mm;
+                        min-height: 50mm;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 2mm;
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                    }
+                    .store-name { font-size: 11px; font-weight: 700; letter-spacing: 0.4px; }
+                    .product-name { font-size: 15px; font-weight: 700; line-height: 1.25; min-height: 11mm; }
+                    .sku { font-size: 11px; color: #111; }
+                    .specs { font-size: 11px; line-height: 1.4; min-height: 16mm; }
+                    .price { font-size: 15px; font-weight: 700; margin-top: auto; }
+                    .warranty, .gift { font-size: 11px; line-height: 1.35; }
+                    .print-actions { position: fixed; top: 8px; right: 8px; display: flex; gap: 8px; }
+                    .print-actions button { border: 1px solid #000; background: #fff; padding: 6px 10px; cursor: pointer; }
+                    @media print {
+                        .print-actions { display: none; }
+                        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                        .sheet { gap: 4mm; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-actions">
+                    <button onclick="window.print()">In tem</button>
+                    <button onclick="window.close()">Đóng</button>
+                </div>
+                <div class="sheet">${cardsHtml}</div>
+            </body>
+            </html>
+        `);
+        win.document.close();
+    };
+
     return (
         <>
             {/* Header */}
@@ -909,6 +1031,12 @@ export default function AdminProductsPage() {
                         ▦
                     </button>
                 </div>
+
+                {selectedProductIds.length > 0 && (
+                    <button className={styles.printTemplateBtn} onClick={openBulkPrintLabels}>
+                        🖨️ IN TEM (${selectedProductIds.length})
+                    </button>
+                )}
             </div>
 
             {/* Products Layout */}
@@ -917,6 +1045,14 @@ export default function AdminProductsPage() {
                     <table className={styles.table}>
                         <thead>
                             <tr>
+                                <th className={styles.checkCol}>
+                                    <input 
+                                        type="checkbox" 
+                                        className={styles.rowCheck} 
+                                        checked={allFilteredSelected}
+                                        onChange={toggleSelectAllFiltered}
+                                    />
+                                </th>
                                 <th>Sản phẩm</th>
                                 <th>Danh mục</th>
                                 <th>Giá</th>
@@ -927,12 +1063,20 @@ export default function AdminProductsPage() {
                         </thead>
                         <tbody>
                             {productsLoading ? (
-                                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
+                                <tr><td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
                             ) : filtered.length === 0 ? (
-                                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '20px' }}>Không tìm thấy sản phẩm nào</td></tr>
+                                <tr><td colSpan={7} style={{ textAlign: 'center', padding: '20px' }}>Không tìm thấy sản phẩm nào</td></tr>
                             ) : (
                                 filtered.map((product) => (
                                     <tr key={product._id}>
+                                        <td className={styles.checkCol}>
+                                            <input 
+                                                type="checkbox" 
+                                                className={styles.rowCheck} 
+                                                checked={selectedProductIds.includes(product._id)}
+                                                onChange={() => toggleSelectProduct(product._id)}
+                                            />
+                                        </td>
                                         <td>
                                             <div className={styles.productCell}>
                                                 <div className={styles.productImage}>
@@ -992,7 +1136,14 @@ export default function AdminProductsPage() {
                         <div style={{ textAlign: 'center', padding: '20px', gridColumn: '1 / -1' }}>Không tìm thấy sản phẩm nào</div>
                     ) : (
                         filtered.map((product) => (
-                            <div key={product._id} className={styles.gridCard}>
+                            <div key={product._id} className={styles.gridCard} style={{ position: 'relative' }}>
+                                <input 
+                                    type="checkbox" 
+                                    className={styles.rowCheck} 
+                                    style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 10, width: '18px', height: '18px' }}
+                                    checked={selectedProductIds.includes(product._id)}
+                                    onChange={() => toggleSelectProduct(product._id)}
+                                />
                                 <div className={styles.gridImage}>
                                     {product.images?.[0] ? <LazyImage src={product.images[0]} alt="" fill objectFit="cover" /> : '📦'}
                                 </div>

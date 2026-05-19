@@ -654,3 +654,28 @@
         background: $color-cyan-dark;
     }
 }
+
+.printTemplateBtn {
+    @include btn-base;
+    @include btn-size-sm;
+    background: rgba(123, 63, 242, 0.15);
+    border: 1px solid rgba(123, 63, 242, 0.35);
+    color: #C9B3FF;
+
+    &:hover {
+        background: rgba(123, 63, 242, 0.25);
+        color: #E6DCFF;
+    }
+}
+
+.checkCol {
+    width: 34px;
+    text-align: center;
+}
+
+.rowCheck {
+    width: 16px;
+    height: 16px;
+    accent-color: #7B3FF2;
+    cursor: pointer;
+}
