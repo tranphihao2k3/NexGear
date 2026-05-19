@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
+import Customer from '@/models/Customer';
+import WarrantyCard from '@/models/WarrantyCard';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 import { pusherServer } from '@/lib/pusher-server';
 
@@ -61,6 +63,28 @@ export async function POST(req: NextRequest) {
             return apiError('Order must have at least one item');
         }
 
+        // 1. Tìm hoặc tạo Customer dựa vào SĐT nếu là POS/online mua hàng
+        let customerId = body.user;
+        const phone = body.customerInfo?.phone;
+        const name = body.customerInfo?.name || 'Khách vãng lai';
+        const email = body.customerInfo?.email || '';
+
+        if (phone) {
+            let customer = await Customer.findOne({ phone: phone.trim() });
+            if (!customer) {
+                customer = await Customer.create({
+                    name: name.trim(),
+                    phone: phone.trim(),
+                    email: email.trim() || undefined,
+                    customerType: 'regular',
+                    status: 'active',
+                    source: body.channel || 'pos',
+                });
+            }
+            customerId = customer._id;
+            body.user = customerId;
+        }
+
         // Auto-generate order code
         const lastOrder = await Order.findOne().sort({ createdAt: -1 }).select('orderCode');
         let nextNum = 1;
@@ -90,6 +114,15 @@ export async function POST(req: NextRequest) {
             },
         ];
 
+        if (body.status === 'delivered') {
+            body.timeline.push({
+                status: 'delivered',
+                note: 'Đã giao hàng và thanh toán thành công',
+                updatedBy: body.processedBy || body.user,
+                updatedAt: new Date(),
+            });
+        }
+
         const order = await Order.create(body);
 
         // Deduct stock for all products in a single bulk operation
@@ -100,6 +133,41 @@ export async function POST(req: NextRequest) {
             },
         }));
         await Product.bulkWrite(bulkOps, { ordered: false });
+
+        // 2. Tự động sinh thẻ bảo hành nếu đơn hàng hoàn thành (delivered)
+        if (body.status === 'delivered' && customerId) {
+            for (const item of body.items) {
+                const prod = await Product.findById(item.product);
+                if (prod) {
+                    const months = prod.warrantyMonths || 12; // Mặc định 12 tháng
+                    const purchaseDate = new Date();
+                    const startDate = new Date();
+                    const endDate = new Date();
+                    endDate.setMonth(endDate.getMonth() + months);
+
+                    // Mỗi sản phẩm/số lượng bán ra sẽ tạo 1 thẻ bảo hành riêng biệt
+                    for (let i = 0; i < item.qty; i++) {
+                        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+                        const warrantyNumber = `WARR-${order.orderCode.replace('NGR-', '')}-${randomSuffix}-${i + 1}`;
+                        
+                        await WarrantyCard.create({
+                            warrantyNumber,
+                            product: prod._id,
+                            order: order._id,
+                            customer: customerId,
+                            serialNumber: '', // Nhân viên có thể update serial sau
+                            warrantyType: 'store',
+                            purchaseDate,
+                            warrantyStartDate: startDate,
+                            warrantyEndDate: endDate,
+                            warrantyMonths: months,
+                            status: 'active',
+                            notes: `Sinh tự động từ đơn hàng POS ${order.orderCode}`,
+                        });
+                    }
+                }
+            }
+        }
 
         // Notify Admin panel in real-time
         try {

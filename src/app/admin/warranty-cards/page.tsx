@@ -24,19 +24,20 @@ import Link from 'next/link';
 interface WarrantyCard {
   _id: string;
   warrantyNumber: string;
-  productId: {
+  product?: {
     _id: string;
     name: string;
-    model: string;
+    model?: string;
   };
-  customerId: {
+  customer?: {
     _id: string;
     name: string;
     phone: string;
   };
-  orderId?: {
+  order?: {
     _id: string;
-    orderNumber: string;
+    orderCode?: string;
+    orderNumber?: string;
   };
   serialNumber: string;
   warrantyType: 'manufacturer' | 'store';
@@ -114,10 +115,27 @@ export default function WarrantyCardsPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const warrantyNumber = `WARR-MANUAL-${randomSuffix}`;
+
+      const payload = {
+        warrantyNumber,
+        product: formData.productId,
+        customer: formData.customerId,
+        order: formData.orderId || null,
+        serialNumber: formData.serialNumber,
+        warrantyType: formData.warrantyType,
+        warrantyMonths: formData.warrantyMonths,
+        warrantyTerms: formData.warrantyTerms,
+        purchaseDate: formData.purchaseDate ? new Date(formData.purchaseDate) : null,
+        warrantyStartDate: formData.warrantyStartDate ? new Date(formData.warrantyStartDate) : null,
+        notes: formData.notes
+      };
+
       const response = await fetch('/api/warranty-cards', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
 
       const result = await response.json();
@@ -196,8 +214,8 @@ export default function WarrantyCardsPage() {
     return (
       card.warrantyNumber.toLowerCase().includes(s) ||
       card.serialNumber?.toLowerCase().includes(s) ||
-      card.customerId?.name.toLowerCase().includes(s) ||
-      card.productId?.name.toLowerCase().includes(s)
+      card.customer?.name?.toLowerCase().includes(s) ||
+      card.product?.name?.toLowerCase().includes(s)
     );
   });
 
@@ -320,13 +338,13 @@ export default function WarrantyCardsPage() {
                       <span className={s.subText}>{new Date(card.createdAt).toLocaleDateString('vi-VN')}</span>
                     </td>
                     <td>
-                      <span className={s.mainText}>{card.productId?.name}</span>
-                      <span className={s.subText}>{card.productId?.model}</span>
+                      <span className={s.mainText}>{card.product?.name || 'Sản phẩm không xác định'}</span>
+                      <span className={s.subText}>{card.product?.model || ''}</span>
                     </td>
                     <td><code style={{ fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{card.serialNumber || '-'}</code></td>
                     <td>
-                      <span className={s.mainText}>{card.customerId?.name}</span>
-                      <span className={s.subText}>{card.customerId?.phone}</span>
+                      <span className={s.mainText}>{card.customer?.name || 'Khách vãng lai'}</span>
+                      <span className={s.subText}>{card.customer?.phone || ''}</span>
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <Badge variant={typeInfo.variant}>{typeInfo.label}</Badge>
@@ -487,8 +505,8 @@ export default function WarrantyCardsPage() {
                 <div className={s.formGrid}>
                   <div className={s.detailItem}>
                     <label>Sản phẩm</label>
-                    <span>{selectedCard.productId?.name}</span>
-                    <div style={{ fontSize: '11px', color: 'var(--color-ink3)' }}>{selectedCard.productId?.model}</div>
+                    <span>{selectedCard.product?.name || 'Sản phẩm không xác định'}</span>
+                    <div style={{ fontSize: '11px', color: 'var(--color-ink3)' }}>{selectedCard.product?.model || ''}</div>
                   </div>
                   <div className={s.detailItem}>
                     <label>Serial Number</label>
@@ -498,8 +516,8 @@ export default function WarrantyCardsPage() {
 
                 <div className={s.detailItem}>
                   <label>Khách hàng</label>
-                  <span>{selectedCard.customerId?.name}</span>
-                  <div style={{ fontSize: '12px', color: 'var(--color-cyan)', fontFamily: 'var(--font-mono)' }}>{selectedCard.customerId?.phone}</div>
+                  <span>{selectedCard.customer?.name || 'Khách vãng lai'}</span>
+                  <div style={{ fontSize: '12px', color: 'var(--color-cyan)', fontFamily: 'var(--font-mono)' }}>{selectedCard.customer?.phone || 'N/A'}</div>
                 </div>
 
                 <div className={s.formGrid}>

@@ -2,14 +2,15 @@ import styles from './page.module.scss';
 import { Metadata } from 'next';
 import { getSiteSettings } from '@/lib/site-config';
 import { headers } from 'next/headers';
+import WarrantySearch from './WarrantySearch';
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
   const host = headersList.get('host') || '';
   const s = await getSiteSettings(host);
   return {
-    title: `Chính sách bảo hành | ${s.storeName}`,
-    description: `Quy định về thời hạn, điều kiện và quy trình bảo hành chính hãng tại ${s.storeName}. Cam kết hỗ trợ khách hàng nhanh chóng và chu đáo.`,
+    title: `Chính sách & Tra cứu bảo hành | ${s.storeName}`,
+    description: `Quy định về thời hạn, điều kiện và quy trình bảo hành chính hãng tại ${s.storeName}. Tra cứu bảo hành trực tuyến nhanh chóng.`,
   };
 }
 
@@ -24,8 +25,11 @@ export default async function WarrantyPolicyPage() {
       <div className={styles.container}>
         <header className={styles.header}>
           <span className={styles.label}>{s.storeName} SUPPORT</span>
-          <h1 className={styles.title}>Chính sách bảo hành</h1>
+          <h1 className={styles.title}>Chính sách & Tra cứu bảo hành</h1>
         </header>
+
+        {/* Tra cứu bảo hành */}
+        <WarrantySearch />
 
         <article className={styles.content}>
           <section>
