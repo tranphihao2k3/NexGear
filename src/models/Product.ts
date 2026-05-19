@@ -49,8 +49,6 @@ export interface IProduct extends Document {
     tags: string[];
     ratings: { avg: number; count: number };
     soldCount: number;
-    productType: 'product' | 'component';
-    componentType: 'RAM' | 'SSD' | 'MOUSE' | 'KEYBOARD' | 'CPU' | 'VGA' | 'MAINBOARD' | 'PSU' | 'CASE' | 'COOLING' | 'OTHER' | null;
     isActive: boolean;
     isFeatured: boolean;
     seoTitle: string;
@@ -92,12 +90,6 @@ const ProductSchema = new Schema<IProduct>(
             count: { type: Number, default: 0 },
         },
         soldCount: { type: Number, default: 0 },
-        productType: { type: String, enum: ['product', 'component'], default: 'product' },
-        componentType: {
-            type: String,
-            enum: ['RAM', 'SSD', 'MOUSE', 'KEYBOARD', 'CPU', 'VGA', 'MAINBOARD', 'PSU', 'CASE', 'COOLING', 'OTHER'],
-            default: null,
-        },
         isActive: { type: Boolean, default: true },
         isFeatured: { type: Boolean, default: false },
         seoTitle: { type: String, default: '' },
@@ -133,8 +125,6 @@ ProductSchema.index({ soldCount: -1 });
 ProductSchema.index({ name: 'text', tags: 'text' });
 ProductSchema.index({ isUsed: 1, condition: 1 });
 ProductSchema.index({ source: 1 });
-ProductSchema.index({ productType: 1, componentType: 1 });
-
 // Compound indexes for common query patterns
 ProductSchema.index({ isActive: 1, category: 1, stock: -1, createdAt: -1 }); // category + in-stock first + newest (most common storefront query)
 ProductSchema.index({ isActive: 1, category: 1, createdAt: -1 }); // category + newest

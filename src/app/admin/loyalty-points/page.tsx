@@ -37,11 +37,49 @@ interface LoyaltyPoints {
 }
 
 const TYPE_MAP: Record<string, { label: string, variant: any }> = {
-    earn: { label: 'Tích điểm', variant: 'green' },
-    redeem: { label: 'Đổi điểm', variant: 'magenta' },
-    bonus: { label: 'Thưởng', variant: 'cyan' },
+    earned: { label: 'Tích điểm', variant: 'green' },
+    redeemed: { label: 'Đổi điểm', variant: 'magenta' },
+    adjusted: { label: 'Điều chỉnh', variant: 'cyan' },
     expired: { label: 'Hết hạn', variant: 'ink' },
 };
+
+const normalizePointsType = (t: string) => {
+    if (t === 'earn') return 'earned';
+    if (t === 'redeem') return 'redeemed';
+    if (t === 'bonus') return 'adjusted';
+    return t;
+};
+
+const denormalizePointsType = (t: string) => {
+    if (t === 'earned') return 'earned';
+    if (t === 'redeemed') return 'redeemed';
+    if (t === 'adjusted') return 'adjusted';
+    return t || 'earned';
+};
+
+const isPositivePointsType = (t: string) => ['earned', 'adjusted'].includes(denormalizePointsType(t));
+
+const toApiPayload = (form: { customerId: string; points: number; pointsType: string; description: string; orderId: string }) => ({
+    customer: form.customerId,
+    points: Number(form.points) || 0,
+    pointsType: denormalizePointsType(form.pointsType),
+    description: form.description,
+    order: form.orderId || null,
+});
+
+const fromApiRecord = (record: any) => ({
+    ...record,
+    customerId: (record.customerId || record.customer),
+    orderId: record.orderId || record.order || '',
+    pointsType: normalizePointsType(record.pointsType),
+});
+
+const mapFilterTypeToApi = (type: string) => {
+    if (!type) return '';
+    return denormalizePointsType(type);
+};
+
+const mapUiTypeToApiType = (type: string) => denormalizePointsType(type);
 
 export default function LoyaltyPointsPage() {
     const { success: showSuccess, error: showError } = useToast();
@@ -55,7 +93,7 @@ export default function LoyaltyPointsPage() {
     const [formData, setFormData] = useState({
         customerId: '',
         points: 0,
-        pointsType: 'earn',
+        pointsType: 'earned',
         description: '',
         orderId: '',
     });
@@ -77,12 +115,13 @@ export default function LoyaltyPointsPage() {
                 page: pagination.page.toString(),
                 limit: pagination.limit.toString(),
             });
-            if (filterType) params.append('pointsType', filterType);
+            const apiFilterType = mapFilterTypeToApi(filterType);
+            if (apiFilterType) params.append('pointsType', apiFilterType);
 
-            const res = await fetch(`/api/admin/loyalty-points?${params}`);
+            const res = await fetch(`/api/loyalty-points?${params}`);
             const data = await res.json();
             if (data.success) {
-                setRecords(data.data);
+                setRecords((data.data || []).map(fromApiRecord));
                 setPagination(data.pagination);
             }
         } catch (error) {
@@ -102,15 +141,15 @@ export default function LoyaltyPointsPage() {
 
         try {
             const url = editingRecord
-                ? `/api/admin/loyalty-points/${editingRecord._id}`
-                : '/api/admin/loyalty-points';
+                ? `/api/loyalty-points/${editingRecord._id}`
+                : '/api/loyalty-points';
 
             const method = editingRecord ? 'PUT' : 'POST';
 
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(toApiPayload(formData)),
             });
 
             const data = await res.json();
@@ -131,7 +170,7 @@ export default function LoyaltyPointsPage() {
         if (!confirm('Bạn có chắc muốn xóa bản ghi điểm này? Thao tác này có thể ảnh hưởng đến tổng điểm của khách hàng.')) return;
 
         try {
-            const res = await fetch(`/api/admin/loyalty-points/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/loyalty-points/${id}`, { method: 'DELETE' });
             const data = await res.json();
 
             if (data.success) {
@@ -150,9 +189,9 @@ export default function LoyaltyPointsPage() {
         setFormData({
             customerId: (record.customerId as any)?._id || record.customerId,
             points: record.points,
-            pointsType: record.pointsType || 'earn',
+            pointsType: denormalizePointsType(record.pointsType || 'earned'),
             description: record.description || '',
-            orderId: record.orderId || '',
+            orderId: (record as any).orderId || (record as any).order?._id || '',
         });
         setShowModal(true);
     };
@@ -160,7 +199,7 @@ export default function LoyaltyPointsPage() {
     const handleCloseModal = () => {
         setShowModal(false);
         setEditingRecord(null);
-        setFormData({ customerId: '', points: 0, pointsType: 'earn', description: '', orderId: '' });
+        setFormData({ customerId: '', points: 0, pointsType: 'earned', description: '', orderId: '' });
     };
 
     return (
@@ -185,9 +224,9 @@ export default function LoyaltyPointsPage() {
                     onChange={(e) => { setFilterType(e.target.value); setPagination(p => ({ ...p, page: 1 })); }}
                 >
                     <option value="">Tất cả loại giao dịch</option>
-                    <option value="earn">Tích điểm (Mua hàng)</option>
-                    <option value="redeem">Đổi điểm (Giảm giá)</option>
-                    <option value="bonus">Thưởng (Sự kiện)</option>
+                    <option value="earned">Tích điểm (Mua hàng)</option>
+                    <option value="redeemed">Đổi điểm (Giảm giá)</option>
+                    <option value="adjusted">Thưởng/Điều chỉnh</option>
                     <option value="expired">Hết hạn</option>
                 </select>
 
@@ -226,7 +265,7 @@ export default function LoyaltyPointsPage() {
                             records.map((record) => {
                                 const customer = record.customerId;
                                 const typeInfo = TYPE_MAP[record.pointsType] || { label: record.pointsType, variant: 'ink' };
-                                const isPositive = ['earn', 'bonus'].includes(record.pointsType);
+                                const isPositive = isPositivePointsType(record.pointsType);
 
                                 return (
                                     <tr key={record._id}>
@@ -352,11 +391,11 @@ export default function LoyaltyPointsPage() {
                                     <span className={s.fieldLabel}>Loại giao dịch</span>
                                     <select
                                         value={formData.pointsType}
-                                        onChange={(e) => setFormData({ ...formData, pointsType: e.target.value })}
+                                        onChange={(e) => setFormData({ ...formData, pointsType: mapUiTypeToApiType(e.target.value) })}
                                     >
-                                        <option value="earn">Tích điểm</option>
-                                        <option value="redeem">Đổi điểm</option>
-                                        <option value="bonus">Thưởng (Bonus)</option>
+                                        <option value="earned">Tích điểm</option>
+                                        <option value="redeemed">Đổi điểm</option>
+                                        <option value="adjusted">Thưởng / Điều chỉnh</option>
                                         <option value="expired">Hết hạn</option>
                                     </select>
                                 </div>

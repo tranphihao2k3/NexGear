@@ -4,6 +4,7 @@ import Order from '@/models/Order';
 import Product from '@/models/Product';
 import Customer from '@/models/Customer';
 import WarrantyCard from '@/models/WarrantyCard';
+import LoyaltyPoints from '@/models/LoyaltyPoints';
 import { apiSuccess, apiError, apiPaginated, parsePagination } from '@/lib/api-helpers';
 import { pusherServer } from '@/lib/pusher-server';
 
@@ -165,6 +166,42 @@ export async function POST(req: NextRequest) {
                             notes: `Sinh tự động từ đơn hàng POS ${order.orderCode}`,
                         });
                     }
+                }
+            }
+        }
+
+        // 3. Tự động cộng điểm loyalty khi đơn đã hoàn tất
+        if (body.status === 'delivered' && customerId) {
+            const total = Math.max(0, Number(order.total) || 0);
+
+            // Rule:
+            // - 1.000đ = 1 điểm
+            // - Nếu đơn < 1.000.000đ thì tối thiểu +500 điểm
+            let earnedPoints = Math.floor(total / 1000);
+            if (total > 0 && total < 1_000_000) {
+                earnedPoints = Math.max(earnedPoints, 500);
+            }
+
+            if (earnedPoints > 0) {
+                // tránh cộng trùng nếu retry request với cùng order
+                const existedLoyalty = await LoyaltyPoints.findOne({
+                    order: order._id,
+                    pointsType: 'earned',
+                });
+
+                if (!existedLoyalty) {
+                    await LoyaltyPoints.create({
+                        customer: customerId,
+                        points: earnedPoints,
+                        pointsType: 'earned',
+                        order: order._id,
+                        description: `Tích điểm tự động từ đơn hàng ${order.orderCode}`,
+                        expiryDate: null,
+                    });
+
+                    await Customer.findByIdAndUpdate(customerId, {
+                        $inc: { loyaltyPoints: earnedPoints },
+                    });
                 }
             }
         }

@@ -22,7 +22,6 @@ import {
     LogOut,
     PanelLeftClose,
     PanelLeftOpen,
-    Cpu,
     ShoppingCart,
     Megaphone,
     Shield,
@@ -89,7 +88,6 @@ const MENU_GROUPS: MenuGroup[] = [
             { label: 'Sản phẩm', href: '/admin/products', icon: Laptop },
             { label: 'Danh mục', href: '/admin/categories', icon: FolderTree },
             { label: 'Thương hiệu', href: '/admin/brands', icon: Building2 },
-            { label: 'Linh kiện', href: '/admin/components', icon: Cpu },
         ]
     },
     {
