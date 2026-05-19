@@ -148,6 +148,7 @@ const CATEGORIES = [
   { emoji: "🔊", label: "Loa", count: "150+", href: "/loa" },
   { emoji: "🎙️", label: "Micro", count: "80+", href: "/micro" },
   { emoji: "💻", label: "Laptop", count: "100+", href: "/laptop" },
+  { emoji: "🖥️", label: "Máy Tính PC", count: "50+", href: "/may-tinh-ban-pc" },
   { emoji: "🔲", label: "Keycap", count: "250+", href: "/phu-kien?type=keycap" },
   { emoji: "🔌", label: "Phụ Kiện", count: "400+", href: "/phu-kien" },
 ];
@@ -212,7 +213,7 @@ export default function HomeClient({ initialProducts = [], initialBlogs = [] }: 
     { q: "Shop có thu cũ đổi mới không?", a: "Chúng tôi có chương trình 'Thu cũ đổi mới' cực hấp dẫn dành cho bàn phím, chuột và tai nghe gaming. Vui lòng nhắn tin để được định giá." },
   ];
 
-  const typingText = useTyping(["Bàn phím cơ", "Chuột gaming", "Tai nghe Hi-Fi", "Micro stream", "Laptop gaming"], 90, 2500);
+  const typingText = useTyping(["Bàn phím cơ", "Chuột gaming", "Tai nghe Hi-Fi", "Micro stream", "Laptop gaming", "PC Gaming / Văn phòng"], 90, 2500);
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const { scrollYProgress: globalScroll } = useScroll();

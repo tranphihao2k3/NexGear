@@ -192,6 +192,8 @@ function ScanTest() {
                 const hw = data.hardware;
                 setHardware(hw);
                 setStatus('complete');
+                localStorage.setItem('nexgear_laptop_hardware', JSON.stringify(hw));
+                localStorage.setItem('nexgear_laptop_scan_status', 'complete');
                 showSuccess('Quét hoàn tất!');
                 channel.unbind_all();
                 pusher.unsubscribe(`scan-${sessionToken}`);
@@ -225,9 +227,23 @@ function ScanTest() {
         setStatus('idle');
         setHardware(null);
         setToken('');
+        localStorage.removeItem('nexgear_laptop_hardware');
+        localStorage.removeItem('nexgear_laptop_scan_status');
     };
 
     useEffect(() => {
+        const savedHw = localStorage.getItem('nexgear_laptop_hardware');
+        const savedStatus = localStorage.getItem('nexgear_laptop_scan_status');
+        if (savedHw && savedStatus === 'complete') {
+            try {
+                setHardware(JSON.parse(savedHw));
+                setStatus('complete');
+            } catch (e) {
+                localStorage.removeItem('nexgear_laptop_hardware');
+                localStorage.removeItem('nexgear_laptop_scan_status');
+            }
+        }
+
         return () => {
             if (pusherRef.current) {
                 pusherRef.current.disconnect();

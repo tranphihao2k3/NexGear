@@ -131,11 +131,29 @@ async function getNavCategories() {
       }
     }
 
-    // Laptop first
+    const prioritySlugs = [
+      'laptop',
+      'gaming-laptop',
+      'ultrabook',
+      'workstation',
+      'laptop-sinh-vien',
+      'may-tinh-ban-pc',
+      'ban-phim',
+      'chuot',
+      'tai-nghe',
+      'loa',
+      'micro',
+      'linh-ki-n',
+      'phu-kien',
+      'lot-chuot'
+    ];
     roots.sort((a: any, b: any) => {
-      if (a.slug === 'laptop' || a.name.toLowerCase() === 'laptop') return -1;
-      if (b.slug === 'laptop' || b.name.toLowerCase() === 'laptop') return 1;
-      return 0;
+      const aIdx = prioritySlugs.indexOf(a.slug);
+      const bIdx = prioritySlugs.indexOf(b.slug);
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      if (aIdx !== -1) return -1;
+      if (bIdx !== -1) return 1;
+      return (a.order || 0) - (b.order || 0);
     });
 
     return JSON.parse(JSON.stringify(roots));
