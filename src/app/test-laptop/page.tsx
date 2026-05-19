@@ -411,15 +411,28 @@ function ScanTest() {
                             )}
 
                             {/* Wifi */}
-                            {hardware.wifi && hardware.wifi.currentSsid && hardware.wifi.currentSsid !== 'Disconnected' && (
-                                <div className={s.hwCard}>
+                            {hardware.wifi && (hardware.wifi.currentSsid !== 'Disconnected' || (hardware.wifi.knownNetworks && hardware.wifi.knownNetworks.length > 0)) && (
+                                <div className={`${s.hwCard} ${hardware.wifi.knownNetworks && hardware.wifi.knownNetworks.length > 0 ? s.hwCardFull : ''}`}>
                                     <div className={s.hwIcon}>📶</div>
                                     <div className={s.hwInfo}>
                                         <span className={s.hwLabel}>Mạng Không Dây</span>
-                                        <strong className={s.hwValue}>{hardware.wifi.currentSsid}</strong>
+                                        <strong className={s.hwValue}>{hardware.wifi.currentSsid !== 'Disconnected' ? hardware.wifi.currentSsid : 'Chưa kết nối'}</strong>
                                         <span className={s.hwMeta}>
-                                            Adapter: {hardware.wifi.adapterName} • Cường độ: {hardware.wifi.currentSignal}
+                                            Adapter: {hardware.wifi.adapterName} {hardware.wifi.currentSignal && hardware.wifi.currentSsid !== 'Disconnected' ? `• Cường độ: ${hardware.wifi.currentSignal}` : ''}
                                         </span>
+                                        {hardware.wifi.knownNetworks && hardware.wifi.knownNetworks.length > 0 && (
+                                            <div className={s.wifiList}>
+                                                <div className={s.wifiTitle}>Các mạng đã từng kết nối ({hardware.wifi.knownNetworks.length})</div>
+                                                <div className={s.wifiGrid}>
+                                                    {hardware.wifi.knownNetworks.map((net: any, idx: number) => (
+                                                        <div key={idx} className={s.wifiItem}>
+                                                            <div className={s.wifiSsid}>🔑 {net.ssid}</div>
+                                                            <div className={s.wifiMeta}>Trạng thái: Đã lưu</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

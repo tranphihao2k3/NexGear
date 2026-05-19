@@ -54,6 +54,10 @@ export interface IScanSession extends Document {
                 band?: string;
                 auth?: string;
             }>;
+            knownNetworks?: Array<{
+                ssid?: string;
+                lastConnected?: string;
+            }>;
         };
         battery?: {
             designCapacity?: string;
