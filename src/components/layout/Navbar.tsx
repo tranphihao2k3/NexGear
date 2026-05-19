@@ -248,104 +248,66 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                 <div className={styles.catBar}>
                     <div className={styles.catBarInner}>
                         <nav className={styles.catNav} aria-label="Danh mục">
-                            {categories.map(cat => (
-                                <div
-                                    key={cat.href}
-                                    className={styles.catWrap}
-                                    onMouseEnter={() => cat.sub && handleMouseEnter(cat.href)}
-                                    onMouseLeave={handleMouseLeave}
-                                >
-                                    <Link
-                                        href={cat.href}
-                                        prefetch={false}
-                                        className={`${styles.catLink} ${pathname.startsWith(cat.href) ? styles.catLinkActive : ''}`}
-                                    >
-                                        {cat.label}
-                                        {cat.sub && <span className={styles.catChevron}>▾</span>}
-                                    </Link>
+                            {(siteSettings.headerMenu || []).map(item => {
+                                let subItems = item.children;
+                                if (item.isMegaMenu) {
+                                    const matchingCategory = categories.find(c => c.href === item.href || item.href.endsWith(c.href));
+                                    if (matchingCategory) {
+                                        subItems = matchingCategory.sub as any;
+                                    }
+                                }
 
-                                    {/* Mega Dropdown — always in DOM, toggled via CSS class */}
-                                    {cat.sub && (
-                                        <div
-                                            className={`${styles.megaDropdown} ${activeDropdown === cat.href ? styles.megaDropdownOpen : ''}`}
-                                            onMouseEnter={() => handleMouseEnter(cat.href)}
-                                            onMouseLeave={handleMouseLeave}
-                                        >
-                                            <div className={styles.megaBar} />
-                                            <div className={styles.megaContent}>
-                                                <div className={styles.megaList}>
-                                                    <div className={styles.megaListTitle}>{cat.label.toUpperCase()}</div>
-                                                    {cat.sub.map((s, i) => (
-                                                        <Link
-                                                            key={s.href}
-                                                            href={s.href}
-                                                            prefetch={false}
-                                                            className={styles.megaItem}
-                                                            style={{ animationDelay: `${i * 35}ms` }}
-                                                        >
-                                                            <span className={styles.megaItemLabel}>{s.label}</span>
-                                                            {s.desc && <span className={styles.megaItemDesc}>{s.desc}</span>}
-                                                        </Link>
-                                                    ))}
-                                                    <Link href={cat.href} prefetch={false} className={styles.megaViewAll}>
-                                                        Xem tất cả {cat.label} →
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                const hasSub = subItems && subItems.length > 0;
+                                const dropdownKey = `${item.href}-${item.id}`;
 
-                            <span className={styles.catSep} />
-
-                            {/* Dịch vụ dropdown */}
-                            <div
-                                className={styles.catWrap}
-                                onMouseEnter={() => handleMouseEnter(SERVICE_MENU.href + '-svc')}
-                                onMouseLeave={handleMouseLeave}
-                            >
-                                <Link
-                                    href={SERVICE_MENU.href}
-                                    prefetch={false}
-                                    className={`${styles.catLink} ${pathname.startsWith('/sua-chua') || pathname.startsWith('/thu-cu') ? styles.catLinkActive : ''}`}
-                                >
-                                    {SERVICE_MENU.label}
-                                    <span className={styles.catChevron}>▾</span>
-                                </Link>
-                                {SERVICE_MENU.sub && (
+                                return (
                                     <div
-                                        className={`${styles.megaDropdown} ${activeDropdown === SERVICE_MENU.href + '-svc' ? styles.megaDropdownOpen : ''}`}
-                                        onMouseEnter={() => handleMouseEnter(SERVICE_MENU.href + '-svc')}
+                                        key={item.id}
+                                        className={styles.catWrap}
+                                        onMouseEnter={() => hasSub && handleMouseEnter(dropdownKey)}
                                         onMouseLeave={handleMouseLeave}
                                     >
-                                        <div className={styles.megaBar} />
-                                        <div className={styles.megaContent}>
-                                            <div className={styles.megaList}>
-                                                {SERVICE_MENU.sub.map((s, i) => (
-                                                    <Link key={s.href} href={s.href} prefetch={false} className={styles.megaItem} style={{ animationDelay: `${i * 35}ms` }}>
-                                                        <span className={styles.megaItemLabel}>{s.label}</span>
-                                                        {s.desc && <span className={styles.megaItemDesc}>{s.desc}</span>}
-                                                    </Link>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                                        <Link
+                                            href={item.href}
+                                            prefetch={false}
+                                            className={`${styles.catLink} ${item.highlight ? styles.catLinkDeal : ''} ${pathname === item.href || pathname.startsWith(item.href + '/') ? styles.catLinkActive : ''}`}
+                                        >
+                                            {item.label}
+                                            {hasSub && <span className={styles.catChevron}>▾</span>}
+                                        </Link>
 
-                            {MORE_LINKS.map(link => (
-                                <Link
-                                    key={link.href}
-                                    href={link.href}
-                                    prefetch={false}
-                                    className={`${styles.catLink} ${link.highlight ? styles.catLinkDeal : ''} ${link.testLink ? styles.catLinkTest : ''} ${pathname.startsWith(link.href) ? styles.catLinkActive : ''}`}
-                                >
-                                    {link.testLink ? (
-                                        <span className={styles.testBadge}>{link.label}</span>
-                                    ) : link.label}
-                                </Link>
-                            ))}
+                                        {hasSub && (
+                                            <div
+                                                className={`${styles.megaDropdown} ${activeDropdown === dropdownKey ? styles.megaDropdownOpen : ''}`}
+                                                onMouseEnter={() => handleMouseEnter(dropdownKey)}
+                                                onMouseLeave={handleMouseLeave}
+                                            >
+                                                <div className={styles.megaBar} />
+                                                <div className={styles.megaContent}>
+                                                    <div className={styles.megaList}>
+                                                        <div className={styles.megaListTitle}>{item.label.toUpperCase()}</div>
+                                                        {(subItems || []).map((s, i) => (
+                                                            <Link
+                                                                key={s.href + '-' + i}
+                                                                href={s.href}
+                                                                prefetch={false}
+                                                                className={styles.megaItem}
+                                                                style={{ animationDelay: `${i * 35}ms` }}
+                                                            >
+                                                                <span className={styles.megaItemLabel}>{s.label}</span>
+                                                                {s.desc && <span className={styles.megaItemDesc}>{s.desc}</span>}
+                                                            </Link>
+                                                        ))}
+                                                        <Link href={item.href} prefetch={false} className={styles.megaViewAll}>
+                                                            Xem tất cả {item.label} →
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </nav>
                     </div>
                 </div>
@@ -366,39 +328,42 @@ export default function Navbar({ cartCount = 0 }: NavbarProps) {
                         </div>
                         <div className={styles.mobileDivider} />
 
-                        {categories.map(cat => (
-                            <div key={cat.href} className={styles.mobileLinkGroup}>
-                                <div className={styles.mobileLinkRow}>
-                                    <Link href={cat.href} className={`${styles.mobileLink} ${pathname.startsWith(cat.href) ? styles.mobileLinkActive : ''}`}>
-                                        {cat.label}
-                                    </Link>
-                                    {cat.sub && (
-                                        <button
-                                            className={`${styles.mobileExpand} ${mobileExpanded === cat.href ? styles.mobileExpandOpen : ''}`}
-                                            onClick={() => setMobileExpanded(prev => prev === cat.href ? null : cat.href)}
-                                        >▾</button>
+                        {(siteSettings.headerMenu || []).map(item => {
+                            let subItems = item.children;
+                            if (item.isMegaMenu) {
+                                const matchingCategory = categories.find(c => c.href === item.href || item.href.endsWith(c.href));
+                                if (matchingCategory) {
+                                    subItems = matchingCategory.sub as any;
+                                }
+                            }
+
+                            const hasSub = subItems && subItems.length > 0;
+
+                            return (
+                                <div key={item.id} className={styles.mobileLinkGroup}>
+                                    <div className={styles.mobileLinkRow}>
+                                        <Link href={item.href} className={`${styles.mobileLink} ${pathname === item.href ? styles.mobileLinkActive : ''}`}>
+                                            {item.label}
+                                        </Link>
+                                        {hasSub && (
+                                            <button
+                                                className={`${styles.mobileExpand} ${mobileExpanded === item.id ? styles.mobileExpandOpen : ''}`}
+                                                onClick={() => setMobileExpanded(prev => prev === item.id ? null : item.id)}
+                                            >▾</button>
+                                        )}
+                                    </div>
+                                    {hasSub && mobileExpanded === item.id && (
+                                        <div className={styles.mobileSub}>
+                                            {(subItems || []).map((s, i) => (
+                                                <Link key={s.href + '-' + i} href={s.href} className={styles.mobileSubLink}>
+                                                    <span className={styles.mobileSubDash}>//</span> {s.label}
+                                                </Link>
+                                            ))}
+                                        </div>
                                     )}
                                 </div>
-                                {cat.sub && mobileExpanded === cat.href && (
-                                    <div className={styles.mobileSub}>
-                                        {cat.sub.map(s => (
-                                            <Link key={s.href} href={s.href} className={styles.mobileSubLink}>
-                                                <span className={styles.mobileSubDash}>//</span> {s.label}
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-
-                        <div className={styles.mobileDivider} />
-                        <Link href="/sua-chua-laptop" className={styles.mobileLink}>🔧 Sửa chữa Laptop</Link>
-                        <Link href="/thu-cu-doi-moi" className={styles.mobileLink}>🔄 Thu cũ đổi mới</Link>
-                        {MORE_LINKS.map(link => (
-                            <Link key={link.href} href={link.href} className={`${styles.mobileLink} ${link.highlight ? styles.mobileLinkHighlight : ''} ${link.testLink ? styles.mobileLinkTest : ''}`}>
-                                {link.label}
-                            </Link>
-                        ))}
+                            );
+                        })}
                         <div className={styles.mobileDivider} />
 
                         {session ? (

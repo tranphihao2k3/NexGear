@@ -29,6 +29,15 @@ export interface SiteSettings {
     // Bộ Công Thương
     bctLink: string;
     bctType: 'notified' | 'registered';
+    // Drag-and-drop customizable header menu
+    headerMenu?: {
+        id: string;
+        label: string;
+        href: string;
+        isMegaMenu: boolean;
+        highlight: boolean;
+        children?: { id: string; label: string; href: string; desc?: string }[];
+    }[];
 }
 
 const DEFAULTS: SiteSettings = {
@@ -57,6 +66,17 @@ const DEFAULTS: SiteSettings = {
     bankName: '',
     bctLink: '',
     bctType: 'notified',
+    headerMenu: [
+        { id: '1', label: 'Trang chủ', href: '/', isMegaMenu: false, highlight: false },
+        { id: '2', label: 'Laptop', href: '/laptop', isMegaMenu: true, highlight: false },
+        { id: '3', label: 'Dịch vụ', href: '/sua-chua-laptop', isMegaMenu: false, highlight: false, children: [
+            { id: '3-1', label: 'Sửa chữa Laptop', href: '/sua-chua-laptop', desc: 'Chẩn đoán, sửa chữa chuyên nghiệp' },
+            { id: '3-2', label: 'Thu cũ đổi mới', href: '/thu-cu-doi-moi', desc: 'Lên đời laptop, trợ giá tốt' }
+        ]},
+        { id: '4', label: 'Blog', href: '/blog', isMegaMenu: false, highlight: false },
+        { id: '5', label: 'Flash Deal', href: '/deals', isMegaMenu: false, highlight: true },
+        { id: '6', label: '🧪 Test Laptop', href: '/test-laptop', isMegaMenu: false, highlight: false }
+    ]
 };
 
 // Cache settings per siteId to support multi-tenant deployments
@@ -148,6 +168,7 @@ export async function getSiteSettings(idOrHost?: string): Promise<SiteSettings> 
                 bankName: (settings as any).bankName || DEFAULTS.bankName,
                 bctLink: (settings as any).bctLink || DEFAULTS.bctLink,
                 bctType: (settings as any).bctType || DEFAULTS.bctType,
+                headerMenu: (settings as any).headerMenu || DEFAULTS.headerMenu,
             };
         } else {
             result = { ...DEFAULTS };
@@ -229,6 +250,7 @@ export async function getRawSiteSettings(idOrHost?: string): Promise<{
             bankName: s.bankName || DEFAULTS.bankName,
             bctLink: s.bctLink || DEFAULTS.bctLink,
             bctType: s.bctType || DEFAULTS.bctType,
+            headerMenu: s.headerMenu || DEFAULTS.headerMenu,
         };
 
         // Update cache so getSiteSettings() won't re-query

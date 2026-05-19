@@ -64,7 +64,7 @@ export async function PUT(req: NextRequest) {
             'freeShipMinOrder', 'ghtkToken', 'ghnToken',
             'showLandingPage',
             'bankAccountName', 'bankAccountNumber', 'bankName',
-            'bctLink', 'bctType'
+            'bctLink', 'bctType', 'headerMenu'
         ];
 
         for (const field of allowedFields) {

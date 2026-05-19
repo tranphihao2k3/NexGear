@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import styles from './page.module.scss'
 import { CyberpunkLoader, useToast } from '@/components/ui'
 
-type SettingsTab = 'general' | 'notifications' | 'appearance' | 'shipping'
+type SettingsTab = 'general' | 'notifications' | 'appearance' | 'shipping' | 'navigation'
 
 interface UploadState {
     loading: boolean;
@@ -65,6 +65,15 @@ interface SettingsData {
     // Bộ Công Thương
     bctLink: string
     bctType: 'notified' | 'registered'
+    // Drag-and-drop customizable header menu
+    headerMenu: {
+        id: string;
+        label: string;
+        href: string;
+        isMegaMenu: boolean;
+        highlight: boolean;
+        children?: { id: string; label: string; href: string; desc?: string }[];
+    }[];
 }
 
 const DEFAULTS: SettingsData = {
@@ -109,6 +118,17 @@ const DEFAULTS: SettingsData = {
     bankName: '',
     bctLink: '',
     bctType: 'notified',
+    headerMenu: [
+        { id: '1', label: 'Trang chủ', href: '/', isMegaMenu: false, highlight: false },
+        { id: '2', label: 'Laptop', href: '/laptop', isMegaMenu: true, highlight: false },
+        { id: '3', label: 'Dịch vụ', href: '/sua-chua-laptop', isMegaMenu: false, highlight: false, children: [
+            { id: '3-1', label: 'Sửa chữa Laptop', href: '/sua-chua-laptop', desc: 'Chẩn đoán, sửa chữa chuyên nghiệp' },
+            { id: '3-2', label: 'Thu cũ đổi mới', href: '/thu-cu-doi-moi', desc: 'Lên đời laptop, trợ giá tốt' }
+        ]},
+        { id: '4', label: 'Blog', href: '/blog', isMegaMenu: false, highlight: false },
+        { id: '5', label: 'Flash Deal', href: '/deals', isMegaMenu: false, highlight: true },
+        { id: '6', label: '🧪 Test Laptop', href: '/test-laptop', isMegaMenu: false, highlight: false }
+    ]
 }
 
 export default function AdminSettingsPage() {
@@ -288,6 +308,7 @@ export default function AdminSettingsPage() {
         { key: 'notifications', label: 'Thông báo' },
         { key: 'shipping', label: 'Vận chuyển' },
         { key: 'appearance', label: 'Giao diện' },
+        { key: 'navigation', label: 'Menu Header (Kéo thả)' },
     ]
 
     if (loading) {
@@ -786,6 +807,205 @@ export default function AdminSettingsPage() {
                         <button className={styles.saveBtn} onClick={saveAppearance} disabled={saving}>
                             {saving ? 'ĐANG LƯU...' : '💾 LƯU GIAO DIỆN'}
                         </button>
+                    </div>
+                </div>
+            )}
+
+            {/* ─── NAVIGATION MENU TAB ─── */}
+            {activeTab === 'navigation' && (
+                <div className={styles.menuTabWrapper}>
+                    <div className={styles.section}>
+                        <div className={styles.sectionHeader}>
+                            <div className={styles.sectionTitle}>Cấu hình Menu Header</div>
+                            <div className={styles.sectionDesc}>Kéo thả để sắp xếp, thêm mới, sửa hoặc xóa các mô đun menu trên thanh điều hướng website</div>
+                        </div>
+
+                        <div className={styles.sectionBody}>
+                            {/* Form thêm menu cha mới */}
+                            <div className={styles.menuCreatorBox} style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '24px' }}>
+                                <div className={styles.creatorTitle} style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--color-cyan)', fontWeight: 'bold', marginBottom: '12px' }}>➕ THÊM MENU MỚI</div>
+                                <div className={styles.creatorGrid} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                                    <input 
+                                        type="text" 
+                                        placeholder="Tên hiển thị (VD: Bàn phím cơ)" 
+                                        id="newMenuLabel"
+                                        className={styles.formInput} 
+                                    />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Đường dẫn (VD: /products)" 
+                                        id="newMenuHref"
+                                        className={styles.formInput} 
+                                    />
+                                </div>
+                                <div className={styles.checkboxRow} style={{ display: 'flex', gap: '20px', marginBottom: '16px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input type="checkbox" id="newMenuMega" />
+                                        <span>Mega Menu (Tự động đồng bộ danh mục)</span>
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input type="checkbox" id="newMenuHighlight" />
+                                        <span>Nổi bật (Highlight màu đỏ)</span>
+                                    </label>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    className={styles.saveBtn}
+                                    style={{ width: 'auto', padding: '10px 20px', fontSize: '12px' }}
+                                    onClick={() => {
+                                        const labelEl = document.getElementById('newMenuLabel') as HTMLInputElement;
+                                        const hrefEl = document.getElementById('newMenuHref') as HTMLInputElement;
+                                        const megaEl = document.getElementById('newMenuMega') as HTMLInputElement;
+                                        const highEl = document.getElementById('newMenuHighlight') as HTMLInputElement;
+
+                                        if (!labelEl?.value || !hrefEl?.value) {
+                                            error('Vui lòng nhập đầy đủ tên và đường dẫn!');
+                                            return;
+                                        }
+
+                                        const newItem = {
+                                            id: `menu-${Date.now()}`,
+                                            label: labelEl.value,
+                                            href: hrefEl.value,
+                                            isMegaMenu: megaEl.checked,
+                                            highlight: highEl.checked,
+                                            children: []
+                                        };
+
+                                        setSettings(prev => ({
+                                            ...prev,
+                                            headerMenu: [...(prev.headerMenu || []), newItem]
+                                        }));
+
+                                        labelEl.value = '';
+                                        hrefEl.value = '';
+                                        megaEl.checked = false;
+                                        highEl.checked = false;
+                                        success('Đã thêm menu mới! Hãy bấm Lưu cấu hình bên dưới để lưu.');
+                                    }}
+                                >
+                                    THÊM VÀO DANH SÁCH MENU
+                                </button>
+                            </div>
+
+                            {/* Danh sách kéo thả */}
+                            <div className={styles.menuDragList} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {(settings.headerMenu || []).map((item, index) => {
+                                    return (
+                                        <div 
+                                            key={item.id}
+                                            className={styles.dragItem}
+                                            style={{
+                                                background: 'rgba(255,255,255,0.03)',
+                                                border: '1px solid rgba(255,255,255,0.08)',
+                                                borderRadius: '6px',
+                                                padding: '12px',
+                                                cursor: 'move'
+                                            }}
+                                            draggable
+                                            onDragStart={(e) => {
+                                                e.dataTransfer.setData('text/plain', String(index));
+                                            }}
+                                            onDragOver={(e) => {
+                                                e.preventDefault();
+                                            }}
+                                            onDrop={(e) => {
+                                                e.preventDefault();
+                                                const dragIdx = Number(e.dataTransfer.getData('text/plain'));
+                                                const newMenu = [...(settings.headerMenu || [])];
+                                                const [removed] = newMenu.splice(dragIdx, 1);
+                                                newMenu.splice(index, 0, removed);
+                                                setSettings(prev => ({ ...prev, headerMenu: newMenu }));
+                                            }}
+                                        >
+                                            <div className={styles.dragHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <div style={{ color: 'var(--color-ink3)', fontSize: '18px' }}>☰</div>
+                                                    <span style={{ fontWeight: 'bold', color: item.highlight ? 'var(--color-accent)' : 'inherit' }}>{item.label}</span>
+                                                    <code style={{ fontSize: '11px', color: 'var(--color-cyan)', fontFamily: 'var(--font-mono)', background: 'rgba(0,0,0,0.2)', padding: '2px 6px', borderRadius: '4px' }}>{item.href}</code>
+                                                    {item.isMegaMenu && <span style={{ fontSize: '10px', background: 'rgba(0, 196, 173, 0.1)', color: 'var(--color-cyan)', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>MEGA</span>}
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '8px' }}>
+                                                    <button 
+                                                        type="button"
+                                                        style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}
+                                                        onClick={() => {
+                                                            const subName = prompt('Nhập tên menu con (VD: Sửa chữa Laptop):');
+                                                            const subHref = prompt('Nhập đường dẫn liên kết (VD: /sua-chua-laptop):', item.href);
+                                                            const subDesc = prompt('Mô tả ngắn (VD: Chẩn đoán nhanh chóng):') || '';
+                                                            if (!subName || !subHref) return;
+
+                                                            const newChildren = [...(item.children || []), {
+                                                                id: `sub-${Date.now()}`,
+                                                                label: subName,
+                                                                href: subHref,
+                                                                desc: subDesc
+                                                            }];
+
+                                                            const newMenu = (settings.headerMenu || []).map(x => 
+                                                                x.id === item.id ? { ...x, children: newChildren } : x
+                                                            );
+                                                            setSettings(prev => ({ ...prev, headerMenu: newMenu }));
+                                                        }}
+                                                    >
+                                                        + Thêm menu con
+                                                    </button>
+                                                    <button 
+                                                        type="button"
+                                                        style={{ background: 'rgba(229, 62, 62, 0.15)', color: '#E53E3E', border: 'none', padding: '6px 12px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer' }}
+                                                        onClick={() => {
+                                                            const newMenu = (settings.headerMenu || []).filter(x => x.id !== item.id);
+                                                            setSettings(prev => ({ ...prev, headerMenu: newMenu }));
+                                                        }}
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Submenu lists */}
+                                            {item.children && item.children.length > 0 && (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '10px', paddingLeft: '24px', borderLeft: '1px dashed rgba(255,255,255,0.1)' }}>
+                                                    {item.children.map((sub, subIdx) => (
+                                                        <div key={sub.id || subIdx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.15)', padding: '6px 12px', borderRadius: '4px' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px' }}>
+                                                                <span style={{ color: 'var(--color-ink3)' }}>↳</span>
+                                                                <strong>{sub.label}</strong>
+                                                                <code style={{ fontSize: '10px', color: 'var(--color-ink3)' }}>{sub.href}</code>
+                                                                {sub.desc && <em style={{ fontSize: '11px', color: 'var(--color-ink3)' }}>- {sub.desc}</em>}
+                                                            </div>
+                                                            <button 
+                                                                type="button"
+                                                                style={{ background: 'none', border: 'none', color: '#E53E3E', cursor: 'pointer', fontSize: '12px' }}
+                                                                onClick={() => {
+                                                                    const newChildren = item.children?.filter(x => x.id !== sub.id);
+                                                                    const newMenu = (settings.headerMenu || []).map(x => 
+                                                                        x.id === item.id ? { ...x, children: newChildren } : x
+                                                                    );
+                                                                    setSettings(prev => ({ ...prev, headerMenu: newMenu }));
+                                                                }}
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div className={styles.sectionFooter}>
+                            <button 
+                                className={styles.saveBtn} 
+                                onClick={() => saveSettings({ headerMenu: settings.headerMenu })} 
+                                disabled={saving}
+                            >
+                                {saving ? 'ĐANG LƯU CẤU HÌNH...' : '💾 LƯU CẤU HÌNH MENU HEADER'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
