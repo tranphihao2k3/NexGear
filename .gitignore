@@ -54,7 +54,5 @@ next-env.d.ts
 .env.test.local
 .env.production.local
 
-# scan agent (large binary)
-/public/scan-agent.exe
 
 /image-server
