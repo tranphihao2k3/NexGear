@@ -867,22 +867,39 @@ export default function AdminProductsPage() {
 
     const getSpecsLines = (specs?: Record<string, any>) => {
         const s = specs || {};
-        const preferredKeys = ['CPU', 'Ram', 'Ổ cứng', 'SSD', 'Màn hình', 'Card đồ hoạ', 'Pin'];
+        const entries = Object.entries(s).filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '');
+        if (entries.length === 0) return [];
+
+        const normalize = (x: string) => x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
+        const preferredGroups = [
+            ['cpu', 'chip', 'bo xu ly'],
+            ['ram', 'bo nho'],
+            ['o cung', 'ssd', 'hdd', 'storage'],
+            ['man hinh', 'display'],
+            ['card do hoa', 'gpu', 'vga'],
+            ['pin', 'battery'],
+            ['trong luong', 'weight'],
+        ];
+
+        const used = new Set<string>();
         const lines: string[] = [];
-        for (const key of preferredKeys) {
-            if (s[key]) lines.push(`${key}: ${s[key]}`);
-            if (lines.length >= 5) break;
-        }
-        if (lines.length === 0) {
-            for (const [k, v] of Object.entries(s)) {
-                if (v !== null && v !== undefined && String(v).trim() !== '') {
-                    lines.push(`${k}: ${String(v)}`);
-                    if (lines.length >= 5) break;
-                }
+
+        for (const group of preferredGroups) {
+            const hit = entries.find(([k]) => !used.has(k) && group.some(token => normalize(k).includes(token)));
+            if (hit) {
+                used.add(hit[0]);
+                lines.push(`${hit[0]}: ${String(hit[1])}`);
             }
         }
-        return lines;
+
+        for (const [k, v] of entries) {
+            if (used.has(k)) continue;
+            lines.push(`${k}: ${String(v)}`);
+        }
+
+        return lines.slice(0, 5);
     };
+
 
     const openBulkPrintLabels = () => {
         if (selectedProducts.length === 0) {
@@ -893,25 +910,47 @@ export default function AdminProductsPage() {
         const formatPriceForLabel = (n: number) => n > 0 ? new Intl.NumberFormat('vi-VN').format(n) + 'đ' : 'Liên hệ';
         const safeText = (v: any) => String(v ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] as string));
 
-        const cardsHtml = selectedProducts.map((p) => {
-            const specsLines = getSpecsLines(p.specs);
-            const warranty = p.warrantyMonths ? `${p.warrantyMonths} tháng` : 'Theo chính sách cửa hàng';
-            const gift = p.gift?.trim() ? p.gift : 'Balo + túi chống sốc + chuột + lót chuột';
-            const price = p.salePrice && p.salePrice > 0 ? p.salePrice : p.basePrice;
+        // Group selected products into A5 sheets of 6 labels each
+        const chunk = <T,>(arr: T[], size: number): T[][] => {
+            return Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+                arr.slice(i * size, i * size + size)
+            );
+        };
+        const productChunks = chunk(selectedProducts, 6);
 
-            return `
-                <div class="label-card">
-                    <div class="store-name">NEXGEAR</div>
-                    <div class="product-name">${safeText(p.name)}</div>
-                    <div class="sku">SKU: ${safeText(p.sku)}</div>
-                    <div class="specs">
-                        ${specsLines.map(line => `<div>• ${safeText(line)}</div>`).join('')}
+        const sheetsHtml = productChunks.map((chunk) => {
+            const cardsHtml = chunk.map((p) => {
+                const specsLines = getSpecsLines(p.specs);
+                const warranty = p.warrantyMonths ? `${p.warrantyMonths} tháng` : 'Chính sách cửa hàng';
+                const giftRaw = p.gift?.trim() ? p.gift : 'Balo + túi CS + chuột + lót';
+                const giftCleaned = giftRaw
+                    .replace(/túi chống sốc/gi, 'túi CS')
+                    .replace(/chống sốc/gi, 'CS')
+                    .replace(/\s*\+\s*/g, ' + ')
+                    .trim();
+                const giftShort = giftCleaned.length > 34 ? giftCleaned.substring(0, 32) + '..' : giftCleaned;
+                const price = p.salePrice && p.salePrice > 0 ? p.salePrice : p.basePrice;
+
+                return `
+                    <div class="label-card">
+                        <div class="header-row">
+                            <span class="store-name">Thông tin laptop</span>
+                            <span class="sku">SKU: ${safeText(p.sku)}</span>
+                        </div>
+                        <div class="product-name">${safeText(p.name)}</div>
+                        <div class="specs">
+                            ${specsLines.map(line => `<div>• ${safeText(line)}</div>`).join('')}
+                        </div>
+                        <div class="footer-section">
+                            <div class="price">Giá: ${safeText(formatPriceForLabel(price || 0))}</div>
+                            <div class="warranty">Bảo hành: ${safeText(warranty)}</div>
+                            <div class="gift">Quà tặng: ${safeText(giftShort)}</div>
+                        </div>
                     </div>
-                    <div class="price">Giá: ${safeText(formatPriceForLabel(price || 0))}</div>
-                    <div class="warranty">Bảo hành: ${safeText(warranty)}</div>
-                    <div class="gift">Quà tặng: ${safeText(gift)}</div>
-                </div>
-            `;
+                `;
+            }).join('');
+
+            return `<div class="sheet">${cardsHtml}</div>`;
         }).join('');
 
         const win = window.open('', '_blank', 'width=900,height=700');
@@ -922,39 +961,80 @@ export default function AdminProductsPage() {
             <head>
                 <title>In tem laptop - A5 (6 tem)</title>
                 <style>
-                    @page { size: A5 portrait; margin: 20mm; }
+                    @page { size: A5 portrait; margin: 8mm; }
                     * { box-sizing: border-box; }
                     body { margin: 0; font-family: Arial, sans-serif; color: #000; }
                     .sheet {
                         width: 100%;
+                        height: 172mm;
                         display: grid;
                         grid-template-columns: 1fr 1fr;
-                        grid-auto-rows: 1fr;
-                        gap: 5mm;
+                        grid-template-rows: repeat(3, 1fr);
+                        gap: 3.5mm;
+                        page-break-after: always;
                     }
+                    .sheet:last-of-type { page-break-after: auto; }
                     .label-card {
                         border: 1.2px solid #000;
                         border-radius: 2mm;
-                        padding: 4.2mm;
-                        min-height: 50mm;
+                        padding: 3mm;
+                        height: 100%;
                         display: flex;
                         flex-direction: column;
-                        gap: 2mm;
+                        overflow: hidden;
                         break-inside: avoid;
                         page-break-inside: avoid;
                     }
-                    .store-name { font-size: 11px; font-weight: 700; letter-spacing: 0.4px; }
-                    .product-name { font-size: 15px; font-weight: 700; line-height: 1.25; min-height: 11mm; }
-                    .sku { font-size: 11px; color: #111; }
-                    .specs { font-size: 11px; line-height: 1.4; min-height: 16mm; }
-                    .price { font-size: 15px; font-weight: 700; margin-top: auto; }
-                    .warranty, .gift { font-size: 11px; line-height: 1.35; }
+                    .header-row {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        border-bottom: 0.5px dashed #ccc;
+                        padding-bottom: 1mm;
+                        margin-bottom: 1mm;
+                    }
+                    .store-name { font-size: 10px; font-weight: 700; letter-spacing: 0.3px; }
+                    .sku { font-size: 9px; color: #555; }
+                    .product-name {
+                        font-size: 12px;
+                        font-weight: 700;
+                        line-height: 1.25;
+                        margin-bottom: 1mm;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 2;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                    }
+                    .specs {
+                        font-size: 9px;
+                        line-height: 1.3;
+                        color: #222;
+                        flex-grow: 1;
+                        overflow: hidden;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.3mm;
+                    }
+                    .specs div {
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+                    .footer-section {
+                        border-top: 0.5px dashed #ccc;
+                        padding-top: 1.5mm;
+                        margin-top: 1mm;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.8mm;
+                    }
+                    .price { font-size: 13px; font-weight: 700; }
+                    .warranty, .gift { font-size: 9px; line-height: 1.25; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
                     .print-actions { position: fixed; top: 8px; right: 8px; display: flex; gap: 8px; }
                     .print-actions button { border: 1px solid #000; background: #fff; padding: 6px 10px; cursor: pointer; }
                     @media print {
                         .print-actions { display: none; }
                         body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                        .sheet { gap: 4mm; }
                     }
                 </style>
             </head>
@@ -963,7 +1043,7 @@ export default function AdminProductsPage() {
                     <button onclick="window.print()">In tem</button>
                     <button onclick="window.close()">Đóng</button>
                 </div>
-                <div class="sheet">${cardsHtml}</div>
+                ${sheetsHtml}
             </body>
             </html>
         `);
