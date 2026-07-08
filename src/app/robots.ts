@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — robots.txt
+// LTV — robots.txt
 // File: app/robots.ts
 // Configure search engine crawlers directives
 // ============================================================

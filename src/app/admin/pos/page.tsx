@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin POS Page — Professional Edition
+// LTV — Admin POS Page — Professional Edition
 // Layout: Left = compact product list | Right = cart + checkout
 // ============================================================
 'use client'

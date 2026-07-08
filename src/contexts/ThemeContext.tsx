@@ -19,7 +19,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
-        const stored = localStorage.getItem('nexgear_theme') as Theme | null
+        const stored = localStorage.getItem('ltv_theme') as Theme | null
         if (stored === 'dark' || stored === 'light') {
             setTheme(stored)
         } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -31,7 +31,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (!mounted) return
         document.documentElement.setAttribute('data-theme', theme)
-        localStorage.setItem('nexgear_theme', theme)
+        localStorage.setItem('ltv_theme', theme)
     }, [theme, mounted])
 
     const toggleTheme = useCallback(() => {

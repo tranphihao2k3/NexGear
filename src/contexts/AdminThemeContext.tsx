@@ -25,7 +25,7 @@ export function AdminThemeProvider({
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
-        const stored = localStorage.getItem('nexgear_admin_theme') as Theme | null
+        const stored = localStorage.getItem('ltv_admin_theme') as Theme | null
         if (stored === 'dark' || stored === 'light') {
             setTheme(stored)
         }
@@ -37,7 +37,7 @@ export function AdminThemeProvider({
         layoutRef.current?.setAttribute('data-admin-theme', theme)
         // Also set on documentElement so :root-level vars get overridden for admin
         document.documentElement.setAttribute('data-admin-theme', theme)
-        localStorage.setItem('nexgear_admin_theme', theme)
+        localStorage.setItem('ltv_admin_theme', theme)
         return () => {
             document.documentElement.removeAttribute('data-admin-theme')
         }

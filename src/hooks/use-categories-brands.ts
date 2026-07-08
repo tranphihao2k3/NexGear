@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Categories & Brands Hooks
+// LTV — Categories & Brands Hooks
 // File: src/hooks/use-categories-brands.ts
 // staleTime cao (30 phút) vì data hiếm thay đổi
 // ============================================================

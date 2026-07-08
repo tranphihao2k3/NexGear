@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Input Component
+// LTV — Input Component
 // File: components/ui/Input.tsx
 // ============================================================
 import { forwardRef, InputHTMLAttributes } from 'react'

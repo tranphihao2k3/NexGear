@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Skeleton Loading Components
+// LTV — Skeleton Loading Components
 // File: components/ui/Skeleton.tsx
 // Premium cyberpunk shimmer & neon scan design system
 // ============================================================

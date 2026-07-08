@@ -49,7 +49,7 @@ function LaptopModel() {
           <planeGeometry args={[3.8, 2.6]} />
           <meshBasicMaterial color="#00C4AD" transparent opacity={0.15} />
         </mesh>
-        {/* NEXGEAR Logo on back */}
+        {/* Store Logo on back */}
         <mesh position={[0, 1.4, -0.06]}>
           <circleGeometry args={[0.3, 32]} />
           <meshBasicMaterial color="#00C4AD" />

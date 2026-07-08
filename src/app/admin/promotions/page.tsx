@@ -482,7 +482,7 @@ export default function PromotionsPage() {
                   label="Mã khuyến mãi (Code)"
                   value={formData.code}
                   onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                  placeholder="VD: NEXGEAR2024"
+                  placeholder="VD: THANHVO2024"
                 />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label style={{ fontSize: '11px', fontWeight: 'bold', fontFamily: 'JetBrains Mono' }}>LOẠI GIẢM GIÁ</label>

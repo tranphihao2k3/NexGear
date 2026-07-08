@@ -41,6 +41,7 @@ export interface IProduct extends Document {
     basePrice: number;
     salePrice: number | null;
     costPrice: number;
+    hidePrice: boolean;
     stock: number;
     lowStockAlert: number;
     images: string[];
@@ -62,7 +63,7 @@ export interface IProduct extends Document {
     warrantyMonths: number;
     viewCount: number;
     gift: string;
-    source: 'nexgear' | 'laplap';
+    source: 'laptopthanhvo' | 'laplap';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -79,6 +80,7 @@ const ProductSchema = new Schema<IProduct>(
         basePrice: { type: Number, default: 0 },
         salePrice: { type: Number, default: null },
         costPrice: { type: Number, default: 0 },
+        hidePrice: { type: Boolean, default: false },
         stock: { type: Number, default: 0 },
         lowStockAlert: { type: Number, default: 5 },
         images: [{ type: String }],
@@ -110,7 +112,7 @@ const ProductSchema = new Schema<IProduct>(
         warrantyMonths: { type: Number, default: 12 },
         viewCount: { type: Number, default: 0 },
         gift: { type: String, default: '' },
-        source: { type: String, enum: ['nexgear', 'laplap'], default: 'nexgear' },
+        source: { type: String, enum: ['laptopthanhvo', 'laplap'], default: 'laptopthanhvo' },
     },
     { timestamps: true }
 );

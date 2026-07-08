@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Super Admin: Shops Management Page
+// LTV — Super Admin: Shops Management Page
 // Route: /admin/shops
 // Chỉ dành cho role: superadmin
 // ============================================================
@@ -148,7 +148,7 @@ export default function AdminShopsPage() {
                 <div className={styles.headerLeft}>
                     <div className={styles.superBadge}>👑 SUPERADMIN</div>
                     <h1>Quản lý Shops</h1>
-                    <p className={styles.headerDesc}>Tạo và quản lý tất cả các cửa hàng trên nền tảng NEXGEAR</p>
+                    <p className={styles.headerDesc}>Tạo và quản lý tất cả các cửa hàng trên nền tảng Thành Võ Laptop</p>
                 </div>
                 <button className={styles.addBtn} onClick={() => { resetForm(); setShowModal(true) }}>
                     + TẠO SHOP MỚI

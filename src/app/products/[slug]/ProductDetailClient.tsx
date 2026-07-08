@@ -315,7 +315,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     useEffect(() => {
         if (!product) return;
         try {
-            const wl = JSON.parse(localStorage.getItem("nexgear_wishlist") || "[]");
+            const wl = JSON.parse(localStorage.getItem("ltv_wishlist") || "[]");
             setWishlisted(wl.includes(product._id));
         } catch { }
     }, [product]);
@@ -401,8 +401,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
     const effectiveBasePrice = variantPrice || product.basePrice;
     const effectiveSalePrice = product.salePrice;
     const currentPrice = effectiveSalePrice && effectiveSalePrice < effectiveBasePrice ? effectiveSalePrice : effectiveBasePrice;
-    const pct = effectiveSalePrice && effectiveSalePrice < effectiveBasePrice ? Math.round((1 - effectiveSalePrice / effectiveBasePrice) * 100) : 0;
+    const hidePrice = !!product.hidePrice;
+    const pct = !hidePrice && effectiveSalePrice && effectiveSalePrice < effectiveBasePrice ? Math.round((1 - effectiveSalePrice / effectiveBasePrice) * 100) : 0;
     const effectiveStock = activeVariant ? activeVariant.stock : product.stock;
+    // Ẩn giá → hiển thị "Liên hệ" và thay CTA mua hàng bằng nút liên hệ
+    const showContactCTA = hidePrice || effectiveBasePrice <= 0;
 
     const variantImages = activeVariant?.images?.length > 0 ? activeVariant.images : null;
     const images = variantImages || (product.images?.length > 0 ? product.images : ["https://placehold.co/600x600/141414/00c4ad?text=No+Image"]);
@@ -443,7 +446,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
     function toggleWishlist() {
         try {
-            const wl: string[] = JSON.parse(localStorage.getItem("nexgear_wishlist") || "[]");
+            const wl: string[] = JSON.parse(localStorage.getItem("ltv_wishlist") || "[]");
             const idx = wl.indexOf(product._id);
             if (idx >= 0) {
                 wl.splice(idx, 1);
@@ -452,7 +455,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 wl.push(product._id);
                 setWishlisted(true);
             }
-            localStorage.setItem("nexgear_wishlist", JSON.stringify(wl));
+            localStorage.setItem("ltv_wishlist", JSON.stringify(wl));
         } catch { }
     }
 
@@ -599,11 +602,11 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         <LazyImage src={images[0]} alt={product.name} width={48} height={48} objectFit="cover" borderRadius={4} />
                         <div>
                             <div className={styles.stickyName}>{product.name}</div>
-                            <div className={styles.stickyPrice}>{fmt(currentPrice)}</div>
+                            <div className={styles.stickyPrice}>{hidePrice ? 'Liên hệ' : fmt(currentPrice)}</div>
                         </div>
                     </div>
                     <div className={styles.stickyActions}>
-                        {effectiveBasePrice > 0 ? (
+                        {!showContactCTA ? (
                             <button className={styles.buyBtn} onClick={handleBuyNow}>MUA NGAY</button>
                         ) : (
                             <button className={styles.buyBtn} onClick={() => window.open(`https://zalo.me/${settings.storePhone.replace(/\s+/g, '')}`, '_blank')}>LIÊN HỆ</button>
@@ -738,7 +741,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         <div className={styles.priceCard}>
                             <div className={styles.priceCardGlow} />
                             <div className={styles.priceRow}>
-                                <span className={styles.salePrice}>{fmt(currentPrice)}</span>
+                                <span className={styles.salePrice}>{hidePrice ? 'Liên hệ' : fmt(currentPrice)}</span>
                                 {pct > 0 && (
                                     <>
                                         <span className={styles.basePrice}>{fmt(effectiveBasePrice)}</span>
@@ -781,7 +784,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                             )}
                                             <div className={styles.variantInfo}>
                                                 <span className={styles.variantName}>{v.name}</span>
-                                                {v.price && <span className={styles.variantPrice}>{fmt(v.price)}</span>}
+                                                {v.price && !hidePrice && <span className={styles.variantPrice}>{fmt(v.price)}</span>}
                                             </div>
                                             {v.stock === 0 && <span className={styles.variantSoldOut}>Hết</span>}
                                         </button>
@@ -846,7 +849,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                             </div>
 
                             {/* Total preview */}
-                            {qty > 1 && (
+                            {qty > 1 && !hidePrice && (
                                 <div className={styles.totalPreview}>
                                     Tạm tính: <strong>{fmt(currentPrice * qty)}</strong>
                                 </div>
@@ -864,7 +867,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                                 </p>
                             )}
                              <div className={styles.ctaRow}>
-                                {effectiveBasePrice > 0 ? (
+                                {!showContactCTA ? (
                                     <>
                                         <Button
                                             variant="outline-cyan"
@@ -1143,7 +1146,15 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
                         {/* Installment Tab */}
                         {activeTab === "installment" && (
-                            <InstallmentTab price={currentPrice} />
+                            hidePrice ? (
+                                <div className={styles.emptyTab}>
+                                    <span>📞</span>
+                                    <p>Vui lòng liên hệ để được tư vấn giá &amp; trả góp</p>
+                                    <span className={styles.emptyHint}>Hotline: {settings.storePhone}</span>
+                                </div>
+                            ) : (
+                                <InstallmentTab price={currentPrice} />
+                            )
                         )}
                     </div>
                 </div>
@@ -1195,7 +1206,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
             {/* ── HIDDEN PROMO CARD (for html2canvas capture) ── */}
             <div ref={promoCardRef} className={styles.promoCard} style={{ display: "none" }}>
                 <div className={styles.promoHeader}>
-                    <div className={styles.promoStoreName}>{settings.storeName || "NEXGEAR"}</div>
+                    <div className={styles.promoStoreName}>{settings.storeName || "Thành Võ Laptop"}</div>
                     <div className={styles.promoStoreTagline}>{settings.storePhone}</div>
                 </div>
                 <div className={styles.promoBody}>
@@ -1210,7 +1221,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                             ))}
                         </div>
                         <div className={styles.promoPrice}>
-                            💵 Chỉ {new Intl.NumberFormat("vi-VN").format(currentPrice)}đ
+                            {hidePrice ? `📞 Liên hệ: ${settings.storePhone}` : `💵 Chỉ ${new Intl.NumberFormat("vi-VN").format(currentPrice)}đ`}
                         </div>
                         <div className={styles.promoGift}>
                             🎁 Balo + túi chống sốc + chuột + lót chuột + sạc Zin

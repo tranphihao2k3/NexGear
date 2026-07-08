@@ -28,6 +28,7 @@ interface SearchProduct {
     slug: string;
     basePrice: number;
     salePrice?: number;
+    hidePrice?: boolean;
     images: string[];
     brand?: { name: string };
     category?: { name: string };
@@ -247,7 +248,7 @@ function SearchInner() {
                                             </div>
                                         </div>
                                         <div className={styles.resultRight}>
-                                            <div className={styles.resultPrice}>{fmt(p.salePrice || p.basePrice)}</div>
+                                            <div className={styles.resultPrice}>{p.hidePrice ? 'Liên hệ' : fmt(p.salePrice || p.basePrice)}</div>
                                             <div className={styles.resultCta}>XEM NGAY →</div>
                                         </div>
                                     </Link>

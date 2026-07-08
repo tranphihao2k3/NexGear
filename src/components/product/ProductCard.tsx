@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — ProductCard Component
+// LTV — ProductCard Component
 // File: components/product/ProductCard.tsx
 // ============================================================
 'use client'
@@ -21,6 +21,7 @@ interface Product {
   images: string[]
   basePrice: number
   salePrice?: number | null
+  hidePrice?: boolean
   stock: number
   ratings: { avg: number; count: number }
   tags?: string[]
@@ -59,7 +60,7 @@ const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps)
   const { addItem } = useCart()
   const [wishlisted, setWishlisted] = useState(() => {
     if (typeof window === 'undefined') return false
-    const ids: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]')
+    const ids: string[] = JSON.parse(localStorage.getItem('ltv_wishlist') || '[]')
     return ids.includes(product._id)
   })
   const [added, setAdded] = useState(false)
@@ -104,7 +105,7 @@ const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps)
       slug: product.slug,
       name: product.name,
       categoryId: catId,
-      brand: typeof product.brand === 'string' ? product.brand : product.brand?.name || 'NexGear',
+      brand: typeof product.brand === 'string' ? product.brand : product.brand?.name || 'Thành Võ Laptop',
       price: product.salePrice ?? product.basePrice,
       original: product.basePrice,
       rating: product.ratings?.avg || 5,
@@ -113,7 +114,7 @@ const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps)
     })
   }
 
-  const hasDiscount = product.basePrice > 0 && product.salePrice && product.salePrice < product.basePrice
+  const hasDiscount = !product.hidePrice && product.basePrice > 0 && product.salePrice && product.salePrice < product.basePrice
   const discountPct = hasDiscount
     ? Math.round((1 - product.salePrice! / product.basePrice) * 100)
     : 0
@@ -186,9 +187,9 @@ const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps)
         <button
           className={`${styles.wishlist} ${wishlisted ? styles['wishlist--active'] : ''}`}
           onClick={() => {
-            const ids: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]')
+            const ids: string[] = JSON.parse(localStorage.getItem('ltv_wishlist') || '[]')
             const next = wishlisted ? ids.filter(id => id !== product._id) : [...ids, product._id]
-            localStorage.setItem('nexgear_wishlist', JSON.stringify(next))
+            localStorage.setItem('ltv_wishlist', JSON.stringify(next))
             setWishlisted(v => !v)
           }}
           aria-label={wishlisted ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
@@ -218,7 +219,7 @@ const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps)
         <div className={styles.priceRow}>
           <div className={styles.prices}>
             <span className={styles.price}>
-              {formatPrice(product.salePrice ?? product.basePrice)}
+              {product.hidePrice ? 'Liên hệ' : formatPrice(product.salePrice ?? product.basePrice)}
             </span>
             {hasDiscount && (
               <span className={styles.originalPrice}>
@@ -229,17 +230,29 @@ const ProductCard = ({ product, onAddToCart, className = '' }: ProductCardProps)
 
         </div>
 
-        {/* Add to Cart */}
-        <Button
-          variant={outOfStock ? 'ghost' : added ? 'cyan' : 'primary'}
-          size="sm"
-          fullWidth
-          className={styles.addBtn}
-          onClick={handleAddToCart}
-          disabled={outOfStock}
-        >
-          {outOfStock ? '⚡ THÔNG BÁO KHI CÓ HÀNG' : added ? '✓ ĐÃ THÊM VÀO GIỎ' : '🛒 THÊM VÀO GIỎ'}
-        </Button>
+        {/* CTA: Liên hệ (ẩn giá) hoặc Thêm vào giỏ */}
+        {product.hidePrice ? (
+          <Button
+            variant="primary"
+            size="sm"
+            fullWidth
+            className={styles.addBtn}
+            href={`/products/${product.slug}`}
+          >
+            📞 LIÊN HỆ
+          </Button>
+        ) : (
+          <Button
+            variant={outOfStock ? 'ghost' : added ? 'cyan' : 'primary'}
+            size="sm"
+            fullWidth
+            className={styles.addBtn}
+            onClick={handleAddToCart}
+            disabled={outOfStock}
+          >
+            {outOfStock ? '⚡ THÔNG BÁO KHI CÓ HÀNG' : added ? '✓ ĐÃ THÊM VÀO GIỎ' : '🛒 THÊM VÀO GIỎ'}
+          </Button>
+        )}
       </div>
     </article>
   )

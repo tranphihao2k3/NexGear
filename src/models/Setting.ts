@@ -83,19 +83,19 @@ export interface ISetting extends Document {
 
 const SettingSchema: Schema = new Schema(
     {
-        siteId: { type: String, default: 'nexgear', index: true },
+        siteId: { type: String, default: 'laptopthanhvo', index: true },
         // Appearance
         primaryColor: { type: String, default: '#00C4AD' },
         accentColor: { type: String, default: '#F0356A' },
-        logoUrl: { type: String, default: 'https://cdn.nexgzone.top/logo.svg' },
-        faviconUrl: { type: String, default: 'https://cdn.nexgzone.top/favicon.ico' },
-        bannerText: { type: String, default: 'Dòng sản phẩm phím cơ cao cấp mới nhất đã cập bến NEXGEAR' },
+        logoUrl: { type: String, default: '' },
+        faviconUrl: { type: String, default: '' },
+        bannerText: { type: String, default: 'Laptop chính hãng, phụ kiện cao cấp mới nhất đã cập bến Thành Võ Laptop' },
 
         // General
-        storeName: { type: String, default: 'NEXGEAR' },
-        storeEmail: { type: String, default: 'contact@nexgzone.top' },
-        storePhone: { type: String, default: '0901 234 567' },
-        storeAddress: { type: String, default: '123 Nguyễn Huệ, Quận 1, TP.HCM' },
+        storeName: { type: String, default: 'Thành Võ Laptop' },
+        storeEmail: { type: String, default: 'thanhb1412520000@gmail.com' },
+        storePhone: { type: String, default: '097 890 96 07' },
+        storeAddress: { type: String, default: '102/10a Trần Hoàng Na, Ninh Kiều, Cần Thơ' },
         taxCode: { type: String, default: '' },
         currency: { type: String, default: 'VND' },
 
@@ -107,12 +107,12 @@ const SettingSchema: Schema = new Schema(
         googleMapsEmbedUrl: { type: String, default: '' },
 
         // SEO & Site Identity
-        siteTitle: { type: String, default: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ' },
-        siteTitleTemplate: { type: String, default: '%s | NexGear' },
-        siteDescription: { type: String, default: 'NexGear — shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.' },
-        siteTagline: { type: String, default: 'NEXT-GEN GEAR STORE' },
-        siteDomain: { type: String, default: 'https://nexgzone.top' },
-        siteKeywords: { type: String, default: 'gear máy tính Cần Thơ, bàn phím cơ, chuột gaming, tai nghe gaming, phụ kiện PC, nexgear, shop gear Cần Thơ' },
+        siteTitle: { type: String, default: 'Thành Võ LapTop Chính Hãng Cần Thơ' },
+        siteTitleTemplate: { type: String, default: '%s | Thành Võ LapTop' },
+        siteDescription: { type: String, default: 'Thành Võ LapTop máy tính chính hãng #1 Cần Thơ. Laptop, bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.' },
+        siteTagline: { type: String, default: 'LapTop Thành Võ STORE' },
+        siteDomain: { type: String, default: 'https://laptopthanhvo.com' },
+        siteKeywords: { type: String, default: 'laptop Cần Thơ, laptop chính hãng, laptop gaming, bàn phím cơ, chuột gaming, phụ kiện laptop, Thành Võ Laptop, laptopthanhvo' },
         ogImage: { type: String, default: '/og-image.jpg' },
 
         // Danger zone

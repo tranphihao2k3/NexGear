@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Navbar Component (Clean + Mega Menu)
+// LTV — Navbar Component (Clean + Mega Menu)
 // ============================================================
 'use client'
 import { useState, useEffect, useRef, useMemo } from 'react'

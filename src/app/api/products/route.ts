@@ -204,8 +204,12 @@ export async function POST(req: NextRequest) {
         await dbConnect();
         const body = await req.json();
 
-        if (!body.name || !body.slug || !body.sku || !body.basePrice) {
-            return apiError('name, slug, sku, and basePrice are required');
+        if (!body.name || !body.slug || !body.sku) {
+            return apiError('name, slug, and sku are required');
+        }
+        // basePrice bắt buộc trừ khi sản phẩm ẩn giá (hiển thị "Liên hệ")
+        if (!body.hidePrice && !body.basePrice) {
+            return apiError('basePrice is required');
         }
 
         if (body.productType !== 'component' && (!body.category || !body.brand)) {

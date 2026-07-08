@@ -8,8 +8,8 @@ function getIdentifier(req: NextRequest): string {
     const host = req.headers.get('host') || '';
     const isLocalhost = host === '' || host.startsWith('localhost');
     return isLocalhost
-        ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
-        : host.split(':')[0]; // bỏ port nếu có
+        ? (process.env.NEXT_PUBLIC_SITE_ID || 'laptopthanhvo')
+        : host.split(':')[0].replace(/^www\./i, ''); // bỏ port và tiền tố www.
 }
 
 export async function GET(req: NextRequest) {
@@ -23,10 +23,10 @@ export async function GET(req: NextRequest) {
             setting = await Setting.findOne({ siteDomain: { $regex: identifier, $options: 'i' } });
         }
         // Auto-migration
-        if (!setting && identifier === 'nexgear') {
+        if (!setting && identifier === 'laptopthanhvo') {
             setting = await Setting.findOne({ siteId: { $exists: false } });
             if (setting) {
-                setting.siteId = 'nexgear';
+                setting.siteId = 'laptopthanhvo';
                 await setting.save();
             }
         }

@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Products Hooks
+// LTV — Products Hooks
 // File: src/hooks/use-products.ts
 // ============================================================
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'

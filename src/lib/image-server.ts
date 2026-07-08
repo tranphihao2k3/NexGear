@@ -1,5 +1,5 @@
 /**
- * NEXGEAR — Image Server Client
+ * LTV — Image Server Client
  *
  * Client upload ảnh tích hợp vào dự án.
  * Gọi qua Next.js API route /api/upload (proxy → cPanel PHP server).

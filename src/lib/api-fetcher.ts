@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — API Fetcher Helpers
+// LTV — API Fetcher Helpers
 // File: src/lib/api-fetcher.ts
 // Dùng với useQuery — tự throw khi API trả về error
 // ============================================================

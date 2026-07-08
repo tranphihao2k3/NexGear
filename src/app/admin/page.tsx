@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Dashboard Page (A01)
+// LTV — Admin Dashboard Page (A01)
 // File: app/admin/page.tsx
 // 4 KPI cards, Revenue chart, Channel donut, Recent orders,
 // Low stock alerts — all connected to real API

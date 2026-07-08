@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Sidebar Component
+// LTV — Admin Sidebar Component
 // File: components/admin/AdminSidebar.tsx
 // ============================================================
 'use client'

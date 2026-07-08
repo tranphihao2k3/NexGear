@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Account (User Profile) Hooks
+// LTV — Account (User Profile) Hooks
 // File: src/hooks/use-account.ts
 // ============================================================
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'

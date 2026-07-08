@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Query Key Factory
+// LTV — Query Key Factory
 // File: src/lib/query-keys.ts
 // Centralized keys — tránh typo, hỗ trợ invalidate theo nhóm
 // ============================================================

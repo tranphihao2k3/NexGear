@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Coupons Page
+// LTV — Admin Coupons Page
 // CRUD: list, add, edit, delete, toggle active
 // ============================================================
 'use client'

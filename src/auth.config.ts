@@ -14,7 +14,7 @@ export const authConfig = {
             if (user) {
                 token.id = (user as any).id;
                 token.role = (user as any).role;
-                token.siteId = (user as any).siteId ?? 'nexgear';
+                token.siteId = (user as any).siteId ?? 'laptopthanhvo';
             }
             return token;
         },
@@ -22,7 +22,7 @@ export const authConfig = {
             if (session.user) {
                 (session.user as any).id = token.id;
                 (session.user as any).role = token.role;
-                (session.user as any).siteId = token.siteId ?? 'nexgear';
+                (session.user as any).siteId = token.siteId ?? 'laptopthanhvo';
             }
             return session;
         },

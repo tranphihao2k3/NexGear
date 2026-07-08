@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Dashboard Hooks
+// LTV — Dashboard Hooks
 // File: src/hooks/use-dashboard.ts
 // ============================================================
 import { useQuery } from '@tanstack/react-query'

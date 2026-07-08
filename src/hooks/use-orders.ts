@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Orders Hooks
+// LTV — Orders Hooks
 // File: src/hooks/use-orders.ts
 // ============================================================
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'

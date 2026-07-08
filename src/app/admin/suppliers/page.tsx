@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Suppliers Page
+// LTV — Admin Suppliers Page
 // CRUD: list, add, edit, delete, toggle active
 // ============================================================
 'use client'

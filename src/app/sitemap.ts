@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Dynamic Sitemap
+// LTV — Dynamic Sitemap
 // File: app/sitemap.ts
 // Generate sitemap.xml dynamically from DB for products + community
 // ============================================================

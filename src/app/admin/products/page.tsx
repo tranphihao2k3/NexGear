@@ -170,6 +170,7 @@ interface Product {
     stock: number;
     isActive: boolean;
     isFeatured?: boolean;
+    hidePrice?: boolean;
     images: string[];
     description?: string;
     tags?: string[];
@@ -213,6 +214,7 @@ export default function AdminProductsPage() {
         images: [] as ImageItem[],
         tags: '' as string,
         isFeatured: false,
+        hidePrice: false,
         specs: [] as { key: string, value: string }[],
         variants: [] as Variant[],
         // LapLap fields
@@ -230,7 +232,7 @@ export default function AdminProductsPage() {
     const [aiParsing, setAiParsing] = useState(false);
     const [hasDraft, setHasDraft] = useState(false);
 
-    const DRAFT_KEY = 'nexgear_product_draft';
+    const DRAFT_KEY = 'ltv_product_draft';
 
     // Auto-save draft to localStorage (exclude images — can't serialize File objects)
     useEffect(() => {
@@ -486,7 +488,7 @@ export default function AdminProductsPage() {
         setFormData({
             name: '', slug: '', sku: '', category: categories[0]?._id || '', brand: brands[0]?._id || '',
             basePrice: '', salePrice: '', costPrice: '', stock: '0', description: '', images: [], tags: '',
-            isFeatured: false, specs: [], variants: [],
+            isFeatured: false, hidePrice: false, specs: [], variants: [],
             warrantyMonths: '12',
             warrantyItems: ['Bảo hành 3 tháng chính hãng', 'Hỗ trợ phần mềm 3 năm', 'Đổi mới trong 7 ngày đầu nếu lỗi phần cứng'],
             gift: '',
@@ -527,6 +529,7 @@ export default function AdminProductsPage() {
             images: (product.images || []).map(urlToImageItem),
             tags: (product.tags || []).join(', '),
             isFeatured: product.isFeatured || false,
+            hidePrice: product.hidePrice || false,
             specs: Object.entries(product.specs || {}).map(([key, value]) => ({ key, value: String(value) })),
             variants: (product.variants || []).map((v: any) => ({
                 name: v.name || '',
@@ -730,7 +733,7 @@ export default function AdminProductsPage() {
                         items: formData.warrantyItems.filter(i => i.trim() !== '')
                     },
                     gift: formData.gift,
-                    source: 'nexgear'
+                    source: 'laptopthanhvo'
                 })
             });
 
@@ -1390,6 +1393,12 @@ export default function AdminProductsPage() {
                                     <label className={styles.formLabel} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                                         <input type="checkbox" checked={formData.isUsed} onChange={(e) => setFormData(prev => ({ ...prev, isUsed: e.target.checked }))} />
                                         Hàng đã qua sử dụng
+                                    </label>
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.formLabel} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                                        <input type="checkbox" checked={formData.hidePrice} onChange={(e) => setFormData(prev => ({ ...prev, hidePrice: e.target.checked }))} />
+                                        Ẩn giá (hiển thị &quot;Liên hệ&quot;)
                                     </label>
                                 </div>
                             </div>

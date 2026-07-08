@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Layout
+// LTV — Admin Layout
 // File: app/admin/layout.tsx
 // Dark/light theme admin dashboard with sidebar
 // ============================================================

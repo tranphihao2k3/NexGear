@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Root Layout
+// LTV — Root Layout
 // File: app/layout.tsx
 // ============================================================
 import type { Metadata, Viewport } from 'next'

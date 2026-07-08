@@ -208,7 +208,7 @@ export default function CartPage() {
                                     <button className={styles.removeCoupon} onClick={() => { setCouponCode(""); setCouponDiscount(null); setCouponOk(false); setCouponInput(""); }}>Xóa ✕</button>
                                 </div>
                             )}
-                            <div className={styles.couponHint}>Thử: NEXGEAR10 · SUMMER15 · NEWUSER20</div>
+                            <div className={styles.couponHint}>Thử: THANHVO10 · SUMMER15 · NEWUSER20</div>
                         </div>
                         <Link href="/products" className={styles.continueShopping}>← Tiếp tục mua sắm</Link>
                     </div>

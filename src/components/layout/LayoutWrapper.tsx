@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Layout Wrapper (conditionally hide Navbar/Footer)
+// LTV — Layout Wrapper (conditionally hide Navbar/Footer)
 // File: components/layout/LayoutWrapper.tsx
 // ============================================================
 'use client'

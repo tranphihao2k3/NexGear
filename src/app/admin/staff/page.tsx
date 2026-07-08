@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Staff Page (A08) — Full CRUD
+// LTV — Admin Staff Page (A08) — Full CRUD
 // ============================================================
 'use client'
 
@@ -62,7 +62,7 @@ export default function AdminStaffPage() {
 
     const sessionUser = session?.user as any
     const isSuperAdmin = sessionUser?.role === 'superadmin'
-    const currentSiteId = sessionUser?.siteId ?? 'nexgear'
+    const currentSiteId = sessionUser?.siteId ?? 'laptopthanhvo'
 
     const fetchStaff = useCallback(async () => {
         setLoading(true)
@@ -317,7 +317,7 @@ export default function AdminStaffPage() {
                                     <input
                                         type="email"
                                         className={styles.formInput}
-                                        placeholder="email@nexgzone.top"
+                                        placeholder="email@laptopthanhvo.com"
                                         value={formEmail}
                                         onChange={(e) => setFormEmail(e.target.value)}
                                     />

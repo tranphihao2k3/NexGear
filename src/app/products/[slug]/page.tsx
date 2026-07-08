@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Chi Tiết Sản Phẩm (Server Component)
+// LTV — Chi Tiết Sản Phẩm (Server Component)
 // File: app/products/[slug]/page.tsx
 // SEO: generateMetadata, Product Schema, BreadcrumbList
 // ============================================================

@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Toast Component
+// LTV — Toast Component
 // File: components/ui/Toast.tsx
 // Dùng: import { useToast } from '@/components/ui/Toast'
 // ============================================================

@@ -41,17 +41,17 @@ export interface SiteSettings {
 }
 
 const DEFAULTS: SiteSettings = {
-    storeName: 'NEXGEAR',
-    siteTitle: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
-    siteTitleTemplate: '%s | NexGear',
-    siteDescription: 'NexGear — shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.',
-    siteTagline: 'NEXT-GEN GEAR STORE',
-    siteDomain: 'https://nexgzone.top',
-    siteKeywords: 'gear máy tính Cần Thơ, bàn phím cơ, chuột gaming, tai nghe gaming, phụ kiện PC, nexgear, shop gear Cần Thơ',
+    storeName: 'Thành Võ Laptop',
+    siteTitle: 'Thành Võ LapTop Chính Hãng Cần Thơ',
+    siteTitleTemplate: '%s | Thành Võ LapTop',
+    siteDescription: 'Thành Võ LapTop máy tính chính hãng #1 Cần Thơ. Laptop, bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.',
+    siteTagline: 'LapTop Thành Võ STORE',
+    siteDomain: 'https://laptopthanhvo.com',
+    siteKeywords: 'laptop Cần Thơ, laptop chính hãng, laptop gaming, bàn phím cơ, chuột gaming, phụ kiện laptop, Thành Võ Laptop, laptopthanhvo',
     ogImage: '/og-image.jpg',
-    storePhone: '0978648720',
-    storeEmail: 'tranphihao2k3@gmail.com',
-    storeAddress: 'Cần Thơ',
+    storePhone: '097 890 96 07',
+    storeEmail: 'thanhb1412520000@gmail.com',
+    storeAddress: '102/10a Trần Hoàng Na, Ninh Kiều, Cần Thơ',
     taxCode: '',
     logoUrl: '',
     faviconUrl: '',
@@ -94,16 +94,17 @@ export async function getSiteSettings(idOrHost?: string): Promise<SiteSettings> 
     if (!idOrHost && process.env.NODE_ENV === 'development') {
         console.warn(
             '[getSiteSettings] Called without host argument. ' +
-            'This will fall back to NEXT_PUBLIC_SITE_ID or "nexgear". ' +
+            'This will fall back to NEXT_PUBLIC_SITE_ID or "laptopthanhvo". ' +
             'Pass headers().get("host") for correct multi-tenant behavior.'
         );
     }
 
-    // Khi chạy trên localhost (dev mode), ignore host và dùng NEXT_PUBLIC_SITE_ID
-    const rawIdentifier = idOrHost || '';
+    // Khi chạy trên localhost (dev mode), ignore host và dùng NEXT_PUBLIC_SITE_ID.
+    // Bỏ tiền tố "www." để www.laptopthanhvo.com và laptopthanhvo.com trỏ về cùng shop.
+    const rawIdentifier = (idOrHost || '').replace(/^www\./i, '');
     const isLocalhost = rawIdentifier === '' || rawIdentifier.startsWith('localhost');
     const identifier = isLocalhost
-        ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
+        ? (process.env.NEXT_PUBLIC_SITE_ID || 'laptopthanhvo')
         : rawIdentifier;
     
     // Return from cache if valid
@@ -131,11 +132,11 @@ export async function getSiteSettings(idOrHost?: string): Promise<SiteSettings> 
             }).lean();
         }
         
-        // 3. Auto-migration / Fallback for 'nexgear'
-        if (!settings && identifier === 'nexgear') {
+        // 3. Auto-migration / Fallback for 'laptopthanhvo'
+        if (!settings && identifier === 'laptopthanhvo') {
             const tempSettings = await Setting.findOne({ siteId: { $exists: false } });
             if (tempSettings) {
-                tempSettings.siteId = 'nexgear';
+                tempSettings.siteId = 'laptopthanhvo';
                 await tempSettings.save();
                 settings = tempSettings.toObject();
             }
@@ -195,10 +196,10 @@ export async function getRawSiteSettings(idOrHost?: string): Promise<{
     primaryColor: string;
     accentColor: string;
 }> {
-    const rawIdentifier = idOrHost || '';
+    const rawIdentifier = (idOrHost || '').replace(/^www\./i, '');
     const isLocalhost = rawIdentifier === '' || rawIdentifier.startsWith('localhost');
     const identifier = isLocalhost
-        ? (process.env.NEXT_PUBLIC_SITE_ID || 'nexgear')
+        ? (process.env.NEXT_PUBLIC_SITE_ID || 'laptopthanhvo')
         : rawIdentifier;
 
     let primaryColor = '#00C4AD';
@@ -216,7 +217,7 @@ export async function getRawSiteSettings(idOrHost?: string): Promise<{
                 ]
             }).lean() as any;
         }
-        if (!rawSettings && identifier === 'nexgear') {
+        if (!rawSettings && identifier === 'laptopthanhvo') {
             rawSettings = await Setting.findOne({ siteId: { $exists: false } }).lean() as any;
         }
 

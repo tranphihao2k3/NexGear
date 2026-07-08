@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Trang chủ (Server Component)
+// LTV — Trang chủ (Server Component)
 // File: app/page.tsx
 import HomeClient from './HomeClient'
 import StorefrontClient from './StorefrontClient'

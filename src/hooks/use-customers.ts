@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Customers Hooks
+// LTV — Customers Hooks
 // File: src/hooks/use-customers.ts
 // ============================================================
 import { useQuery } from '@tanstack/react-query'

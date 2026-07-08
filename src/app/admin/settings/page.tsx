@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Settings Page — All tabs connected to API
+// LTV — Admin Settings Page — All tabs connected to API
 // ============================================================
 'use client'
 
@@ -83,18 +83,18 @@ const DEFAULTS: SettingsData = {
     faviconUrl: '',
     bannerText: '',
     showLandingPage: true,
-    storeName: 'NEXGEAR',
-    storeEmail: 'contact@nexgzone.top',
-    storePhone: '0901 234 567',
-    storeAddress: '123 Nguyễn Huệ, Quận 1, TP.HCM',
+    storeName: 'Thành Võ Laptop',
+    storeEmail: 'thanhb1412520000@gmail.com',
+    storePhone: '097 890 96 07',
+    storeAddress: '102/10a Trần Hoàng Na, Ninh Kiều, Cần Thơ',
     taxCode: '',
     currency: 'VND',
-    siteTitle: 'NexGear — Gear Máy Tính Chính Hãng Cần Thơ',
-    siteTitleTemplate: '%s | NexGear',
-    siteDescription: 'NexGear — shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.',
-    siteTagline: 'NEXT-GEN GEAR STORE',
-    siteDomain: 'https://nexgzone.top',
-    siteKeywords: 'gear máy tính Cần Thơ, bàn phím cơ, chuột gaming, tai nghe gaming, phụ kiện PC, nexgear, shop gear Cần Thơ',
+    siteTitle: 'Thành Võ LapTop Chính Hãng Cần Thơ',
+    siteTitleTemplate: '%s | Thành Võ LapTop',
+    siteDescription: 'Thành Võ LapTop máy tính chính hãng #1 Cần Thơ. Laptop, bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện. Giao nhanh 2H, bảo hành 12T.',
+    siteTagline: 'LapTop Thành Võ STORE',
+    siteDomain: 'https://laptopthanhvo.com',
+    siteKeywords: 'laptop Cần Thơ, laptop chính hãng, laptop gaming, bàn phím cơ, chuột gaming, phụ kiện laptop, Thành Võ Laptop, laptopthanhvo',
     ogImage: '/og-image.jpg',
     facebook: '',
     instagram: '',
@@ -440,17 +440,17 @@ export default function AdminSettingsPage() {
                         <div className={styles.sectionBody}>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Tiêu đề trang chủ</label>
-                                <input className={styles.formInput} name="siteTitle" value={settings.siteTitle} onChange={handleChange} placeholder="NexGear — Gear Máy Tính Chính Hãng" />
+                                <input className={styles.formInput} name="siteTitle" value={settings.siteTitle} onChange={handleChange} placeholder="Thành Võ LapTop Chính Hãng Cần Thơ" />
                                 <span className={styles.formHint}>Title hiển thị trên tab trình duyệt & Google</span>
                             </div>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Title Template (sub-pages)</label>
-                                <input className={styles.formInput} name="siteTitleTemplate" value={settings.siteTitleTemplate} onChange={handleChange} placeholder="%s | NexGear" />
-                                <span className={styles.formHint}>%s sẽ được thay bằng tên trang con. VD: &quot;Sản phẩm | NexGear&quot;</span>
+                                <input className={styles.formInput} name="siteTitleTemplate" value={settings.siteTitleTemplate} onChange={handleChange} placeholder="%s | Thành Võ LapTop" />
+                                <span className={styles.formHint}>%s sẽ được thay bằng tên trang con. VD: &quot;Sản phẩm | Thành Võ LapTop&quot;</span>
                             </div>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Tagline</label>
-                                <input className={styles.formInput} name="siteTagline" value={settings.siteTagline} onChange={handleChange} placeholder="NEXT-GEN GEAR STORE" />
+                                <input className={styles.formInput} name="siteTagline" value={settings.siteTagline} onChange={handleChange} placeholder="LapTop Thành Võ STORE" />
                                 <span className={styles.formHint}>Hiển thị dưới logo, hero section</span>
                             </div>
                             <div className={styles.formGroup}>
@@ -460,7 +460,7 @@ export default function AdminSettingsPage() {
                             <div className={styles.formRow}>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>Domain</label>
-                                    <input className={styles.formInput} name="siteDomain" value={settings.siteDomain} onChange={handleChange} placeholder="https://nexgzone.top" />
+                                    <input className={styles.formInput} name="siteDomain" value={settings.siteDomain} onChange={handleChange} placeholder="https://laptopthanhvo.com" />
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label className={styles.formLabel}>OG Image URL</label>
@@ -488,15 +488,15 @@ export default function AdminSettingsPage() {
                         <div className={styles.sectionBody}>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Facebook</label>
-                                <input className={styles.formInput} name="facebook" value={settings.facebook} onChange={handleChange} placeholder="https://facebook.com/nexgear" />
+                                <input className={styles.formInput} name="facebook" value={settings.facebook} onChange={handleChange} placeholder="https://facebook.com/laptopthanhvo" />
                             </div>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Instagram</label>
-                                <input className={styles.formInput} name="instagram" value={settings.instagram} onChange={handleChange} placeholder="https://instagram.com/nexgear" />
+                                <input className={styles.formInput} name="instagram" value={settings.instagram} onChange={handleChange} placeholder="https://instagram.com/laptopthanhvo" />
                             </div>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>TikTok</label>
-                                <input className={styles.formInput} name="tiktok" value={settings.tiktok} onChange={handleChange} placeholder="https://tiktok.com/@nexgear" />
+                                <input className={styles.formInput} name="tiktok" value={settings.tiktok} onChange={handleChange} placeholder="https://tiktok.com/@laptopthanhvo" />
                             </div>
                             <div className={styles.formGroup}>
                                 <label className={styles.formLabel}>Facebook Page ID (Fanpage Embed)</label>

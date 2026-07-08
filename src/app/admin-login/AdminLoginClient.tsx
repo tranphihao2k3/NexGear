@@ -74,7 +74,7 @@ export default function AdminLoginClient() {
                                 <Mail className={styles.fieldIcon} size={18} />
                                 <input
                                     type="email"
-                                    placeholder="admin@nexgear.com"
+                                    placeholder="admin@laptopthanhvo.com"
                                     className={`${styles.fieldInput} ${errors.email ? styles.fieldErr : ""}`}
                                     value={form.email}
                                     onChange={(e) => setForm({ ...form, email: e.target.value })}

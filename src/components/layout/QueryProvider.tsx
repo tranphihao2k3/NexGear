@@ -1,6 +1,6 @@
 'use client'
 // ============================================================
-// NEXGEAR — Query Provider
+// LTV — Query Provider
 // File: src/components/layout/QueryProvider.tsx
 // ============================================================
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'

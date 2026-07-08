@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Reviews Page
+// LTV — Admin Reviews Page
 // List, approve/reject, delete reviews
 // ============================================================
 'use client'

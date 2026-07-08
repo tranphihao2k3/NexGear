@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Trang chủ (Server Component)
+// LTV — Trang chủ (Server Component)
 // File: app/page.tsx
 // SEO: LocalBusiness + WebSite schema, metadata từ root layout
 // ============================================================

@@ -12,6 +12,7 @@ interface DealProduct {
     slug: string;
     basePrice: number;
     salePrice: number | null;
+    hidePrice?: boolean;
     stock: number;
     soldCount: number;
     brand?: { name: string };
@@ -114,8 +115,8 @@ function DealCard({ p }: { p: DealProduct }) {
                 <Link href={`/products/${p.slug}`} className={styles.dealName}>{p.name}</Link>
 
                 <div className={styles.dealPrices}>
-                    <span className={styles.dealSale}>{fmt(p.salePrice || p.basePrice)}</span>
-                    {p.salePrice && <span className={styles.dealOriginal}>{fmt(p.basePrice)}</span>}
+                    <span className={styles.dealSale}>{p.hidePrice ? 'Liên hệ' : fmt(p.salePrice || p.basePrice)}</span>
+                    {!p.hidePrice && p.salePrice && <span className={styles.dealOriginal}>{fmt(p.basePrice)}</span>}
                 </div>
 
                 <StockBar sold={soldPct} />

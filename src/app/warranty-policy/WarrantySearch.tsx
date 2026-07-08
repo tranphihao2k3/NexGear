@@ -122,7 +122,7 @@ export default function WarrantySearch() {
                     <ShoppingBag size={16} className={styles.rowIcon} />
                     <div>
                       <span className={styles.label}>Sản phẩm:</span>
-                      <strong className={styles.value}>{card.product?.name || 'Sản phẩm của NexGear'}</strong>
+                      <strong className={styles.value}>{card.product?.name || 'Sản phẩm của Thành Võ Laptop'}</strong>
                     </div>
                   </div>
 

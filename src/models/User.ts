@@ -29,7 +29,7 @@ const UserSchema = new Schema(
         baseSalary: { type: Number, default: 0 },       // lương cứng (VNĐ)
         leaveQuota: { type: Number, default: 2 },        // số ngày phép/tháng
         // ── Multi-tenant ──
-        siteId: { type: String, default: 'nexgear', index: true }, // shop mà user này thuộc về
+        siteId: { type: String, default: 'laptopthanhvo', index: true }, // shop mà user này thuộc về
     },
     { timestamps: true }
 );

@@ -20,7 +20,7 @@ export default function LoginPage() {
 
     // Load saved email on mount
     React.useEffect(() => {
-        const savedEmail = localStorage.getItem("nexgear_remember_email");
+        const savedEmail = localStorage.getItem("ltv_remember_email");
         if (savedEmail) {
             setForm(prev => ({ ...prev, email: savedEmail }));
             setRememberMe(true);
@@ -53,9 +53,9 @@ export default function LoginPage() {
             } else {
                 // Save or clear remembered email
                 if (rememberMe) {
-                    localStorage.setItem("nexgear_remember_email", form.email);
+                    localStorage.setItem("ltv_remember_email", form.email);
                 } else {
-                    localStorage.removeItem("nexgear_remember_email");
+                    localStorage.removeItem("ltv_remember_email");
                 }
                 router.push(callbackUrl);
                 router.refresh();

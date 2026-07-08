@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 const ALLOWED_ORIGINS = [
     process.env.LAPLAP_ORIGIN,
     process.env.NEXT_PUBLIC_APP_URL,
-    'https://laplapcantho.store',
-    'https://www.laplapcantho.store',
     'https://www.laptopthanhvo.com',
     'https://laptopthanhvo.com',
     'http://localhost:3000',

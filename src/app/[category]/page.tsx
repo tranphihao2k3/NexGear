@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Trang Danh Mục (Server Component)
+// LTV — Trang Danh Mục (Server Component)
 // File: app/[category]/page.tsx
 // SEO: generateMetadata, BreadcrumbList schema
 // ============================================================

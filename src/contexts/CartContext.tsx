@@ -29,7 +29,7 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | null>(null);
 
-const STORAGE_KEY = "nexgear_cart";
+const STORAGE_KEY = "ltv_cart";
 
 function loadCart(): CartItem[] {
     if (typeof window === "undefined") return [];

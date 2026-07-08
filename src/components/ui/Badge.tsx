@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Badge Component
+// LTV — Badge Component
 // File: components/ui/Badge.tsx
 // ============================================================
 import styles from './Badge.module.scss'

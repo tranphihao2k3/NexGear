@@ -15,7 +15,10 @@
       "Bash(git:*)",
       "Bash(source:*)",
       "Bash(node:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "PowerShell(npx tsx check-db.ts)",
+      "PowerShell(node tmp/inspect-settings.mjs)",
+      "PowerShell(node tmp/inspect-laptopthanhvo.mjs)"
     ]
   }
 }

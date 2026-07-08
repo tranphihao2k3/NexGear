@@ -58,7 +58,7 @@ export interface IOrder extends Document {
     customerType: 'retail' | 'wholesale';
     installmentInfo: { months: number; monthlyPayment: number; provider: string } | null;
     deliveryDate: Date | null;
-    source: 'nexgear' | 'laplap';
+    source: 'laptopthanhvo' | 'laplap';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -164,7 +164,7 @@ const OrderSchema = new Schema<IOrder>(
             default: null,
         },
         deliveryDate: { type: Date, default: null },
-        source: { type: String, enum: ['nexgear', 'laplap'], default: 'nexgear' },
+        source: { type: String, enum: ['laptopthanhvo', 'laplap'], default: 'laptopthanhvo' },
     },
     { timestamps: true }
 );

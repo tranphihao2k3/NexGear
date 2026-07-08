@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Inventory Hooks
+// LTV — Inventory Hooks
 // File: src/hooks/use-inventory.ts
 // ============================================================
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'

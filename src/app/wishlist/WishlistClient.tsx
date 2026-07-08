@@ -39,7 +39,7 @@ export default function WishlistPage() {
 
     useEffect(() => {
         // Load wishlist IDs from localStorage
-        const wishlistIds: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]');
+        const wishlistIds: string[] = JSON.parse(localStorage.getItem('ltv_wishlist') || '[]');
         if (wishlistIds.length === 0) { setLoading(false); return; }
 
         // Fetch product details for wishlist items
@@ -74,8 +74,8 @@ export default function WishlistPage() {
 
     function removeItem(id: string) {
         setItems(prev => prev.filter(i => i.id !== id));
-        const wishlistIds: string[] = JSON.parse(localStorage.getItem('nexgear_wishlist') || '[]');
-        localStorage.setItem('nexgear_wishlist', JSON.stringify(wishlistIds.filter(wid => wid !== id)));
+        const wishlistIds: string[] = JSON.parse(localStorage.getItem('ltv_wishlist') || '[]');
+        localStorage.setItem('ltv_wishlist', JSON.stringify(wishlistIds.filter(wid => wid !== id)));
     }
 
     function addToCart(id: string) {

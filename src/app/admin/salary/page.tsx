@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Admin Salary Page v3
+// LTV — Admin Salary Page v3
 // Workflow:
 //   Tab 1: Ghi nhận hàng ngày → thưởng/phạt từng khoản
 //   Tab 2: Tính lương cuối tháng → tổng hợp + tạo phiếu lương

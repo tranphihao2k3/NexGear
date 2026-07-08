@@ -434,7 +434,7 @@ export default function WarrantyCardsPage() {
                       value={formData.warrantyType}
                       onChange={(e) => setFormData({ ...formData, warrantyType: e.target.value as any })}
                     >
-                      <option value="store">Cửa hàng (NEXGEAR)</option>
+                      <option value="store">Cửa hàng (Thành Võ Laptop)</option>
                       <option value="manufacturer">Chính hãng (Brand)</option>
                     </select>
                   </div>

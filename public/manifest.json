@@ -1,7 +1,7 @@
 {
-  "name": "NexGear — Gear Máy Tính Chính Hãng Cần Thơ",
-  "short_name": "NexGear",
-  "description": "Shop gear máy tính chính hãng #1 Cần Thơ. Bàn phím cơ, chuột gaming, tai nghe, loa, micro và phụ kiện.",
+  "name": "Thành Võ LapTop Chính Hãng Cần Thơ",
+  "short_name": "Thành Võ Laptop",
+  "description": "Laptop chính hãng #1 Cần Thơ. Laptop gaming, văn phòng, bàn phím cơ, chuột gaming, tai nghe và phụ kiện.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0c0c0c",

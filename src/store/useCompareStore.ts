@@ -49,7 +49,7 @@ export const useCompareStore = create<CompareState>()(
             clearAll: () => set({ items: [] }),
         }),
         {
-            name: 'nexgear-compare', // localStorage key
+            name: 'ltv-compare', // localStorage key
         }
     )
 );

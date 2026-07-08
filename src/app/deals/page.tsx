@@ -1,5 +1,5 @@
 // ============================================================
-// NEXGEAR — Flash Deal (Server Component)
+// LTV — Flash Deal (Server Component)
 // File: app/deals/page.tsx
 // SEO: generateMetadata static, JSON-LD BreadcrumbList
 // ============================================================
