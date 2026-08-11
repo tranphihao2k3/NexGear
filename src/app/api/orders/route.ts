@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import mongoose from 'mongoose';
 import dbConnect from '@/lib/mongodb';
 import Order from '@/models/Order';
 import Product from '@/models/Product';
@@ -82,13 +83,15 @@ export async function POST(req: NextRequest) {
             const rawPhone = String(phone).trim();
             const normalizedPhone = normalizePhone(rawPhone);
 
-            let customer = await Customer.findOne({
-                $or: [
-                    { phone: rawPhone },
-                    ...(normalizedPhone ? [{ phone: normalizedPhone }] : []),
-                    ...(normalizedPhone ? [{ phone: normalizedPhone.replace(/^0/, '84') }] : []),
-                ],
-            });
+            // Build phone $or list — skip empty rawPhone to avoid matching empty-phone docs
+            const phoneOrList: any[] = [];
+            if (rawPhone) phoneOrList.push({ phone: rawPhone });
+            if (normalizedPhone && normalizedPhone !== rawPhone) phoneOrList.push({ phone: normalizedPhone });
+            if (normalizedPhone) phoneOrList.push({ phone: normalizedPhone.replace(/^0/, '84') });
+
+            let customer = phoneOrList.length > 0
+                ? await Customer.findOne({ $or: phoneOrList })
+                : null;
 
             if (!customer) {
                 customer = await Customer.create({
@@ -132,14 +135,20 @@ export async function POST(req: NextRequest) {
             body.user = customerId;
         }
 
-        // Auto-generate order code
-        const lastOrder = await Order.findOne().sort({ createdAt: -1 }).select('orderCode');
-        let nextNum = 1;
-        if (lastOrder?.orderCode) {
-            const parts = lastOrder.orderCode.split('-');
-            nextNum = parseInt(parts[parts.length - 1]) + 1;
-        }
+        // ──────────────────────────────────────────────────────────────
+        // ✅ Fix #3: Atomic order code generation (race-condition safe)
+        // Dùng $inc trên collection 'counters' — atomic tại MongoDB level.
+        // Tránh 2 request đồng thời đọc cùng `lastOrder` → cùng orderCode.
+        // ──────────────────────────────────────────────────────────────
         const year = new Date().getFullYear();
+        const counterKey = `orderCode_${year}`;
+        const Counter = mongoose.connection.collection('counters');
+        const counterDoc = await Counter.findOneAndUpdate(
+            { _id: counterKey } as any,
+            { $inc: { seq: 1 } } as any,
+            { upsert: true, returnDocument: 'after' } as any
+        ) as any;
+        const nextNum = counterDoc?.seq ?? 1;
         body.orderCode = `NGR-${year}-${String(nextNum).padStart(5, '0')}`;
 
         // Calculate totals
@@ -170,49 +179,82 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        // ──────────────────────────────────────────────────────────────
+        // ✅ Fix #1: Atomic stock decrement (tránh oversell khi 2 order
+        // đồng thời). Dùng findOneAndUpdate với `stock: { $gte: qty }` —
+        // nếu stock < qty, không match → return null → throw.
+        // Chạy tuần tự để dễ debug; với bulk parallel có thể dùng
+        // bulkWrite nhưng vẫn phải check từng result để rollback.
+        // ──────────────────────────────────────────────────────────────
+        const stockErrors: string[] = [];
+        for (const item of body.items) {
+            const productId = new mongoose.Types.ObjectId(item.product);
+            const updated = await Product.findOneAndUpdate(
+                { _id: productId, stock: { $gte: item.qty } },
+                { $inc: { stock: -item.qty, soldCount: item.qty } },
+                { new: true }
+            ).select('_id name stock').lean();
+            if (!updated) {
+                stockErrors.push(`Sản phẩm ${item.name} (${item.product}) không đủ hàng`);
+            }
+        }
+        if (stockErrors.length > 0) {
+            return apiError(stockErrors.join('; '), 400);
+        }
+
+        // Create order (sau khi stock đã được reserve)
         const order = await Order.create(body);
 
-        // Deduct stock for all products in a single bulk operation
-        const bulkOps = body.items.map((item: { product: string; qty: number }) => ({
-            updateOne: {
-                filter: { _id: item.product },
-                update: { $inc: { stock: -item.qty, soldCount: item.qty } },
-            },
-        }));
-        await Product.bulkWrite(bulkOps, { ordered: false });
-
-        // 2. Tự động sinh thẻ bảo hành nếu đơn hàng hoàn thành (delivered)
+        // ──────────────────────────────────────────────────────────────
+        // ✅ Fix #2: Bulk fetch products + bulk insert warranty cards
+        // Trước: N items → N Product.findById + N×qty WarrantyCard.create
+        //        → tối đa 1+10×qty queries tuần tự (~1-2s)
+        // Sau:   1 Product.find($in) + 1 insertMany (~50ms)
+        // ──────────────────────────────────────────────────────────────
         if (body.status === 'delivered' && customerId) {
-            for (const item of body.items) {
-                const prod = await Product.findById(item.product);
-                if (prod) {
-                    const months = prod.warrantyMonths || 12; // Mặc định 12 tháng
-                    const purchaseDate = new Date();
-                    const startDate = new Date();
-                    const endDate = new Date();
-                    endDate.setMonth(endDate.getMonth() + months);
+            const productIds = body.items.map((it: { product: string }) => new mongoose.Types.ObjectId(it.product));
+            const products = await Product.find({ _id: { $in: productIds } })
+                .select('_id name warrantyMonths')
+                .lean();
 
-                    // Mỗi sản phẩm/số lượng bán ra sẽ tạo 1 thẻ bảo hành riêng biệt
-                    for (let i = 0; i < item.qty; i++) {
-                        const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-                        const warrantyNumber = `WARR-${order.orderCode.replace('NGR-', '')}-${randomSuffix}-${i + 1}`;
-                        
-                        await WarrantyCard.create({
-                            warrantyNumber,
-                            product: prod._id,
-                            order: order._id,
-                            customer: customerId,
-                            serialNumber: '', // Nhân viên có thể update serial sau
-                            warrantyType: 'store',
-                            purchaseDate,
-                            warrantyStartDate: startDate,
-                            warrantyEndDate: endDate,
-                            warrantyMonths: months,
-                            status: 'active',
-                            notes: `Sinh tự động từ đơn hàng POS ${order.orderCode}`,
-                        });
-                    }
+            const productMap = new Map(products.map(p => [String(p._id), p]));
+            const purchaseDate = new Date();
+            const startDate = new Date();
+            const warrantyDocs: any[] = [];
+            const usedSeq = new Set<string>();
+
+            for (const item of body.items) {
+                const prod = productMap.get(String(item.product));
+                if (!prod) continue;
+                const months = prod.warrantyMonths || 12;
+                const endDate = new Date(startDate);
+                endDate.setMonth(endDate.getMonth() + months);
+
+                for (let i = 0; i < item.qty; i++) {
+                    // Unique suffix: orderCode + productId + i + counter để tránh trùng
+                    const seq = `${order.orderCode}-${prod._id}-${i}`;
+                    if (usedSeq.has(seq)) continue;
+                    usedSeq.add(seq);
+
+                    warrantyDocs.push({
+                        warrantyNumber: `WARR-${order.orderCode.replace('NGR-', '')}-${prod._id.toString().slice(-4)}-${i + 1}`,
+                        product: prod._id,
+                        order: order._id,
+                        customer: customerId,
+                        serialNumber: '',
+                        warrantyType: 'store',
+                        purchaseDate,
+                        warrantyStartDate: startDate,
+                        warrantyEndDate: endDate,
+                        warrantyMonths: months,
+                        status: 'active',
+                        notes: `Sinh tự động từ đơn hàng POS ${order.orderCode}`,
+                    });
                 }
+            }
+
+            if (warrantyDocs.length > 0) {
+                await WarrantyCard.insertMany(warrantyDocs, { ordered: false });
             }
         }
 

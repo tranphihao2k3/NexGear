@@ -6,6 +6,10 @@ import type { NextConfig } from 'next'
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
 
 const nextConfig: NextConfig = {
+  // Workaround cho Turbopack bug khi next-auth import 'next/server' không có .js
+  // @see https://github.com/nextauthjs/next-auth/discussions/10058
+  transpilePackages: ['next-auth', 'next-auth/providers', '@auth/core'],
+
   // ⚠️ Quan trọng cho Cloudflare Workers:
   // Loại trừ các package nặng khỏi bundle server để tránh vượt
   // giới hạn 3 MiB (Free plan) / 10 MiB (Paid plan) của Worker.
@@ -47,8 +51,10 @@ const nextConfig: NextConfig = {
     `,
   },
 
-  // Images from external CDN / cPanel / any domain for logos
   images: {
+    // Workers không có sharp → /_next/image fail với ảnh lớn.
+    // Tắt optimizer; serve thẳng URL gốc (cPanel / R2 đã tối ưu sẵn).
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'http',
@@ -60,13 +66,17 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**', // Cho phép mọi HTTPS domain (logo, CDN)
+        hostname: '**',
       },
       {
         protocol: 'http',
-        hostname: '**', // Cho phép mọi HTTP domain (dev / local CDN)
+        hostname: '**',
       },
     ],
+  },
+
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'date-fns', '@tiptap/core'],
   },
 
   // Giữ console.log trong dev, xóa trong production

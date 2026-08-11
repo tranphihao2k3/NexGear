@@ -4,6 +4,7 @@
   "compatibility_date": "2025-05-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "main": ".open-next/worker.js",
+  "keep_names": false,
 
   "assets": {
     "directory": ".open-next/assets",

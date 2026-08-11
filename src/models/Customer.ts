@@ -41,10 +41,12 @@ const CustomerSchema = new Schema<ICustomer>(
     { timestamps: true }
 );
 
-CustomerSchema.index({ phone: 1 }, { unique: true });
-CustomerSchema.index({ email: 1 });
+CustomerSchema.index({ phone: 1 }, { unique: true, partialFilterExpression: { phone: { $not: { $regex: '^POS-' } } } });
+CustomerSchema.index({ email: 1 }, { sparse: true });
 CustomerSchema.index({ customerType: 1 });
 CustomerSchema.index({ totalSpent: -1 });
+CustomerSchema.index({ status: 1, createdAt: -1 });
+CustomerSchema.index({ createdAt: -1 });
 
 const Customer = models.Customer || model<ICustomer>('Customer', CustomerSchema);
 export default Customer;
