@@ -56,3 +56,9 @@ next-env.d.ts
 
 
 /image-server
+
+# OpenNext / Cloudflare Workers
+/.open-next/
+/.open-next-dist/
+/.wrangler/
+/cloudflare-env.d.ts

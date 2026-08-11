@@ -1,9 +1,23 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
-import OpenAI from 'openai';
 import dbConnect from '@/lib/mongodb';
 import { Product, Category } from '@/models';
 import { getSiteSettings } from '@/lib/site-config';
+
+// ⚠️ Lazy import: KHÔNG bundle @google/genai + openai vào server worker.
+// Cloudflare Workers có giới hạn size (3 MiB free / 10 MiB paid),
+// mỗi SDK nặng ~hơn 1 MB nên cần dynamic import để giữ bundle nhỏ.
+type GoogleGenAIConstructor = new (opts: { apiKey: string }) => any;
+type OpenAIConstructor = new (opts: { apiKey: string }) => any;
+
+async function getGeminiClient(apiKey: string) {
+    const mod = (await import('@google/genai')) as { GoogleGenAI: GoogleGenAIConstructor };
+    return new mod.GoogleGenAI({ apiKey });
+}
+
+async function getOpenAIClient(apiKey: string) {
+    const mod = (await import('openai')) as { default: OpenAIConstructor };
+    return new mod.default({ apiKey });
+}
 
 // ─── Prompt builder ──────────────────────────────────────────────────────────
 
@@ -71,7 +85,7 @@ async function tryGemini(prompt: string): Promise<string | null> {
     for (let k = 0; k < keys.length; k++) {
         const keyIdx = (startIdx + k) % keys.length;
         const apiKey = keys[keyIdx];
-        const client = new GoogleGenAI({ apiKey });
+        const client = await getGeminiClient(apiKey);
 
         for (const model of models) {
             try {
@@ -97,7 +111,7 @@ async function tryOpenAI(prompt: string): Promise<string | null> {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return null;
 
-    const client = new OpenAI({ apiKey });
+    const client = await getOpenAIClient(apiKey);
     const models = ['gpt-4o-mini', 'gpt-4o'];
 
     for (const model of models) {

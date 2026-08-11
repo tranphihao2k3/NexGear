@@ -1,10 +1,11 @@
 import mongoose from 'mongoose';
 
+/**
+ * ⚠️ KHÔNG throw ở top-level khi build — Cloudflare Workers build sẽ fail
+ * ở route /_not-found nếu throw lúc module evaluation.
+ *  Thay vào đó, kiểm tra lúc gọi dbConnect() thật sự.
+ */
 const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-    throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
-}
 
 /**
  * Global is used here to maintain a cached connection across hot reloads
@@ -41,6 +42,10 @@ function registerModels() {
 }
 
 async function dbConnect() {
+    if (!MONGODB_URI) {
+        throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+    }
+
     if (cached.conn) {
         registerModels();
         return cached.conn;

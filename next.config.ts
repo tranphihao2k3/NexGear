@@ -3,8 +3,40 @@
 // File: next.config.ts
 // ============================================================
 import type { NextConfig } from 'next'
+import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare'
 
 const nextConfig: NextConfig = {
+  // ⚠️ Quan trọng cho Cloudflare Workers:
+  // Loại trừ các package nặng khỏi bundle server để tránh vượt
+  // giới hạn 3 MiB (Free plan) / 10 MiB (Paid plan) của Worker.
+  serverExternalPackages: [
+    'mongoose',
+    'mongodb',
+    '@google/genai',
+    'openai',
+    'bcryptjs',
+    'pusher',
+    'next-auth',
+    '@auth/core',
+    'jose',
+    // Thêm các package nặng khác:
+    'xlsx',                 // Excel parsing - nặng
+    '@tiptap/pm',           // ProseMirror - nặng
+    '@tiptap/starter-kit',
+    '@react-three/fiber',   // Three.js - rất nặng
+    '@react-three/drei',
+    'three',
+    'framer-motion',
+    'gsap',
+    'html2canvas-pro',
+    'yet-another-react-lightbox',
+    'swiper',
+    '@tanstack/react-query',
+    'react-hook-form',
+    'zod',
+    'jsonwebtoken',
+  ],
+
   // Bật SCSS modules
   sassOptions: {
     // Tự động inject @use vào mọi module.scss
@@ -62,3 +94,6 @@ const nextConfig: NextConfig = {
 
 
 export default nextConfig
+
+// Khởi tạo Cloudflare bindings cho local dev (KV, R2, D1, etc.)
+initOpenNextCloudflareForDev()

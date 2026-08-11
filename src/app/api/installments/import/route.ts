@@ -2,7 +2,6 @@ import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import InstallmentPlan from '@/models/InstallmentPlan';
 import { apiSuccess, apiError } from '@/lib/api-helpers';
-import * as XLSX from 'xlsx';
 
 // POST /api/installments/import — upload Excel file
 // Excel format: first column = loan amounts, remaining columns = monthly payments per term
@@ -15,6 +14,9 @@ export async function POST(req: NextRequest) {
         const provider = formData.get('provider') as string;
 
         if (!file || !provider) return apiError('file and provider are required');
+
+        // Dynamic import: xlsx (~600 KB) tách thành chunk riêng, không bundle vào worker chính
+        const XLSX = await import('xlsx');
 
         const buffer = Buffer.from(await file.arrayBuffer());
         const workbook = XLSX.read(buffer, { type: 'buffer' });
